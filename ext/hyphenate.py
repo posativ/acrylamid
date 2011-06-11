@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 
+# TODO: hyph-en, language parameter in blog entry, german exceptions?!
+# TODO: less agressive, more xhtml conform 
+
 """ Hyphenation, using Frank Liang's algorithm.
 
     This module provides a single function to hyphenate words.  hyphenate_word takes 
@@ -17,7 +20,8 @@
     This Python code is in the public domain.
 """
 
-import re
+import re #, locale
+#locale.setlocale(locale.LC_ALL, 'de_DE')
 
 __version__ = '1.0.20070709'
 
@@ -36,7 +40,7 @@ class Hyphenator:
         # Convert the a pattern like 'a1bc3d4' into a string of chars 'abcd'
         # and a list of points [ 1, 0, 3, 4 ].
         chars = re.sub('[0-9]', '', pattern)
-        points = [ int(d or 0) for d in re.split("[.a-z]", pattern) ]
+        points = [ int(d or 0) for d in re.split(u"[.a-zäöüßçáâàéèêëíñôó]", pattern, flags=re.U) ]
 
         # Insert the pattern into the tree.  Each character finds a dict
         # another level down in the tree, and leaf nodes have the list of
@@ -83,8 +87,8 @@ class Hyphenator:
                 pieces.append('')
         return pieces
 
-patterns = # hyph-de.tex from July 2011
-"""
+# hyph-de.tex from July 2011
+patterns = u"""
 .ab1a .abi4 .ab3l .abo2 .ab3ol .ab1or .ack2 .ag4n .ag4r .ag2u .ai2s .akt2a 
 .al3br .al2e .al5l4en .al4tei .alt3s .ampe4 .amt4s3 .an3d2 .anden6k .and4ri 
 .ang2 .an3gli .angs4 .angst3 .an3s .an4si. .ans2p .ans2t .an4tag .an3th .apo1 
@@ -1299,11 +1303,14 @@ hyphenate_word = hyphenator.hyphenate_word
 del patterns
 del exceptions
 
-if __name__ == '__main__':
-    import sys
-    if len(sys.argv) > 1:
-        for word in sys.argv[1:]:
-            print '-'.join(hyphenate_word(word))
-    else:
-        import doctest
-        doctest.testmod(verbose=True)
+def cb_postformat(args):
+    
+    body = args['entry']['body']
+    
+    def hyphenate(match):
+        if len(match.group(0)) > 10:
+            return '&shy;'.join(hyphenate_word(match.group(0))) 
+        else:
+            return match.group(0)
+    
+    return re.sub('[^<:/".][a-zäöüßçáâàéèêëíñôó]+[^>/"]', hyphenate, body, flags=re.I)

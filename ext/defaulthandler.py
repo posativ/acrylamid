@@ -44,7 +44,9 @@ def cb_handle(request):
                 'entryparser',
                 {'entry': entry, 'config': request._config},
                 donefunc=lambda x: x != None)
+        print entry['body']
         break
+        
 
 def cb_filelist(request):
     """This is the default handler for getting entries.  It takes the
@@ -84,10 +86,10 @@ def cb_sortlist(request):
     entry_list.sort(key=lambda k: k._date)
     return request
 
-def cb_entryparser(args):
+def cb_entryparser(request):
     
-    entry = args['entry']
-    config = args['config']
+    entry = request['entry']
+    config = request['config']
     
     entry['body'] = tools.run_callback(
             'preformat',
@@ -106,7 +108,6 @@ def cb_entryparser(args):
             donefunc=lambda x: x != None,
             defaultfunc=lambda x: x['entry']['body'])
     
-    print entry['body']
     return entry
 
 def cb_format(args):
