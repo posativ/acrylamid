@@ -1,0 +1,97 @@
+---
+title: lilith - eine Einführung
+parser: Markdown
+date: 08.08.2010, 17:56
+tags: [PyBlosxom, Python, reStructuredText, Markdown]
+---
+
+Wie versprochen gibt es nun mehr über lilith. Ich hatte ja [mal kurz erwähnt][], wieso, weshalb und
+warum ich mich für eine neue Software entschieden habe – von mir selbst entworfen. Hier mal ein paar
+Grundinformationen.
+
+[mal kurz erwähnt]: http://blog.posativ.org/?p=13bcd77
+
+Wie PyBlosxom...
+================
+
+[PyBlosxom](http://pyblosxom.sourceforge.net/) ist nicht schlecht. Gerade das Konzept hat mir zugesagt:
+keine Datenbank, keine Weboberfläche zum Editieren und gute Erweiterbarkeit. Leider ist letzteres sehr
+schwierig gewesen, da die Dokumentation hoffnungslos veraltet ist und auch so die API sehr umfangreich
+ist (was nachteilig wie vorteilig sein kann).
+
+Hier mal eine Liste der Features, die ich sinnvoll fand *(Version [1.43][])*:
+
+- kein Datenbank-Backend notwendig
+- mehrere Plugins für Markupsprachen wie [reST][] und [textile][]
+- gezielte Angaben von Parsern im Eintrag wie `#parser: reST`
+- CGI-only
+- physische Kontrolle über das gesamte Blog, da komplett mit
+  der Dateistruktur gearbeitet wird
+
+nicht so sinnvoll fand ich hingegen:
+
+- dynamisches Rendering des Index' ohne Caching *(dauert ewig!)*
+- Rendering in statisches HTML mit [elendig langen Pfadnamen](http://blog.posativ.org/files/?p=redirect.conf.html)
+- kein automatisches HTML-Rendering, wenn ein Beitrag geändert wurde
+- schwierige Erweiterbarkeit durch die komplexe, schlecht dokumentierte API
+
+[reST]: http://docutils.sourceforge.net/rst.html
+[textile]: http://textile.thresholdstate.com/
+[1.43]: http://pyblosxom.bluesock.org/download/pyblosxom-1.4.3.tar.gz
+
+... nur besser
+==============
+
+- Dateistruktur und inline-Eigenschaften bei Einträgen
+- Unterstützung für die Markup-Sprachen: <a href="http://docutils.sourceforge.net/rst.html">reStructuredText</a>, <a href="http://daringfireball.net/projects/markdown/">Markdown</a>, <a href="http://textile.thresholdstate.com/">textile</a>, <a href="http://www.methods.co.nz/asciidoc/">AsciiDoc</a>
+- Syntax Highlighting für reStructuredText und Markdown
+- XHTML Strict 1.0
+- hohe Performance durch exzessives Cachen der Einträge
+- dynamisch: `?p=hash`, `?cat=kategorie/subkategorie`, `?tag=linux,last.fm`
+- RSS 2.0 und Atom Feeds
+- schlichte, einfache API
+- ungefähr 1100 Lines of Code *(ohne Plugins)*
+
+Mit lilith habe ich die positiven Aspekte von PyBlosxom übernommen und teilweise noch verfeinert.
+So wird das Blog wie aus PyBlosxom gewohnt mit einzelnen Textdateien geschrieben, deren relativen
+Pfade zum Blog die Kategorien wiederspiegeln. Mein */entries* sieht z.B. so aus ([vollständig][]):
+
+    :::text
+    |-- ichichich
+    |   |-- Musik
+    |   |   `-- empfehlungs-modell.txt
+    |   `-- status
+    |       |-- ich lebe.txt
+    |       |-- Statistiken und so.txt
+    |       |-- update II.txt
+    |       `-- update I.txt
+    |-- lilith
+    |   `-- lilith - eine Einführung.txt
+
+[vollständig]: http://blog.posativ.org/files/?p=entries.txt
+
+Der Eintrag selbst besteht aus einem Kopf mit diversen Angaben wie Titel, Parser und optional Datum
+sowie Tags:
+
+    :::text
+    Der facebook-„Leak“
+
+    #parser: Markdown
+    #date:   _31.07.2010 16:07
+    #tags:   linux; leak; ruby; fail; thepiratebay.org; facebook; 
+
+    Seit gestern früh gibt es einen [gewaltigen Torrent][] in der Piratenbucht *(hatten die
+    [...]
+
+Dabei steht die erste Zeile immer für den Titel (Dateinamen unterliegen diversen Beschränkungen),
+danach kann optional eine leere Zeile kommen, auf die dann die Angaben durch ein Hash gekennzeichnet
+werden.  
+`#date` und `#tags` sind optional, ersteres ist aber des öfteren praktisch – lilith setzt das Datum
+anhand des Erstellungsdatums der Datei, was allerdings bei diversen schlecht konfigurierten
+FTP-Servern (hosteurope.de z.B.) immer auf den Zeitpunkt der Übertragung gesetzt wird.
+
+Das ist das grobe Konzept hinter lilith. Mal sehen, ob ich damit die Weltherrschaft an mich reißen kann.
+
+ps: noch kann ich es nicht veröffentlichen, da mir eine Lizenz fehlt und das CSS eigentlich [geklaut ist][] ;-)
+
+[geklaut ist]: http://sushee.schreibsturm.org/

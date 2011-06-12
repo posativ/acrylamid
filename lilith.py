@@ -118,6 +118,6 @@ if __name__ == '__main__':
     from yaml import load
     
     conf = load(open('lilith.conf').read())
-    asserttools.check_conf(conf)
+    assert tools.check_conf(conf)
     l = Lilith(config=conf, environ={}, data={})
     l.run()

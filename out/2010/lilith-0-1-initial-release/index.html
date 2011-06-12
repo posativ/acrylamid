@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+  <title>
+   posativs Blog: - Seite Index
+  </title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="content-language" content="de, en" />
+  <meta content="Mein persönliches Blog über Wuala, Python und alles, was mich so bewegt" name="description" />
+  <meta content="Arch Linux, Apple, Python, lilith, Planet, iPhone, Linux, Wuala" name="keywords" />
+  <link media="all" href="http://blog.posativ.org/blog.css" type="text/css" rel="stylesheet" />
+  <link href="http://blog.posativ.org/favicon.ico" rel="shortcut icon" />
+  <link href="http://blog.posativ.org/" rel="home" />
+  <link href="http://blog.posativ.org/feed/atom" type="application/atom+xml" rel="alternate" title="Atom-Feed" />
+  <link href="http://blog.posativ.org/feed/rss" type="application/rss+xml" rel="alternate" title="RSS-Feed" />
+ </head>
+ <body>
+  <div id="blogheader">
+   <div id="blogtitle">
+    <h2>
+     <a href="http://blog.posativ.org/" class="blogtitle">
+      mecker. mecker. mecker.
+     </a>
+    </h2>
+   </div>
+   <div id="mainlinks">
+    <ul>
+     <li>
+      <a href="http://blog.posativ.org/">
+       blog
+      </a>
+     </li>
+     <li>
+      <a href="http://blog.posativ.org/feed/atom">
+       atom
+      </a>
+     </li>
+     <li>
+      <a href="http://blog.posativ.org/feed/rss">
+       rss
+      </a>
+     </li>
+     <li>
+      <a href="http://blog.posativ.org/articles">
+       articles
+      </a>
+     </li>
+    </ul>
+   </div>
+  </div>
+  <div id="blogbody">
+      <div class="posting">
+    <div class="postheader">
+        <h1 class="subject">
+            <a href="http://blog.posativ.org/2010/lilith-0-1-initial-release/">lilith 0.1 – Initial Release</a>
+        </h1>
+        <span class="date">29.08.2010, 21:58</span>
+    </div>
+    <div class="postbody">
+        <p>Vor ein, zwei Wochen habe ich klamm&shy;heim&shy;li&shy;ch <em>lilith</em> <a href="http://posativ.org/lilith/">veröffent&shy;lich&shy;t</a>. lilith ist ein Blog&shy;sys&shy;te&shy;m
+á la <a href="http://wordpress.com/">Word&shy;Pres&shy;s</a>, ge&shy;schrie&shy;ben in Python und basiert auf reinen Text&shy;da&shy;tei&shy;en.
+Mein Blog selbst nutzt seit Ende Juli lilith und läuft ziemlich rund, wie ich finde.</p>
+<p><em>lilith</em> ist benannt nach dem weib&shy;li&shy;chen Haupt&shy;cha&shy;rak&shy;ter in <em>Samsas Traums'</em> Konzept-Alben
+<em>„Die Liebe Gottes“</em> und <em>„Ti&shy;neo&shy;ide&shy;a oder: Die Folgen einer Nacht“</em>. Letz&shy;te&shy;res ist wirklich
+emp&shy;feh&shy;lens&shy;wer&shy;t.</p>
+<ul>
+<li><a href="http://posativ.org/lilith/">Pro&shy;jekt&shy;sei&shy;te</a></li>
+<li><a href="http://posativ.org/lilith/do&shy;cu&shy;men&shy;ta&shy;ti&shy;on/tutorial">Quick&shy;star&shy;t Tutorial</a></li>
+<li><a href="http://blog.posativ.org/?p=3d66f5e">Einführung</a></li>
+</ul>
+<h2>Features</h2>
+<p>lilith ist mit der Pro&shy;gram&shy;mier&shy;spra&shy;che Python in knapp 1100 Zeilen ge&shy;schrie&shy;ben. Derzeit
+einzig unter 2.6 getestet ist es ver&shy;gleichs&shy;wei&shy;se schnell. Aufruf der Haupt&shy;sei&shy;te in ca. 220 ms
+und Di&shy;rekt&shy;auf&shy;ruf eines Beitrags in 130 ms (<a href="http://de.wikipedia.org/wiki/Common_Gateway_Interface">CGI</a>).
+Ich weiß jetzt nicht genau, wie schnell WordPress ist, aber unter drei Sekunden geht da im Web
+für gewöhnlich nichts; al&shy;ler&shy;dings weiß ich auch nicht, wie gut lilith skaliert (wird noch getestet).</p>
+<p>Hier eine Liste der Enduser-Features:</p>
+<ul>
+<li>Posts per Hash aufrufbar <code>?p=hash</code></li>
+<li>Tags und Ka&shy;te&shy;go&shy;ri&shy;en via <code>?tag=1,2,3</code> und <code>?cat=4,5,6</code>, kom&shy;bi&shy;nier&shy;bar (<code>&amp;</code>), auch für Feeds</li>
+<li>Unterstützung von <a href="http://docutils.sourcef&shy;or&shy;ge.net/rst.html">re&shy;Struc&shy;tu&shy;red&shy;Tex&shy;t</a>,
+  <a href="http://dar&shy;ing&shy;fire&shy;b&shy;al&shy;l.net/projects/markdown/">Markdown</a>, <a href="http://textile.thres&shy;hold&shy;sta&shy;te.com/">textile</a>,
+  <a href="http://www.methods.co.nz/asciidoc/">AsciiDoc</a>, HTML</li></li>
+<li>„Vorschau“ von Beiträgen</li>
+<li>trans&shy;pa&shy;ren&shy;te Post&shy;ver&shy;wal&shy;tun&shy;g über das Da&shy;tei&shy;sys&shy;te&shy;m</li>
+</ul>
+<p>Für „advanced“ User:</p>
+<ul>
+<li>ein&shy;fa&shy;ches API für Einträge</li>
+<li>Syntax High&shy;light&shy;in&shy;g für re&shy;Struc&shy;tu&shy;red&shy;Tex&shy;t und Markdown</li>
+<li>Caching der Einträge für hohe Per&shy;for&shy;man&shy;ce</li>
+<li>XHTML 1.0 Strict</li>
+<li>RSS 2.0 und Atom 1.0</li>
+<li>CGI</li>
+</ul>
+<h2>Li&shy;zen&shy;sie&shy;run&shy;g und Third-Party-Code</h2>
+<p>Derzeit steht lilith unter der <a href="http://www.sun.com/cddl/">CDDL</a> und verwendet folgende Module:</p>
+<ul>
+<li><a href="http://code.google.com/p/dirty/">dirty</a>: Dirty is a simple EDSL template library that helps you to write some HTML or XML markup with Python</li>
+<li><a href="http://shpaml.web&shy;fac&shy;tio&shy;nal.com/">shpaml</a>: SHPAML is a mini language that can help you to build web pages more quickly</li>
+<li><a href="http://docutils.sourcef&shy;or&shy;ge.net/">docutils</a>: re&shy;Struc&shy;tu&shy;red&shy;Tex&shy;t support</li>
+<li><a href="http://dar&shy;ing&shy;fire&shy;b&shy;al&shy;l.net/projects/markdown/">markdown</a>: Markdown support</li>
+<li><a href="http://textile.thres&shy;hold&shy;sta&shy;te.com/">textile</a>: textile support</li>
+<li><a href="http://www.methods.co.nz/asciidoc/">AsciiDoc</a>: AsciiDoc support</li>
+<li><a href="http://code.ac&shy;tive&shy;sta&shy;te.com/recipes/499336-sum&shy;ma&shy;ri&shy;zin&shy;g-xhtml/">sum&shy;ma&shy;ri&shy;ze XHTML</a>: for sum&shy;ma&shy;ri&shy;zin&shy;g entries on index pages</li>
+<li><a href="http://pygments.org/">Pygments</a>: syntax high&shy;light&shy;in&shy;g for reST and Markdown</li>
+</ul>
+<h2>Weitere Ent&shy;wick&shy;lun&shy;g</h2>
+<p>Mit Version 0.1 ist lilith stabil ein&shy;setz&shy;bar, jedoch noch zu sehr auf mein eigenes Blog zu&shy;ge&shy;schnit&shy;ten.
+Version 0.2 ist daher in Arbeit und be&shy;inhal&shy;te&shy;t unter anderem die Mög&shy;lich&shy;keit, in HTML zu templaten.
+Generell habe ich das Ge&shy;samt&shy;kon&shy;zep&shy;t noch einmal stark mo&shy;di&shy;fi&shy;zier&shy;t und so alle Markup-Sprachen über
+API-Module im&shy;ple&shy;men&shy;tier&shy;t und böse „Hacks“ entfernt.</p>
+<p>Die der&shy;zei&shy;ti&shy;ge Ent&shy;wick&shy;ler&shy;ver&shy;si&shy;on enthält 300 Zeilen weniger Code und benötigt die shpaml-Bi&shy;blio&shy;the&shy;k nicht
+mehr und ist dazu noch einmal um 80 ms schneller geworden. Mit einem Release rechne ich in der übernächsten
+Woche.</p>
+    </div>
+</div>
+   <a href="/page/" class="page floatright">
+    ältere Beiträge →
+   </a>
+   <a href="/page/" class="page floatright">
+    ältere Beiträge →
+   </a>
+  </div>
+  <div id="blogfooter">
+   <p>
+    written by
+    <a href="mailto: info@posativ.org">
+     posativ
+    </a>
+   </p>
+   <a href="http://creativecommons.org/licenses/by-nc-sa/2.0/de/">
+    <img src="img/p=cc.png" alt="by-nc-sa" />
+   </a>
+  </div>
+ </body>
+</html>

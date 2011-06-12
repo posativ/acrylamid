@@ -1,0 +1,77 @@
+---
+title: lilith 0.1 – Initial Release
+parser: Markdown
+date: 29.08.2010, 21:58
+tags: [Release, Python, Blog, WordPress, CDDL, Samsas Traum,]
+wordlist: [Ge-samt-kon-zept, ]
+---
+
+Vor ein, zwei Wochen habe ich klammheimlich *lilith* [veröffentlicht][]. lilith ist ein Blogsystem
+á la [WordPress](http://wordpress.com/), geschrieben in Python und basiert auf reinen Textdateien.
+Mein Blog selbst nutzt seit Ende Juli lilith und läuft ziemlich rund, wie ich finde.
+
+*lilith* ist benannt nach dem weiblichen Hauptcharakter in *Samsas Traums'* Konzept-Alben
+*„Die Liebe Gottes“* und *„Tineoidea oder: Die Folgen einer Nacht“*. Letzteres ist wirklich
+empfehlenswert.
+
+- [Projektseite](http://posativ.org/lilith/)
+- [Quickstart Tutorial](http://posativ.org/lilith/documentation/tutorial)
+- [Einführung](http://blog.posativ.org/?p=3d66f5e)
+
+[veröffentlicht]: http://posativ.org/lilith/
+
+Features
+========
+
+lilith ist mit der Programmiersprache Python in knapp 1100 Zeilen geschrieben. Derzeit
+einzig unter 2.6 getestet ist es vergleichsweise schnell. Aufruf der Hauptseite in ca. 220 ms
+und Direktaufruf eines Beitrags in 130 ms ([CGI][]).
+Ich weiß jetzt nicht genau, wie schnell WordPress ist, aber unter drei Sekunden geht da im Web
+für gewöhnlich nichts; allerdings weiß ich auch nicht, wie gut lilith skaliert (wird noch getestet).
+
+[CGI]: http://de.wikipedia.org/wiki/Common_Gateway_Interface
+
+Hier eine Liste der Enduser-Features:
+
+- Posts per Hash aufrufbar `?p=hash`
+- Tags und Kategorien via `?tag=1,2,3` und `?cat=4,5,6`, kombinierbar (`&`), auch für Feeds
+- Unterstützung von <a href="http://docutils.sourceforge.net/rst.html">reStructuredText</a>,
+  <a href="http://daringfireball.net/projects/markdown/">Markdown</a>, <a href="http://textile.thresholdstate.com/">textile</a>,
+  <a href="http://www.methods.co.nz/asciidoc/">AsciiDoc</a>, HTML</li>
+- „Vorschau“ von Beiträgen
+- transparente Postverwaltung über das Dateisystem
+
+Für „advanced“ User:
+
+- einfaches API für Einträge
+- Syntax Highlighting für reStructuredText und Markdown
+- Caching der Einträge für hohe Performance
+- XHTML 1.0 Strict
+- RSS 2.0 und Atom 1.0
+- CGI
+
+Lizensierung und Third-Party-Code
+=================================
+
+Derzeit steht lilith unter der [CDDL](http://www.sun.com/cddl/) und verwendet folgende Module:
+
+- [dirty](http://code.google.com/p/dirty/): Dirty is a simple EDSL template library that helps you to write some HTML or XML markup with Python
+- [shpaml](http://shpaml.webfactional.com/): SHPAML is a mini language that can help you to build web pages more quickly
+- [docutils](http://docutils.sourceforge.net/): reStructuredText support
+- [markdown](http://daringfireball.net/projects/markdown/): Markdown support
+- [textile](http://textile.thresholdstate.com/): textile support
+- [AsciiDoc](http://www.methods.co.nz/asciidoc/): AsciiDoc support
+- [summarize XHTML](http://code.activestate.com/recipes/499336-summarizing-xhtml/): for summarizing entries on index pages
+- [Pygments](http://pygments.org/): syntax highlighting for reST and Markdown
+
+Weitere Entwicklung
+===================
+
+Mit Version 0.1 ist lilith stabil einsetzbar, jedoch noch zu sehr auf mein eigenes Blog zugeschnitten.
+Version 0.2 ist daher in Arbeit und beinhaltet unter anderem die Möglichkeit, in HTML zu templaten.
+Generell habe ich das Gesamtkonzept noch einmal stark modifiziert und so alle Markup-Sprachen über
+API-Module implementiert und böse „Hacks“ entfernt.
+
+Die derzeitige Entwicklerversion enthält 300 Zeilen weniger Code und benötigt die shpaml-Bibliothek nicht
+mehr und ist dazu noch einmal um 80 ms schneller geworden. Mit einem Release rechne ich in der übernächsten
+Woche.
