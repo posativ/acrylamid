@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 
-import os
-import tools
+# TODO: donefunc chaos
+
+import os, re
 from datetime import datetime
+
+import tools
 from tools import FileEntry
 
 def cb_handle(request):
@@ -15,7 +18,8 @@ def cb_handle(request):
             - cb_preformat
             - cb_format
             - cb_postformat
-        - cb_layout
+        - cb_item|feed|tags
+        - cb_prepare
     """
     
     config = request._config
@@ -44,9 +48,6 @@ def cb_handle(request):
                 'entryparser',
                 {'entry': entry, 'config': request._config},
                 donefunc=lambda x: x != None)
-        print entry['body']
-        break
-        
 
 def cb_filelist(request):
     """This is the default handler for getting entries.  It takes the
@@ -83,7 +84,7 @@ def cb_filestat(request):
 def cb_sortlist(request):
     
     entry_list = request._data['entry_list']
-    entry_list.sort(key=lambda k: k._date)
+    entry_list.sort(key=lambda k: k._date, reverse=True)
     return request
 
 def cb_entryparser(request):
@@ -118,8 +119,79 @@ def cb_format(args):
     
     if parser.lower() in ['markdown', 'mkdown', 'md']:
         from markdown import markdown
-        return markdown(entry['body'], extensions=['codehilite(css_class=highlight)'])
+        return markdown(entry['body'],
+                        extensions=['codehilite(css_class=highlight)'])
     elif parser.lower() in ['restructuredtest', 'rst', 'rest']:
         return entry['body']
     
     return entry['body']
+    
+def cb_prepare(request):
+    
+    config = request._config
+    data = request._data
+    for i, entry in enumerate(data['entry_list']):
+        safe_title = re.sub('[\W]+', '-', entry['title'], re.U).lower()
+        url = config.get('www_root', '') + '/' \
+              + str(entry['_date'].year) + '/' + safe_title + '/'
+        data['entry_list'][i]['safe_title'] = safe_title
+        data['entry_list'][i]['url'] = url
+        
+    return request
+    
+def cb_item(request):
+    
+    from shpaml import convert_text
+    from jinja2 import Template 
+
+    tt_entry = Template(convert_text(open('layouts/entry.html').read()))
+    tt_main = Template(open('layouts/main.html').read())
+    config = request._config
+    data = request._data
+    
+    date['type'] = 'item'
+    
+    # last preparations
+    request = tools.run_callback(
+            'prepare',
+            request)
+    
+    dict = request._config
+    entry_list = []
+    
+    for entry in data['entry_list']:
+        dict.update({'entry_list': tt_entry.render({'Post': entry}) })
+        html = tt_main.render( dict )
+        
+        directory = os.path.join(config.get('output_dir', 'out'),
+                         str(entry._date.year),
+                         entry.safe_title)
+        path = os.path.join(directory, 'index.html')
+        tools.mk_file(html, entry, path)
+
+def cb_page(request):
+    
+    tt_entry = Template(convert_text(open('layouts/entry.html').read()))
+    tt_main = Template(open('layouts/main.html').read())
+    config = request._config
+    data = request._data
+    
+    date['type'] = 'page'
+    items_per_page = config.get('items_per_page', 6)
+    
+    # last preparations
+    request = tools.run_callback(
+            'prepare',
+            request)
+            
+    dict = request._config
+    entry_list = []
+    for entry in data['entry_list']:
+        entry_list.append(tt_entry.render({'Post': entry}))
+        
+    for mem in [entry_list[i*:]]
+    
+    
+        
+        
+        

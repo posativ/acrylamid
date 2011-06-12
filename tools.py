@@ -4,6 +4,8 @@
 import os
 import yaml
 from datetime import datetime
+from os.path import join, exists, getmtime, dirname
+from time import gmtime
 
 import extensions
 
@@ -163,3 +165,49 @@ class FileEntry:
         
             for key, value in data.iteritems():
                 self[key] = value
+
+def check_conf(conf):
+    """Rudimentary conf checking.  Currently every *_dir except
+    `ext_dir` (it's a list of dirs) is checked wether it exists."""
+    
+    # directories
+    
+    for key, value in conf.iteritems():
+        if key.endswith('_dir') and not key in ['ext_dir', ]:
+            if os.path.exists(value):
+                if os.path.isdir(value):
+                    pass
+                else:
+                    raise OSError('[ERROR] %s has to be a directory' % value)
+            else:
+                os.mkdir(value)
+                print '%s created...' % value
+                
+    return True
+
+def mk_file(content, entry, path, force=False):
+    """Creates entry in filesystem. Overwrite only if content
+    differs.
+    
+    Arguments:
+    content -- rendered html
+    entry -- FileEntry object
+    path -- path to write
+    force -- force overwrite, even nothing has changed (defaults to `False`)
+    """
+    
+    if exists(dirname(path)) and exists(path):
+        old = open(path).read()
+        if content == old and not force:
+            print "[INFO] '%s' is up to date" % entry['title']
+        else:
+            f = open(path, 'w')
+            f.write(content)
+            f.close()
+            print "[INFO] Content of '%s' has changed" % entry['title']
+    else:
+        os.mkdir(dirname(path))
+        f = open(path, 'w')
+        f.write(content)
+        f.close()
+        print "[INFO] '%s' written to %s" % (entry['title'], path)

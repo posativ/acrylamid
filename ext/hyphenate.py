@@ -20,8 +20,7 @@
     This Python code is in the public domain.
 """
 
-import re #, locale
-#locale.setlocale(locale.LC_ALL, 'de_DE')
+import re
 
 __version__ = '1.0.20070709'
 

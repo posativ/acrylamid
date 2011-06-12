@@ -75,7 +75,7 @@ class Lilith:
         self.initialize()
         
         # run the start callback
-        tools.run_callback('start', {'request': self.request})
+        tools.run_callback('start', self.request)
         
         # run the default handler
         tools.run_callback("handle",
@@ -84,7 +84,17 @@ class Lilith:
                         donefunc=lambda x:x)
                 
         # do end callback
-        tools.run_callback('end', {'request': self.request})
+        tools.run_callback('end', self.request)
+        
+        tools.run_callback('item',
+                        self.request,
+                        mappingfunc=lambda x,y:x,
+                        donefunc=lambda x:x)
+        
+        tools.run_callback('page',
+                self.request,
+                mappingfunc=lambda x,y:x,
+                donefunc=lambda x:x)
     
 class Request(object):
     """This class holds the lilith request.  It holds configuration
@@ -103,12 +113,11 @@ class Request(object):
         self._config = config
         self._environ = environ
 
-
 if __name__ == '__main__':
     
     from yaml import load
     
     conf = load(open('lilith.conf').read())
+    asserttools.check_conf(conf)
     l = Lilith(config=conf, environ={}, data={})
     l.run()
-    
