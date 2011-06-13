@@ -127,8 +127,15 @@ class FileEntry:
             raise ValueError('invalid metadata variable: %s' % key)
         self.__dict__[key] = value
         
+    def keys(self):
+        return self.__dict__.keys()
+        
     def has_key(self, key):
         return self.__contains__(key)
+    
+    def iteritems(self):
+        for key in self.keys():
+            yield (key, self[key])
         
     get = __getitem__
 
