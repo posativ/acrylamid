@@ -21,7 +21,7 @@ def cb_prepare(request):
         
         if t in ['item', 'page']:
             data['entry_list'][i]['body'] = h(entry['body'])
-        # elif t == 'feed':
-        #     data['entry_list'][i]['body'] = h(entry['body'])
+        elif t == 'feed':
+            data['entry_list'][i]['body'] = h(h(entry['body']))
             
     return request
