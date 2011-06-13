@@ -87,14 +87,10 @@ class Lilith:
         tools.run_callback('end', self.request)
         
         tools.run_callback('item',
-                        self.request,
-                        mappingfunc=lambda x,y:x,
-                        donefunc=lambda x:x)
+                        self.request)
         
         tools.run_callback('page',
-                self.request,
-                mappingfunc=lambda x,y:x,
-                donefunc=lambda x:x)
+                self.request)
     
 class Request(object):
     """This class holds the lilith request.  It holds configuration

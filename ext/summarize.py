@@ -7,6 +7,7 @@ Released under the WTFPL
 from HTMLParser import HTMLParser
 
 class Summarizer(HTMLParser):
+    # TODO: kills &shy;
 
     def __init__(self, text, maxwords=100):
         HTMLParser.__init__(self)
@@ -68,6 +69,6 @@ def cb_prepare(request):
     for i, entry in enumerate(data['entry_list']):
         
         if t == 'page':
-            data['entry_list'][i]['body'] = Summarizer(entry['body'], 120).summarized
+            data['entry_list'][i]['body'] = Summarizer(entry['body'], 220).summarized
     
     return request

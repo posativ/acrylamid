@@ -189,7 +189,7 @@ def cb_page(request):
     for entry in data['entry_list']:
         entry_list.append(tt_entry.render({'Post': entry}))
                 
-    for i, mem in enumerate([entry_list[x*ipp:(x+1)*ipp] for x in range(len(entry_list)/ipp)]):
+    for i, mem in enumerate([entry_list[x*ipp:(x+1)*ipp] for x in range(len(entry_list)/ipp+1)]):
         
         dict.update( {'entry_list': '\n'.join([entry for entry in mem])} )
         html = tt_main.render( dict )
