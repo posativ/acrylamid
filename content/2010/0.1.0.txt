@@ -3,7 +3,6 @@ title: lilith 0.1 – Initial Release
 parser: Markdown
 date: 29.08.2010, 21:58
 tags: [Release, Python, Blog, WordPress, CDDL, Samsas Traum,]
-wordlist: [Ge-samt-kon-zept, ]
 ---
 
 Vor ein, zwei Wochen habe ich klammheimlich *lilith* [veröffentlicht][]. lilith ist ein Blogsystem
