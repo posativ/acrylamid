@@ -41,24 +41,24 @@ entry
 RSS_BODY = '''
 rss version=2.0 xmlns:atom=http://www.w3.org/2005/Atom
     channel
-        title | {{ title }}
-        link | {{ domain }}
+        title | {{ blog_title }}
+        link | {{ website }}
         description | {{ description }}
         language | {{ lang }}
-        pubDate | {{ date }}
-        docs | {{ feedurl }}
+        pubDate | {{ _date.strftime('%a, %d %b %Y %H:%M:%S GMT') }}
+        docs | {{ website.strip('/')+'/atom/' }}
         generator | {{ lilith_name }} {{ lilith_version }}
-        > atom:link href={{feedurl}} rel=self type=application/rss+xml
+        > atom:link href={{website.strip('/')+'/atom/'}} rel=self type=application/rss+xml
         {{ entry_list }}
 '''.strip()
 
 RSS_ENTRY = '''
 item
     title | {{ title }}
-    link | {{ link }}
-    description | {{ content }}
-    pubDate | {{ date }}
-    guid | {{ link }}
+    link | {{ url }}
+    description | {{ body }}
+    pubDate | {{ _date.strftime('%a, %d %b %Y %H:%M:%S GMT') }}
+    guid isPermaLink=false | {{ id }}
 '''.strip()
 
 def cb_feed(request):
@@ -97,3 +97,10 @@ def cb_feed(request):
     tools.mk_file(xml, {'title': 'atom/index.xml'}, path)
     
     # rss
+    dict.update( {'entry_list': '\n'.join(rss_list),
+                  '_date': data['entry_list'][0]._date } )
+    xml = tt_rss_body.render( dict )
+    directory = os.path.join(config.get('output_dir', 'out'), 'feed', 'rss')
+    path = os.path.join(directory, 'index.xml')
+    tools.mk_file(xml, {'title': 'rss/index.xml'}, path)
+    
