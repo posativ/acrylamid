@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
+# TODO:
+# - callback after rendering, but before write to file (e.g. tidy)
 
 VERSION = "0.1-dev"
 VERSION_SPLIT = tuple(VERSION.split('-')[0].split('.'))
@@ -90,6 +92,9 @@ class Lilith:
                         self.request)
         
         tools.run_callback('page',
+                self.request)
+                
+        tools.run_callback('feed',
                 self.request)
     
 class Request(object):
