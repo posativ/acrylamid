@@ -76,21 +76,29 @@ def cb_filelist(request):
     return request
     
 def cb_filestat(request):
+    """Sets an alternative timestamp specified in yaml header."""
+    
+    config = request._config
     
     entry_list = request._data['entry_list']
     for i in range(len(entry_list)):
         if entry_list[i].has_key('date'):
             entry_list[i]._date = datetime.strptime(entry_list[i]['date'],
-                                            '%d.%m.%Y, %H:%M')
+                                            config.get('strptime', '%d.%m.%Y, %H:%M'))
     return request
     
 def cb_sortlist(request):
+    """sort list by date"""
     
     entry_list = request._data['entry_list']
     entry_list.sort(key=lambda k: k._date, reverse=True)
     return request
 
 def cb_entryparser(request):
+    """Applies:
+        - cb_preformat
+        - cb_format
+        - cb_postformat"""
     
     entry = request['entry']
     config = request['config']
@@ -115,6 +123,7 @@ def cb_entryparser(request):
     return entry
 
 def cb_format(args):
+    """Apply markup using Post.parser."""
     entry = args['entry']
     config = args['config']
     
@@ -130,6 +139,13 @@ def cb_format(args):
     return entry['body']
     
 def cb_prepare(request):
+    """Sets a few required keys in FileEntry.
+    
+    required:
+    safe_title -- used as directory name
+    url -- permalink
+    id -- atom conform id: http://diveintomark.org/archives/2004/05/28/howto-atom-id
+    """
     
     config = request._config
     data = request._data
@@ -147,6 +163,13 @@ def cb_prepare(request):
     return request
     
 def cb_item(request):
+    """Creates single full-length entry.  Looks like
+    http://yourblog.org/year/title/(index.html).
+    
+    required:
+    entry.html -- layout of Post's entry
+    main.html -- layout of the website
+    """
 
     tt_entry = Template(convert_text(open('layouts/entry.html').read()))
     tt_main = Template(open('layouts/main.html').read())
@@ -174,6 +197,15 @@ def cb_item(request):
         tools.mk_file(html, entry, path)
 
 def cb_page(request):
+    """Creates nicely paged listing of your posts.  First “Page” is the
+    index.hml used to have this nice url: http://yourblog.com/ with a recent
+    list of your (e.g. summarized) Posts. Other pages are enumerated to /page/n+1
+    
+    required:
+    items_per_page -- posts displayed per page (defaults to 6)
+    entry.html -- layout of Post's entry
+    main.html -- layout of the website
+    """
     
     tt_entry = Template(convert_text(open('layouts/entry.html').read()))
     tt_main = Template(open('layouts/main.html').read())
@@ -201,5 +233,4 @@ def cb_page(request):
                          '' if i == 0 else 'page/%s' % (i+1))
         path = os.path.join(directory, 'index.html')
         tools.mk_file(html, {'title': 'page/%s' % (i+1)}, path)
-    
-    
+        
