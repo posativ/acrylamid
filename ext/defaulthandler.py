@@ -9,6 +9,9 @@ from datetime import datetime
 import tools
 from tools import FileEntry
 
+from shpaml import convert_text
+from jinja2 import Template
+
 def cb_handle(request):
     """This is the default lilith handler.
         - cb_filelist
@@ -140,16 +143,13 @@ def cb_prepare(request):
     return request
     
 def cb_item(request):
-    
-    from shpaml import convert_text
-    from jinja2 import Template 
 
     tt_entry = Template(convert_text(open('layouts/entry.html').read()))
     tt_main = Template(open('layouts/main.html').read())
     config = request._config
     data = request._data
     
-    date['type'] = 'item'
+    data['type'] = 'item'
     
     # last preparations
     request = tools.run_callback(
@@ -176,8 +176,8 @@ def cb_page(request):
     config = request._config
     data = request._data
     
-    date['type'] = 'page'
-    items_per_page = config.get('items_per_page', 6)
+    data['type'] = 'page'
+    ipp = config.get('items_per_page', 6)
     
     # last preparations
     request = tools.run_callback(
@@ -188,10 +188,13 @@ def cb_page(request):
     entry_list = []
     for entry in data['entry_list']:
         entry_list.append(tt_entry.render({'Post': entry}))
+                
+    for i, mem in enumerate([entry_list[x*ipp:(x+1)*ipp] for x in range(len(entry_list))]):
         
-    for mem in [entry_list[i*:]]
-    
-    
-        
-        
+        dict.update( {'entry_list': '\n'.join([entry for entry in mem])} )
+        html = tt_main.render( dict )
+        directory = os.path.join(config.get('output_dir', 'out'),
+                         '' if i == 0 else 'page/%s' % (i+1))
+        path = os.path.join(directory, 'index.html')
+        tools.mk_file(html, {'title': 'page/%s' % (i+1)}, path)
         

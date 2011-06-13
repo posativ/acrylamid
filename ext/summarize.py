@@ -68,6 +68,6 @@ def cb_prepare(request):
     for i, entry in enumerate(data['entry_list']):
         
         if t == 'page':
-            data['entry_list'][i]['body'] = Summarizer(entry['body'], 120).summarized()
+            data['entry_list'][i]['body'] = Summarizer(entry['body'], 120).summarized
     
     return request

@@ -206,7 +206,11 @@ def mk_file(content, entry, path, force=False):
             f.close()
             print "[INFO] Content of '%s' has changed" % entry['title']
     else:
-        os.mkdir(dirname(path))
+        try:
+            os.makedirs(dirname(path))
+        except OSError:
+            # dir already exists (mostly)
+            pass
         f = open(path, 'w')
         f.write(content)
         f.close()
