@@ -108,7 +108,7 @@ def cb_entryparser(request):
             
     entry['body'] = tools.run_callback(
             'postformat',
-            {'entry': entry, 'config': config},
+            request,
             donefunc=lambda x: x != None,
             defaultfunc=lambda x: x['entry']['body'])
     
@@ -137,8 +137,12 @@ def cb_prepare(request):
         safe_title = re.sub('[\W]+', '-', entry['title'], re.U).lower()
         url = config.get('www_root', '') + '/' \
               + str(entry['_date'].year) + '/' + safe_title + '/'
+        id = 'tag:' + config.get('www_root', '').replace('http://', '').strip('/') \
+             + ',' + entry._date.strftime('%Y-%m-%d') + ':' \
+             + '/' + str(entry['_date'].year) +  '/' + safe_title
         data['entry_list'][i]['safe_title'] = safe_title
         data['entry_list'][i]['url'] = url
+        data['entry_list'][i]['id'] = id
         
     return request
     
@@ -183,7 +187,7 @@ def cb_page(request):
     request = tools.run_callback(
             'prepare',
             request)
-            
+        
     dict = request._config
     entry_list = []
     for entry in data['entry_list']:
@@ -191,10 +195,11 @@ def cb_page(request):
                 
     for i, mem in enumerate([entry_list[x*ipp:(x+1)*ipp] for x in range(len(entry_list)/ipp+1)]):
         
-        dict.update( {'entry_list': '\n'.join([entry for entry in mem])} )
+        dict.update( {'entry_list': '\n'.join(mem)} )
         html = tt_main.render( dict )
         directory = os.path.join(config.get('output_dir', 'out'),
                          '' if i == 0 else 'page/%s' % (i+1))
         path = os.path.join(directory, 'index.html')
         tools.mk_file(html, {'title': 'page/%s' % (i+1)}, path)
-        
+    
+    
