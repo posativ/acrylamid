@@ -4,6 +4,7 @@
 # TODO: donefunc chaos
 
 import os, re
+import time
 from datetime import datetime
 
 import tools
@@ -84,8 +85,10 @@ def cb_filestat(request):
     entry_list = request._data['entry_list']
     for i in range(len(entry_list)):
         if entry_list[i].has_key('date'):
-            entry_list[i]._date = datetime.strptime(entry_list[i]['date'],
-                                            config.get('strptime', '%d.%m.%Y, %H:%M'))
+            timestamp = time.strptime(entry_list[i]['date'],
+                                config.get('strptime', '%d.%m.%Y, %H:%M'))
+            timestamp = time.mktime(timestamp)
+            entry_list[i]._date = datetime.utcfromtimestamp(timestamp)
     return request
     
 def cb_sortlist(request):
@@ -290,4 +293,3 @@ def cb_page(request):
                          '' if i == 0 else 'page/%s' % (i+1))
         path = os.path.join(directory, 'index.html')
         tools.mk_file(html, {'title': 'page/%s' % (i+1)}, path)
-        
