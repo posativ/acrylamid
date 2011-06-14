@@ -106,7 +106,7 @@ class FileEntry:
         self._datadir = datadir
         
         self._timestamp = os.path.getmtime(filename)
-        self._date = datetime.fromtimestamp(self._timestamp)
+        self._date = datetime.utcfromtimestamp(self._timestamp)
         self._populate()
         
     def __repr__(self):

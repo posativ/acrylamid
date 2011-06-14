@@ -91,14 +91,12 @@ class Lilith:
         
         from copy import deepcopy # performance? :S
                 
-        #tools.run_callback('item', deepcopy(self.request))
+        tools.run_callback('item', deepcopy(self.request))
         
-        #tools.run_callback('page', deepcopy(self.request))
+        tools.run_callback('page', deepcopy(self.request))
                 
-        #tools.run_callback('feed', deepcopy(self.request))
-        
-        tools.run_callback('articles', deepcopy(self.request))
-    
+        tools.run_callback('feed', deepcopy(self.request))
+            
 class Request(object):
     """This class holds the lilith request.  It holds configuration
     information, OS environment, and data that we calculate and
