@@ -92,7 +92,7 @@ def cb_feed(request):
     dict.update( {'entry_list': '\n'.join(atom_list),
                   '_date': data['entry_list'][0]._date } )
     xml = tt_atom_body.render( dict )
-    directory = os.path.join(config.get('output_dir', 'out'), 'feed', 'atom')
+    directory = os.path.join(config.get('output_dir', 'out'), 'atom')
     path = os.path.join(directory, 'index.xml')
     tools.mk_file(xml, {'title': 'atom/index.xml'}, path)
     
@@ -100,7 +100,7 @@ def cb_feed(request):
     dict.update( {'entry_list': '\n'.join(rss_list),
                   '_date': data['entry_list'][0]._date } )
     xml = tt_rss_body.render( dict )
-    directory = os.path.join(config.get('output_dir', 'out'), 'feed', 'rss')
+    directory = os.path.join(config.get('output_dir', 'out'), 'rss')
     path = os.path.join(directory, 'index.xml')
     tools.mk_file(xml, {'title': 'rss/index.xml'}, path)
     
