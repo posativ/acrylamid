@@ -4,9 +4,10 @@ from HTMLParser import HTMLParser
 
 class Summarizer(HTMLParser):
 
-    def __init__(self, text, maxwords=100):
+    def __init__(self, text, href, maxwords=100):
         HTMLParser.__init__(self)
         self.maxwords = maxwords
+        self.href = href
         self.summarized = ''
         self.words = 0
         self.stack = []
@@ -42,7 +43,7 @@ class Summarizer(HTMLParser):
                 somewords = self.maxwords - self.words
                 self.words += somewords
                 self.summarized += ' '.join(words[:somewords]) + ' '
-                self.summarized += '... <a href="?p=%s" class="continue">continue</a>.' % 'abcdef'
+                self.summarized += '... <a href="%s" class="continue">weiterlesen</a>.' % self.href
 
     def handle_endtag(self, tag):
         '''Until we reach not the maxwords limit, we can safely pop every ending tag,
@@ -70,6 +71,6 @@ def cb_prepare(request):
     for i, entry in enumerate(data['entry_list']):
         
         if t == 'page':
-            data['entry_list'][i]['body'] = Summarizer(entry['body'], 200).summarized
+            data['entry_list'][i]['body'] = Summarizer(entry['body'], entry['url'], 200).summarized
     
     return request
