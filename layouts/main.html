@@ -16,62 +16,46 @@
   <link href="http://blog.posativ.org/feed/rss" type="application/rss+xml" rel="alternate" title="RSS-Feed" />
  </head>
  <body>
-  <div id="blogheader">
-   <div id="blogtitle">
-    <h2>
-     <a href="http://blog.posativ.org/" class="blogtitle">
-      {{ blog_title }}
-     </a>
-    </h2>
-   </div>
-   <div id="mainlinks">
-    <ul>
-     <li>
-      <a href="http://blog.posativ.org/">
-       blog
-      </a>
-     </li>
-     <li>
-      <a href="http://blog.posativ.org/feed/atom">
-       atom
-      </a>
-     </li>
-     <li>
-      <a href="http://blog.posativ.org/feed/rss">
-       rss
-      </a>
-     </li>
-     <li>
-      <a href="http://blog.posativ.org/articles">
-       articles
-      </a>
-     </li>
-    </ul>
-   </div>
-  </div>
-  <div id="blogbody">
-      {{ entry_list }}
-      {% if page and page > 1 %}
-            <a href="/page/{{ page-1 }}" class="page floatleft">
+    <div id="blogheader">
+        <div id="blogtitle">
+            <h2>
+                <a href="http://blog.posativ.org/" class="blogtitle">{{ blog_title }}</a>
+            </h2>
+        </div>
+        <div id="mainlinks">
+            <ul>
+                <li>
+                    <a href="http://blog.posativ.org/">blog</a>
+                </li>
+                <li>
+                    <a href="http://blog.posativ.org/atom/">atom</a>
+                </li>
+                <li>
+                    <a href="http://blog.posativ.org/rss/">rss</a>
+                </li>
+                <li>
+                    <a href="http://blog.posativ.org/articles/">articles</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div id="blogbody">
+        {{ entry_list }}
+        {% if page and page > 1 %}
+            <a href="{{www_root}}/page/{{ page-1 }}/" class="page floatleft">
             ← neuere Beiträge
             </a>
-      {%- endif %}
-      {% if page and page < num_entries/items_per_page %}
-            <a href="/page/{{ page+1 }}" class="page floatright">
+        {%- endif %}
+        {% if page and page < num_entries/items_per_page %}
+            <a href="{{www_root}}/page/{{ page+1 }}/" class="page floatright">
             ältere Beiträge →
             </a>
-      {%- endif  %}
-  </div>
-  <div id="blogfooter">
-   <p>
-    written by
-    <a href="mailto: {{ email }}">
-     posativ
-    </a>
-   </p>
-   <a href="http://creativecommons.org/licenses/by-nc-sa/2.0/de/">
-    <img src="img/p=cc.png" alt="by-nc-sa" />
-   </a>
-  </div>
+        {%- endif  %}
+    </div>
+    <div id="blogfooter">
+        <p>
+            written by <a href="mailto:{{ email }}">posativ</a>
+        </p><a href="http://creativecommons.org/licenses/by-nc-sa/2.0/de/"><img src="img/cc.png" alt="by-nc-sa"></a>
+    </div>
  </body>
 </html>
