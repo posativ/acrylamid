@@ -41,8 +41,13 @@
     </div>
     <div id="blogbody">
         {{ entry_list }}
-        {% if page and page > 1 %}
+        {% if page and page > 2 %}
             <a href="{{www_root}}/page/{{ page-1 }}/" class="page floatleft">
+            ← neuere Beiträge
+            </a>
+        {%- endif %}
+        {% if page and page == 2 %}
+            <a href="{{www_root}}/" class="page floatleft">
             ← neuere Beiträge
             </a>
         {%- endif %}
