@@ -68,8 +68,8 @@ def cb_filelist(request):
     
     filelist = []
     for root, dirs, files in os.walk(config.get('entries_dir', 'content')):
-        filelist += [os.path.join(root, file) for file in files
-                        if root not in ['content/drafts', ]]
+        filelist += [ os.path.join(root, file) for file in files
+                         if root not in ['content/drafts', ] ]
     
     entry_list = [FileEntry(request, e, config['entries_dir']) for e in filelist]
     data['entry_list'] = entry_list
@@ -90,7 +90,7 @@ def cb_filestat(request):
     
 def cb_sortlist(request):
     """sort list by date"""
-    
+
     entry_list = request._data['entry_list']
     entry_list.sort(key=lambda k: k._date, reverse=True)
     return request
@@ -239,7 +239,9 @@ def cb_item(request):
     entry_list = []
     
     for entry in data['entry_list']:
-        dict.update({'entry_list': tt_entry.render({'Post': entry}) })
+        entrydict = dict.copy()
+        entrydict.update({'Post': entry})
+        dict.update({'entry_list':tt_entry.render(entrydict) })
         html = tt_main.render( dict )
         
         directory = os.path.join(config.get('output_dir', 'out'),
@@ -275,7 +277,9 @@ def cb_page(request):
     dict = request._config
     entry_list = []
     for entry in data['entry_list']:
-        entry_list.append(tt_entry.render({'Post': entry}))
+        entrydict = dict.copy()
+        entrydict.update({'Post': entry})
+        entry_list.append(tt_entry.render(entrydict))
                 
     for i, mem in enumerate([entry_list[x*ipp:(x+1)*ipp] for x in range(len(entry_list)/ipp+1)]):
         
