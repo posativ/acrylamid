@@ -51,12 +51,16 @@
   </div>
   <div id="blogbody">
       {{ entry_list }}
-   <a href="/page/{{ previous }}" class="page floatright">
-    ältere Beiträge →
-   </a>
-   <a href="/page/{{ previous }}" class="page floatright">
-    ältere Beiträge →
-   </a>
+      {% if page and page > 1 %}
+            <a href="/page/{{ page-1 }}" class="page floatleft">
+            ← neuere Beiträge
+            </a>
+      {%- endif %}
+      {% if page and page < num_entries/items_per_page %}
+            <a href="/page/{{ page+1 }}" class="page floatright">
+            ältere Beiträge →
+            </a>
+      {%- endif  %}
   </div>
   <div id="blogfooter">
    <p>

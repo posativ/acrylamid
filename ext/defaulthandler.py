@@ -68,7 +68,8 @@ def cb_filelist(request):
     
     filelist = []
     for root, dirs, files in os.walk(config.get('entries_dir', 'content')):
-        filelist += [os.path.join(root, file) for file in files]
+        filelist += [os.path.join(root, file) for file in files
+                        if root not in ['content/drafts', ]]
     
     entry_list = [FileEntry(request, e, config['entries_dir']) for e in filelist]
     data['entry_list'] = entry_list
@@ -133,10 +134,61 @@ def cb_format(args):
         from markdown import markdown
         return markdown(entry['body'],
                         extensions=['codehilite(css_class=highlight)'])
-    elif parser.lower() in ['restructuredtest', 'rst', 'rest']:
-        return entry['body']
     
-    return entry['body']
+    elif parser.lower() in ['restructuredtest', 'rst', 'rest']:                
+        from docutils import nodes
+        from docutils.parsers.rst import directives, Directive
+        from docutils.core import publish_parts
+        
+        # Set to True if you want inline CSS styles instead of classes
+        INLINESTYLES = False
+        
+        from pygments.formatters import HtmlFormatter
+        
+        # The default formatter
+        DEFAULT = HtmlFormatter(noclasses=INLINESTYLES)
+        
+        
+        from docutils import nodes
+        from docutils.parsers.rst import directives, Directive
+        
+        from pygments import highlight
+        from pygments.lexers import get_lexer_by_name, TextLexer
+        
+        class Pygments(Directive):
+            """ Source code syntax hightlighting.
+            """
+            required_arguments = 1
+            optional_arguments = 0
+            final_argument_whitespace = True
+            option_spec = dict([(key, directives.flag) for key in {}])
+            has_content = True
+    
+            def run(self):
+                self.assert_has_content()
+                try:
+                    lexer = get_lexer_by_name(self.arguments[0])
+                except ValueError:
+                    # no lexer found - use the text one instead of an exception
+                    lexer = TextLexer()
+                # take an arbitrary option if more than one is given
+                formatter = self.options and VARIANTS[self.options.keys()[0]] or DEFAULT
+                parsed = highlight(u'\n'.join(self.content), lexer, formatter)
+                return [nodes.raw('', parsed, format='html')]
+        
+        directives.register_directive('sourcecode', Pygments)
+        initial_header_level = 1
+        transform_doctitle = 0
+        settings = {
+            'initial_header_level': initial_header_level,
+            'doctitle_xform': transform_doctitle
+            }
+        parts = publish_parts(
+            entry['body'], writer_name='html', settings_overrides=settings)
+        return parts['body'].encode('utf-8')
+        
+    else:
+        return entry['body']
     
 def cb_prepare(request):
     """Sets a few required keys in FileEntry.
@@ -227,7 +279,8 @@ def cb_page(request):
                 
     for i, mem in enumerate([entry_list[x*ipp:(x+1)*ipp] for x in range(len(entry_list)/ipp+1)]):
         
-        dict.update( {'entry_list': '\n'.join(mem)} )
+        dict.update( {'entry_list': '\n'.join(mem), 'page': i+1,
+                      'num_entries': len(entry_list)} )
         html = tt_main.render( dict )
         directory = os.path.join(config.get('output_dir', 'out'),
                          '' if i == 0 else 'page/%s' % (i+1))

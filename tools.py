@@ -141,6 +141,7 @@ class FileEntry:
 
     def _populate(self):
         """Populates the yaml header and splits the content.  """
+        print self._filename
         f = open(self._filename, 'r')
         lines = f.readlines()
         f.close()
