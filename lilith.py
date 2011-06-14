@@ -89,14 +89,15 @@ class Lilith:
         # do end callback
         tools.run_callback('end', self.request)
         
-        tools.run_callback('item',
-                        self.request)
-        
-        tools.run_callback('page',
-                self.request)
+        from copy import deepcopy # performance? :S
                 
-        tools.run_callback('feed',
-                self.request)
+        #tools.run_callback('item', deepcopy(self.request))
+        
+        #tools.run_callback('page', deepcopy(self.request))
+                
+        #tools.run_callback('feed', deepcopy(self.request))
+        
+        tools.run_callback('articles', deepcopy(self.request))
     
 class Request(object):
     """This class holds the lilith request.  It holds configuration
