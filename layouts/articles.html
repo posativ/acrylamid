@@ -8,11 +8,11 @@ xhtml
         > link rel=alternate title="Atom-Feed" type=application/atom+xml href={{www_root+"/atom/"}}
         > link rel=alternate title="RSS-Feed" type=application/rss+xml href={{www_root+"/rss/"}}
     body
-        div
-            div.blogtitle
+        div#blogheader
+            div#blogtitle
                 h2
-                    a#blogtitle href={{www_root}} | {{ blog_title }}
-            div.mainlinks
+                    a.blogtitle href={{www_root}} | {{ blog_title }}
+            div#mainlinks
                 ul
                     li
                         a href="http://blog.posativ.org/" | blog
@@ -22,14 +22,23 @@ xhtml
                         a href="http://blog.posativ.org/rss/" | rss
                     li
                         a href="http://blog.posativ.org/articles/" | articles
-            div.blogbody
-                div.posting
-                    div.postheader
-                        span#date | {{ num_entries }} Beiträge
-                    div.postbody
-                        ...
-            div.blogfooter
-                p | written by
+        div#blogbody
+            div.posting
+                div.postheader
+                    span.date | {{ num_entries }} Beiträge
+                div.postbody
+                    {% for year in articles|sort(reverse=True) %}
+                    h2 | {{ year }}
+                    ul
+                        {% for entry in articles[year] %}
+                            li
+                                span | {{ entry[0].strftime('%d.%m.%Y: ') }}
+                                a href={{entry[1]}} | {{ entry[2] }}
+                        {% endfor %}
+                    {% endfor %}
+        div#blogfooter
+            p
+                written by
                 a href="mailto:info@posativ.org" | posativ
-                a href="http://creativecommons.org/licenses/by-nc-sa/2.0/de/"
-                    > img src={{www_root}}/img/cc.png alt="by-nc-sa"
+            a href="http://creativecommons.org/licenses/by-nc-sa/2.0/de/"
+                > img src={{www_root}}/img/cc.png alt="by-nc-sa"
