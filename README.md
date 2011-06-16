@@ -17,14 +17,19 @@ Features
 Quickstart
 ----------
 
-Cloning lilith using
+Dependencies `python` (at least 2.6), `pyyaml`, `markdown`, `shpaml`, `jinja2`
+and `docutils`. Install with `pip`, do:
+
+    pip install pyyaml markdown shpaml jinja2 docutils
+
+Clone lilith using:
 
     git clone git://github.com/posativ/lilith.git
     
 and launch your favourite text editor on lilith.conf. Most items are
 (hopefully) self-explaining, see [lilith.conf](#lilith.conf) for details. Edit
 your preferences and starting blogging by writing plain text files into
-the specified `entries_dir`. Open a terminal and run
+the specified `entries_dir`. Open a terminal and run:
 
     python lilith.py
     
