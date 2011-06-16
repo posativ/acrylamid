@@ -205,7 +205,7 @@ def cb_prepare(request):
     config = request._config
     data = request._data
     for i, entry in enumerate(data['entry_list']):
-        safe_title = re.sub('[\W]+', '-', entry['title'], re.U).lower()
+        safe_title = re.sub('[\W]+', '-', entry['title'], re.U).lower().strip('-')
         url = config.get('www_root', '') + '/' \
               + str(entry['_date'].year) + '/' + safe_title + '/'
         id = 'tag:' + config.get('www_root', '').replace('http://', '').strip('/') \
