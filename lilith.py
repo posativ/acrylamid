@@ -10,6 +10,7 @@ VERSION_SPLIT = tuple(VERSION.split('-')[0].split('.'))
 import sys, os
 reload(sys); sys.setdefaultencoding('utf-8')
 
+import locale
 import yaml
 import extensions, tools
 
@@ -44,9 +45,9 @@ class Lilith:
 
         # initialize the locale, if wanted (will silently fail if locale
         # is not available)
-        if config.get('locale', None):
+        if config.get('lang', None):
             try:
-                locale.setlocale(locale.LC_ALL, config['locale'])
+                locale.setlocale(locale.LC_ALL, config['lang'])
             except locale.Error:
                 # invalid locale
                 pass
@@ -63,7 +64,8 @@ class Lilith:
             config['datadir'] = datadir
 
         # import and initialize plugins
-        extensions.initialize(config.get("ext_dir", []), )
+        extensions.initialize(config.get("ext_dir", []),
+                              exclude=config.get("ext_ignore", []))
 
         # entryparser callback is run here first to allow other
         # plugins register what file extensions can be used
@@ -91,11 +93,11 @@ class Lilith:
         
         from copy import deepcopy # performance? :S
                 
-        tools.run_callback('item', deepcopy(self.request))
+        #tools.run_callback('item', deepcopy(self.request))
         
-        tools.run_callback('page', deepcopy(self.request))
+        #tools.run_callback('page', deepcopy(self.request))
                 
-        tools.run_callback('feed', deepcopy(self.request))
+        #tools.run_callback('feed', deepcopy(self.request))
             
 class Request(object):
     """This class holds the lilith request.  It holds configuration
