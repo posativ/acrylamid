@@ -22,6 +22,7 @@
 
 import re
 from HTMLParser import HTMLParser
+from cgi import escape
 
 __version__ = '1.0.20070709'
 
@@ -1318,7 +1319,8 @@ class Separator(HTMLParser):
         def tagify(tag, attrs):
             '''convert parsed tag back into a html tag'''
             if attrs:
-                return ' <%s %s>' % (tag, ' '.join(['%s="%s"' % (k, v) for k,v in attrs]))
+                return '<%s %s>' % (tag, ' '.join(['%s="%s"' % (k, escape(v))
+                                        for k,v in attrs]))
             else:
                 return '<%s>' % tag
 
@@ -1345,6 +1347,5 @@ class Separator(HTMLParser):
 def cb_postformat(args):
     
     body = args['entry']['body']
-    
     return ''.join(Separator(body, hyphenate_word).result)
     
