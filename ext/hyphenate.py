@@ -21,6 +21,7 @@
 """
 
 import re
+from HTMLParser import HTMLParser
 
 __version__ = '1.0.20070709'
 
@@ -1302,14 +1303,51 @@ hyphenate_word = hyphenator.hyphenate_word
 del patterns
 del exceptions
 
+class Separator(HTMLParser):
+    
+    def __init__(self, html, hyphenationfunc):
+        HTMLParser.__init__(self)
+        self.hyphenate = hyphenationfunc
+        self.result = []
+        self.stack = []
+
+        self.feed(html)
+
+    def handle_starttag(self, tag, attrs):
+        '''Apply and stack each read tag until we reach maxword.'''
+
+        def tagify(tag, attrs):
+            '''convert parsed tag back into a html tag'''
+            if attrs:
+                return ' <%s %s>' % (tag, ' '.join(['%s="%s"' % (k, v) for k,v in attrs]))
+            else:
+                return '<%s>' % tag
+
+        self.stack.append(tag)
+        self.result.append(tagify(tag, attrs))
+
+    def handle_data(self, data):
+        """Hyphenate words longer than 10 characters."""
+        split = [word for word in re.split("[.:, !?]+", data) if len(word) > 10]
+        for word in split:
+            hyphenated = '&shy;'.join(self.hyphenate(word))
+            data = data.replace(word, hyphenated)
+        
+        self.result.append(data)
+    
+    def handle_endtag(self, tag):
+        '''Until we reach not the maxwords limit, we can safely pop every ending tag,
+           added by handle_starttag. Afterwards, we apply missing endings tags if missing.'''
+        self.stack.pop()
+        self.result.append('</%s>' % tag)
+        
+    def handle_entityref(self, name):
+        '''handle &shy; correctly, TODO: do we need this?'''
+        self.result.append('&'  + name + ';')
+
 def cb_postformat(args):
     
     body = args['entry']['body']
     
-    def hyphenate(match):
-        if len(match.group(0)) > 10:
-            return '&shy;'.join(hyphenate_word(match.group(0))) 
-        else:
-            return match.group(0)
+    return ''.join(Separator(body, hyphenate_word).result)
     
-    return re.sub('[^<:/".][a-zäöüßçáâàéèêëíñôó]+[^>/"]', hyphenate, body, flags=re.I)

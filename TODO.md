@@ -2,7 +2,6 @@ known issues
 ------------
 
 - summarizing + &shy; produces syllable orphan
-- hyphenation produces invalid html (id="blub&shy;blubber")
 
 0.2
 ---
@@ -10,6 +9,7 @@ known issues
 - articles overview
 - tag view (and tagcloud?)
 - i18n
+- HTML Tidy extension
 
 0.3
 ---
