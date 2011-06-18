@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from HTMLParser import HTMLParser
+from cgi import escape
 
 class Summarizer(HTMLParser):
 
@@ -20,7 +21,8 @@ class Summarizer(HTMLParser):
         def tagify(tag, attrs):
             '''convert parsed tag back into a html tag'''
             if attrs:
-                return ' <%s %s>' % (tag, ' '.join(['%s="%s"' % (k, v) for k,v in attrs]))
+                return '<%s %s>' % (tag, ' '.join(['%s="%s"' % (k, escape(v))
+                                        for k,v in attrs]))
             else:
                 return '<%s>' % tag
 
