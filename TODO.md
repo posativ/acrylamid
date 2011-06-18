@@ -1,3 +1,9 @@
+known issues
+------------
+
+- summarizing + &shy; produces syllable orphan
+- hyphenation produces invalid html (id="blub&shy;blubber")
+
 0.2
 ---
 
