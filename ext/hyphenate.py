@@ -1309,7 +1309,6 @@ class Separator(HTMLParser):
         HTMLParser.__init__(self)
         self.hyphenate = hyphenationfunc
         self.result = []
-        self.stack = []
 
         self.feed(html)
 
@@ -1323,7 +1322,6 @@ class Separator(HTMLParser):
             else:
                 return '<%s>' % tag
 
-        self.stack.append(tag)
         self.result.append(tagify(tag, attrs))
 
     def handle_data(self, data):
@@ -1338,7 +1336,6 @@ class Separator(HTMLParser):
     def handle_endtag(self, tag):
         '''Until we reach not the maxwords limit, we can safely pop every ending tag,
            added by handle_starttag. Afterwards, we apply missing endings tags if missing.'''
-        self.stack.pop()
         self.result.append('</%s>' % tag)
         
     def handle_entityref(self, name):
