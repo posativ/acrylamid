@@ -58,13 +58,8 @@ class Lilith:
         if config['www_root'].endswith("/"):
             config['www_root'] = config['www_root'][:-1]
 
-        datadir = config.get("datadir", '')
-        if datadir.endswith("/") or datadir.endswith("\\"):
-            datadir = datadir[:-1]
-            config['datadir'] = datadir
-
         # import and initialize plugins
-        extensions.initialize(config.get("ext_dir", []),
+        extensions.initialize(config.get("ext_dir", ['ext', ]),
                               exclude=config.get("ext_ignore", []))
 
         # entryparser callback is run here first to allow other
@@ -124,7 +119,7 @@ if __name__ == '__main__':
                       help="an alternative conf to use", default="lilith.conf")
     #parser.add_option("-o", "--overwrite", dest="force",
     #                  help="force overwrite", default=False)
-    parser.add_option("-l", "--layout_dir", dest="layout",
+    parser.add_option("-l", "--layout_dir", dest="layout", metavar="DIR",
                       help="force overwrite", default=False)
     
     (options, args) = parser.parse_args()

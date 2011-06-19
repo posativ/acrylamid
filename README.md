@@ -17,59 +17,85 @@ Features
 Quickstart
 ----------
 
-Dependencies `python` (at least 2.6), `pyyaml`, `markdown`, `shpaml`, `jinja2`
-and `docutils`. Install with `pip`, do:
+Dependencies `python` (at least 2.6), `pyyaml`, `shpaml`, and `jinja2`. And
+of course docutils or markdown for markup, but not required in plain HTML.
 
-    pip install pyyaml markdown shpaml jinja2 docutils
+    pip install pyyaml shpaml jinja2
 
-Clone lilith using:
-
-    git clone git://github.com/posativ/lilith.git
-    
-and launch your favourite text editor on lilith.conf. Most items are
-(hopefully) self-explaining, see [lilith.conf](#lilith.conf) for details. Edit
-your preferences and starting blogging by writing plain text files into
-the specified `entries_dir`. Open a terminal and run:
+Get lilith and edit `lilith.conf` and `layouts/`. Run lilith with:
 
     python lilith.py
     
-which renders everything to `output_dir` (defaults to */out*). Use your favourite
-file transfer software to upload the resulting static html and xml.
+which renders everything to `output_dir` (defaults to */out*). lilith has
+a basic commandline interface, specify `-c FILE` to use another config file
+and `-l DIR` to use an alternate layouts-folder (overwrites lilith.conf).
 
 
 Using lilith
 ------------
 
-lilith uses a flat file db to store the blog entries. It does not depend on a
+lilith uses a flat file db to store its blog entries. It does not depend on a
 specific filesystem structure, neither the user's structure has any effect on
 the rendered output. Just specify a `entries_dir` in `lilith.conf`, lilith will
 traverse this folder and processes all files in it.
 
-An entry consists of two parts. First, a [YAML](http://en.wikipedia.org/wiki/YAML)-header
-and the real content. Inside the YAML-header you must specify at least
-a `title: My Title`. I recommend to use a `date: 21.12.2012, 16:47` key and
-if you don't know, what markup-language you prefer or if you using different
-markup languages in your blog, use e.g. `parser: rst`, too. See this
-[sample entry][].
+An entry consists of two parts. A [YAML](http://en.wikipedia.org/wiki/YAML)-header
+and then the real content. Inside the YAML-header you must specify at least
+a `title: My Title`. I recommend to use a `date: 21.12.2012, 16:47` key otherwise
+lilith is using the last modified timestamp.
 
-### lilith.conf
+If you don't know, what markup-language you prefer or if yo are using different
+markup languages, use e.g. `parser: rst` for reStructuredText.
 
-required keys:
+### Sample entry.txt
 
-- www_root: http://path.to/blog/
-- ext_dir: [directies, holding your plugins]
-- entries_dir: "directoy holding your entries"
+    ---
+    title: A meaningful title
+    parser: Markdown # optional
+    date: 19.06.2011, 12:45 # recommended
+    ---
 
-- author: your name
-- website: http://mywebsite.org/
-- email: me@example.org
-- blog_title: your website's title
+    Your content goes here...
 
-optional keys:
+### lilith.conf – YAML syntax!
 
-- parser
-- lang (de-DE, ...)
-- items_per_page used for pagination, defaults to 6
+    # required in templating
+    author:     your name
+    website:    http://mywebsite.org/
+    email:      me@example.org
+    blog_title: your website's title
+    www_root:   http://path.to/blog/
+
+    # optional keys:
+    ext_dir:        a list of dirs containing extensions for lilith, defaults to "ext/"
+    entries_dir:    dir holding your entries, defaults to "content/"
+    output_dir:     output directory, defaults to "out/"
+    items_per_page: used for pagination, defaults to 6
+        
+    parser:         a default entry parser
+    strptime:       your human-readable time parsing format, defauts to "%d.%m.%Y, %H:%M"
+    lang:           (de-DE, ...)
+    
+You can specify every other key-value pair you want use in plugins or as
+Template variable. Adding an existing key-value pair in the YAML-header
+of an entry will locally overwrite the config's value.
+
+### the output
+
+    out/
+    ├── 2011/
+    │   └── a-meaningful-title/
+    │       └── index.html
+    ├── articles/
+    │   └── index.html
+    ├── atom/
+    │   └── index.xml
+    ├── rss/
+    │   └── index.xml
+    └── index.html
+
+You may need to set index.xml as index-page in your webserver's configuration
+to get rss and atom feeds in http://domain.org/atom/ or /rss/ .
 
 How lilith works
 ----------------
@@ -78,5 +104,3 @@ lilith is heavily inspired by [PyBlosxom](http://pyblosxom.bluesock.org/) and
 use its main idea: callbacks to be very flexible to end user.
 
 ... to be extended ...
-
-[sample entry]: https://github.com/posativ/lilith/blob/ec41683a12f4b633d2154142e951e2d3e192f1c5/content/sample%20entry.txt
