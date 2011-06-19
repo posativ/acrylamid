@@ -32,26 +32,22 @@ def cb_handle(request):
     # call the filelist callback to generate a list of entries
     request =  tools.run_callback(
             "filelist",
-            request,
-            donefunc=lambda x: x != None)
+            request)
         
     # chance to modify specific meta data e.g. datetime
     request = tools.run_callback(
             'filestat', 
-            request,
-            donefunc=lambda x: x != None)
+            request)
     
     # use datetime to sort chronological
-    request  = tools.run_callback(
+    request = tools.run_callback(
             'sortlist', 
-            request,
-            donefunc=lambda x: x != None)
+            request)
             
     for i,entry in enumerate(request._data['entry_list']):
         request._data['entry_list'][i] = tools.run_callback(
                 'entryparser',
-                {'entry': entry, 'config': request._config},
-                donefunc=lambda x: x != None)
+                {'entry': entry, 'config': request._config})
 
 def cb_filelist(request):
     """This is the default handler for getting entries.  It takes the
@@ -100,30 +96,29 @@ def cb_sortlist(request):
     entry_list.sort(key=lambda k: k.date, reverse=True)
     return request
 
-def cb_entryparser(request):
+def cb_entryparser(args):
     """Applies:
         - cb_preformat
         - cb_format
         - cb_postformat"""
     
-    entry = request['entry']
-    config = request['config']
+    entry = args['entry']
+    config = args['config']
     
     entry['body'] = tools.run_callback(
             'preformat',
             {'entry': entry, 'config': config},
-            donefunc=lambda x: x != None,
             defaultfunc=lambda x: ''.join(x['entry']['story']))
-            
+
     entry['body'] = tools.run_callback(
             'format',
             {'entry': entry, 'config': config},
-            donefunc=lambda x: x != None)
-            
+            mapping=lambda x,y: y)
+    
     entry['body'] = tools.run_callback(
             'postformat',
-            request,
-            donefunc=lambda x: x != None,
+            {'entry': entry, 'config': config},
+            mapping=lambda x,y: y,
             defaultfunc=lambda x: x['entry']['body'])
     
     return entry
@@ -237,8 +232,8 @@ def cb_item(request):
 
     # last preparations
     request = tools.run_callback(
-            'prepare',
-            request)
+                'prepare',
+                request)
     
     dict = request._config
     entry_list = []
@@ -254,6 +249,8 @@ def cb_item(request):
                          entry.safe_title)
         path = os.path.join(directory, 'index.html')
         tools.mk_file(html, entry, path)
+        
+    return request
 
 def cb_page(request):
     """Creates nicely paged listing of your posts.  First “Page” is the
@@ -276,8 +273,9 @@ def cb_page(request):
     
     # last preparations
     request = tools.run_callback(
-            'prepare',
-            request)
+                'prepare',
+                request,
+                mapping=lambda x,y: y)
         
     dict = request._config
     entry_list = []

@@ -75,24 +75,26 @@ class Lilith:
         self.initialize()
         
         # run the start callback
-        tools.run_callback('start', self.request)
+        request = tools.run_callback('start', self.request)
         
         # run the default handler
-        tools.run_callback("handle",
-                        self.request,
-                        mappingfunc=lambda x,y:x,
-                        donefunc=lambda x:x)
+        request = tools.run_callback("handle",
+                        request,
+                        mapping=lambda x,y:x)
                 
         # do end callback
-        tools.run_callback('end', self.request)
+        request = tools.run_callback('end', request)
         
         from copy import deepcopy # performance? :S
-                
-        tools.run_callback('item', deepcopy(self.request))
         
-        tools.run_callback('page', deepcopy(self.request))
-                
-        tools.run_callback('feed', deepcopy(self.request))
+        tools.run_callback('page', deepcopy(request),
+                        mapping=lambda x,y: x)
+        
+        tools.run_callback('item', deepcopy(request),
+                        mapping=lambda x,y: x)
+        
+        tools.run_callback('feed', deepcopy(request),
+                        mapping=lambda x,y: x)
             
 class Request(object):
     """This class holds the lilith request.  It holds configuration
