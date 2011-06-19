@@ -16,8 +16,8 @@ def cb_end(request):
     
     config = request._config
     data = request._data
-    tt_articles = Template(convert_text(open('layouts/articles.html').read()))
-    
+    layout = os.path.join(config.get('layout_dir', 'layouts'), 'articles.html')
+    tt_articles = Template(convert_text(open(layout).read()))
     articles = defaultdict(list)
     
     for entry in sorted(data['entry_list'], key=lambda k: k._date, reverse=True):

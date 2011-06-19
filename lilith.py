@@ -118,9 +118,20 @@ class Request(object):
 
 if __name__ == '__main__':
     
-    from yaml import load
+    from optparse import OptionParser
+    parser = OptionParser()
+    parser.add_option("-c", "--config-file", dest="conf", metavar="FILE",
+                      help="an alternative conf to use", default="lilith.conf")
+    #parser.add_option("-o", "--overwrite", dest="force",
+    #                  help="force overwrite", default=False)
+    parser.add_option("-l", "--layout_dir", dest="layout",
+                      help="force overwrite", default=False)
     
-    conf = load(open('lilith.conf').read())
+    (options, args) = parser.parse_args()
+    
+    conf = yaml.load(open(options.conf).read())
+    if options.layout:
+        conf['layout_dir'] = options.layout
     assert tools.check_conf(conf)
     l = Lilith(config=conf, environ={}, data={})
     l.run()

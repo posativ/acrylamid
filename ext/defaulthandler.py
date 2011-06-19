@@ -3,7 +3,7 @@
 
 # TODO: donefunc chaos
 
-import os, re
+import sys, os, re
 import time
 from datetime import datetime
 
@@ -225,14 +225,14 @@ def cb_item(request):
     entry.html -- layout of Post's entry
     main.html -- layout of the website
     """
-
-    tt_entry = Template(convert_text(open('layouts/entry.html').read()))
-    tt_main = Template(open('layouts/main.html').read())
     config = request._config
     data = request._data
-    
     data['type'] = 'item'
     
+    layout = config.get('layout_dir', 'layouts')
+    tt_entry = Template(open(os.path.join(layout, 'entry.html')).read())
+    tt_main = Template(open(os.path.join(layout, 'main.html')).read())
+
     # last preparations
     request = tools.run_callback(
             'prepare',
@@ -263,14 +263,14 @@ def cb_page(request):
     entry.html -- layout of Post's entry
     main.html -- layout of the website
     """
-    
-    tt_entry = Template(convert_text(open('layouts/entry.html').read()))
-    tt_main = Template(open('layouts/main.html').read())
     config = request._config
     data = request._data
-    
     data['type'] = 'page'
     ipp = config.get('items_per_page', 6)
+    
+    layout = config.get('layout_dir', 'layouts')
+    tt_entry = Template(open(os.path.join(layout, 'entry.html')).read())
+    tt_main = Template(open(os.path.join(layout, 'main.html')).read())
     
     # last preparations
     request = tools.run_callback(
