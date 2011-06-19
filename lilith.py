@@ -93,8 +93,7 @@ class Lilith:
                         defaultfunc=_lilith_handler)
                 
         # do end callback
-        print request
-        request = tools.run_callback('end', request)
+        tools.run_callback('end', request)
 
             
 class Request(object):

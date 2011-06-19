@@ -13,8 +13,7 @@ def cb_end(request):
     
     request = deepcopy(request)
     request = tools.run_callback('prepare',
-                    request,
-                    mapping: lambda x,y: y) # needed for entry's url
+                    request) # needed for entry's url
     
     config = request._config
     data = request._data
@@ -27,7 +26,7 @@ def cb_end(request):
         
         articles[year].append((entry.date, url, title))
         
-    articlesdict =config.copy()
+    articlesdict = config.copy()
     articlesdict.update({'articles': articles,
                  'num_entries': len(data['entry_list'])})
                  
@@ -35,3 +34,5 @@ def cb_end(request):
     path = os.path.join(config.get('output_dir', 'out'), 'articles', 'index.html')
     
     tools.mk_file(html, {'title': 'articles/index.html'}, path)
+    
+    return request
