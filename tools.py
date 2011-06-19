@@ -105,8 +105,7 @@ class FileEntry:
         self._filename = filename.replace(os.sep, '/')
         self._datadir = datadir
         
-        self._timestamp = os.path.getmtime(filename)
-        self._date = datetime.utcfromtimestamp(self._timestamp)
+        self._date = datetime.utcfromtimestamp(os.path.getmtime(filename))
         self._populate()
         
     def __repr__(self):
@@ -188,7 +187,7 @@ def check_conf(conf):
                     raise OSError('[ERROR] %s has to be a directory' % value)
             else:
                 os.mkdir(value)
-                print '%s created...' % value
+                print '[WARNING]: %s created...' % value
                 
     return True
 

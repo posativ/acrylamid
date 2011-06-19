@@ -19,7 +19,7 @@ feed xmlns=http://www.w3.org/2005/Atom xml:lang={{lang}}
     id | {{ website }}
     > link rel=alternate type=text/html href={{website}}
     > link rel=self type=application/atom+xml href={{website.strip('/')+'/atom/'}}
-    updated | {{ _date.strftime('%Y-%m-%dT%H:%M:%SZ') }}
+    updated | {{ date.strftime('%Y-%m-%dT%H:%M:%SZ') }}
     generator uri=./index.py version={{lilith_version}} | {{ lilith_name }}
 
     {{ entry_list }}
@@ -30,7 +30,7 @@ entry
     title | {{ title }}
     > link rel=alternate type=text/html href={{url}}
     id | {{ id }}
-    updated | {{ _date.strftime('%Y-%m-%dT%H:%M:%SZ') }}
+    updated | {{ date.strftime('%Y-%m-%dT%H:%M:%SZ') }}
     author
         name | {{ author }}
         uri | {{ website }}
@@ -45,7 +45,7 @@ rss version=2.0 xmlns:atom=http://www.w3.org/2005/Atom
         link | {{ website }}
         description | {{ description }}
         language | {{ lang }}
-        pubDate | {{ _date.strftime('%a, %d %b %Y %H:%M:%S GMT') }}
+        pubDate | {{ date.strftime('%a, %d %b %Y %H:%M:%S GMT') }}
         docs | {{ website.strip('/')+'/atom/' }}
         generator | {{ lilith_name }} {{ lilith_version }}
         > atom:link href={{website.strip('/')+'/atom/'}} rel=self type=application/rss+xml
@@ -57,7 +57,7 @@ item
     title | {{ title }}
     link | {{ url }}
     description | {{ body }}
-    pubDate | {{ _date.strftime('%a, %d %b %Y %H:%M:%S GMT') }}
+    pubDate | {{ date.strftime('%a, %d %b %Y %H:%M:%S GMT') }}
     guid isPermaLink=false | {{ id }}
 '''.strip()
 
@@ -90,7 +90,7 @@ def cb_feed(request):
     
     # atom
     dict.update( {'entry_list': '\n'.join(atom_list),
-                  '_date': data['entry_list'][0]._date } )
+                  'date': data['entry_list'][0].date } )
     xml = tt_atom_body.render( dict )
     directory = os.path.join(config.get('output_dir', 'out'), 'atom')
     path = os.path.join(directory, 'index.xml')
@@ -98,7 +98,7 @@ def cb_feed(request):
     
     # rss
     dict.update( {'entry_list': '\n'.join(rss_list),
-                  '_date': data['entry_list'][0]._date } )
+                  'date': data['entry_list'][0].date } )
     xml = tt_rss_body.render( dict )
     directory = os.path.join(config.get('output_dir', 'out'), 'rss')
     path = os.path.join(directory, 'index.xml')
