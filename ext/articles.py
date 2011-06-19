@@ -12,7 +12,9 @@ def cb_end(request):
     """Generates a overview of all articles."""
     
     request = deepcopy(request)
-    tools.run_callback('prepare', request) # needed for entry's url
+    request = tools.run_callback('prepare',
+                    request,
+                    mapping: lambda x,y: y) # needed for entry's url
     
     config = request._config
     data = request._data

@@ -9,87 +9,27 @@ from time import gmtime
 
 import extensions
 
-def run_callback(chain, input,
-                 mappingfunc=lambda x, y: x,
-                 donefunc=lambda x: 0,
-                 defaultfunc=None):
+def run_callback(chain, input, mapping=lambda x,y: y, defaultfunc=None):
+    """It simply applies every function in chain or if None given, the
+    defaultfunc.
+    
+    Should return neither the modifed or the unmodified output. But
+    since we have a lot of cross-references here, this is currently
+    NOT possible (but implemented using mapping, though).
     """
-    Executes a callback chain on a given piece of data.  passed in is
-    a dict of name/value pairs.  Consult the documentation for the
-    specific callback chain you're executing.
 
-    Callback chains should conform to their documented behavior.  This
-    function allows us to do transforms on data, handling data, and
-    also callbacks.
-
-    The difference in behavior is affected by the mappingfunc passed
-    in which converts the output of a given function in the chain to
-    the input for the next function.
-
-    If this is confusing, read through the code for this function.
-
-    Returns the transformed input dict.
-
-    :param chain: the name of the callback chain to run
-
-    :param input: dict with name/value pairs that gets passed as the
-                  args dict to all callback functions
-
-    :param mappingfunc: the function that maps output arguments to
-                        input arguments for the next iteration.  It
-                        must take two arguments: the original dict and
-                        the return from the previous function.  It
-                        defaults to returning the original dict.
-
-    :param donefunc: this function tests whether we're done doing what
-                     we're doing.  This function takes as input the
-                     output of the most recent iteration.  If this
-                     function returns True then we'll drop out of the
-                     loop.  For example, if you wanted a callback to
-                     stop running when one of the registered functions
-                     returned a 1, then you would pass in:
-                     ``donefunc=lambda x: x`` .
-
-    :param defaultfunc: if this is set and we finish going through all
-                        the functions in the chain and none of them
-                        have returned something that satisfies the
-                        donefunc, then we'll execute the defaultfunc
-                        with the latest version of the input dict.
-
-    :returns: varies
-    """
     chain = extensions.get_callback_chain(chain)
-
     output = None
 
-    for func in chain:
-        # we call the function with the input dict it returns an
-        # output.
-        output = func(input)
-
-        # we fun the output through our donefunc to see if we should
-        # stop iterating through the loop.  if the donefunc returns
-        # something true, then we're all done; otherwise we continue.
-        if donefunc(output):
-            break
-
-        # we pass the input we just used and the output we just got
-        # into the mappingfunc which will give us the input for the
-        # next iteration.  in most cases, this consists of either
-        # returning the old input or the old output--depending on
-        # whether we're transforming the data through the chain or
-        # not.
-        input = mappingfunc(input, output)
-
-    # if we have a defaultfunc and we haven't satisfied the donefunc
-    # conditions, then we return whatever the defaultfunc returns when
-    # given the current version of the input.
-    if callable(defaultfunc) and not donefunc(output):
-        return defaultfunc(input)
-
-    # we didn't call the defaultfunc--so we return the most recent
-    # output.
-    return output
+    if chain:
+        for func in chain:
+            output = func(input)
+            input = mapping(input, output)
+        return input
+    else:
+        if callable(defaultfunc):
+            return defaultfunc(input)
+    return input
 
 class FileEntry:
     """This class gets it's data and metadata from the file specified
