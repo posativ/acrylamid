@@ -1,6 +1,7 @@
 ---
 title: Something different
 lang: en
+date: 21.12.2010, 12:12
 ---
 
 Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo
