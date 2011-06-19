@@ -42,10 +42,15 @@ class Summarizer(HTMLParser):
                 self.summarized += data
             else:
                 '''we can put some words before we reach the word limit'''
-                somewords = self.maxwords - self.words
-                self.words += somewords
-                self.summarized += ' '.join(words[:somewords]) + ' '
-                self.summarized += '... <a href="%s" class="continue">weiterlesen</a>.' % self.href
+                if not 'a' in self.stack:                
+                    somewords = self.maxwords - self.words
+                    self.words += somewords
+                    self.summarized += ' '.join(words[:somewords]) + ' '
+                    self.summarized += '... <a href="%s" class="continue">weiterlesen</a>.' % self.href
+                else:
+                    self.maxwords += len(words)
+                    self.words += len(words)
+                    self.summarized += ' '.join(words)
 
     def handle_endtag(self, tag):
         '''Until we reach not the maxwords limit, we can safely pop every ending tag,
