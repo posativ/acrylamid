@@ -61,7 +61,7 @@ item
     guid isPermaLink=false | {{ id }}
 '''.strip()
 
-def cb_feed(request):
+def cb_end(request):
     
     tt_atom_entry = Template(convert_text(ATOM_ENTRY))
     tt_atom_body = Template(convert_text(ATOM_BODY))
@@ -103,4 +103,6 @@ def cb_feed(request):
     directory = os.path.join(config.get('output_dir', 'out'), 'rss')
     path = os.path.join(directory, 'index.xml')
     tools.mk_file(xml, {'title': 'rss/index.xml'}, path)
+    
+    return request
     
