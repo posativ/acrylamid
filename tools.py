@@ -10,6 +10,13 @@ from time import gmtime
 import extensions
 
 def run_callback(chain, input, mapping=lambda x,y: y, defaultfunc=None):
+    """It simply applies every function in chain or if None given, the
+    defaultfunc.
+    
+    Should return neither the modifed or the unmodified output. But
+    since we have a lot of cross-references here, this is currently
+    NOT possible (but implemented using mapping, though).
+    """
 
     chain = extensions.get_callback_chain(chain)
     output = None
