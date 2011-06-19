@@ -3,7 +3,7 @@
         <h1 class="subject">
             <a href="{{ Post.url }}">{{ Post.title }}</a>
         </h1>
-        <span class="date">{{ Post.date }}</span>
+        <span class="date">{{ Post.date.strftime("%d.%m.%Y, %H:%M") }}</span>
     </div>
     <div class="postbody">
         {{ Post.body }}

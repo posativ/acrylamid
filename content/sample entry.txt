@@ -1,6 +1,5 @@
 ---
 title: A meaningful title
-date: 01.01.1970, 20:00
 parser: Markdown
 ---
 
