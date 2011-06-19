@@ -88,14 +88,16 @@ def cb_filestat(request):
             timestamp = time.strptime(entry_list[i]['date'],
                                 config.get('strptime', '%d.%m.%Y, %H:%M'))
             timestamp = time.mktime(timestamp)
-            entry_list[i]._date = datetime.utcfromtimestamp(timestamp)
+            entry_list[i].date = datetime.utcfromtimestamp(timestamp)
+        else:
+            entry_list[i]['date'] = entry_list[i]._date
     return request
     
 def cb_sortlist(request):
     """sort list by date"""
 
     entry_list = request._data['entry_list']
-    entry_list.sort(key=lambda k: k._date, reverse=True)
+    entry_list.sort(key=lambda k: k.date, reverse=True)
     return request
 
 def cb_entryparser(request):
@@ -207,10 +209,10 @@ def cb_prepare(request):
     for i, entry in enumerate(data['entry_list']):
         safe_title = re.sub('[\W]+', '-', entry['title'], re.U).lower().strip('-')
         url = config.get('www_root', '') + '/' \
-              + str(entry['_date'].year) + '/' + safe_title + '/'
+              + str(entry.date.year) + '/' + safe_title + '/'
         id = 'tag:' + config.get('www_root', '').replace('http://', '').strip('/') \
-             + ',' + entry._date.strftime('%Y-%m-%d') + ':' \
-             + '/' + str(entry['_date'].year) +  '/' + safe_title
+             + ',' + entry.date.strftime('%Y-%m-%d') + ':' \
+             + '/' + str(entry.date.year) +  '/' + safe_title
         data['entry_list'][i]['safe_title'] = safe_title
         data['entry_list'][i]['url'] = url
         data['entry_list'][i]['id'] = id
@@ -248,7 +250,7 @@ def cb_item(request):
         html = tt_main.render( dict )
         
         directory = os.path.join(config.get('output_dir', 'out'),
-                         str(entry._date.year),
+                         str(entry.date.year),
                          entry.safe_title)
         path = os.path.join(directory, 'index.html')
         tools.mk_file(html, entry, path)

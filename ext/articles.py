@@ -20,10 +20,10 @@ def cb_end(request):
     tt_articles = Template(convert_text(open(layout).read()))
     articles = defaultdict(list)
     
-    for entry in sorted(data['entry_list'], key=lambda k: k._date, reverse=True):
-        url, title, year = entry['url'], entry['title'], entry._date.year
+    for entry in sorted(data['entry_list'], key=lambda k: k.date, reverse=True):
+        url, title, year = entry['url'], entry['title'], entry.date.year
         
-        articles[year].append((entry._date, url, title))
+        articles[year].append((entry.date, url, title))
         
     articlesdict =config.copy()
     articlesdict.update({'articles': articles,
