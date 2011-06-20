@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
  <head>
   <title>
-   posativs Blog: - Seite Index
+   {{ blog_title }}
   </title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta http-equiv="content-language" content="de, en" />
@@ -59,7 +59,7 @@
     </div>
     <div id="blogfooter">
         <p>
-            written by <a href="mailto:{{ email }}">posativ</a>
+            written by <a href="mailto:{{ email }}">{{ author }}</a>
         </p>
         <a href="http://creativecommons.org/licenses/by-nc-sa/2.0/de/">
             <img src="{{www_root}}/img/cc.png" alt="by-nc-sa" />
