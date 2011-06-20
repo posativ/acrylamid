@@ -20,7 +20,7 @@
     This Python code is in the public domain.
 """
 
-import re
+import sys, re
 from HTMLParser import HTMLParser
 from cgi import escape
 
@@ -41,7 +41,10 @@ class Hyphenator:
         # Convert the a pattern like 'a1bc3d4' into a string of chars 'abcd'
         # and a list of points [ 1, 0, 3, 4 ].
         chars = re.sub('[0-9]', '', pattern)
-        points = [ int(d or 0) for d in re.split(u"[.a-zäöüßçáâàéèêëíñôó]", pattern, flags=re.U) ]
+        if sys.version_info[:2] == (2, 5):
+            points = [ int(d or 0) for d in re.split(u"[.a-zäöüßçáâàéèêëíñôó]", pattern) ]
+        else:
+            points = [ int(d or 0) for d in re.split(u"[.a-zäöüßçáâàéèêëíñôó]", pattern, flags=re.U) ]
 
         # Insert the pattern into the tree.  Each character finds a dict
         # another level down in the tree, and leaf nodes have the list of
