@@ -4,7 +4,7 @@
 # - callback after rendering, but before write to file (e.g. tidy)
 # - use file ext for markup, if #parser not specifed
 
-VERSION = "0.1-dev"
+VERSION = "0.1-stable"
 VERSION_SPLIT = tuple(VERSION.split('-')[0].split('.'))
 
 import sys
