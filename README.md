@@ -17,7 +17,7 @@ Features
 Quickstart
 ----------
 
-Dependencies `python` (at least 2.6), `pyyaml`, `shpaml`, and `jinja2`. And
+Dependencies `python` (at least 2.5), `pyyaml`, `shpaml`, and `jinja2`. And
 of course docutils or markdown for markup, but not required in plain HTML.
 
     pip install pyyaml shpaml jinja2
