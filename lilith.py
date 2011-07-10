@@ -324,7 +324,7 @@ def _prepare(request):
         safe_title = re.sub('[\W]+', '-', entry['title'], re.U).lower().strip('-')
         url = config.get('www_root', '') + '/' \
               + str(entry.date.year) + '/' + safe_title + '/'
-        id = 'tag:' + config.get('www_root', '').replace('http://', '').strip('/') \
+        id = 'tag:' + re.sub('https?://', '', config.get('www_root', '')).strip('/') \
              + ',' + entry.date.strftime('%Y-%m-%d') + ':' \
              + '/' + str(entry.date.year) +  '/' + safe_title
         data['entry_list'][i]['safe_title'] = safe_title
