@@ -12,27 +12,27 @@ import extensions
 
 log = logging.getLogger('lilith.tools')
 
-def run_callback(chain, input, mapping=lambda x,y: y, defaultfunc=None):
-    """It simply applies every function in chain or if None given, the
-    defaultfunc.
+def run_callback(chain, input, mapping=lambda x,y: y, defaultfunc=lambda x: x):
+    """Applies defaultfunc to input and additional every function in chain.
     
     Should return neither the modifed or the unmodified output. But
     since we have a lot of cross-references here, this is currently
     NOT possible (but implemented using mapping, though).
     """
+    
+    if not callable(defaultfunc):
+        raise TypeError('defaultfunc must be callable')
 
     chain = extensions.get_callback_chain(chain)
-    output = None
 
     if chain:
         for func in chain:
+            log.debug('%s.%s' % (func.__module__, func.func_name))
             output = func(input)
             input = mapping(input, output)
-        return input
-    else:
-        if callable(defaultfunc):
-            return defaultfunc(input)
-    return input
+    
+    log.debug('%s.%s' % (defaultfunc.__module__, defaultfunc.func_name))
+    return defaultfunc(input)
 
 class FileEntry:
     """This class gets it's data and metadata from the file specified

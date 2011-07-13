@@ -224,17 +224,49 @@ def _sortlist(request):
     entry_list.sort(key=lambda k: k.date, reverse=True)
     return request
 
-def _format(args):
-    """Apply markup using Post.parser."""
+def _entryparser(args):
+    """Applies:
+        - cb_preformat
+        - cb_format
+        - cb_postformat"""
+    
     entry = args['entry']
     config = args['config']
     
-    parser = entry.get('parser', config.get('parser', 'plain'))
+    log.debug('cb_preformat')
+    entry = tools.run_callback(
+            'preformat',
+            entry,
+            defaultfunc=_preformat)
+
+    log.debug('cb_format')
+    entry = tools.run_callback(
+            'format',
+            entry,
+            defaultfunc=_format)
+        
+    log.debug('cb_postformat')
+    entry = tools.run_callback(
+            'postformat',
+            entry,
+            defaultfunc=lambda x: x)
+    
+    return entry
+    
+def _preformat(entry):
+    entry['body'] = ''.join(entry['story'])
+    return entry
+
+def _format(entry):
+    """Apply markup using Post.parser."""
+    
+    parser = entry.get('parser', 'plain')
     
     if parser.lower() in ['markdown', 'mkdown', 'md']:
         from markdown import markdown
-        return markdown(entry['body'],
+        entry['body'] = markdown(entry['body'],
                         extensions=['codehilite(css_class=highlight)'])
+        return entry
     
     elif parser.lower() in ['restructuredtest', 'rst', 'rest']:                
         from docutils import nodes
@@ -286,41 +318,10 @@ def _format(args):
             }
         parts = publish_parts(
             entry['body'], writer_name='html', settings_overrides=settings)
-        return parts['body'].encode('utf-8')
-        
+        entry['body'] = parts['body'].encode('utf-8')
+        return entry
     else:
-        return entry['body']
-    
-def _entryparser(args):
-    """Applies:
-        - cb_preformat
-        - cb_format
-        - cb_postformat"""
-    
-    entry = args['entry']
-    config = args['config']
-    
-    log.debug('cb_preformat')
-    entry['body'] = tools.run_callback(
-            'preformat',
-            {'entry': entry, 'config': config},
-            defaultfunc=lambda x: ''.join(x['entry']['story']))
-
-    log.debug('cb_format')
-    entry['body'] = tools.run_callback(
-            'format',
-            {'entry': entry, 'config': config},
-            mapping=lambda x,y: y,
-            defaultfunc=_format)
-    
-    log.debug('cb_postformat')
-    entry['body'] = tools.run_callback(
-            'postformat',
-            {'entry': entry, 'config': config},
-            mapping=lambda x,y: y,
-            defaultfunc=lambda x: x['entry']['body'])
-    
-    return entry
+        return entry
 
 def _prepare(request):
     """Sets a few required keys in FileEntry.
