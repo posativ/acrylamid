@@ -13,7 +13,7 @@ Features
 - theming support (using [jinja2](http://jinjna.pocoo.org/))
 - [reStructuredText][1] and [Markdown][2] as markup languages
 - (currently only german) hyphenation using `&shy;`
-- MathML generation using [AsciiMathMl][3]
+- MathML generation using [AsciiMathML][3]
 
 [1]: http://docutils.sourceforge.net/rst.html
 [2]: http://daringfireball.net/projects/markdown/
@@ -110,7 +110,7 @@ Extensions
 ### builtin
 
 - **syndication**: produces valid atom and rss feeds
-- **summarize**: summarizes posts to 200 chars in pagination
+- **summarize**: summarizes posts to 200 words in pagination
 - **hyphenate**: hyphenation using `&shy;` (currently german-only)
 - **mathml**: asciimathml to MathML converter
 - **articles**: simple article overview
