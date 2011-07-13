@@ -1331,7 +1331,7 @@ class Separator(HTMLParser):
 
     def handle_data(self, data):
         """Hyphenate words longer than 10 characters."""
-        split = [word for word in re.split("[.:, !?]+", data) if len(word) > 10]
+        split = [word for word in re.split("[.:, !?+=\(\)/]+", data) if len(word) > 10]
         for word in split:
             hyphenated = '&shy;'.join(self.hyphenate(word))
             data = data.replace(word, hyphenated)

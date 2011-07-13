@@ -481,5 +481,5 @@ def substitution(match):
 
 def cb_postformat(entry):
     
-    entry['body'] = re.sub(r'\$\$([^\$]*)\$\$', substitution, entry['body'], re.M)
+    entry['body'] = re.sub(r'\$\$([^\$]*)\$\$', substitution, entry['body'])
     return entry
