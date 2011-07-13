@@ -84,9 +84,11 @@ class Lilith:
         self.initialize()
         
         # run the start callback
+        log.debug('cb_start')
         request = tools.run_callback('start', self.request)
         
         # run the default handler
+        log.debug('cb_handle')
         request = tools.run_callback("handle",
                         request,
                         mapping=lambda x,y:x,
@@ -129,23 +131,28 @@ def _lilith_handler(request):
     data = request._data
                        
     # call the filelist callback to generate a list of entries
+    log.debug('cb_filelist')
     request =  tools.run_callback(
             "filelist",
             request,
             defaultfunc=_filelist)
         
     # chance to modify specific meta data e.g. datetime
+    log.debug('cb_filestat')
     request = tools.run_callback(
             'filestat', 
             request,
             defaultfunc=_filestat)
     
     # use datetime to sort chronological
+    log.debug('cb_sortlist')
     request = tools.run_callback(
             'sortlist', 
             request,
             defaultfunc=_sortlist)
             
+    # entry specific callbacks
+    log.debug('cb_entryparser')
     for i,entry in enumerate(request._data['entry_list']):
         request._data['entry_list'][i] = tools.run_callback(
                 'entryparser',
@@ -153,14 +160,17 @@ def _lilith_handler(request):
                 defaultfunc=_entryparser)
     
     # last modifications
+    log.debug('cb_prepare')
     request = _prepare(request)
             
     from copy import deepcopy # performance? :S
     
+    log.debug('cb_item')
     tools.run_callback('item', deepcopy(request),
                     mapping=lambda x,y: y,
                     defaultfunc=_item)
     
+    log.debug('cb_page')
     tools.run_callback('page', deepcopy(request),
                     mapping=lambda x,y: y,
                     defaultfunc=_page)
@@ -290,17 +300,20 @@ def _entryparser(args):
     entry = args['entry']
     config = args['config']
     
+    log.debug('cb_preformat')
     entry['body'] = tools.run_callback(
             'preformat',
             {'entry': entry, 'config': config},
             defaultfunc=lambda x: ''.join(x['entry']['story']))
 
+    log.debug('cb_format')
     entry['body'] = tools.run_callback(
             'format',
             {'entry': entry, 'config': config},
             mapping=lambda x,y: y,
             defaultfunc=_format)
     
+    log.debug('cb_postformat')
     entry['body'] = tools.run_callback(
             'postformat',
             {'entry': entry, 'config': config},
