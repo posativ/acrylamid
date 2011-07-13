@@ -424,8 +424,14 @@ if __name__ == '__main__':
     #                  help="force overwrite", default=False)
     parser.add_option("-l", "--layout_dir", dest="layout", metavar="DIR",
                       help="force overwrite", default=False)
+    parser.add_option("--debug", action="store_true", dest="DEBUG",
+                      help="debug information", default=False)
     
     (options, args) = parser.parse_args()
+    
+    import logging
+    logging.basicConfig(format='[%(levelname)s] %(name)s - %(message)s',
+                        level=logging.DEBUG if options.DEBUG else logging.INFO)
     
     conf = yaml.load(open(options.conf).read())
     if options.layout:

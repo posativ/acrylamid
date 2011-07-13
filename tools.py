@@ -6,8 +6,11 @@ import yaml
 from datetime import datetime
 from os.path import join, exists, getmtime, dirname
 from time import gmtime
+import logging
 
 import extensions
+
+log = logging.getLogger('lilith.tools')
 
 def run_callback(chain, input, mapping=lambda x,y: y, defaultfunc=None):
     """It simply applies every function in chain or if None given, the
@@ -124,10 +127,11 @@ def check_conf(conf):
                 if os.path.isdir(value):
                     pass
                 else:
-                    raise OSError('[ERROR] %s has to be a directory' % value)
+                    log.error("'%s' must be a directory" % value)
+                    sys.exit(1)
             else:
                 os.mkdir(value)
-                print '[WARNING]: %s created...' % value
+                log.warning('%s created...' % value)
                 
     return True
 
@@ -145,12 +149,12 @@ def mk_file(content, entry, path, force=False):
     if exists(dirname(path)) and exists(path):
         old = open(path).read()
         if content == old and not force:
-            print "[INFO] '%s' is up to date" % entry['title']
+            log.debug("'%s' is up to date" % entry['title'])
         else:
             f = open(path, 'w')
             f.write(content)
             f.close()
-            print "[INFO] Content of '%s' has changed" % entry['title']
+            log.info("Content of '%s' has changed" % entry['title'])
     else:
         try:
             os.makedirs(dirname(path))
@@ -160,4 +164,4 @@ def mk_file(content, entry, path, force=False):
         f = open(path, 'w')
         f.write(content)
         f.close()
-        print "[INFO] '%s' written to %s" % (entry['title'], path)
+        log.info("'%s' written to %s" % (entry['title'], path))
