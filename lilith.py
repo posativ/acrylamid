@@ -445,6 +445,7 @@ if __name__ == '__main__':
     import logging
     logging.basicConfig(format='[%(levelname)s] %(name)s - %(message)s',
                         level=logging.DEBUG if options.DEBUG else logging.INFO)
+    log = logging.getLogger('lilith')
     
     conf = yaml.load(open(options.conf).read())
     if options.layout:
