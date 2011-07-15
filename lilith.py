@@ -19,7 +19,7 @@ from datetime import datetime
 import yaml
 import extensions
 import tools
-from tools import FileEntry
+from tools import FileEntry, LilithLogger
 
 from shpaml import convert_text
 from jinja2 import Template
@@ -444,9 +444,11 @@ if __name__ == '__main__':
     (options, args) = parser.parse_args()
     
     import logging
-    logging.basicConfig(format='[%(levelname)s] %(name)s - %(message)s',
-                        level=logging.DEBUG if options.DEBUG else logging.INFO)
+    logging.setLoggerClass(LilithLogger)
+    #logging.basicConfig(format='[%(levelname)s] %(name)s - %(message)s',
+    #                    level=logging.DEBUG if options.DEBUG else logging.INFO)
     log = logging.getLogger('lilith')
+    log.setLevel(logging.DEBUG if options.DEBUG else logging.INFO)
     
     conf = yaml.load(open(options.conf).read())
     if options.layout:

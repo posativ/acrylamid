@@ -33,6 +33,25 @@ def run_callback(chain, input, mapping=lambda x,y: y, defaultfunc=lambda x: x):
     
     log.debug('%s.%s' % (defaultfunc.__module__, defaultfunc.func_name))
     return defaultfunc(input)
+    
+class ColorFormatter(logging.Formatter):
+    """Implements basic colored output using ANSI escape codes."""
+    
+    def __init__(self, msg):
+        logging.Formatter.__init__(self, msg)
+        
+    def format(self, record):
+        record.levelname = '\033[0;31m%s\033[0m' % record.levelname
+        return logging.Formatter.format(self, record)
+        
+class LilithLogger(logging.Logger):
+    def __init__(self, name, format='[%(levelname)s] %(name)s - %(message)s'):
+        logging.Logger.__init__(self, name)
+        
+        console = logging.StreamHandler()
+        console.setFormatter(ColorFormatter(format))
+        
+        self.addHandler(console)
 
 class FileEntry:
     """This class gets it's data and metadata from the file specified
