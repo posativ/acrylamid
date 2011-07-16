@@ -15,11 +15,12 @@ import re
 import locale
 import time
 from datetime import datetime
+import logging
 
 import yaml
 import extensions
 import tools
-from tools import FileEntry, LilithLogger
+from tools import FileEntry, ColorFormatter
 
 from shpaml import convert_text
 from jinja2 import Template
@@ -431,6 +432,7 @@ def _page(request):
 if __name__ == '__main__':
     
     from optparse import OptionParser
+    
     parser = OptionParser()
     parser.add_option("-c", "--config-file", dest="conf", metavar="FILE",
                       help="an alternative conf to use", default="lilith.conf")
@@ -438,18 +440,24 @@ if __name__ == '__main__':
     #                  help="force overwrite", default=False)
     parser.add_option("-l", "--layout_dir", dest="layout", metavar="DIR",
                       help="force overwrite", default=False)
-    parser.add_option("--debug", action="store_true", dest="DEBUG",
-                      help="debug information", default=False)
+    parser.add_option("-q", "--quit", action="store_const", dest="verbose",
+                      help="be silent (mostly)", const=logging.WARN,
+                      default=logging.INFO)
+#    parser.add_option("-v", "--verbose", action="store_const", dest="verbose",
+#                      help="be verbose", const=logging.INFO)
+    parser.add_option("--debug", action="store_const", dest="verbose",
+                      help="debug information", const=logging.DEBUG)
     
     (options, args) = parser.parse_args()
     
-    import logging
-    logging.setLoggerClass(LilithLogger)
-    #logging.basicConfig(format='[%(levelname)s] %(name)s - %(message)s',
-    #                    level=logging.DEBUG if options.DEBUG else logging.INFO)
+    console = logging.StreamHandler()
+    console.setFormatter(ColorFormatter('[%(levelname)s] %(name)s: %(message)s'))
+    if options.verbose == logging.DEBUG:
+        console.setFormatter(ColorFormatter('%(msecs)d [%(levelname)s] %(name)s: %(message)s'))
     log = logging.getLogger('lilith')
-    log.setLevel(logging.DEBUG if options.DEBUG else logging.INFO)
-    
+    log.addHandler(console)
+    log.setLevel(options.verbose)
+        
     conf = yaml.load(open(options.conf).read())
     if options.layout:
         conf['layout_dir'] = options.layout
