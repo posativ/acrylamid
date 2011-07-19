@@ -115,7 +115,7 @@ example we can generate its string representation:
     remove_invisible(nodes)
     nodes = map(remove_private, nodes)
 
-    return El('math', El('mstyle', *nodes), xmlns='http://www.w3.org/1998/Math/MathML', display='block')
+    return El('math', El('mstyle', *nodes), xmlns='http://www.w3.org/1998/Math/MathML', display='inline')
 
 delimiters = {'{': '}', '(': ')', '[': ']'}
 
