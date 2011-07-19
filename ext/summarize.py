@@ -63,10 +63,14 @@ class Summarizer(HTMLParser):
                 for x in range(len(self.stack)):
                     self.summarized += '</%s>' % self.stack.pop()
                     
-    def handle_entityref(self, name):
+    def handle_entityref(self, entity):
         '''handle &shy; correctly'''
         if self.words < self.maxwords:
-            self.summarized += '&'  + name + ';'
+            self.summarized += '&'+ entity + ';'
+            
+    def handle_charref(self, char):
+        if self.words < self.maxwords:
+            self.summarized += '&#' + char + ';'
 
 
 def cb_prepare(request):

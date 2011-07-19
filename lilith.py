@@ -4,7 +4,7 @@
 # - callback after rendering, but before write to file (e.g. tidy)
 # - use file ext for markup, if #parser not specifed
 
-VERSION = "0.1-dev"
+VERSION = "0.1-stable"
 VERSION_SPLIT = tuple(VERSION.split('-')[0].split('.'))
 
 import sys
@@ -15,11 +15,12 @@ import re
 import locale
 import time
 from datetime import datetime
+import logging
 
 import yaml
 import extensions
 import tools
-from tools import FileEntry
+from tools import FileEntry, ColorFormatter
 
 from shpaml import convert_text
 from jinja2 import Template
@@ -84,16 +85,18 @@ class Lilith:
         self.initialize()
         
         # run the start callback
+        log.debug('cb_start')
         request = tools.run_callback('start', self.request)
         
         # run the default handler
+        log.debug('cb_handle')
         request = tools.run_callback("handle",
                         request,
                         mapping=lambda x,y:x,
                         defaultfunc=_lilith_handler)
                 
         # do end callback
-        request = tools.run_callback('end', request)
+        tools.run_callback('end', request)
 
             
 class Request(object):
@@ -129,23 +132,28 @@ def _lilith_handler(request):
     data = request._data
                        
     # call the filelist callback to generate a list of entries
+    log.debug('cb_filelist')
     request =  tools.run_callback(
             "filelist",
             request,
             defaultfunc=_filelist)
         
     # chance to modify specific meta data e.g. datetime
+    log.debug('cb_filestat')
     request = tools.run_callback(
             'filestat', 
             request,
             defaultfunc=_filestat)
     
     # use datetime to sort chronological
+    log.debug('cb_sortlist')
     request = tools.run_callback(
             'sortlist', 
             request,
             defaultfunc=_sortlist)
             
+    # entry specific callbacks
+    log.debug('cb_entryparser')
     for i,entry in enumerate(request._data['entry_list']):
         request._data['entry_list'][i] = tools.run_callback(
                 'entryparser',
@@ -153,14 +161,17 @@ def _lilith_handler(request):
                 defaultfunc=_entryparser)
     
     # last modifications
+    log.debug('cb_prepare')
     request = _prepare(request)
             
     from copy import deepcopy # performance? :S
     
+    log.debug('cb_item')
     tools.run_callback('item', deepcopy(request),
                     mapping=lambda x,y: y,
                     defaultfunc=_item)
     
+    log.debug('cb_page')
     tools.run_callback('page', deepcopy(request),
                     mapping=lambda x,y: y,
                     defaultfunc=_page)
@@ -205,6 +216,7 @@ def _filestat(request):
             entry_list[i].date = datetime.utcfromtimestamp(timestamp)
         else:
             entry_list[i]['date'] = entry_list[i]._date
+            log.warn("using mtime from %s" % entry_list[i])
     return request
     
 def _sortlist(request):
@@ -214,17 +226,53 @@ def _sortlist(request):
     entry_list.sort(key=lambda k: k.date, reverse=True)
     return request
 
-def _format(args):
+def _entryparser(request):
+    """Applies:
+        - cb_preformat
+        - cb_format
+        - cb_postformat"""
+    
+    entry = request['entry']
+    config = request['config']
+    
+    log.debug('cb_preformat')
+    request = tools.run_callback(
+            'preformat',
+            request,
+            defaultfunc=_preformat)
+
+    log.debug('cb_format')
+    request = tools.run_callback(
+            'format',
+            request,
+            defaultfunc=_format)
+        
+    log.debug('cb_postformat')
+    request = tools.run_callback(
+            'postformat',
+            request,
+            defaultfunc=lambda x: x)
+    
+    return entry
+    
+def _preformat(request):
+    entry = request['entry']
+    entry['body'] = ''.join(entry['story'])
+    return request
+
+def _format(request):
     """Apply markup using Post.parser."""
-    entry = args['entry']
-    config = args['config']
+    
+    entry = request['entry']
+    config = request['config']
     
     parser = entry.get('parser', config.get('parser', 'plain'))
     
     if parser.lower() in ['markdown', 'mkdown', 'md']:
         from markdown import markdown
-        return markdown(entry['body'],
+        entry['body'] = markdown(entry['body'],
                         extensions=['codehilite(css_class=highlight)'])
+        return request
     
     elif parser.lower() in ['restructuredtest', 'rst', 'rest']:                
         from docutils import nodes
@@ -276,38 +324,10 @@ def _format(args):
             }
         parts = publish_parts(
             entry['body'], writer_name='html', settings_overrides=settings)
-        return parts['body'].encode('utf-8')
-        
+        entry['body'] = parts['body'].encode('utf-8')
+        return request
     else:
-        return entry['body']
-    
-def _entryparser(args):
-    """Applies:
-        - cb_preformat
-        - cb_format
-        - cb_postformat"""
-    
-    entry = args['entry']
-    config = args['config']
-    
-    entry['body'] = tools.run_callback(
-            'preformat',
-            {'entry': entry, 'config': config},
-            defaultfunc=lambda x: ''.join(x['entry']['story']))
-
-    entry['body'] = tools.run_callback(
-            'format',
-            {'entry': entry, 'config': config},
-            mapping=lambda x,y: y,
-            defaultfunc=_format)
-    
-    entry['body'] = tools.run_callback(
-            'postformat',
-            {'entry': entry, 'config': config},
-            mapping=lambda x,y: y,
-            defaultfunc=lambda x: x['entry']['body'])
-    
-    return entry
+        return request
 
 def _prepare(request):
     """Sets a few required keys in FileEntry.
@@ -324,7 +344,7 @@ def _prepare(request):
         safe_title = re.sub('[\W]+', '-', entry['title'], re.U).lower().strip('-')
         url = config.get('www_root', '') + '/' \
               + str(entry.date.year) + '/' + safe_title + '/'
-        id = 'tag:' + config.get('www_root', '').replace('http://', '').strip('/') \
+        id = 'tag:' + re.sub('https?://', '', config.get('www_root', '')).strip('/') \
              + ',' + entry.date.strftime('%Y-%m-%d') + ':' \
              + '/' + str(entry.date.year) +  '/' + safe_title
         data['entry_list'][i]['safe_title'] = safe_title
@@ -417,6 +437,7 @@ def _page(request):
 if __name__ == '__main__':
     
     from optparse import OptionParser
+    
     parser = OptionParser()
     parser.add_option("-c", "--config-file", dest="conf", metavar="FILE",
                       help="an alternative conf to use", default="lilith.conf")
@@ -424,9 +445,24 @@ if __name__ == '__main__':
     #                  help="force overwrite", default=False)
     parser.add_option("-l", "--layout_dir", dest="layout", metavar="DIR",
                       help="force overwrite", default=False)
+    parser.add_option("-q", "--quit", action="store_const", dest="verbose",
+                      help="be silent (mostly)", const=logging.WARN,
+                      default=logging.INFO)
+#    parser.add_option("-v", "--verbose", action="store_const", dest="verbose",
+#                      help="be verbose", const=logging.INFO)
+    parser.add_option("--debug", action="store_const", dest="verbose",
+                      help="debug information", const=logging.DEBUG)
     
     (options, args) = parser.parse_args()
     
+    console = logging.StreamHandler()
+    console.setFormatter(ColorFormatter('[%(levelname)s] %(name)s: %(message)s'))
+    if options.verbose == logging.DEBUG:
+        console.setFormatter(ColorFormatter('%(msecs)d [%(levelname)s] %(name)s: %(message)s'))
+    log = logging.getLogger('lilith')
+    log.addHandler(console)
+    log.setLevel(options.verbose)
+        
     conf = yaml.load(open(options.conf).read())
     if options.layout:
         conf['layout_dir'] = options.layout

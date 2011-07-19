@@ -2,9 +2,11 @@
 # -*- encoding: utf-8 -*-
 
 import sys, os, glob, fnmatch
+import logging
 
 plugins = []
 callbacks = {}
+log = logging.getLogger('lilith.extensions')
 
 def index_plugin(module):
     """Goes through the plugin's contents and indexes all the funtions
@@ -78,11 +80,12 @@ def initialize(ext_dir, include=[], exclude=[]):
     callbacks.clear()
     
     # handle ext_dir
-    for mem in ext_dir:
+    for mem in ext_dir[:]:
         if os.path.isdir(mem):
             sys.path.insert(0, mem)
         else:
-            raise Exception("Extension directory '%s' does not exist." % mem)
+            ext_dir.remove(mem)
+            log.error("Extension directory '%s' does not exist. -- skipping" % mem)
             
     ext_list = get_extension_list(ext_dir, include, exclude)
     
@@ -92,6 +95,7 @@ def initialize(ext_dir, include=[], exclude=[]):
         except (SystemExit, KeyboardInterrupt):
             raise
         except:
+            log.error("ImportError: %s.py" % mem)
             continue
         
         index_plugin(_module)
