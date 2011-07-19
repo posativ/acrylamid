@@ -12,9 +12,9 @@ ATOM_BODY = '''
 <?xml version="1.0" encoding="utf-8"?>
 feed xmlns=http://www.w3.org/2005/Atom xml:lang={{lang}}
     author
-        name | posativ
-        uri | http://posativ.org/
-        email | info@posativ.org
+        name | {{ author }}
+        uri | {{ website }}
+        email | {{ email }}
     title | {{ blog_title }}
     id | {{ website }}
     > link rel=alternate type=text/html href={{website}}
