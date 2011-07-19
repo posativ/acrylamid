@@ -73,9 +73,8 @@ class Lilith:
         # import and initialize plugins
         extensions.initialize(config.get("ext_dir", ['ext', ]),
                               exclude=config.get("ext_ignore", []))
-
-        # entryparser callback is run here first to allow other
-        # plugins register what file extensions can be used
+        
+        config['extensions'] = [ex.__name__ for ex in extensions.plugins]
     
     def run(self):
         """This is the main loop for lilith.  This method will run
@@ -381,7 +380,7 @@ def _item(request):
     
     for entry in data['entry_list']:
         entrydict = dict.copy()
-        entrydict.update('Post': entry)
+        entrydict.update(entry)
         dict.update({'entry_list':tt_entry.render(entrydict) })
         html = tt_main.render( dict )
         
