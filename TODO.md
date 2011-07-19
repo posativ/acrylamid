@@ -14,11 +14,6 @@ extensions
 - draft generation (not included in feeds, pages and articles overview)
 - colored INFO, WARN, ERROR -> take a look at nanoc's color sheme
 
-## thoughts:
-
-- allow defaultfunc overwrite and raise Exception when more than one
-  defaultfunc are revealed
-
 ## known issues:
 
 - summarizing + &shy; produces syllable orphan
