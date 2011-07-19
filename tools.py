@@ -37,6 +37,7 @@ def run_callback(chain, input, mapping=lambda x,y: y, defaultfunc=lambda x: x):
         sys.exit(1)
     elif len(newdefault) == 1:        
         defaultfunc = newdefault[0]
+        chain.remove(defaultfunc)
         log.debug('new defaultfunc: %s.%s' % (defaultfunc.__module__,
                                               defaultfunc.func_name) )
 
