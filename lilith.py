@@ -381,7 +381,7 @@ def _item(request):
     
     for entry in data['entry_list']:
         entrydict = dict.copy()
-        entrydict.update({'Post': entry})
+        entrydict.update('Post': entry)
         dict.update({'entry_list':tt_entry.render(entrydict) })
         html = tt_main.render( dict )
         
@@ -421,7 +421,7 @@ def _page(request):
     entry_list = []
     for entry in data['entry_list']:
         entrydict = dict.copy()
-        entrydict.update({'Post': entry})
+        entrydict.update(entry)
         entry_list.append(tt_entry.render(entrydict))
                 
     for i, mem in enumerate([entry_list[x*ipp:(x+1)*ipp] for x in range(len(entry_list)/ipp+1)]):
