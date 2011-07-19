@@ -1,12 +1,14 @@
 extensions
 ------------
 
-- multilang (requires own lilit_handler)
+- multilang
 - disqus
 
 0.1
 -------
 
+- think of some more tools.py functions to provide easier access to feedgenerators and
+  such things
 - speed up re-generation:
     - avoid rendering entries which have not changed
     - calculate which pages/feeds have to be regenerated
@@ -22,6 +24,10 @@ extensions
 - summarizing + &shy; produces syllable orphan
 - MathML only works in Firefox -> fallback using some stupid JS:
     http://www.mathjax.org/ | http://www1.chapman.edu/~jipsen/mathml/asciimath.html
+
+## chores
+
+- don't conf.get(key, default) all the time, set default once and forever
 
 0.2
 -------
