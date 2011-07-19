@@ -1,11 +1,18 @@
 <div class="posting">
     <div class="postheader">
         <h1 class="subject">
-            <a href="{{ Post.url }}">{{ Post.title }}</a>
+            <a href="{{ url }}">{{ title }}</a>
         </h1>
-        <span class="date">{{ Post.date.strftime("%d.%m.%Y, %H:%M") }}</span>
+        <span class="date">{{ date.strftime("%d.%m.%Y, %H:%M") }}</span>
     </div>
     <div class="postbody">
-        {{ Post.body }}
+        {% if 'multilang' in extensions and translations %}
+        <ul>
+            {% for tr in translations %}
+                <li><strong>{{ tr.lang }}:</strong> <a href="{{ tr.url }}">{{ tr.title }}</a></li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {{ body }}
     </div>
 </div>

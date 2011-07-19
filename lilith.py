@@ -60,7 +60,9 @@ class Lilith:
                 locale.setlocale(locale.LC_ALL, config['lang'])
             except locale.Error:
                 # invalid locale
-                pass
+                log.warn('unsupported locale `%s`' % config['lang'])
+        else:
+            config['lang'] = locale.setlocale(locale.LC_ALL, '')
 
         config['www_root'] = config.get('www_root', '')
 
@@ -71,9 +73,8 @@ class Lilith:
         # import and initialize plugins
         extensions.initialize(config.get("ext_dir", ['ext', ]),
                               exclude=config.get("ext_ignore", []))
-
-        # entryparser callback is run here first to allow other
-        # plugins register what file extensions can be used
+        
+        config['extensions'] = [ex.__name__ for ex in extensions.plugins]
     
     def run(self):
         """This is the main loop for lilith.  This method will run
@@ -235,23 +236,23 @@ def _entryparser(request):
     entry = request['entry']
     config = request['config']
     
-    log.debug('cb_preformat')
-    request = tools.run_callback(
+    log.debug('cb_preformat: "%s"' % entry.title)
+    entry = tools.run_callback(
             'preformat',
-            request,
-            defaultfunc=_preformat)
+            {'entry': entry, 'config': config},
+            defaultfunc=_preformat)['entry']
 
-    log.debug('cb_format')
-    request = tools.run_callback(
+    log.debug('cb_format: "%s"' % entry.title)
+    entry = tools.run_callback(
             'format',
-            request,
-            defaultfunc=_format)
+            {'entry': entry, 'config': config},
+            defaultfunc=_format)['entry']
         
-    log.debug('cb_postformat')
-    request = tools.run_callback(
+    log.debug('cb_postformat: "%s"' % entry.title)
+    entry = tools.run_callback(
             'postformat',
-            request,
-            defaultfunc=lambda x: x)
+            {'entry': entry, 'config': config},
+            defaultfunc=lambda x: x)['entry']
     
     return entry
     
@@ -379,7 +380,7 @@ def _item(request):
     
     for entry in data['entry_list']:
         entrydict = dict.copy()
-        entrydict.update({'Post': entry})
+        entrydict.update(entry)
         dict.update({'entry_list':tt_entry.render(entrydict) })
         html = tt_main.render( dict )
         
@@ -419,7 +420,7 @@ def _page(request):
     entry_list = []
     for entry in data['entry_list']:
         entrydict = dict.copy()
-        entrydict.update({'Post': entry})
+        entrydict.update(entry)
         entry_list.append(tt_entry.render(entrydict))
                 
     for i, mem in enumerate([entry_list[x*ipp:(x+1)*ipp] for x in range(len(entry_list)/ipp+1)]):
