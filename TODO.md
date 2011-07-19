@@ -11,9 +11,7 @@ extensions
     - avoid rendering entries which have not changed
     - calculate which pages/feeds have to be regenerated
     - use timestamp delta, to get modified entries (including rendering offset)
-- warn, when using mtime (deprecated)
 - draft generation (not included in feeds, pages and articles overview)
-- using {entry, conf} in _entryparser again
 - colored INFO, WARN, ERROR -> take a look at nanoc's color sheme
 
 ## thoughts:

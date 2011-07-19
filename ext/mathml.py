@@ -479,7 +479,8 @@ symbol_names = sorted(symbols.keys(), key=lambda s: len(s), reverse=True)
 def substitution(match):
     return tostring(parse(match.group(1)))
 
-def cb_postformat(entry):
+def cb_postformat(request):
     
+    entry = request['entry']
     entry['body'] = re.sub(r'\$\$([^\$]*)\$\$', substitution, entry['body'])
-    return entry
+    return request
