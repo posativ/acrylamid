@@ -115,7 +115,7 @@ example we can generate its string representation:
     remove_invisible(nodes)
     nodes = map(remove_private, nodes)
 
-    return El('math', El('mstyle', *nodes), xmlns='http://www.w3.org/1998/Math/MathML', display='block')
+    return El('math', El('mstyle', *nodes), xmlns='http://www.w3.org/1998/Math/MathML', display='inline')
 
 delimiters = {'{': '}', '(': ')', '[': ']'}
 
@@ -479,7 +479,8 @@ symbol_names = sorted(symbols.keys(), key=lambda s: len(s), reverse=True)
 def substitution(match):
     return tostring(parse(match.group(1)))
 
-def cb_postformat(entry):
+def cb_postformat(request):
     
+    entry = request['entry']
     entry['body'] = re.sub(r'\$\$([^\$]*)\$\$', substitution, entry['body'])
-    return entry
+    return request

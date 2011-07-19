@@ -1347,8 +1347,9 @@ class Separator(HTMLParser):
         '''handle &shy; correctly, TODO: do we need this?'''
         self.result.append('&'  + name + ';')
 
-def cb_postformat(entry):
+def cb_postformat(request):
     
+    entry = request['entry']
     entry['body'] = ''.join(Separator(entry['body'], hyphenate_word).result)
-    return entry
+    return request
     

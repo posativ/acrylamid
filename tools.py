@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 
+import sys
 import os
 import yaml
 from datetime import datetime
@@ -18,22 +19,38 @@ def run_callback(chain, input, mapping=lambda x,y: y, defaultfunc=lambda x: x):
     Should return neither the modifed or the unmodified output. But
     since we have a lot of cross-references here, this is currently
     NOT possible (but implemented using mapping, though).
+    
+    You can override the defaultfunc (given in lilith_handler) by adding
+    @defaultfunc to your callback. defaultfunc can be imported from tools.
     """
     
     if not callable(defaultfunc):
         raise TypeError('defaultfunc must be callable')
 
     chain = extensions.get_callback_chain(chain)
+    newdefault = filter(lambda f: f.func_dict.get('defaultfunc', False), chain)
+    
+    if len(newdefault) > 1:
+        newdefault = ', '.join(['%s.%s' % (f.__module__, f.func_name)
+                                    for f in newdefault])
+        log.critical('more than one defaultfunc specified: %s' % newdefault)
+        sys.exit(1)
+    elif len(newdefault) == 1:        
+        defaultfunc = newdefault[0]
+        log.debug('new defaultfunc: %s.%s' % (defaultfunc.__module__,
+                                              defaultfunc.func_name) )
 
-    if chain:
-        for func in chain:
-            log.debug('%s.%s' % (func.__module__, func.func_name))
-            output = func(input)
-            input = mapping(input, output)
+    for func in chain:
+        log.debug('%s.%s' % (func.__module__, func.func_name))
+        output = func(input)
+        input = mapping(input, output)
     
     log.debug('%s.%s' % (defaultfunc.__module__, defaultfunc.func_name))
     return defaultfunc(input)
 
+def defaultfunc(func):
+        func.func_dict['defaultfunc'] = True
+        return func
     
 class ColorFormatter(logging.Formatter):
     """Implements basic colored output using ANSI escape codes."""
