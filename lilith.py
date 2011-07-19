@@ -60,7 +60,9 @@ class Lilith:
                 locale.setlocale(locale.LC_ALL, config['lang'])
             except locale.Error:
                 # invalid locale
-                pass
+                log.warn('unsupported locale `%s`' % config['lang'])
+        else:
+            config['lang'] = locale.setlocale(locale.LC_ALL, '')
 
         config['www_root'] = config.get('www_root', '')
 
@@ -235,23 +237,23 @@ def _entryparser(request):
     entry = request['entry']
     config = request['config']
     
-    log.debug('cb_preformat')
-    request = tools.run_callback(
+    log.debug('cb_preformat: "%s"' % entry.title)
+    entry = tools.run_callback(
             'preformat',
-            request,
-            defaultfunc=_preformat)
+            {'entry': entry, 'config': config},
+            defaultfunc=_preformat)['entry']
 
-    log.debug('cb_format')
-    request = tools.run_callback(
+    log.debug('cb_format: "%s"' % entry.title)
+    entry = tools.run_callback(
             'format',
-            request,
-            defaultfunc=_format)
+            {'entry': entry, 'config': config},
+            defaultfunc=_format)['entry']
         
-    log.debug('cb_postformat')
-    request = tools.run_callback(
+    log.debug('cb_postformat: "%s"' % entry.title)
+    entry = tools.run_callback(
             'postformat',
-            request,
-            defaultfunc=lambda x: x)
+            {'entry': entry, 'config': config},
+            defaultfunc=lambda x: x)['entry']
     
     return entry
     
