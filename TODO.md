@@ -12,15 +12,8 @@ extensions
     - calculate which pages/feeds have to be regenerated
     - use timestamp delta, to get modified entries (including rendering offset)
 - custom title
-- warn, when using mtime (deprecated)
 - draft generation (not included in feeds, pages and articles overview)
-- using {entry, conf} in _entryparser again
 - colored INFO, WARN, ERROR -> take a look at nanoc's color sheme
-
-## thoughts:
-
-- allow defaultfunc overwrite and raise Exception when more than one
-  defaultfunc are revealed
 
 ## known issues:
 
