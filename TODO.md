@@ -11,6 +11,7 @@ extensions
     - avoid rendering entries which have not changed
     - calculate which pages/feeds have to be regenerated
     - use timestamp delta, to get modified entries (including rendering offset)
+- custom title
 - warn, when using mtime (deprecated)
 - draft generation (not included in feeds, pages and articles overview)
 - using {entry, conf} in _entryparser again
@@ -23,7 +24,11 @@ extensions
 
 ## known issues:
 
+- hardcoded ignore directory in filelist
+- check entry's dict in tt.render()
 - summarizing + &shy; produces syllable orphan
+- MathML only works in Firefox -> fallback using some stupid JS:
+    http://www.mathjax.org/ | http://www1.chapman.edu/~jipsen/mathml/asciimath.html
 
 0.2
 -------
