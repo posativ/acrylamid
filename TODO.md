@@ -1,7 +1,6 @@
 extensions
 ------------
 
-- multilang
 - disqus
 
 0.1
@@ -28,6 +27,7 @@ extensions
 ## chores
 
 - don't conf.get(key, default) all the time, set default once and forever
+- s/config/conf
 
 0.2
 -------
