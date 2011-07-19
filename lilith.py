@@ -216,6 +216,7 @@ def _filestat(request):
             entry_list[i].date = datetime.utcfromtimestamp(timestamp)
         else:
             entry_list[i]['date'] = entry_list[i]._date
+            log.warn("using mtime from %s" % entry_list[i])
     return request
     
 def _sortlist(request):
