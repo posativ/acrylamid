@@ -75,7 +75,7 @@ class Summarizer(HTMLParser):
 
 def cb_prepage(request):
     
-    config = request._config
+    conf = request._config
     data = request._data
     
     for i, entry in enumerate(data['entry_list']):

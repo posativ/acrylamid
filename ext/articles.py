@@ -15,9 +15,9 @@ def cb_end(request):
     request = tools.run_callback('prepare',
                     request) # needed for entry's url
     
-    config = request._config
+    conf = request._config
     data = request._data
-    layout = os.path.join(config.get('layout_dir', 'layouts'), 'articles.html')
+    layout = os.path.join(conf.get('layout_dir', 'layouts'), 'articles.html')
     tt_articles = Template(convert_text(open(layout).read()))
     articles = defaultdict(list)
     
@@ -26,12 +26,12 @@ def cb_end(request):
         
         articles[year].append((entry.date, url, title))
         
-    articlesdict = config.copy()
+    articlesdict = conf.copy()
     articlesdict.update({'articles': articles,
                  'num_entries': len(data['entry_list'])})
                  
     html = tt_articles.render(articlesdict)
-    path = os.path.join(config.get('output_dir', 'out'), 'articles', 'index.html')
+    path = os.path.join(conf.get('output_dir', 'out'), 'articles', 'index.html')
     
     tools.mk_file(html, {'title': 'articles/index.html'}, path)
     

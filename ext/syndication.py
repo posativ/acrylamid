@@ -67,7 +67,7 @@ def cb_end(request):
     tt_atom_body = Template(convert_text(ATOM_BODY))
     tt_rss_entry = Template(convert_text(RSS_ENTRY))
     tt_rss_body = Template(convert_text(RSS_BODY))
-    config = request._config
+    conf = request._config
     data = request._data
     
     data['type'] = 'feed'
@@ -92,7 +92,7 @@ def cb_end(request):
     dict.update( {'entry_list': '\n'.join(atom_list),
                   'date': data['entry_list'][0].date } )
     xml = tt_atom_body.render( dict )
-    directory = os.path.join(config.get('output_dir', 'out'), 'atom')
+    directory = os.path.join(conf.get('output_dir', 'out'), 'atom')
     path = os.path.join(directory, 'index.xml')
     tools.mk_file(xml, {'title': 'atom/index.xml'}, path)
     
@@ -100,7 +100,7 @@ def cb_end(request):
     dict.update( {'entry_list': '\n'.join(rss_list),
                   'date': data['entry_list'][0].date } )
     xml = tt_rss_body.render( dict )
-    directory = os.path.join(config.get('output_dir', 'out'), 'rss')
+    directory = os.path.join(conf.get('output_dir', 'out'), 'rss')
     path = os.path.join(directory, 'index.xml')
     tools.mk_file(xml, {'title': 'rss/index.xml'}, path)
     
