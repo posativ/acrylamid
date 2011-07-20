@@ -57,12 +57,11 @@ def cb_item(request):
     layout = config.get('layout_dir', 'layouts')
     tt_entry = Template(open(os.path.join(layout, 'entry.html')).read())
     tt_main = Template(open(os.path.join(layout, 'main.html')).read())
-
+            
     # last preparations
     request = tools.run_callback(
-            'prepare',
-            request,
-            lilith._prepare)
+                'preitem',
+                request)
     
     dict = request._config
         
@@ -85,6 +84,11 @@ def cb_item(request):
                       entry.safe_title)
         path = os.path.join(directory, 'index.html')
         tools.mk_file(html, entry, path)
+        
+    # last preparations
+    request = tools.run_callback(
+                'postitem',
+                request)
     
     return request
     
@@ -100,7 +104,7 @@ def cb_page(request):
     
     # last preparations
     request = tools.run_callback(
-                'prepare',
+                'prepage',
                 request)
     
     layout = config.get('layout_dir', 'layouts')
@@ -131,5 +135,10 @@ def cb_page(request):
                          '' if i == 0 else 'page/%s' % (i+1))
         path = os.path.join(directory, 'index.html')
         tools.mk_file(html, {'title': 'page/%s' % (i+1)}, path)
-        
+
+    # last preparations
+    request = tools.run_callback(
+                'postpage',
+                request)
+
     return request
