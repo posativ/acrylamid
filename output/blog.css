@@ -18,7 +18,7 @@ img {
 blockquote {
     padding-left: 24px;
     padding-right: 24px;
-    font: italic 1em Verdana, Times, sans-serif;
+    font: italic small Verdana, Times, sans-serif;
     color: #222;
 }
 
@@ -221,8 +221,8 @@ code {font-family: "Courier New", "DejaVu Sans Mono", monospace;}
 .postbody {
     text-align: justify;
     padding-left: 1em;
-    font-family: "DejaVu Sans", Verdana, sans-serif;
-    font-size: small;
+    font-family: Palatino,"times new roman",serif;
+    font-size: 11pt;
     overflow: auto;
 }
 
