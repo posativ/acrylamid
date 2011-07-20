@@ -32,8 +32,8 @@ def cb_prepare(request):
             lang = entry['lang'][0:2] + '/'
         else:
             lang = ''
-        url = config.get('www_root', '') + '/' \
-              + str(entry.date.year) + '/' + lang + entry['safe_title'] + '/'
+        url = config.get('www_root', '') + '/' + str(entry.date.year) + '/' \
+              + lang + tools.safe_title(entry['title']) + '/'
         data['entry_list'][i]['url'] = url
         data['entry_list'][i]['lang_dir'] = lang
         if not entry.get('lang', None):
@@ -61,7 +61,8 @@ def cb_item(request):
     # last preparations
     request = tools.run_callback(
             'prepare',
-            request)
+            request,
+            lilith._prepare)
     
     dict = request._config
         
