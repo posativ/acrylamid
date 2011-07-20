@@ -15,6 +15,7 @@ extensions
 - custom title
 - draft generation (not included in feeds, pages and articles overview)
 - colored INFO, WARN, ERROR -> take a look at nanoc's color sheme
+- logging: use elapsed milliseconds (is that possible?)
 
 ## known issues:
 
