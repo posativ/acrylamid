@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 
-import sys
-import os
+import sys, os, re
 import yaml
 from datetime import datetime
 from os.path import join, exists, getmtime, dirname
@@ -13,7 +12,7 @@ import extensions
 
 log = logging.getLogger('lilith.tools')
 
-def run_callback(chain, input, mapping=lambda x,y: y, defaultfunc=lambda x: x):
+def run_callback(chain, input, defaultfunc=lambda x: x):
     """Applies defaultfunc to input and additional every function in chain.
     
     Should return neither the modifed or the unmodified output. But
@@ -26,7 +25,8 @@ def run_callback(chain, input, mapping=lambda x,y: y, defaultfunc=lambda x: x):
     
     if not callable(defaultfunc):
         raise TypeError('defaultfunc must be callable')
-
+        
+    log.debug('running %s ' % ('cb_'+chain))
     chain = extensions.get_callback_chain(chain)
     newdefault = filter(lambda f: f.func_dict.get('defaultfunc', False), chain)
     
@@ -43,8 +43,7 @@ def run_callback(chain, input, mapping=lambda x,y: y, defaultfunc=lambda x: x):
 
     for func in chain:
         log.debug('%s.%s' % (func.__module__, func.func_name))
-        output = func(input)
-        input = mapping(input, output)
+        input = func(input)
     
     log.debug('%s.%s' % (defaultfunc.__module__, defaultfunc.func_name))
     return defaultfunc(input)
@@ -207,3 +206,7 @@ def mk_file(content, entry, path, force=False):
         f.write(content)
         f.close()
         log.info("'%s' written to %s" % (entry['title'], path))
+        
+def safe_title(title):
+    """safe_title returns a safe url string"""
+    return re.sub('[\W]+', '-', title, re.U).lower().strip('-')
