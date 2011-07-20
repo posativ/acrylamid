@@ -370,7 +370,7 @@ def _item(request):
     entry_list = []
     
     for entry in data['entry_list']:
-        entrydict = conf.copy()
+        dict, entrydict = conf.copy(), conf.copy()
         entrydict.update(entry)
         dict.update({'entry_list':tt_entry.render(entrydict) })
         html = tt_main.render( dict )
@@ -419,6 +419,7 @@ def _page(request):
     for i, mem in enumerate([entry_list[x*ipp:(x+1)*ipp]
                                 for x in range(len(entry_list)/ipp+1)] ):
         
+        dict = conf.copy()
         dict.update( {'entry_list': '\n'.join(mem), 'page': i+1,
                       'num_entries': len(entry_list)} )
         html = tt_main.render( dict )
