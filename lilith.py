@@ -133,28 +133,25 @@ def _lilith_handler(request):
     data = request._data
                        
     # call the filelist callback to generate a list of entries
-    log.debug('cb_filelist')
+    #log.debug('cb_filelist')
     request =  tools.run_callback(
             "filelist",
             request,
             defaultfunc=_filelist)
         
     # chance to modify specific meta data e.g. datetime
-    log.debug('cb_filestat')
     request = tools.run_callback(
             'filestat', 
             request,
             defaultfunc=_filestat)
     
     # use datetime to sort chronological
-    log.debug('cb_sortlist')
     request = tools.run_callback(
             'sortlist', 
             request,
             defaultfunc=_sortlist)
             
     # entry specific callbacks
-    log.debug('cb_entryparser')
     for i,entry in enumerate(request._data['entry_list']):
         request._data['entry_list'][i] = tools.run_callback(
                 'entryparser',
@@ -162,17 +159,14 @@ def _lilith_handler(request):
                 defaultfunc=_entryparser)
     
     # last modifications
-    log.debug('cb_prepare')
     request = _prepare(request)
             
     from copy import deepcopy # performance? :S
     
-    log.debug('cb_item')
     tools.run_callback('item', deepcopy(request),
                     mapping=lambda x,y: y,
                     defaultfunc=_item)
     
-    log.debug('cb_page')
     tools.run_callback('page', deepcopy(request),
                     mapping=lambda x,y: y,
                     defaultfunc=_page)
@@ -236,19 +230,16 @@ def _entryparser(request):
     entry = request['entry']
     config = request['config']
     
-    log.debug('cb_preformat: "%s"' % entry.title)
     entry = tools.run_callback(
             'preformat',
             {'entry': entry, 'config': config},
             defaultfunc=_preformat)['entry']
 
-    log.debug('cb_format: "%s"' % entry.title)
     entry = tools.run_callback(
             'format',
             {'entry': entry, 'config': config},
             defaultfunc=_format)['entry']
         
-    log.debug('cb_postformat: "%s"' % entry.title)
     entry = tools.run_callback(
             'postformat',
             {'entry': entry, 'config': config},
@@ -339,6 +330,7 @@ def _prepare(request):
     id -- atom conform id: http://diveintomark.org/archives/2004/05/28/howto-atom-id
     """
     
+    print '_prepare'
     config = request._config
     data = request._data
     for i, entry in enumerate(data['entry_list']):
@@ -457,9 +449,10 @@ if __name__ == '__main__':
     (options, args) = parser.parse_args()
     
     console = logging.StreamHandler()
-    console.setFormatter(ColorFormatter('[%(levelname)s] %(name)s: %(message)s'))
+    console.setFormatter(ColorFormatter('[%(levelname)s] %(name)s.py: %(message)s'))
     if options.verbose == logging.DEBUG:
-        console.setFormatter(ColorFormatter('%(msecs)d [%(levelname)s] %(name)s: %(message)s'))
+        fmt = '%(msecs)d [%(levelname)s] %(name)s.py:%(lineno)s:%(funcName)s %(message)s'
+        console.setFormatter(ColorFormatter(fmt))
     log = logging.getLogger('lilith')
     log.addHandler(console)
     log.setLevel(options.verbose)
