@@ -93,7 +93,6 @@ class Lilith:
         log.debug('cb_handle')
         request = tools.run_callback("handle",
                         request,
-                        mapping=lambda x,y:x,
                         defaultfunc=_lilith_handler)
                 
         # do end callback
@@ -157,19 +156,21 @@ def _lilith_handler(request):
                 'entryparser',
                 {'entry': entry, 'config': request._config},
                 defaultfunc=_entryparser)
+                
+    request = tools.run_callback(
+            'prepare',
+            request,
+            defaultfunc=_prepare)
     
-    # last modifications
-    request = _prepare(request)
-            
     from copy import deepcopy # performance? :S
     
-    tools.run_callback('item', deepcopy(request),
-                    mapping=lambda x,y: y,
-                    defaultfunc=_item)
+    tools.run_callback('item',
+                       deepcopy(request),
+                       defaultfunc=_item )
     
-    tools.run_callback('page', deepcopy(request),
-                    mapping=lambda x,y: y,
-                    defaultfunc=_page)
+    tools.run_callback('page',
+                       deepcopy(request),
+                       defaultfunc=_page )
     
     return request
 
@@ -330,20 +331,23 @@ def _prepare(request):
     id -- atom conform id: http://diveintomark.org/archives/2004/05/28/howto-atom-id
     """
     
-    print '_prepare'
     config = request._config
     data = request._data
     for i, entry in enumerate(data['entry_list']):
-        safe_title = re.sub('[\W]+', '-', entry['title'], re.U).lower().strip('-')
+        safe_title = tools.safe_title(entry['title'])
         url = config.get('www_root', '') + '/' \
               + str(entry.date.year) + '/' + safe_title + '/'
         id = 'tag:' + re.sub('https?://', '', config.get('www_root', '')).strip('/') \
              + ',' + entry.date.strftime('%Y-%m-%d') + ':' \
              + '/' + str(entry.date.year) +  '/' + safe_title
-        data['entry_list'][i]['safe_title'] = safe_title
-        data['entry_list'][i]['url'] = url
-        data['entry_list'][i]['id'] = id
-        
+        item = data['entry_list'][i]
+        if not 'safe_title' in item:
+            item['safe_title'] = safe_title
+        if not 'url' in item:
+            item['url'] = url
+        if not 'id' in item:
+            item['id'] = id
+    
     return request
     
 def _item(request):
@@ -364,8 +368,9 @@ def _item(request):
 
     # last preparations
     request = tools.run_callback(
-                'prepare',
-                request)
+                'preitem',
+                request,
+                defaultfunc=lambda x: x)
     
     dict = request._config
     entry_list = []
@@ -381,6 +386,11 @@ def _item(request):
                          entry.safe_title)
         path = os.path.join(directory, 'index.html')
         tools.mk_file(html, entry, path)
+        
+    request = tools.run_callback(
+                'postitem',
+                request,
+                defaultfunc=lambda x: x)
         
     return request
 
@@ -401,8 +411,9 @@ def _page(request):
     
     # last preparations
     request = tools.run_callback(
-                'prepare',
-                request)
+                'prepage',
+                request,
+                defaultfunc=lambda x: x)
     
     layout = config.get('layout_dir', 'layouts')
     tt_entry = Template(open(os.path.join(layout, 'entry.html')).read())
@@ -424,7 +435,12 @@ def _page(request):
                          '' if i == 0 else 'page/%s' % (i+1))
         path = os.path.join(directory, 'index.html')
         tools.mk_file(html, {'title': 'page/%s' % (i+1)}, path)
-        
+    
+    request = tools.run_callback(
+                'postpage',
+                request,
+                defaultfunc=lambda x: x)
+    
     return request
 
 if __name__ == '__main__':

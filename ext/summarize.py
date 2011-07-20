@@ -73,15 +73,12 @@ class Summarizer(HTMLParser):
             self.summarized += '&#' + char + ';'
 
 
-def cb_prepare(request):
+def cb_prepage(request):
     
     config = request._config
     data = request._data
-    t = data.get('type', 'item')
     
     for i, entry in enumerate(data['entry_list']):
-        
-        if t == 'page':
-            data['entry_list'][i]['body'] = Summarizer(entry['body'], entry['url'], 200).summarized
+        data['entry_list'][i]['body'] = Summarizer(entry['body'], entry['url'], 200).summarized
     
     return request
