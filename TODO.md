@@ -19,8 +19,6 @@ extensions
 
 ## known issues:
 
-- hardcoded ignore directory in filelist
-- check entry's dict in tt.render()
 - summarizing + &shy; produces syllable orphan
 - MathML only works in Firefox -> fallback using some stupid JS:
     http://www.mathjax.org/ | http://www1.chapman.edu/~jipsen/mathml/asciimath.html
@@ -28,7 +26,7 @@ extensions
 ## chores
 
 - don't conf.get(key, default) all the time, set default once and forever
-- s/config/conf
+  :. done for: output_dir, entries_dir
 
 0.2
 -------
