@@ -31,7 +31,7 @@ def cb_end(request):
                  'num_entries': len(data['entry_list'])})
                  
     html = tt_articles.render(articlesdict)
-    path = os.path.join(conf.get('output_dir', 'out'), 'articles', 'index.html')
+    path = os.path.join(conf['output_dir'], 'articles', 'index.html')
     
     tools.mk_file(html, {'title': 'articles/index.html'}, path)
     

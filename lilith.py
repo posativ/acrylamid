@@ -38,6 +38,8 @@ class Lilith:
         conf['lilith_name'] = "lilith"
         conf['lilith_version'] = VERSION
         
+        conf['output_dir'] = conf.get('output_dir', 'output/')
+        
         self._config = conf
         self._data = data
         self.request = Request(conf, data)
@@ -375,7 +377,7 @@ def _item(request):
         dict.update({'entry_list':tt_entry.render(entrydict) })
         html = tt_main.render( dict )
         
-        directory = os.path.join(conf.get('output_dir', 'out'),
+        directory = os.path.join(conf['output_dir'],
                          str(entry.date.year),
                          entry.safe_title)
         path = os.path.join(directory, 'index.html')
@@ -423,7 +425,7 @@ def _page(request):
         dict.update( {'entry_list': '\n'.join(mem), 'page': i+1,
                       'num_entries': len(entry_list)} )
         html = tt_main.render( dict )
-        directory = os.path.join(conf.get('output_dir', 'out'),
+        directory = os.path.join(conf['output_dir'],
                          '' if i == 0 else 'page/%s' % (i+1))
         path = os.path.join(directory, 'index.html')
         tools.mk_file(html, {'title': 'page/%s' % (i+1)}, path)
@@ -468,5 +470,6 @@ if __name__ == '__main__':
     if options.layout:
         conf['layout_dir'] = options.layout
     assert tools.check_conf(conf)
+    
     l = Lilith(conf=conf, data={})
     l.run()

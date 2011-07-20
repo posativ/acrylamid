@@ -76,7 +76,7 @@ def cb_item(request):
         dict.update({'entry_list': tt_entry.render(entrydict) })
         html = tt_main.render( dict )
         
-        directory = os.path.join(conf.get('output_dir', 'out'),
+        directory = os.path.join(conf['output_dir'],
                       str(entry.date.year),
                       entry['lang_dir'],
                       entry.safe_title)
@@ -129,7 +129,7 @@ def cb_page(request):
         dict.update( {'entry_list': '\n'.join(mem), 'page': i+1,
                       'num_entries': len(entry_list)} )
         html = tt_main.render( dict )
-        directory = os.path.join(conf.get('output_dir', 'out'),
+        directory = os.path.join(conf['output_dir'],
                          '' if i == 0 else 'page/%s' % (i+1))
         path = os.path.join(directory, 'index.html')
         tools.mk_file(html, {'title': 'page/%s' % (i+1)}, path)
