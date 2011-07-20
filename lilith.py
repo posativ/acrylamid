@@ -13,6 +13,7 @@ import locale
 import time
 from datetime import datetime
 import logging
+import fnmatch
 
 import yaml
 import extensions
@@ -39,6 +40,7 @@ class Lilith:
         conf['lilith_version'] = VERSION
         
         conf['output_dir'] = conf.get('output_dir', 'output/')
+        conf['entries_dir'] = conf.get('entries_dir', 'content/')
         
         self._config = conf
         self._data = data
@@ -187,9 +189,13 @@ def _filelist(request):
     conf = request._config
     
     filelist = []
-    for root, dirs, files in os.walk(conf.get('entries_dir', 'content')):
-        filelist += [ os.path.join(root, file) for file in files
-                         if root not in ['content/drafts', ] ]
+    for root, dirs, files in os.walk(conf['entries_dir']):
+        for file in files:
+            path = os.path.join(root, file)
+            fn = filter(lambda p: fnmatch.fnmatch(path, os.path.join(conf['entries_dir'], p)),
+                        conf.get('entries_ignore', []))
+            if not fn:
+                filelist.append(path)
     
     entry_list = [FileEntry(request, e, conf['entries_dir']) for e in filelist]
     data['entry_list'] = entry_list
