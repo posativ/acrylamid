@@ -103,12 +103,10 @@ of an entry will locally overwrite the config's value.
     └── index.html
 
 You may need to set index.xml as index-page in your webserver's configuration
-to get rss and atom feeds in http://domain.org/atom/ or /rss/ .
+to get rss and atom feeds in _http://example.org/atom/_ or _/rss/_ .
 
 Extensions
 ----------
-
-### builtin
 
 - **syndication**: produces valid atom and rss feeds
 - **summarize**: summarizes posts to 200 words in pagination
@@ -116,4 +114,57 @@ Extensions
 - **mathml**: asciimathml to MathML converter
 - **articles**: simple article overview
 
-These extensions are maintained by me and their compatibily is ensured.
+### multilang.py
+
+lilith has basic support for multilanguage blogging. This extension can be
+enabled in *lilith.conf* by adding it to the list of `ext_include`. The
+extension is called *multilang*.
+
+multilang.py watches for entries, which have an identifier key in their
+YAML-header. Entries with identical identifier are bundled as translations,
+if their `lang` differs from config's language (system's locale by default).
+
+An example (system's locale is en_US)
+
+    ---
+    title: english entry
+    lang: en    # <-- this is not required, en is the default language!
+    identifier: mykey
+    ---
+
+    your content goes here...
+    
+and the german translation
+
+    ---
+    title: deutscher Eintrag
+    lang: de
+    identifier: mykey
+    ---
+
+    Inhalt hier rein...
+    
+In this example, every non-default language article is rendered into
+_http://example.org/2011/de/deutscher-eintrag/_. See this [commit][1] for
+additional information.
+
+[1]: https://github.com/posativ/lilith/commit/d7198673b812861268ad4335200f6d9b8fc76cbf
+
+When you render "english title", you have an additional variable called
+`translations`, containing all translations of this article. Which you can
+use to link to. In jinja2 templating (*entry.html*), e.g.:
+
+    {% if 'multilang' in extensions and translations %}
+    <ul>
+        {% for tr in translations %}
+            <li><strong>{{ tr.lang }}:</strong> <a href="{{ tr.url }}">{{ tr.title }}</a></li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {{ body }}
+
+Which renders something like into "english entry":
+
+    <ul>
+        <li><strong>de:</strong> <a href="http://example.org/2011/de/deutscher-eintrag/">deutscher Eintrag</a></li>
+    </ul>
