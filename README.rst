@@ -62,7 +62,7 @@ markup languages, use e.g. ``parser: rst`` for reStructuredText.
 Sample entry.txt
 ----------------
 
-.. code-block:: yaml
+::
 
     ---
     title: A meaningful title
@@ -75,7 +75,7 @@ Sample entry.txt
 lilith.conf – YAML syntax!
 --------------------------
 
-.. code-block:: yaml
+::
 
     # required in templating
     author:     your name
@@ -142,7 +142,7 @@ if their ``lang`` differs from config's language (system's locale by default).
 
 An example (system's locale is en_US)
 
-.. code-block:: yaml
+::
 
     ---
     title: english entry
@@ -154,7 +154,7 @@ An example (system's locale is en_US)
     
 and the german translation
 
-.. code-block:: yaml
+::
 
     ---
     title: deutscher Eintrag
@@ -174,7 +174,7 @@ When you render "english title", you have an additional variable called
 ``translations``, containing all translations of this article. Which you can
 use to link to. In jinja2 templating (*entry.html*), e.g.:
 
-.. code-block:: html
+::
 
     {% if 'multilang' in extensions and translations %}
     <ul>
@@ -186,7 +186,7 @@ use to link to. In jinja2 templating (*entry.html*), e.g.:
 
 Which renders something like into "english entry":
 
-.. code-block:: html
+::
 
     <ul>
         <li><strong>de:</strong> <a href="http://example.org/2011/de/deutscher-eintrag/">deutscher Eintrag</a></li>
