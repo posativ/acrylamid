@@ -196,7 +196,8 @@ Which renders something like into "english entry":
 .. toctree::
    :maxdepth: 2
    
-
+   todo
+   about
 
 Indices and tables
 ==================
