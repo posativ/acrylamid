@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-# -*- encoding: utf-8 -*-
+# Copyright 2011 posativ <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses. see lilith.py
 #
 # multilang.py provides simple multilanguage support in lilith. It basically
 # needs a primary language (can be defined in lilith.conf, defaults to
@@ -21,8 +21,8 @@ log = logging.getLogger('lilith.extensions.multilang')
 
 
 def cb_prepare(request):
-    """copied from _prepare in lilith.py. Extended to correct url to
-    /$lang/ and sets a default lang value (systems locale)"""
+    """Sets /$lang/ in url (if foreign language) and sets entry['lang']
+    to systems locale."""
     
     conf = request._config
     data = request._data

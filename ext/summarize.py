@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+# Copyright 2011 posativ <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses. see lilith.py
 
 from HTMLParser import HTMLParser
 from cgi import escape
