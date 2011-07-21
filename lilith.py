@@ -72,7 +72,8 @@ class Lilith:
 
         # import and initialize plugins
         extensions.initialize(conf.get("ext_dir", ['ext', ]),
-                              exclude=conf.get("ext_ignore", []))
+                              exclude=conf.get("ext_ignore", []),
+                              include=conf.get("ext_include", []))
         
         conf['extensions'] = [ex.__name__ for ex in extensions.plugins]
     
