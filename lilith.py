@@ -230,7 +230,7 @@ def _filestat(request):
             timestamp = time.strptime(entry_list[i]['date'],
                                 conf.get('strptime', '%d.%m.%Y, %H:%M'))
             timestamp = time.mktime(timestamp)
-            entry_list[i].date = datetime.utcfromtimestamp(timestamp)
+            entry_list[i].date = datetime.fromtimestamp(timestamp)
         else:
             entry_list[i]['date'] = entry_list[i]._date
             log.warn("using mtime from %s" % entry_list[i])

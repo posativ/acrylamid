@@ -89,7 +89,7 @@ class FileEntry:
         self._filename = filename.replace(os.sep, '/')
         self._datadir = datadir
         
-        self._date = datetime.utcfromtimestamp(os.path.getmtime(filename))
+        self._date = datetime.fromtimestamp(os.path.getmtime(filename))
         self._populate()
         
     def __repr__(self):

@@ -5,6 +5,7 @@
 # - anyway to keep &shy; in atom?
 
 import tools, os, cgi
+from datetime import datetime
 
 from shpaml import convert_text
 from jinja2 import Template
@@ -72,7 +73,8 @@ def cb_end(request):
     data = request._data
     
     data['type'] = 'feed'
-    count = 25
+    num = 25
+    UTC_OFFSET = datetime.now() - datetime.utcnow()
     
     # last preparations
     request = tools.run_callback(
@@ -82,16 +84,17 @@ def cb_end(request):
     dict = request._config
     rss_list = []
     atom_list = []
-    for entry in data['entry_list'][:25]:
+    for entry in data['entry_list'][:num]:
         entry['body'] = cgi.escape(entry['body'].replace('&shy;', ''))
         entrydict = dict.copy()
         entrydict.update(entry)
+        entrydict['date'] = entrydict['date'] - UTC_OFFSET
         atom_list.append(tt_atom_entry.render( entrydict ))
         rss_list.append(tt_rss_entry.render( entrydict ))
     
     # atom
     dict.update( {'entry_list': '\n'.join(atom_list),
-                  'date': data['entry_list'][0].date } )
+                  'date': data['entry_list'][0].date - UTC_OFFSET} )
     xml = tt_atom_body.render( dict )
     directory = os.path.join(conf['output_dir'], 'atom')
     path = os.path.join(directory, 'index.xml')
@@ -99,7 +102,7 @@ def cb_end(request):
     
     # rss
     dict.update( {'entry_list': '\n'.join(rss_list),
-                  'date': data['entry_list'][0].date } )
+                  'date': data['entry_list'][0].date - UTC_OFFSET} )
     xml = tt_rss_body.render( dict )
     directory = os.path.join(conf['output_dir'], 'rss')
     path = os.path.join(directory, 'index.xml')
