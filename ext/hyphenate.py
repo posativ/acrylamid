@@ -1,4 +1,5 @@
 # License: BSD Style, 2 clauses. see lilith.py
+# -*- encoding: utf-8 -*-
 
 # TODO: hyph-en, language parameter in blog entry, german exceptions?!
 
