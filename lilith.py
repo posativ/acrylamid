@@ -44,7 +44,7 @@ class Lilith:
     defines default behavior, and also pushes the request through all
     steps until the output is rendered and we're complete."""
     
-    def __init__(self, conf, data=None):
+    def __init__(self, conf, env=None, data=None):
         """Sets configuration and environment and creates the Request
         object
         
@@ -61,7 +61,8 @@ class Lilith:
         
         self._config = conf
         self._data = data
-        self.request = Request(conf, data)
+        self._env = env
+        self.request = Request(conf, env, data)
         
     def initialize(self):
         """The initialize step further initializes the Request by
@@ -123,7 +124,7 @@ class Request(object):
     information, OS environment, and data that we calculate and
     transform over the course of execution."""
     
-    def __init__(self, conf, data):
+    def __init__(self, conf, env, data):
         """Sets configuration and data.
         
         Arguments:
@@ -132,6 +133,7 @@ class Request(object):
         
         self._data = data
         self._config = conf
+        self._env = env
 
 def _lilith_handler(request):
     """This is the default lilith handler.
@@ -381,6 +383,7 @@ def _item(request):
     main.html -- layout of the website
     """
     conf = request._config
+    env = request._env
     data = request._data
     
     tt_entry = Template(open(os.path.join(conf['layout_dir'], 'entry.html')).read())
@@ -393,9 +396,9 @@ def _item(request):
     
     for entry in data['entry_list']:
         
-        html = tools.render(tt_main, conf, type='item',
-                            entry_list=tools.render(tt_entry, conf, entry,
-                                            type='item') )
+        html = tools.render(tt_main, conf, env, type='item',
+                            entry_list=tools.render(tt_entry, conf, env,
+                                            entry, type='item') )
         
         directory = os.path.join(conf['output_dir'],
                          str(entry.date.year),
@@ -420,6 +423,7 @@ def _page(request):
     main.html -- layout of the website
     """
     conf = request._config
+    env = request._env
     data = request._data
     ipp = conf.get('items_per_page', 6)
     
@@ -431,13 +435,13 @@ def _page(request):
     tt_entry = Template(open(os.path.join(conf['layout_dir'], 'entry.html')).read())
     tt_main = Template(open(os.path.join(conf['layout_dir'], 'main.html')).read())
             
-    entry_list = [tools.render(tt_entry, conf, entry, type="page")
+    entry_list = [tools.render(tt_entry, conf, env, entry, type="page")
                     for entry in data['entry_list']]
                 
     for i, mem in enumerate([entry_list[x*ipp:(x+1)*ipp]
                                 for x in range(len(entry_list)/ipp+1)] ):
                                     
-        html = tools.render(tt_main, conf, type='page', page=i+1,
+        html = tools.render(tt_main, conf, env, type='page', page=i+1,
                     entry_list='\n'.join(mem), num_entries=len(entry_list))
         directory = os.path.join(conf['output_dir'],
                          '' if i == 0 else 'page/%s' % (i+1))
@@ -485,5 +489,5 @@ if __name__ == '__main__':
         conf['layout_dir'] = options.layout
     assert tools.check_conf(conf)
     
-    l = Lilith(conf=conf, data={})
+    l = Lilith(conf=conf, env={}, data={})
     l.run()
