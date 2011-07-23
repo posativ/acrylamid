@@ -175,6 +175,20 @@ def check_conf(conf):
                 log.warning('%s created...' % value)
                 
     return True
+    
+def render(tt, *dicts, **kvalue):
+    """helper function to merge multiple dicts and additional key=val params
+    to a single environment dict used by jinja2 templating. Note, merging will
+    first update dicts in given order, then (possible) overwrite single keys
+    in kvalue."""
+        
+    env = {}
+    for d in dicts:
+        env.update(d)
+    for key in kvalue:
+        env[key] = kvalue[key]
+    
+    return tt.render( env )
 
 def mk_file(content, entry, path, force=False):
     """Creates entry in filesystem. Overwrite only if content

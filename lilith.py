@@ -57,6 +57,7 @@ class Lilith:
         
         conf['output_dir'] = conf.get('output_dir', 'output/')
         conf['entries_dir'] = conf.get('entries_dir', 'content/')
+        conf['layout_dir'] = conf.get('layout_dir', 'layouts/')
         
         self._config = conf
         self._data = data
@@ -381,24 +382,20 @@ def _item(request):
     """
     conf = request._config
     data = request._data
-    data['type'] = 'item'
     
-    layout = conf.get('layout_dir', 'layouts')
-    tt_entry = Template(open(os.path.join(layout, 'entry.html')).read())
-    tt_main = Template(open(os.path.join(layout, 'main.html')).read())
+    tt_entry = Template(open(os.path.join(conf['layout_dir'], 'entry.html')).read())
+    tt_main = Template(open(os.path.join(conf['layout_dir'], 'main.html')).read())
 
     # last preparations
     request = tools.run_callback(
                 'preitem',
                 request)
     
-    entry_list = []
-    
     for entry in data['entry_list']:
-        dict, entrydict = conf.copy(), conf.copy()
-        entrydict.update(entry)
-        dict.update({'entry_list':tt_entry.render(entrydict) })
-        html = tt_main.render( dict )
+        
+        html = tools.render(tt_main, conf, type='item',
+                            entry_list=tools.render(tt_entry, conf, entry,
+                                            type='item') )
         
         directory = os.path.join(conf['output_dir'],
                          str(entry.date.year),
@@ -408,7 +405,8 @@ def _item(request):
         
     request = tools.run_callback(
                 'postitem',
-                request)        
+                request)
+    
     return request
 
 def _page(request):
@@ -423,7 +421,6 @@ def _page(request):
     """
     conf = request._config
     data = request._data
-    data['type'] = 'page'
     ipp = conf.get('items_per_page', 6)
     
     # last preparations
@@ -431,23 +428,17 @@ def _page(request):
                 'prepage',
                 request)
         
-    layout = conf.get('layout_dir', 'layouts')
-    tt_entry = Template(open(os.path.join(layout, 'entry.html')).read())
-    tt_main = Template(open(os.path.join(layout, 'main.html')).read())
-    
-    entry_list = []
-    for entry in data['entry_list']:
-        entrydict = conf.copy()
-        entrydict.update(entry)
-        entry_list.append(tt_entry.render(entrydict))
+    tt_entry = Template(open(os.path.join(conf['layout_dir'], 'entry.html')).read())
+    tt_main = Template(open(os.path.join(conf['layout_dir'], 'main.html')).read())
+            
+    entry_list = [tools.render(tt_entry, conf, entry, type="page")
+                    for entry in data['entry_list']]
                 
     for i, mem in enumerate([entry_list[x*ipp:(x+1)*ipp]
                                 for x in range(len(entry_list)/ipp+1)] ):
-        
-        dict = conf.copy()
-        dict.update( {'entry_list': '\n'.join(mem), 'page': i+1,
-                      'num_entries': len(entry_list)} )
-        html = tt_main.render( dict )
+                                    
+        html = tools.render(tt_main, conf, type='page', page=i+1,
+                    entry_list='\n'.join(mem), num_entries=len(entry_list))
         directory = os.path.join(conf['output_dir'],
                          '' if i == 0 else 'page/%s' % (i+1))
         path = os.path.join(directory, 'index.html')
