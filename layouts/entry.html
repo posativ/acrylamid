@@ -5,14 +5,7 @@
         </h1>
         <span class="date">{{ date.strftime("%d.%m.%Y, %H:%M") }}</span>
     </div>
-    <div class="postbody">
-        {% if 'multilang' in extensions and translations %}
-        <ul>
-            {% for tr in translations %}
-                <li><strong>{{ tr.lang }}:</strong> <a href="{{ tr.url }}">{{ tr.title }}</a></li>
-            {% endfor %}
-        </ul>
-        {% endif %}
+    <div class="postbody">        
         {{ body }}
     </div>
 </div>
