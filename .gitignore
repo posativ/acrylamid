@@ -1,0 +1,6 @@
+.gitignore
+*.pyc
+content/
+ext/hyphenation
+output/
+doc/.build/
