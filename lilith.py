@@ -82,7 +82,14 @@ class Lilith:
             locale.setlocale(locale.LC_ALL, '')
             conf['lang'] = locale.getlocale()
 
-        conf['www_root'] = conf.get('www_root', '')
+        if conf.get('www_root', None):
+            conf['www_root'] = conf.get('www_root', '')
+            conf['protocol'] = 'http' if conf['www_root'].find('http') == 0 \
+                                      else 'https'
+        else:
+            log.warn('no `www_root` specified, using localhost:8000')
+            conf['www_root'] = 'http://localhost:8000/'
+            conf['protocol'] = 'http'
 
         # take off the trailing slash for base_url
         if conf['www_root'].endswith("/"):
@@ -104,9 +111,12 @@ class Lilith:
         
         self.initialize()
         
-        # run the start callback
+        # run the start callback, initialize jinja2 template
         log.debug('cb_start')
-        request = tools.run_callback('start', self.request)
+        request = tools.run_callback(
+                        'start',
+                        self.request,
+                        defaultfunc=_start)
         
         # run the default handler
         log.debug('cb_handle')
@@ -134,6 +144,27 @@ class Request(object):
         self._data = data
         self._config = conf
         self._env = env
+
+def _start(request):
+    """this loads entry.html and main.html into data and does a little
+    preprocessing: {{ include: identifier }} will be replaced by the
+    corresponding identifier in request._env if exist else empty string."""
+    
+    from collections import defaultdict
+    
+    conf = request._config
+    env = request._env
+    data = request._data
+    regex = re.compile('{{\s*include:\s+(\w+)\s*}}')
+    entry = open(os.path.join(conf['layout_dir'], 'entry.html')).read()
+    main = open(os.path.join(conf['layout_dir'], 'main.html')).read()
+    
+    d = defaultdict(str)
+    d.update(env)
+    data['tt_entry'] = re.sub(regex, lambda m: d[m.group(1)], entry)
+    data['tt_main'] = re.sub(regex, lambda m: d[m.group(1)], main)
+    
+    return request
 
 def _lilith_handler(request):
     """This is the default lilith handler.
@@ -359,8 +390,7 @@ def _prepare(request):
     
     for i, entry in enumerate(data['entry_list']):
         safe_title = tools.safe_title(entry['title'])
-        url = conf.get('www_root', '') + '/' \
-              + str(entry.date.year) + '/' + safe_title + '/'
+        url = '/' + str(entry.date.year) + '/' + safe_title + '/'
         id = 'tag:' + re.sub('https?://', '', conf.get('www_root', '')).strip('/') \
              + ',' + entry.date.strftime('%Y-%m-%d') + ':' \
              + '/' + str(entry.date.year) +  '/' + safe_title
@@ -386,8 +416,8 @@ def _item(request):
     env = request._env
     data = request._data
     
-    tt_entry = Template(open(os.path.join(conf['layout_dir'], 'entry.html')).read())
-    tt_main = Template(open(os.path.join(conf['layout_dir'], 'main.html')).read())
+    tt_entry = Template(data['tt_entry'])
+    tt_main = Template(data['tt_main'])
 
     # last preparations
     request = tools.run_callback(
@@ -432,8 +462,8 @@ def _page(request):
                 'prepage',
                 request)
         
-    tt_entry = Template(open(os.path.join(conf['layout_dir'], 'entry.html')).read())
-    tt_main = Template(open(os.path.join(conf['layout_dir'], 'main.html')).read())
+    tt_entry = Template(data['tt_entry'])
+    tt_main = Template(data['tt_main'])
             
     entry_list = [tools.render(tt_entry, conf, env, entry, type="page")
                     for entry in data['entry_list']]

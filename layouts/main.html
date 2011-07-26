@@ -7,34 +7,34 @@
   </title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta http-equiv="content-language" content="de, en" />
-  <meta content="Mein persönliches Blog über Wuala, Python und alles, was mich so bewegt" name="description" />
-  <meta content="Arch Linux, Apple, Python, lilith, Planet, iPhone, Linux, Wuala" name="keywords" />
-  <link media="all" href="{{www_root}}/blog.css" type="text/css" rel="stylesheet" />
-  <link href="{{ www_root }}/favicon.ico" rel="shortcut icon" />
-  <link href="{{ www_root }}/" rel="home" />
-  <link href="{{ www_root }}/atom" type="application/atom+xml" rel="alternate" title="Atom-Feed" />
-  <link href="{{ www_root }}/rss" type="application/rss+xml" rel="alternate" title="RSS-Feed" />
+  <meta content="{{ content }}" name="description" />
+  <meta content="{{ keywords }}" name="keywords" />
+  <link media="all" href="/blog.css" type="text/css" rel="stylesheet" />
+  <link href="/favicon.ico" rel="shortcut icon" />
+  <link href="/" rel="home" />
+  <link href="/atom" type="application/atom+xml" rel="alternate" title="Atom-Feed" />
+  <link href="/rss" type="application/rss+xml" rel="alternate" title="RSS-Feed" />
  </head>
  <body>
     <div id="blogheader">
         <div id="blogtitle">
             <h2>
-                <a href="{{ www_root }}/" class="blogtitle">{{ blog_title }}</a>
+                <a href="/" class="blogtitle">{{ blog_title }}</a>
             </h2>
         </div>
         <div id="mainlinks">
             <ul>
                 <li>
-                    <a href="{{ www_root }}">blog</a>
+                    <a href="/">blog</a>
                 </li>
                 <li>
-                    <a href="{{ www_root }}/atom/">atom</a>
+                    <a href="/atom/">atom</a>
                 </li>
                 <li>
-                    <a href="{{ www_root }}/rss/">rss</a>
+                    <a href="/rss/">rss</a>
                 </li>
                 <li>
-                    <a href="{{ www_root }}/articles/">articles</a>
+                    <a href="/articles/">articles</a>
                 </li>
             </ul>
         </div>
@@ -42,17 +42,17 @@
     <div id="blogbody">
         {{ entry_list }}
         {% if page and page > 2 %}
-            <a href="{{www_root}}/page/{{ page-1 }}/" class="page floatleft">
+            <a href="/page/{{ page-1 }}/" class="page floatleft">
             ← neuere Beiträge
             </a>
         {%- endif %}
         {% if page and page == 2 %}
-            <a href="{{www_root}}/" class="page floatleft">
+            <a href="/" class="page floatleft">
             ← neuere Beiträge
             </a>
         {%- endif %}
         {% if page and page < num_entries/items_per_page %}
-            <a href="{{www_root}}/page/{{ page+1 }}/" class="page floatright">
+            <a href="/page/{{ page+1 }}/" class="page floatright">
             ältere Beiträge →
             </a>
         {%- endif  %}
@@ -62,8 +62,11 @@
             written by <a href="mailto:{{ email }}">{{ author }}</a>
         </p>
         <a href="http://creativecommons.org/licenses/by-nc-sa/2.0/de/">
-            <img src="{{www_root}}/img/cc.png" alt="by-nc-sa" />
+            <img src="/img/cc.png" alt="by-nc-sa" />
         </a>
     </div>
+    {% if 'disqus' in extensions and type == 'page' %}
+        {{ include: disqus_script }}
+    {% endif %}
  </body>
 </html>

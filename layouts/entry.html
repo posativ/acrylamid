@@ -8,4 +8,14 @@
     <div class="postbody">        
         {{ body }}
     </div>
+    <div class="postfooter">
+        {% if 'disqus' in extensions and type == 'page' %}
+            <a href="{{ url }}#disqus_thread">Kommentieren</a>
+        {% endif %}
+    </div>
+    <div class="comments">
+        {% if 'disqus' in extensions and type == 'item' %}
+            {{ include: disqus_thread }}
+        {% endif %}
+    </div>
 </div>
