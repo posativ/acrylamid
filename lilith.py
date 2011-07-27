@@ -84,8 +84,8 @@ class Lilith:
 
         if conf.get('www_root', None):
             conf['www_root'] = conf.get('www_root', '')
-            conf['protocol'] = 'http' if conf['www_root'].find('http') == 0 \
-                                      else 'https'
+            conf['protocol'] = 'https' if conf['www_root'].find('https') == 0 \
+                                      else 'http'
         else:
             log.warn('no `www_root` specified, using localhost:8000')
             conf['www_root'] = 'http://localhost:8000/'

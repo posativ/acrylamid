@@ -1,6 +1,8 @@
 # Copyright 2011 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see lilith.py
 
+import tools
+
 tt_item = """
 <div id="disqus_thread"></div>
 <script type="text/javascript">
@@ -18,7 +20,7 @@ tt_item = """
     })();
 </script>
 <noscript>
-    <p>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></p>
+    <p>Please enable JavaScript to view the <a href="{{ protocol }}://disqus.com/?ref_noscript">comments powered by Disqus.</a></p>
 </noscript>
 <a href="{{ protocol }}://disqus.com" class="dsq-brlink">
     blog comments powered by <span class="logo-disqus">Disqus</span>
