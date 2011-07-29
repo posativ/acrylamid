@@ -1,12 +1,12 @@
 # Copyright 2011 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see lilith.py
 
-import tools, os.path
+import os.path
+from lilith import tools
 
 from copy import deepcopy
 from collections import defaultdict
 from jinja2 import Template
-from shpaml import convert_text
 
 def cb_end(request):
     """Generates a overview of all articles."""
@@ -17,8 +17,8 @@ def cb_end(request):
     
     conf = request._config
     data = request._data
-    layout = os.path.join(conf.get('layout_dir', 'layouts'), 'articles.html')
-    tt_articles = Template(convert_text(open(layout).read()))
+    layout = os.path.join(conf['layout_dir'], 'articles.html')
+    tt_articles = Template(open(layout).read())
     articles = defaultdict(list)
     
     for entry in sorted(data['entry_list'], key=lambda k: k.date, reverse=True):

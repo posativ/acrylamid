@@ -8,7 +8,7 @@ from os.path import join, exists, getmtime, dirname
 from time import gmtime
 import logging
 
-import extensions
+import extensions, lilith
 
 log = logging.getLogger('lilith.tools')
 
@@ -79,7 +79,7 @@ class FileEntry:
     """This class gets it's data and metadata from the file specified
     by the filename argument"""
     
-    def __init__(self, request, filename, datadir=''):
+    def __init__(self, request, filename, new=True):
         """Arguments:
         request -- the Request object
         filename -- the complete filename including path
@@ -87,7 +87,7 @@ class FileEntry:
         """
         self._config = request._config
         self._filename = filename.replace(os.sep, '/')
-        self._datadir = datadir
+        self._new = new
         
         self._date = datetime.fromtimestamp(os.path.getmtime(filename))
         self._populate()
@@ -99,6 +99,10 @@ class FileEntry:
         return True if key in self.__dict__.keys() else False
 
     def __getitem__(self, key, default=None):
+        # if key == 'body':
+        #     print 1
+        #     pass
+        #     
         if key in self:
             return self.__dict__[key]
         else:

@@ -4,10 +4,11 @@
 # TODO:
 # - anyway to keep &shy; in atom?
 
-import tools, os, cgi
+import os, cgi
 from datetime import datetime
 
-from shpaml import convert_text
+from lilith import tools
+
 from jinja2 import Template
 
 ATOM_BODY = '''
