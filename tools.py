@@ -1,8 +1,7 @@
-#!/usr/bin/env python
-# -*- encoding: utf-8 -*-
+# Copyright 2011 posativ <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses. see lilith.py
 
-import sys
-import os
+import sys, os, re
 import yaml
 from datetime import datetime
 from os.path import join, exists, getmtime, dirname
@@ -13,7 +12,7 @@ import extensions
 
 log = logging.getLogger('lilith.tools')
 
-def run_callback(chain, input, mapping=lambda x,y: y, defaultfunc=lambda x: x):
+def run_callback(chain, input, defaultfunc=lambda x: x):
     """Applies defaultfunc to input and additional every function in chain.
     
     Should return neither the modifed or the unmodified output. But
@@ -26,7 +25,8 @@ def run_callback(chain, input, mapping=lambda x,y: y, defaultfunc=lambda x: x):
     
     if not callable(defaultfunc):
         raise TypeError('defaultfunc must be callable')
-
+        
+    log.debug('running %s ' % ('cb_'+chain))
     chain = extensions.get_callback_chain(chain)
     newdefault = filter(lambda f: f.func_dict.get('defaultfunc', False), chain)
     
@@ -37,13 +37,13 @@ def run_callback(chain, input, mapping=lambda x,y: y, defaultfunc=lambda x: x):
         sys.exit(1)
     elif len(newdefault) == 1:        
         defaultfunc = newdefault[0]
+        chain.remove(defaultfunc)
         log.debug('new defaultfunc: %s.%s' % (defaultfunc.__module__,
                                               defaultfunc.func_name) )
 
     for func in chain:
         log.debug('%s.%s' % (func.__module__, func.func_name))
-        output = func(input)
-        input = mapping(input, output)
+        input = func(input)
     
     log.debug('%s.%s' % (defaultfunc.__module__, defaultfunc.func_name))
     return defaultfunc(input)
@@ -89,7 +89,7 @@ class FileEntry:
         self._filename = filename.replace(os.sep, '/')
         self._datadir = datadir
         
-        self._date = datetime.utcfromtimestamp(os.path.getmtime(filename))
+        self._date = datetime.fromtimestamp(os.path.getmtime(filename))
         self._populate()
         
     def __repr__(self):
@@ -175,6 +175,20 @@ def check_conf(conf):
                 log.warning('%s created...' % value)
                 
     return True
+    
+def render(tt, *dicts, **kvalue):
+    """helper function to merge multiple dicts and additional key=val params
+    to a single environment dict used by jinja2 templating. Note, merging will
+    first update dicts in given order, then (possible) overwrite single keys
+    in kvalue."""
+        
+    env = {}
+    for d in dicts:
+        env.update(d)
+    for key in kvalue:
+        env[key] = kvalue[key]
+    
+    return tt.render( env )
 
 def mk_file(content, entry, path, force=False):
     """Creates entry in filesystem. Overwrite only if content
@@ -206,3 +220,7 @@ def mk_file(content, entry, path, force=False):
         f.write(content)
         f.close()
         log.info("'%s' written to %s" % (entry['title'], path))
+        
+def safe_title(title):
+    """safe_title returns a safe url string"""
+    return re.sub('[\W]+', '-', title, re.U).lower().strip('-')

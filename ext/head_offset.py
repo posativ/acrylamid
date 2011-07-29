@@ -1,4 +1,6 @@
-# -*- coding: utf-8 -*-
+# Copyright 2011 posativ <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses. see lilith.py
+
 from re import sub
 
 def h(input):

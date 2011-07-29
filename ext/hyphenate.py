@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+# License: BSD Style, 2 clauses. see lilith.py
 # -*- encoding: utf-8 -*-
 
 # TODO: hyph-en, language parameter in blog entry, german exceptions?!
-# TODO: less agressive, more xhtml conform 
+
 
 """ Hyphenation, using Frank Liang's algorithm.
 

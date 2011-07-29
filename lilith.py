@@ -1,8 +1,21 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
-# TODO:
-# - callback after rendering, but before write to file (e.g. tidy)
-# - use file ext for markup, if #parser not specifed
+#
+# Copyright 2011 posativ <info@posativ.org>. All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+# 
+#    1. Redistributions of source code must retain the above copyright notice,
+#       this list of conditions and the following disclaimer.
+# 
+#    2. Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+# 
+# The views and conclusions contained in the software and documentation are
+# those of the authors and should not be interpreted as representing official
+# policies, either expressed or implied, of posativ <info@posativ.org>.
 
 VERSION = "0.1-stable"
 VERSION_SPLIT = tuple(VERSION.split('-')[0].split('.'))
@@ -16,6 +29,7 @@ import locale
 import time
 from datetime import datetime
 import logging
+import fnmatch
 
 import yaml
 import extensions
@@ -30,7 +44,7 @@ class Lilith:
     defines default behavior, and also pushes the request through all
     steps until the output is rendered and we're complete."""
     
-    def __init__(self, config, environ, data=None):
+    def __init__(self, conf, env=None, data=None):
         """Sets configuration and environment and creates the Request
         object
         
@@ -38,12 +52,17 @@ class Lilith:
         environ -- dict containing the environment variables
         """
         
-        config['lilith_name'] = "lilith"
-        config['lilith_version'] = VERSION
+        conf['lilith_name'] = "lilith"
+        conf['lilith_version'] = VERSION
         
-        self._config = config
+        conf['output_dir'] = conf.get('output_dir', 'output/')
+        conf['entries_dir'] = conf.get('entries_dir', 'content/')
+        conf['layout_dir'] = conf.get('layout_dir', 'layouts/')
+        
+        self._config = conf
         self._data = data
-        self.request = Request(config, environ, data)
+        self._env = env
+        self.request = Request(conf, env, data)
         
     def initialize(self):
         """The initialize step further initializes the Request by
@@ -51,29 +70,37 @@ class Lilith:
         registering plugins, and entryparsers.
         """
         data = self._data
-        config = self._config
+        conf = self._config
 
-        # initialize the locale, if wanted (will silently fail if locale
-        # is not available)
-        if config.get('lang', None):
-            try:
-                locale.setlocale(locale.LC_ALL, config['lang'])
-            except locale.Error:
-                # invalid locale
-                pass
+        # initialize the locale, will silently fail if locale is not
+        # available and uses system's locale
+        try:
+            locale.setlocale(locale.LC_ALL, conf.get('lang', False))
+        except (locale.Error, TypeError):
+            # invalid locale
+            log.warn('unsupported locale `%s`' % conf['lang'])
+            locale.setlocale(locale.LC_ALL, '')
+            conf['lang'] = locale.getlocale()
 
-        config['www_root'] = config.get('www_root', '')
+        if conf.get('www_root', None):
+            conf['www_root'] = conf.get('www_root', '')
+            conf['protocol'] = 'https' if conf['www_root'].find('https') == 0 \
+                                      else 'http'
+        else:
+            log.warn('no `www_root` specified, using localhost:8000')
+            conf['www_root'] = 'http://localhost:8000/'
+            conf['protocol'] = 'http'
 
         # take off the trailing slash for base_url
-        if config['www_root'].endswith("/"):
-            config['www_root'] = config['www_root'][:-1]
+        if conf['www_root'].endswith("/"):
+            conf['www_root'] = conf['www_root'][:-1]
 
         # import and initialize plugins
-        extensions.initialize(config.get("ext_dir", ['ext', ]),
-                              exclude=config.get("ext_ignore", []))
-
-        # entryparser callback is run here first to allow other
-        # plugins register what file extensions can be used
+        extensions.initialize(conf.get("ext_dir", ['ext', ]),
+                              exclude=conf.get("ext_ignore", []),
+                              include=conf.get("ext_include", []))
+        
+        conf['extensions'] = [ex.__name__ for ex in extensions.plugins]
     
     def run(self):
         """This is the main loop for lilith.  This method will run
@@ -84,15 +111,18 @@ class Lilith:
         
         self.initialize()
         
-        # run the start callback
+        # run the start callback, initialize jinja2 template
         log.debug('cb_start')
-        request = tools.run_callback('start', self.request)
+        request = tools.run_callback(
+                        'start',
+                        self.request,
+                        defaultfunc=_start)
         
         # run the default handler
         log.debug('cb_handle')
-        request = tools.run_callback("handle",
+        request = tools.run_callback(
+                        "handle",
                         request,
-                        mapping=lambda x,y:x,
                         defaultfunc=_lilith_handler)
                 
         # do end callback
@@ -104,17 +134,37 @@ class Request(object):
     information, OS environment, and data that we calculate and
     transform over the course of execution."""
     
-    def __init__(self, config, environ, data):
-        """Sets configuration and environment.
+    def __init__(self, conf, env, data):
+        """Sets configuration and data.
         
         Arguments:
         config: dict containing configuration variables
-        environ: dict containing environment variables
-        adata: dict containing data variables"""
+        data: dict containing data variables"""
         
         self._data = data
-        self._config = config
-        self._environ = environ
+        self._config = conf
+        self._env = env
+
+def _start(request):
+    """this loads entry.html and main.html into data and does a little
+    preprocessing: {{ include: identifier }} will be replaced by the
+    corresponding identifier in request._env if exist else empty string."""
+    
+    from collections import defaultdict
+    
+    conf = request._config
+    env = request._env
+    data = request._data
+    regex = re.compile('{{\s*include:\s+(\w+)\s*}}')
+    entry = open(os.path.join(conf['layout_dir'], 'entry.html')).read()
+    main = open(os.path.join(conf['layout_dir'], 'main.html')).read()
+    
+    d = defaultdict(str)
+    d.update(env)
+    data['tt_entry'] = re.sub(regex, lambda m: d[m.group(1)], entry)
+    data['tt_main'] = re.sub(regex, lambda m: d[m.group(1)], main)
+    
+    return request
 
 def _lilith_handler(request):
     """This is the default lilith handler.
@@ -127,54 +177,51 @@ def _lilith_handler(request):
             - cb_postformat
         - cb_prepare
     """
-    
-    config = request._config
+    conf = request._config
     data = request._data
                        
     # call the filelist callback to generate a list of entries
-    log.debug('cb_filelist')
+    #log.debug('cb_filelist')
     request =  tools.run_callback(
             "filelist",
             request,
             defaultfunc=_filelist)
         
     # chance to modify specific meta data e.g. datetime
-    log.debug('cb_filestat')
     request = tools.run_callback(
             'filestat', 
             request,
             defaultfunc=_filestat)
     
     # use datetime to sort chronological
-    log.debug('cb_sortlist')
     request = tools.run_callback(
             'sortlist', 
             request,
             defaultfunc=_sortlist)
             
     # entry specific callbacks
-    log.debug('cb_entryparser')
     for i,entry in enumerate(request._data['entry_list']):
         request._data['entry_list'][i] = tools.run_callback(
                 'entryparser',
                 {'entry': entry, 'config': request._config},
                 defaultfunc=_entryparser)
+                
+    request = tools.run_callback(
+            'prepare',
+            request,
+            defaultfunc=_prepare)
     
-    # last modifications
-    log.debug('cb_prepare')
-    request = _prepare(request)
-            
     from copy import deepcopy # performance? :S
     
-    log.debug('cb_item')
-    tools.run_callback('item', deepcopy(request),
-                    mapping=lambda x,y: y,
-                    defaultfunc=_item)
+    tools.run_callback(
+        'item',
+        deepcopy(request),
+        defaultfunc=_item)
     
-    log.debug('cb_page')
-    tools.run_callback('page', deepcopy(request),
-                    mapping=lambda x,y: y,
-                    defaultfunc=_page)
+    tools.run_callback(
+        'page',
+        deepcopy(request),
+        defaultfunc=_page)
     
     return request
 
@@ -190,14 +237,18 @@ def _filelist(request):
     Returns the content we want to render"""
     
     data = request._data
-    config = request._config
+    conf = request._config
     
     filelist = []
-    for root, dirs, files in os.walk(config.get('entries_dir', 'content')):
-        filelist += [ os.path.join(root, file) for file in files
-                         if root not in ['content/drafts', ] ]
+    for root, dirs, files in os.walk(conf['entries_dir']):
+        for file in files:
+            path = os.path.join(root, file)
+            fn = filter(lambda p: fnmatch.fnmatch(path, os.path.join(conf['entries_dir'], p)),
+                        conf.get('entries_ignore', []))
+            if not fn:
+                filelist.append(path)
     
-    entry_list = [FileEntry(request, e, config['entries_dir']) for e in filelist]
+    entry_list = [FileEntry(request, e, conf['entries_dir']) for e in filelist]
     data['entry_list'] = entry_list
     
     return request
@@ -205,15 +256,15 @@ def _filelist(request):
 def _filestat(request):
     """Sets an alternative timestamp specified in yaml header."""
     
-    config = request._config
-    
+    conf = request._config
     entry_list = request._data['entry_list']
+    
     for i in range(len(entry_list)):
         if entry_list[i].has_key('date'):
             timestamp = time.strptime(entry_list[i]['date'],
-                                config.get('strptime', '%d.%m.%Y, %H:%M'))
+                                conf.get('strptime', '%d.%m.%Y, %H:%M'))
             timestamp = time.mktime(timestamp)
-            entry_list[i].date = datetime.utcfromtimestamp(timestamp)
+            entry_list[i].date = datetime.fromtimestamp(timestamp)
         else:
             entry_list[i]['date'] = entry_list[i]._date
             log.warn("using mtime from %s" % entry_list[i])
@@ -233,29 +284,26 @@ def _entryparser(request):
         - cb_postformat"""
     
     entry = request['entry']
-    config = request['config']
     
-    log.debug('cb_preformat')
-    request = tools.run_callback(
+    entry = tools.run_callback(
             'preformat',
-            request,
-            defaultfunc=_preformat)
+            {'entry': entry, 'config': request['config']},
+            defaultfunc=_preformat)['entry']
 
-    log.debug('cb_format')
-    request = tools.run_callback(
+    entry = tools.run_callback(
             'format',
-            request,
-            defaultfunc=_format)
+            {'entry': entry, 'config': request['config']},
+            defaultfunc=_format)['entry']
         
-    log.debug('cb_postformat')
-    request = tools.run_callback(
+    entry = tools.run_callback(
             'postformat',
-            request,
-            defaultfunc=lambda x: x)
+            {'entry': entry, 'config': request['config']})['entry']
     
     return entry
     
 def _preformat(request):
+    """joins content from file (stored as list of strings)"""
+    
     entry = request['entry']
     entry['body'] = ''.join(entry['story'])
     return request
@@ -264,9 +312,9 @@ def _format(request):
     """Apply markup using Post.parser."""
     
     entry = request['entry']
-    config = request['config']
+    conf = request['config']
     
-    parser = entry.get('parser', config.get('parser', 'plain'))
+    parser = entry.get('parser', conf.get('parser', 'plain'))
     
     if parser.lower() in ['markdown', 'mkdown', 'md']:
         from markdown import markdown
@@ -337,20 +385,23 @@ def _prepare(request):
     url -- permalink
     id -- atom conform id: http://diveintomark.org/archives/2004/05/28/howto-atom-id
     """
-    
-    config = request._config
+    conf = request._config
     data = request._data
+    
     for i, entry in enumerate(data['entry_list']):
-        safe_title = re.sub('[\W]+', '-', entry['title'], re.U).lower().strip('-')
-        url = config.get('www_root', '') + '/' \
-              + str(entry.date.year) + '/' + safe_title + '/'
-        id = 'tag:' + re.sub('https?://', '', config.get('www_root', '')).strip('/') \
+        safe_title = tools.safe_title(entry['title'])
+        url = '/' + str(entry.date.year) + '/' + safe_title + '/'
+        id = 'tag:' + re.sub('https?://', '', conf.get('www_root', '')).strip('/') \
              + ',' + entry.date.strftime('%Y-%m-%d') + ':' \
              + '/' + str(entry.date.year) +  '/' + safe_title
-        data['entry_list'][i]['safe_title'] = safe_title
-        data['entry_list'][i]['url'] = url
-        data['entry_list'][i]['id'] = id
-        
+        item = data['entry_list'][i]
+        if not 'safe_title' in item:
+            item['safe_title'] = safe_title
+        if not 'url' in item:
+            item['url'] = url
+        if not 'id' in item:
+            item['id'] = id
+    
     return request
     
 def _item(request):
@@ -361,34 +412,34 @@ def _item(request):
     entry.html -- layout of Post's entry
     main.html -- layout of the website
     """
-    config = request._config
+    conf = request._config
+    env = request._env
     data = request._data
-    data['type'] = 'item'
     
-    layout = config.get('layout_dir', 'layouts')
-    tt_entry = Template(open(os.path.join(layout, 'entry.html')).read())
-    tt_main = Template(open(os.path.join(layout, 'main.html')).read())
+    tt_entry = Template(data['tt_entry'])
+    tt_main = Template(data['tt_main'])
 
     # last preparations
     request = tools.run_callback(
-                'prepare',
+                'preitem',
                 request)
     
-    dict = request._config
-    entry_list = []
-    
     for entry in data['entry_list']:
-        entrydict = dict.copy()
-        entrydict.update({'Post': entry})
-        dict.update({'entry_list':tt_entry.render(entrydict) })
-        html = tt_main.render( dict )
         
-        directory = os.path.join(config.get('output_dir', 'out'),
+        html = tools.render(tt_main, conf, env, type='item',
+                            entry_list=tools.render(tt_entry, conf, env,
+                                            entry, type='item') )
+        
+        directory = os.path.join(conf['output_dir'],
                          str(entry.date.year),
                          entry.safe_title)
         path = os.path.join(directory, 'index.html')
         tools.mk_file(html, entry, path)
         
+    request = tools.run_callback(
+                'postitem',
+                request)
+    
     return request
 
 def _page(request):
@@ -401,37 +452,36 @@ def _page(request):
     entry.html -- layout of Post's entry
     main.html -- layout of the website
     """
-    config = request._config
+    conf = request._config
+    env = request._env
     data = request._data
-    data['type'] = 'page'
-    ipp = config.get('items_per_page', 6)
+    ipp = conf.get('items_per_page', 6)
     
     # last preparations
     request = tools.run_callback(
-                'prepare',
+                'prepage',
                 request)
-    
-    layout = config.get('layout_dir', 'layouts')
-    tt_entry = Template(open(os.path.join(layout, 'entry.html')).read())
-    tt_main = Template(open(os.path.join(layout, 'main.html')).read())
-    
-    dict = request._config
-    entry_list = []
-    for entry in data['entry_list']:
-        entrydict = dict.copy()
-        entrydict.update({'Post': entry})
-        entry_list.append(tt_entry.render(entrydict))
-                
-    for i, mem in enumerate([entry_list[x*ipp:(x+1)*ipp] for x in range(len(entry_list)/ipp+1)]):
         
-        dict.update( {'entry_list': '\n'.join(mem), 'page': i+1,
-                      'num_entries': len(entry_list)} )
-        html = tt_main.render( dict )
-        directory = os.path.join(config.get('output_dir', 'out'),
+    tt_entry = Template(data['tt_entry'])
+    tt_main = Template(data['tt_main'])
+            
+    entry_list = [tools.render(tt_entry, conf, env, entry, type="page")
+                    for entry in data['entry_list']]
+                
+    for i, mem in enumerate([entry_list[x*ipp:(x+1)*ipp]
+                                for x in range(len(entry_list)/ipp+1)] ):
+                                    
+        html = tools.render(tt_main, conf, env, type='page', page=i+1,
+                    entry_list='\n'.join(mem), num_entries=len(entry_list))
+        directory = os.path.join(conf['output_dir'],
                          '' if i == 0 else 'page/%s' % (i+1))
         path = os.path.join(directory, 'index.html')
         tools.mk_file(html, {'title': 'page/%s' % (i+1)}, path)
-        
+    
+    request = tools.run_callback(
+                'postpage',
+                request)
+    
     return request
 
 if __name__ == '__main__':
@@ -456,9 +506,10 @@ if __name__ == '__main__':
     (options, args) = parser.parse_args()
     
     console = logging.StreamHandler()
-    console.setFormatter(ColorFormatter('[%(levelname)s] %(name)s: %(message)s'))
+    console.setFormatter(ColorFormatter('[%(levelname)s] %(name)s.py: %(message)s'))
     if options.verbose == logging.DEBUG:
-        console.setFormatter(ColorFormatter('%(msecs)d [%(levelname)s] %(name)s: %(message)s'))
+        fmt = '%(msecs)d [%(levelname)s] %(name)s.py:%(lineno)s:%(funcName)s %(message)s'
+        console.setFormatter(ColorFormatter(fmt))
     log = logging.getLogger('lilith')
     log.addHandler(console)
     log.setLevel(options.verbose)
@@ -467,5 +518,6 @@ if __name__ == '__main__':
     if options.layout:
         conf['layout_dir'] = options.layout
     assert tools.check_conf(conf)
-    l = Lilith(config=conf, environ={}, data={})
+    
+    l = Lilith(conf=conf, env={}, data={})
     l.run()
