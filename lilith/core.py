@@ -10,8 +10,8 @@ import re
 import fnmatch
 from datetime import datetime
 
+from lilith import FileEntry
 from lilith import tools
-from lilith.tools import FileEntry
 
 from jinja2 import Template
 

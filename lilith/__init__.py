@@ -2,14 +2,34 @@
 # -*- encoding: utf-8 -*-
 #
 # Copyright 2011 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see lilith.py
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+# 
+#    1. Redistributions of source code must retain the above copyright notice,
+#       this list of conditions and the following disclaimer.
+# 
+#    2. Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+# 
+# The views and conclusions contained in the software and documentation are
+# those of the authors and should not be interpreted as representing official
+# policies, either expressed or implied, of posativ <info@posativ.org>.
 
-import locale
-import logging
+VERSION = "0.1-stable"
+VERSION_SPLIT = tuple(VERSION.split('-')[0].split('.'))
+
+import sys
+reload(sys); sys.setdefaultencoding('utf-8')
+
+import yaml, logging, locale
+from optparse import OptionParser, make_option
 
 from lilith import core
 from lilith import extensions
 from lilith import tools
+from lilith.tools import check_conf, ColorFormatter
 
 from jinja2 import Template
 
@@ -20,14 +40,44 @@ class Lilith:
     defines default behavior, and also pushes the request through all
     steps until the output is rendered and we're complete."""
     
-    def __init__(self, conf, env=None, data=None):
+    def __init__(self):
         """Sets configuration and environment and creates the Request
         object
         
         config -- dict containing the configuration variables
         environ -- dict containing the environment variables
         """
+
+        options = [
+            make_option("-c", "--config-file", dest="conf", metavar="FILE",
+                              help="an alternative conf to use", default="lilith.conf"),
+            make_option("-l", "--layout_dir", dest="layout", metavar="DIR",
+                              help="force overwrite", default=False),
+            make_option("-q", "--quit", action="store_const", dest="verbose",
+                              help="be silent (mostly)", const=logging.WARN,
+                              default=logging.INFO),
+            make_option("--debug", action="store_const", dest="verbose",
+                              help="debug information", const=logging.DEBUG)
+            ]
+            
+        parser = OptionParser(option_list=options)
+        (options, args) = parser.parse_args()
+    
+        console = logging.StreamHandler()
+        console.setFormatter(ColorFormatter('[%(levelname)s] %(name)s.py: %(message)s'))
+        if options.verbose == logging.DEBUG:
+            fmt = '%(msecs)d [%(levelname)s] %(name)s.py:%(lineno)s:%(funcName)s %(message)s'
+            console.setFormatter(ColorFormatter(fmt))
+        log = logging.getLogger('lilith')
+        log.addHandler(console)
+        log.setLevel(options.verbose)
         
+        env={'VERSION': VERSION, 'VERSION_SPLIT': VERSION_SPLIT}
+        conf = yaml.load(open(options.conf).read())
+        if options.layout:
+            conf['layout_dir'] = options.layout
+        assert check_conf(conf)
+                
         conf['lilith_name'] = "lilith"
         conf['lilith_version'] = env['VERSION']
         
@@ -36,9 +86,8 @@ class Lilith:
         conf['layout_dir'] = conf.get('layout_dir', 'layouts/')
         
         self._config = conf
-        self._data = data
         self._env = env
-        self.request = Request(conf, env, data)
+        self.request = Request(conf, env, {})
         
     def initialize(self):
         """The initialize step further initializes the Request by
@@ -47,6 +96,7 @@ class Lilith:
         """
         data = self._data
         conf = self._config
+
 
         # initialize the locale, will silently fail if locale is not
         # available and uses system's locale
@@ -120,6 +170,91 @@ class Request(object):
         self._data = data
         self._config = conf
         self._env = env
+        
+class FileEntry:
+    """This class gets it's data and metadata from the file specified
+    by the filename argument"""
+    
+    def __init__(self, request, filename, new=True):
+        """Arguments:
+        request -- the Request object
+        filename -- the complete filename including path
+        datadir --  the data dir
+        """
+        self._config = request._config
+        self._filename = filename.replace(os.sep, '/')
+        self._new = new
+        
+        self._date = datetime.fromtimestamp(os.path.getmtime(filename))
+        self._populate()
+        
+    def __repr__(self):
+        return "<fileentry f'%s'>" % (self._filename)
+        
+    def __contains__(self, key):
+        return True if key in self.__dict__.keys() else False
+
+    def __getitem__(self, key, default=None):
+        # if key == 'body':
+        #     print 1
+        #     pass
+        #     
+        if key in self:
+            return self.__dict__[key]
+        else:
+            return default
+        
+    def __setitem__(self, key, value):
+        """Set metadata.  No underscore in front of `key` is allowed!"""
+        if key.find('_') == 0:
+            raise ValueError('invalid metadata variable: %s' % key)
+        self.__dict__[key] = value
+        
+    def keys(self):
+        return self.__dict__.keys()
+        
+    def has_key(self, key):
+        return self.__contains__(key)
+    
+    def iteritems(self):
+        for key in self.keys():
+            yield (key, self[key])
+        
+    get = __getitem__
+
+    def _populate(self):
+        """Populates the yaml header and splits the content.  """
+        f = open(self._filename, 'r')
+        lines = f.readlines()
+        f.close()
+        
+        data = {}
+    
+        # if file is empty, return a blank entry data object
+        if len(lines) == 0:
+            data['title'] = ''
+            data['story'] = []
+        else:
+            lines.pop(0) # first `---`
+            meta = []
+            for i, line in enumerate(lines):
+                if line.find('---') == 0:
+                    break
+                meta.append(line)
+            lines.pop(0) # last `---`            
+
+            for key, value in yaml.load(''.join(meta)).iteritems():
+                data[key] = value
+
+            # optional newline after yaml header
+            lines = lines[i:] if lines[i].strip() else lines[i+1:]
+
+            # call the preformat function
+            data['parser'] = data.get('parser', self._config.get('parser', 'plain'))
+            data['story'] = lines
+        
+            for key, value in data.iteritems():
+                self[key] = value
 
 def lilith_handler(request):
     """This is the default lilith handler.
