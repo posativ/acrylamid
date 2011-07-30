@@ -23,14 +23,15 @@ VERSION_SPLIT = tuple(VERSION.split('-')[0].split('.'))
 import sys
 reload(sys); sys.setdefaultencoding('utf-8')
 
-import yaml, logging, locale
+import os, logging, locale
 from optparse import OptionParser, make_option
+from datetime import datetime
 
-from lilith import core
 from lilith import extensions
 from lilith import tools
 from lilith.tools import check_conf, ColorFormatter
 
+import yaml
 from jinja2 import Template
 
 log = logging.getLogger('lilith')
@@ -94,9 +95,8 @@ class Lilith:
         setting additional information in the ``data`` dict,
         registering plugins, and entryparsers.
         """
-        data = self._data
+        
         conf = self._config
-
 
         # initialize the locale, will silently fail if locale is not
         # available and uses system's locale
@@ -135,6 +135,8 @@ class Lilith:
         ``_lilith_handler``.
         """
         
+        from lilith.core import start
+        
         self.initialize()
         
         # run the start callback, initialize jinja2 template
@@ -142,7 +144,7 @@ class Lilith:
         request = tools.run_callback(
                         'start',
                         self.request,
-                        defaultfunc=core.start)
+                        defaultfunc=start)
         
         # run the default handler
         log.debug('cb_handle')

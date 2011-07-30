@@ -1,7 +1,0 @@
-.gitignore
-.mtimes
-*.pyc
-content/
-lilith/ext/hyphenation
-output/
-lilith/doc/.build/
