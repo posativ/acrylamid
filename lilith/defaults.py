@@ -15,24 +15,22 @@ log = logging.getLogger('lilith.defaults')
 
 def init(root='.', overwrite=False):
     
-    defaults = {'conf': conf, 'css': css, 'entry': entry, 'main': main}
     dirs = ['%(entries_dir)s/', '%(layout_dir)s/',
             '%(output_dir)s/', 'extensions/', ]
-    files = {'conf':  'lilith.yaml',
-             'css':   '%(output_dir)s/blog.css',
-             'main':  '%(layout_dir)s/main.html',
-             'entry': '%(layout_dir)s/entry.html'}
+    files = {'lilith.yaml': conf,
+             '%(output_dir)s/blog.css': css,
+             '%(layout_dir)s/main.html': main,
+             '%(layout_dir)s/entry.html': entry,
+             '%(entries_dir)s/sample entry.txt': kafka}
              
     default = yaml.load(conf)
     default['output_dir'] = default.get('output_dir', 'output/').rstrip('/')
     default['entries_dir'] = default.get('entries_dir', 'content/').rstrip('/')
     default['layout_dir'] = default.get('layout_dir', 'layouts/').rstrip('/')
     
-    if root != '.':
-        log.info('creating base dir: %s', root)
+    if root != '.' and not exists(root):
         os.mkdir(root)
                 
-    log.info('creating directories...')
     for directory in dirs:
         directory = join(root, directory % default)
         if exists(directory) and not isdir(directory):
@@ -40,23 +38,22 @@ def init(root='.', overwrite=False):
             sys.exit(1)
         elif not exists(directory):
             os.mkdir(directory)
-            log.info('\t%s created', directory)
+            log.info('create  %s', directory)
         else:
-            log.info('\t%s already exists -- skipping', directory)
+            log.info('skip  %s already exists', directory)
     
-    log.info('creating files...')
-    for key, path in files.iteritems():
+    for path, content in files.iteritems():
         path = join(root, path % default)
         if exists(path) and not isfile(path):
             log.critical('%s must be a regular file' % path)
             sys.exit(1)
         elif not exists(path) or overwrite == True:
             f = open(path, 'w')
-            f.write(defaults[key])
+            f.write(content)
             f.close()
-            log.info('\t%s created', path)
+            log.info('create  %s', path)
         else:
-            log.info('\t%s already exists -- skipping', path)
+            log.info('skip  %s already exists', path)
 
 conf =  '''
 www_root: http://example.org/
@@ -580,3 +577,30 @@ entry = '''
         {% endif %}
     </div>
 </div>'''.strip()
+
+kafka = '''
+---
+title: Die Verwandlung
+author: Franz Kafka
+identifier: kafka
+---
+
+Und er kam - und das schon zu spät - und traute seinen Augen nicht mehr.
+
+Als Gregor Samsa eines Morgens aus unruhigen Träumen erwachte, fand er sich in
+seinem Bett zu einem ungeheueren Ungeziefer verwandelt. Er lag auf seinem
+panzerartig harten Rücken und sah, wenn er den Kopf ein wenig hob, seinen
+gewölbten, braunen, von bogenförmigen Versteifungen geteilten Bauch, auf
+dessen Höhe sich die Bettdecke, zum gänzlichen Niedergleiten bereit, kaum noch
+erhalten konnte. Seine vielen, im Vergleich zu seinem sonstigen Umfang
+kläglich dünnen Beine flimmerten ihm hilflos vor den Augen.
+
+»Was ist mit mir geschehen?« dachte er. Es war kein Traum, sein Zimmer, ein
+richtiges, nur etwas zu kleines Menschenzimmer, lag ruhig zwischen den vier
+wohlbekannten Wänden, über dem Tisch, auf dem eine auseinandergepackte
+Musterkollektion von Tuchwaren ausgebreitet war - Samsa war Reisender -, hing
+das Bild, das er vor kurzem aus einer illustrierten Zeitschrift ausgeschnitten
+und in einem hübschen, vergoldeten Rahmen untergebracht hatte. Es stellte eine
+Dame dar, die, mit einem Pelzhut und einer Pelzboa versehen, aufrecht dasaß
+und einen schweren Pelzmuff, in dem ihr ganzer Unterarm verschwunden war, dem
+Beschauer entgegenhob.'''.strip()

@@ -74,7 +74,7 @@ class Lilith:
         (options, args) = parser.parse_args()
     
         console = logging.StreamHandler()
-        console.setFormatter(ColorFormatter('[%(levelname)s]  %(message)s'))
+        console.setFormatter(ColorFormatter('%(message)s'))
         if options.verbose == logging.DEBUG:
             fmt = '%(msecs)d [%(levelname)s] %(name)s.py:%(lineno)s:%(funcName)s %(message)s'
             console.setFormatter(ColorFormatter(fmt))
