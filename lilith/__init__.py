@@ -17,18 +17,21 @@
 # those of the authors and should not be interpreted as representing official
 # policies, either expressed or implied, of posativ <info@posativ.org>.
 
-VERSION = "0.1-stable"
+VERSION = "0.1.8-dev"
 VERSION_SPLIT = tuple(VERSION.split('-')[0].split('.'))
 
 import sys
 reload(sys); sys.setdefaultencoding('utf-8')
 
 import os, logging, locale
-from optparse import OptionParser, make_option
+from optparse import OptionParser, make_option, OptionGroup
 from datetime import datetime
+
+from os.path import abspath
 
 from lilith import extensions
 from lilith import tools
+from lilith import defaults
 from lilith.tools import check_conf, ColorFormatter
 
 import yaml
@@ -48,24 +51,30 @@ class Lilith:
         config -- dict containing the configuration variables
         environ -- dict containing the environment variables
         """
-
+        
         options = [
-            make_option("-c", "--config-file", dest="conf", metavar="FILE",
-                              help="an alternative conf to use", default="lilith.conf"),
-            make_option("-l", "--layout_dir", dest="layout", metavar="DIR",
-                              help="force overwrite", default=False),
             make_option("-q", "--quit", action="store_const", dest="verbose",
                               help="be silent (mostly)", const=logging.WARN,
                               default=logging.INFO),
-            make_option("--debug", action="store_const", dest="verbose",
-                              help="debug information", const=logging.DEBUG)
+            make_option("-v", "--verbose", action="store_const", dest="verbose",
+                              help="debug information", const=logging.DEBUG),
+            make_option("-f", "--force", action="store_true", dest="force",
+                              help="force overwriting", default=False)
             ]
             
         parser = OptionParser(option_list=options)
+        ext_group = OptionGroup(parser, "lilith.yaml override")
+        
+        for key, value in yaml.load(defaults.conf).iteritems():
+            ext_group.add_option('--'+key.replace('_', '-'), action="store",
+                            dest=key, metavar=value, default=value,
+                            type=type(value) if type(value) != list else str)
+                            
+        parser.add_option_group(ext_group)
         (options, args) = parser.parse_args()
     
         console = logging.StreamHandler()
-        console.setFormatter(ColorFormatter('[%(levelname)s] %(name)s.py: %(message)s'))
+        console.setFormatter(ColorFormatter('[%(levelname)s]  %(message)s'))
         if options.verbose == logging.DEBUG:
             fmt = '%(msecs)d [%(levelname)s] %(name)s.py:%(lineno)s:%(funcName)s %(message)s'
             console.setFormatter(ColorFormatter(fmt))
@@ -73,8 +82,21 @@ class Lilith:
         log.addHandler(console)
         log.setLevel(options.verbose)
         
+        if 'init' in args:
+            if len(args) == 2:
+                defaults.init(args[1], options.force)
+            else:
+                defaults.init(overwrite=options.force)
+            sys.exit(0)
+        
         env={'VERSION': VERSION, 'VERSION_SPLIT': VERSION_SPLIT}
-        conf = yaml.load(open(options.conf).read())
+        
+        try:
+            conf = yaml.load(open(options.conf).read())
+        except OSError:
+            log.critical('no config file found: %s. Try "lilith init".', options.conf)
+            sys.exit(1)
+        
         if options.layout:
             conf['layout_dir'] = options.layout
         assert check_conf(conf)
@@ -82,9 +104,9 @@ class Lilith:
         conf['lilith_name'] = "lilith"
         conf['lilith_version'] = env['VERSION']
         
-        conf['output_dir'] = conf.get('output_dir', 'output/')
-        conf['entries_dir'] = conf.get('entries_dir', 'content/')
-        conf['layout_dir'] = conf.get('layout_dir', 'layouts/')
+        conf['output_dir'] = abspath(conf.get('output_dir', 'output/'))
+        conf['entries_dir'] = abspath(conf.get('entries_dir', 'content/'))
+        conf['layout_dir'] = abspath(conf.get('layout_dir', 'layouts/'))
         
         self._config = conf
         self._env = env
@@ -127,7 +149,16 @@ class Lilith:
                               include=conf.get("ext_include", []))
         
         conf['extensions'] = [ex.__name__ for ex in extensions.plugins]
-    
+        
+        
+        if len(args) != 1:
+            print conf['lilith_name'] + ' ' + conf['lilith_version']
+            sys.exit(0)
+        
+        if args[0] == 'init':
+            self.init(options = options)
+
+                
     def run(self):
         """This is the main loop for lilith.  This method will run
         the handle callback to allow registered handlers to handle
