@@ -17,7 +17,7 @@ def init(root='.', overwrite=False):
     
     dirs = ['%(entries_dir)s/', '%(layout_dir)s/',
             '%(output_dir)s/', 'extensions/', ]
-    files = {'lilith.yaml': conf,
+    files = {'conf.yaml': conf,
              '%(output_dir)s/blog.css': css,
              '%(layout_dir)s/main.html': main,
              '%(layout_dir)s/entry.html': entry,
@@ -54,6 +54,7 @@ def init(root='.', overwrite=False):
             log.info('create  %s', path)
         else:
             log.info('skip  %s already exists', path)
+
 
 conf =  '''
 www_root: http://example.org/
