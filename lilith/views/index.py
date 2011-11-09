@@ -3,10 +3,9 @@
 # -*- encoding: utf-8 -*-
 
 from lilith.views import View
-from lilith.utils import render, mkfile
+from lilith.utils import render, mkfile, joinurl
 
 from jinja2 import Template
-from os.path import normpath, join
 
 filters = []
 path = '/page/'
@@ -16,7 +15,7 @@ enabled = True
 
 class Index(View):
     
-    def __init__(self, env):
+    def __init__(self, conf, env):
         pass
         
     def __call__(self, request):
@@ -45,7 +44,7 @@ class Index(View):
                         entrylist='\n'.join(mem), num_entries=len(entrylist))
             directory = conf['output_dir']
             if i > 0:
-                directory += (path + str(i+1))
+                directory = joinurl(conf['output_dir'], (path + str(i+1)))
                 
-            p = join(normpath(directory), 'index.html')
+            p = joinurl(directory, 'index.html')
             mkfile(html, {'title': '/' if i==0 else (path+str(i+1))}, p)

@@ -9,5 +9,5 @@ enabled = False
 
 class Feed(View):
     
-    def __init__(self, **env):
+    def __init__(self, conf, env):
         pass

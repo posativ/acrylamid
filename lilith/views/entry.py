@@ -3,9 +3,9 @@
 # -*- encoding: utf-8 -*-
 
 from lilith.views import View
-from lilith.utils import expand, render, mkfile
+from lilith.utils import expand, render, mkfile, joinurl
 
-from os.path import normpath, join
+from os.path import join
 from jinja2 import Template
 
 filters = []
@@ -18,7 +18,7 @@ class Entry(View):
     main.html -- layout of the website
     """
     
-    def __init__(self, env):
+    def __init__(self, conf, env):
         pass
         
     def __call__(self, request):
@@ -35,6 +35,5 @@ class Entry(View):
                                 entrylist=render(tt_entry, conf, env,
                                                 entry, type='item'))
 
-            directory = normpath(conf['output_dir'] + expand(path, entry))
-            p = join(directory, 'index.html')
+            p = joinurl(conf['output_dir'],  expand(path, entry), 'index.html')
             mkfile(html, entry, p)
