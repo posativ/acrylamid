@@ -1,16 +1,28 @@
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
+#
 # Copyright 2011 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see lilith.py
 
 import sys, os, glob, fnmatch
 import logging
 
-plugins = []
-callbacks = {}
-log = logging.getLogger('lilith.extensions')
 
-def index_plugin(module):
-    """Goes through the plugin's contents and indexes all the funtions
-    that start with cb_.  These functions are callbacks.
+sys.path.insert(0, os.path.dirname(__file__))
+log = logging.getLogger('lilith.filters')
+
+callbacks = []
+
+
+def get_filter_chain():
+    
+    global callbacks
+    return callbacks
+
+
+def index_filters(module, env):
+    """Goes through the modules' contents and indexes all the funtions/classes
+    having a __call__ and __match__ attribute.
     
     Arguments:
     module -- the module to index
@@ -18,26 +30,13 @@ def index_plugin(module):
     
     global callbacks
     
-    props = dir(module)
-    for mem in [item for item in props if item.startswith('cb_')]:
-        func = getattr(module, mem)
-        memadj = mem[3:]
-        if callable(func):
-            callbacks.setdefault(memadj, []).append(func)
-            
-def get_callback_chain(chain):
-    """
-    Returns a list of functions registered with the callback.
+    cs = [getattr(module, c) for c in dir(module) if not c.startswith('_')]
+    for mem in cs:
+        if callable(mem) and hasattr(mem, '__match__'):
+            callbacks.append(mem(**env))
 
-    @returns: list of functions registered with the callback (or an
-        empty list)
-    @rtype: list of functions
-    """
-    global callbacks
-    
-    return callbacks.get(chain, [])
             
-def initialize(ext_dir, include=[], exclude=[]):
+def initialize(ext_dir, env, include=[], exclude=[]):
     """Imports and initializes extensions from the directories in the list
     specified by 'ext_dir'.  If no such list exists, the we don't load any
     plugins. 'include' and 'exclude' may contain a list of shell patterns
@@ -66,7 +65,7 @@ def initialize(ext_dir, include=[], exclude=[]):
                 return True
             else:
                 return False
-                
+        
         ext_list = []
         for mem in ext_dir:
             files = glob.glob(os.path.join(mem, "*.py"))
@@ -77,7 +76,10 @@ def initialize(ext_dir, include=[], exclude=[]):
         return sorted(ext_list)
     
     global plugins
-    callbacks.clear()
+    #callbacks = []
+    
+    exclude.extend(['mdx_*', 'rstx_*'])
+    ext_dir.extend([os.path.dirname(__file__)])
     
     # handle ext_dir
     for mem in ext_dir[:]:
@@ -92,13 +94,19 @@ def initialize(ext_dir, include=[], exclude=[]):
     for mem in ext_list:
         try:
             _module = __import__(mem)
-        except (SystemExit, KeyboardInterrupt):
-            raise
-        except:
-            log.error("ImportError: %s.py" % mem)
+        except (ImportError, Exception), e:
+            print `mem`, 'ImportError:', e
             continue
         
-        index_plugin(_module)
-        plugins.append(_module)
+        index_filters(_module, env)
+
+
+class InitFilterException(Exception): pass
+
+
+class Filter:
     
+    __priority__ = 50.0
     
+    def __cmp__(self, other):
+        return 0 if other in self.__match__ else 1

@@ -8,35 +8,83 @@ import logging
 import os
 import re
 import fnmatch
+import time
 from datetime import datetime
+from collections import defaultdict
 
-from lilith import FileEntry
-from lilith import tools
-
+from lilith.utils import FileEntry
 from jinja2 import Template
 
 log = logging.getLogger('lilith.core')
+    
 
 def start(request):
     """this loads entry.html and main.html into data and does a little
     preprocessing: {{ include: identifier }} will be replaced by the
     corresponding identifier in request._env if exist else empty string."""
     
-    from collections import defaultdict
+    conf = request['conf']
+    env = request['env']
     
-    conf = request._config
-    env = request._env
-    data = request._data
     regex = re.compile('{{\s*include:\s+(\w+)\s*}}')
     entry = open(os.path.join(conf['layout_dir'], 'entry.html')).read()
     main = open(os.path.join(conf['layout_dir'], 'main.html')).read()
     
     d = defaultdict(str)
     d.update(env)
-    data['tt_entry'] = re.sub(regex, lambda m: d[m.group(1)], entry)
-    data['tt_main'] = re.sub(regex, lambda m: d[m.group(1)], main)
+    env['tt_entry'] = re.sub(regex, lambda m: d[m.group(1)], entry)
+    env['tt_main'] = re.sub(regex, lambda m: d[m.group(1)], main)
     
     return request
+    
+
+def handle(request):
+    """This is the lilith handle:
+        - generate filelist
+        - sort filelist by date"""
+        
+    conf = request['conf']
+
+    # generate a list of entries
+    request['entrylist'] = filelist(request)
+
+    for i,entry in enumerate(request['entrylist']):
+        # convert mtime timestamp or `date:` to localtime (float), required for sort
+        if isinstance(entry.date, basestring):
+            timestamp = time.mktime(time.strptime(entry.date,
+                conf.get('strptime', '%d.%m.%Y, %H:%M')))
+            entry.date = datetime.fromtimestamp(timestamp)
+        else:
+            log.warn("using mtime from %s" % entry)
+    
+    request['entrylist'].sort(key=lambda k: k.date, reverse=True)
+    
+    # entry specific callbacks
+    # for i,entry in enumerate(request['entry_list']):
+    #     request['entry_list'][i] = tools.run_callback(
+    #             'entryparser',
+    #             {'entry': entry, 'config': request['conf']},
+    #             defaultfunc=entryparser)
+
+    # request = tools.run_callback(
+    #         'prepare',
+    #         request,
+    #         defaultfunc=prepare)
+    # 
+    # from copy import deepcopy # performance? :S
+    # 
+    # tools.run_callback(
+    #     'item',
+    #     deepcopy(request),
+    #     defaultfunc=item)
+    # 
+    # tools.run_callback(
+    #     'page',
+    #     deepcopy(request),
+    #     defaultfunc=page)
+
+    return request
+
 
 def filelist(request):
     """This is the default handler for getting entries.  It takes the
@@ -49,8 +97,7 @@ def filelist(request):
     
     Returns the content we want to render"""
     
-    data = request._data
-    conf = request._config
+    conf = request['conf']
     
     filelist = []
     for root, dirs, files in os.walk(conf['entries_dir']):
@@ -61,81 +108,34 @@ def filelist(request):
             if not fn:
                 filelist.append(path)
     
-    # save last mtimes
-    mtimes = {}
-    new = []
-    try:
-       for line in open('.mtimes'):
-           timestamp, path = line.split('\t')
-           mtimes[path.strip()] = timestamp
-    except OSError:
-       pass
-
-    for i, path in enumerate(filelist[:]):
-       if os.path.getmtime(path) == mtimes.get(path, 0):
-           pass
-       else:
-           new.append(path)
-           mtimes[path] = os.path.getmtime(path)
-
-    if len(new) > 0:
-       f = open('.mtimes', 'w')
-       for key in sorted(mtimes.keys()):
-           f.write('{0}\t{1}\n'.format(key, mtimes[key]))
-       f.close()
-
-    entry_list = [FileEntry(request, e, new=(e in new)) for e in filelist]
-    data['entry_list'] = entry_list
+    entrylist = [FileEntry(e) for e in filelist]
   
-    return request
-  
-def filestat(request):
-    """Sets an alternative timestamp specified in yaml header."""
-    
-    conf = request._config
-    entry_list = request._data['entry_list']
-    
-    for i in range(len(entry_list)):
-        if entry_list[i].has_key('date'):
-            timestamp = time.strptime(entry_list[i]['date'],
-                                conf.get('strptime', '%d.%m.%Y, %H:%M'))
-            timestamp = time.mktime(timestamp)
-            entry_list[i].date = datetime.fromtimestamp(timestamp)
-        else:
-            entry_list[i]['date'] = entry_list[i]._date
-            log.warn("using mtime from %s" % entry_list[i])
-    return request
-    
-def sortlist(request):
-    """sort list by date"""
+    return entrylist
 
-    entry_list = request._data['entry_list']
-    entry_list.sort(key=lambda k: k.date, reverse=True)
-    return request
 
-def entryparser(request):
+def format(request):
     """Applies:
         - cb_preformat
         - cb_format
         - cb_postformat"""
     
-    entry = request['entry']
+    # entry = request['entry']
+    # 
+    # entry = tools.run_callback(
+    #         'preformat',
+    #         {'entry': entry, 'config': request['config']},
+    #         defaultfunc=preformat)['entry']
+    # 
+    # entry = tools.run_callback(
+    #         'format',
+    #         {'entry': entry, 'config': request['config']},
+    #         defaultfunc=format)['entry']
+    #     
+    # entry = tools.run_callback(
+    #         'postformat',
+    #         {'entry': entry, 'config': request['config']})['entry']
     
-    entry = tools.run_callback(
-            'preformat',
-            {'entry': entry, 'config': request['config']},
-            defaultfunc=preformat)['entry']
-
-    entry = tools.run_callback(
-            'format',
-            {'entry': entry, 'config': request['config']},
-            defaultfunc=format)['entry']
-        
-    entry = tools.run_callback(
-            'postformat',
-            {'entry': entry, 'config': request['config']})['entry']
-    
-    return entry
+    return request
     
 def preformat(request):
     """joins content from file (stored as list of strings)"""
@@ -239,44 +239,7 @@ def prepare(request):
             item['id'] = id
     
     return request
-    
-def item(request):
-    """Creates single full-length entry.  Looks like
-    http://yourblog.org/year/title/(index.html).
-    
-    required:
-    entry.html -- layout of Post's entry
-    main.html -- layout of the website
-    """
-    conf = request._config
-    env = request._env
-    data = request._data
-    
-    tt_entry = Template(data['tt_entry'])
-    tt_main = Template(data['tt_main'])
 
-    # last preparations
-    request = tools.run_callback(
-                'preitem',
-                request)
-    
-    for entry in data['entry_list']:
-        
-        html = tools.render(tt_main, conf, env, type='item',
-                            entry_list=tools.render(tt_entry, conf, env,
-                                            entry, type='item') )
-        
-        directory = os.path.join(conf['output_dir'],
-                         str(entry.date.year),
-                         entry.safe_title)
-        path = os.path.join(directory, 'index.html')
-        tools.mk_file(html, entry, path)
-        
-    request = tools.run_callback(
-                'postitem',
-                request)
-    
-    return request
 
 def page(request):
     """Creates nicely paged listing of your posts.  First “Page” is the

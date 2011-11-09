@@ -1,6 +1,8 @@
 # Copyright 2011 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see lilith.py
 
+from lilith.filters import Filter
+
 from HTMLParser import HTMLParser
 from cgi import escape
 
@@ -74,12 +76,14 @@ class Summarizer(HTMLParser):
             self.summarized += '&#' + char + ';'
 
 
-def cb_prepage(request):
+class Summarize(Filter):
     
-    conf = request._config
-    data = request._data
+    __name__ = 'Summarize'
+    __match__ = ['summarize', 'sum']
     
-    for i, entry in enumerate(data['entry_list']):
-        data['entry_list'][i]['body'] = Summarizer(entry['body'], entry['url'], 200).summarized
-    
-    return request
+    def __init__(self, **env):
+        self.env = env
+        
+    def __call__(self, content, req):
+        
+        return Summarizer(content, req.permalink, 200).summarized

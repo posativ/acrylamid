@@ -1313,6 +1313,7 @@ class Separator(HTMLParser):
         HTMLParser.__init__(self)
         self.hyphenate = hyphenationfunc
         self.result = []
+        self.stack = []
 
         self.feed(html)
 
@@ -1327,20 +1328,27 @@ class Separator(HTMLParser):
             else:
                 return '<%s>' % tag
 
+        self.stack.append(tag)
         self.result.append(tagify(tag, attrs))
 
     def handle_data(self, data):
         """Hyphenate words longer than 10 characters."""
-        split = [word for word in re.split("[.:, !?+=\(\)/]+", data) if len(word) > 10]
-        for word in split:
-            hyphenated = '&shy;'.join(self.hyphenate(word))
-            data = data.replace(word, hyphenated)
+        
+        if filter(lambda i: i in self.stack, ['pre', 'code', 'math', 'em']):
+            pass
+        else:        
+            split = [word for word in re.split("[.:, !?+=\(\)/]+", data) if len(word) > 10]
+            for word in split:
+                hyphenated = '&shy;'.join(self.hyphenate(word))
+                data = data.replace(word, hyphenated)
         
         self.result.append(data)
     
     def handle_endtag(self, tag):
         '''Until we reach not the maxwords limit, we can safely pop every ending tag,
            added by handle_starttag. Afterwards, we apply missing endings tags if missing.'''
+        try: self.stack.pop()
+        except Exception: pass
         self.result.append('</%s>' % tag)
         
     def handle_entityref(self, name):

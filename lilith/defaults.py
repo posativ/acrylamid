@@ -58,8 +58,8 @@ def init(root='.', overwrite=False):
 
 conf =  '''
 www_root: http://example.org/
-ext_dir: [ext, ]
-ext_include: [syndication, head_offset, articles, mathml, ]  # available builtin extensions
+# ext_dir: [ext, ]
+# ext_include: [syndication, head_offset, articles, mathml, ]  # available builtin extensions
 # extensions available in ext/: hyphenate, summarize, head_offset, articles, mathml, disqus
 # in ext/unsupported: multilang
 entries_dir: content/
@@ -482,7 +482,7 @@ object[type="application/x-shockwave-flash"] {
     text-align: left;
 }'''.strip()
 
-main = '''
+main = r'''
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -525,7 +525,7 @@ main = '''
         </div>
     </div>
     <div id="blogbody">
-        {{ entry_list }}
+        {{ entrylist }}
         {% if page and page > 2 %}
             <a href="/page/{{ page-1 }}/" class="page floatleft">
             ← neuere Beiträge
@@ -556,7 +556,7 @@ main = '''
  </body>
 </html>'''.strip()
 
-entry = '''
+entry = r'''
 <div class="posting">
     <div class="postheader">
         <h1 class="subject">
@@ -565,7 +565,7 @@ entry = '''
         <span class="date">{{ date.strftime("%d.%m.%Y, %H:%M") }}</span>
     </div>
     <div class="postbody">        
-        {{ body }}
+        {{ content }}
     </div>
     <div class="postfooter">
         {% if 'disqus' in extensions and type == 'page' %}
