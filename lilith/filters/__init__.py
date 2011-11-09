@@ -36,7 +36,7 @@ def index_filters(module, env):
             callbacks.append(mem(**env))
 
             
-def initialize(ext_dir, env, include=[], exclude=[]):
+def initialize(ext_dir, conf, env, include=[], exclude=[]):
     """Imports and initializes extensions from the directories in the list
     specified by 'ext_dir'.  If no such list exists, the we don't load any
     plugins. 'include' and 'exclude' may contain a list of shell patterns

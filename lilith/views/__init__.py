@@ -18,7 +18,7 @@ def get_views():
     return callbacks
 
 
-def index_views(module, env):
+def index_views(module, conf, env):
     """Goes through the modules' contents and indexes all the funtions/classes
     having a __call__ and __match__ attribute.
 
@@ -31,10 +31,10 @@ def index_views(module, env):
     cs = [getattr(module, c) for c in dir(module) if not c.startswith('_')]
     for mem in cs:
         if hasattr(mem, '__view__') and hasattr(mem, '__call__'):
-            callbacks.append(mem(env))
+            callbacks.append(mem(conf, env))
 
 
-def initialize(ext_dir, env):
+def initialize(ext_dir, conf, env):
     
     global callbacks
 
@@ -60,7 +60,7 @@ def initialize(ext_dir, env):
             sys.modules[__package__].__dict__[mem] = _module
 #            print dir(sys.modules[__package__])
             #globals()[mem] = _module
-            index_views(_module, env)
+            index_views(_module, conf, env)
         except (ImportError, Exception), e:
             print `mem`, 'ImportError:', e
             continue

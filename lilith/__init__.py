@@ -163,10 +163,10 @@ class Lilith:
             conf['www_root'] = conf['www_root'][:-1]
 
         # import and initialize plugins
-        filters.initialize(conf.get("ext_dir", []), request['env'],
+        filters.initialize(conf.get("ext_dir", []), request['conf'], request['env'],
                               exclude=conf.get("ext_ignore", []),
                               include=conf.get("ext_include", []))
-        views.initialize(conf.get("ext_dir", []), request['env'])
+        views.initialize(conf.get("ext_dir", []), request['conf'], request['env'])
         #conf['filters'] = [ex.__name__ for ex in filters.extensions]
         
                 
@@ -193,52 +193,15 @@ class Lilith:
         _views = get_views()
         exec(open('conf.py')) in globals()
         
-        for i, entry in enumerate(request['entrylist']):
-            entry.content = entry.source
-            
-            _filters = entry.get('filters', entry.get('filter', views.index.filters))
-            _chain = [(i, chain[j]) for i, j in [(x, chain.index(x)) for x in _filters if x in chain]]
-            for i, f in _chain:
-                f.__dict__['__matched__'] = i
-                entry.content = f(entry.content, entry)
-                
         for v in _views:
-            v(request)
+        
+            for i, entry in enumerate(request['entrylist']):
+                entry.content = entry.source
                 
-            
-            #_filters.sort(key=lambda k: k.__priority__, reverse=True)
-            #print _filters
-        #     print chain, _filters
-        #     _map = filter(lambda k: k in chain, _filters)
-        #     print _map
-        # for func in sorted(chain, key= lambda c: c.__priority__, reverse=True):
-        #     pass
-            #request = func(request)
-        
-#        request = format(request)
-        
-        
-        #f = FileEntry('/Users/ich/dev/lilith/myblog/content/sample entry.txt')
-        #
-        #print f.source
-        
-        
-        
-        # from lilith.core import start, lilith_handler
-        # 
-        # # run the start callback, initialize jinja2 template
-        # log.debug('cb_start')
-        # request = tools.run_callback(
-        #                 'start',
-        #                 request,
-        #                 defaultfunc=start)
-        # 
-        # # run the default handler
-        # log.debug('cb_handle')
-        # request = tools.run_callback(
-        #                 "handle",
-        #                 request,
-        #                 defaultfunc=lilith_handler)
-        #         
-        # # do end callback
-        # tools.run_callback('end', request)
+                _filters = entry.get('filters', entry.get('filter', getattr(views, v.__module__).filters))
+                _chain = [(i, chain[j]) for i, j in [(x, chain.index(x)) for x in _filters if x in chain]]
+                for i, f in _chain:
+                    f.__dict__['__matched__'] = i
+                    entry.content = f(entry.content, entry)
+                        
+            v(request)
