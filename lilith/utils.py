@@ -12,7 +12,7 @@ from time import gmtime
 import logging
 
 log = logging.getLogger('lilith.utils')
-_slug_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
+_slug_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
 
 try:
     import translitcodec
@@ -70,7 +70,7 @@ class FileEntry:
                 word = word.encode('translit/long')
             else:
                 word = normalize('NFKD', word).encode('ascii', 'ignore')
-            if word:
+            if word and not word[0] in '-:':
                 result.append(word)
         return unicode('-'.join(result))
         
@@ -190,6 +190,7 @@ def render(tt, *dicts, **kvalue):
 
     return tt.render(env)
 
+
 def mkfile(content, entry, path, force=False):
     """Creates entry in filesystem. Overwrite only if content
     differs.
@@ -222,11 +223,6 @@ def mkfile(content, entry, path, force=False):
         f.close()
         log.info("create  '%s', written to %s" % (entry['title'], path))
 
-def safe_title(title):
-    """safe_title returns a safe url string"""
-    # http://effbot.org/zone/unicode-convert.htm
-    return re.sub('[\W]+', '-', title, re.U).lower().strip('-')
-
     
 def expand(url, entry):
     m = {':year': str(entry.date.year), ':month': str(entry.date.month),
@@ -235,3 +231,14 @@ def expand(url, entry):
     for val in m:
         url = url.replace(val, m[val])
     return url
+
+
+def joinurl(*args):
+    """joins multiple urls to one single domain without loosing root (first element)"""
+    
+    r = []
+    for i, mem in enumerate(args):
+        mem = mem.rstrip('/') if i==0 else mem.strip('/')
+        r.append(mem)
+    
+    return join(*r)
