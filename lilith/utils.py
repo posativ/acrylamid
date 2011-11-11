@@ -238,7 +238,8 @@ def joinurl(*args):
     
     r = []
     for i, mem in enumerate(args):
-        mem = mem.rstrip('/') if i==0 else mem.strip('/')
+        if i > 0:
+            mem = mem.lstrip('/')
         r.append(mem)
     
     return join(*r)
