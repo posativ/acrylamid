@@ -30,7 +30,8 @@ def index_views(module, conf, env):
 
     cs = [getattr(module, c) for c in dir(module) if not c.startswith('_')]
     for mem in cs:
-        if hasattr(mem, '__view__') and hasattr(mem, '__call__'):
+        if hasattr(mem, '__view__') and getattr(mem, '__view__') \
+        and hasattr(mem, '__call__') and hasattr(mem, '__init__'):
             callbacks.append(mem(conf, env))
 
 
