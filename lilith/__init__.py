@@ -142,6 +142,7 @@ class Lilith:
         """
         
         conf = request['conf']
+        env = request['env']
 
         # initialize the locale, will silently fail if locale is not
         # available and uses system's locale
@@ -157,7 +158,7 @@ class Lilith:
             log.warn('no `www_root` specified, using localhost:8000')
             conf['www_root'] = 'http://localhost:8000/'
         
-        conf['protocol'] = conf['www_root'][0:conf['www_root'].find('://')]
+        env['protocol'] = conf['www_root'][0:conf['www_root'].find('://')]
         # take off the trailing slash for base_url
         if conf['www_root'].endswith("/"):
             conf['www_root'] = conf['www_root'][:-1]
