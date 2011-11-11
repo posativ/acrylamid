@@ -200,9 +200,14 @@ class Lilith:
                 entry.content = entry.source
                 
                 _filters = entry.get('filters', entry.get('filter', getattr(views, v.__module__).filters))
-                _chain = [(i, chain[j]) for i, j in [(x, chain.index(x)) for x in _filters if x in chain]]
-                for i, f in _chain:
+                _chain = []
+                for f in _filters:
+                    x,y = f.split('+')[:1][0], f.split('+')[1:]
+                    if x in chain:
+                        _chain.append((x, chain[chain.index(x)], y))
+
+                for i, f, args in _chain:
                     f.__dict__['__matched__'] = i
-                    entry.content = f(entry.content, entry)
+                    entry.content = f(entry.content, entry, *args)
                         
             v(request)

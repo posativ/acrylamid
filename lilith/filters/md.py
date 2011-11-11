@@ -17,7 +17,7 @@ class Markdown(Filter):
     __conflicts__ = ['rst', 'plain']
     
     __ext__ = dict((x,x) for x in ['abbr', 'fenced_code', 'footnotes',
-                                   'headerid', 'tables'])
+                                   'headerid', 'tables', 'codehilite'])
 
     def __init__(self, **env):
         
@@ -45,9 +45,12 @@ class Markdown(Filter):
         
         err = []; val = []
         for f in filters:
-            if not f in self:
-                log.warn('%s is not available' % f)
-            else: val.append(f)
-                
+            x = f.split('(', 1)[:1][0]
+            if not x in self:
+                log.warn('%s is not available' % x)
+            else:
+                val.append(x)
+                self.__ext__[x] = f
+
         md = markdown.Markdown(extensions=[self.__ext__[m] for m in val])
         return md.convert(content)
