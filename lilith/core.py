@@ -58,31 +58,6 @@ def handle(request):
             log.warn("using mtime from %s" % entry)
     
     request['entrylist'].sort(key=lambda k: k.date, reverse=True)
-    
-    # entry specific callbacks
-    # for i,entry in enumerate(request['entry_list']):
-    #     request['entry_list'][i] = tools.run_callback(
-    #             'entryparser',
-    #             {'entry': entry, 'config': request['conf']},
-    #             defaultfunc=entryparser)
-
-    # request = tools.run_callback(
-    #         'prepare',
-    #         request,
-    #         defaultfunc=prepare)
-    # 
-    # from copy import deepcopy # performance? :S
-    # 
-    # tools.run_callback(
-    #     'item',
-    #     deepcopy(request),
-    #     defaultfunc=item)
-    # 
-    # tools.run_callback(
-    #     'page',
-    #     deepcopy(request),
-    #     defaultfunc=page)
-
     return request
 
 
@@ -109,7 +84,6 @@ def filelist(request):
                 filelist.append(path)
     
     entrylist = [FileEntry(e) for e in filelist]
-  
     return entrylist
 
 
@@ -237,48 +211,5 @@ def prepare(request):
             item['url'] = url
         if not 'id' in item:
             item['id'] = id
-    
-    return request
-
-
-def page(request):
-    """Creates nicely paged listing of your posts.  First “Page” is the
-    index.hml used to have this nice url: http://yourblog.com/ with a recent
-    list of your (e.g. summarized) Posts. Other pages are enumerated to /page/n+1
-    
-    required:
-    items_per_page -- posts displayed per page (defaults to 6)
-    entry.html -- layout of Post's entry
-    main.html -- layout of the website
-    """
-    conf = request._config
-    env = request._env
-    data = request._data
-    ipp = conf.get('items_per_page', 6)
-    
-    # last preparations
-    request = tools.run_callback(
-                'prepage',
-                request)
-        
-    tt_entry = Template(data['tt_entry'])
-    tt_main = Template(data['tt_main'])
-            
-    entry_list = [tools.render(tt_entry, conf, env, entry, type="page")
-                    for entry in data['entry_list']]
-                
-    for i, mem in enumerate([entry_list[x*ipp:(x+1)*ipp]
-                                for x in range(len(entry_list)/ipp+1)] ):
-                                    
-        html = tools.render(tt_main, conf, env, type='page', page=i+1,
-                    entry_list='\n'.join(mem), num_entries=len(entry_list))
-        directory = os.path.join(conf['output_dir'],
-                         '' if i == 0 else 'page/%s' % (i+1))
-        path = os.path.join(directory, 'index.html')
-        tools.mk_file(html, {'title': 'page/%s' % (i+1)}, path)
-    
-    request = tools.run_callback(
-                'postpage',
-                request)
     
     return request
