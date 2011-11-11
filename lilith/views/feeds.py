@@ -8,24 +8,21 @@ from datetime import datetime, timedelta
 from lilith.views import View
 from lilith.utils import expand, render, mkfile, joinurl
 
-from jinja2 import Template
+from jinja2 import Environment
 
 filters = []
-
 
 class Feed(View):
         
     num_entries = 25
+    env = Environment()
     
     def __call__(self, request):
-
+        
         conf = request['conf']
         env = request['env']
         entrylist = request['entrylist']
-
-        tt_entry = Template(self.tt_entry)
-        tt_body = Template(self.tt_body)
-
+        
 #        utc_offset = timedelta(hours=2)
 
         result = []
@@ -33,9 +30,9 @@ class Feed(View):
             _id = 'tag:' + conf.get('www_root', '').replace(env['protocol']+'://', '') \
                          + ',' + entry.date.strftime('%Y-%m-%d') + ':' \
                          + entry.permalink
-            result.append(render(tt_entry, env, conf, entry, id=_id))
+            result.append(render(self.tt_entry, env, conf, entry, id=_id))
         
-        xml = render(tt_body, env, conf, {'entrylist': '\n'.join(result),
+        xml = render(self.tt_body, env, conf, {'entrylist': '\n'.join(result),
                       'updated': entrylist[0].date if entrylist else datetime.now()},
                       atom=atom, rss=rss)
         
@@ -49,8 +46,8 @@ class atom(Feed):
     path = '/atom/'
 
     def __init__(self, conf, env):
-        self.tt_entry = ATOM_ENTRY
-        self.tt_body = ATOM_BODY
+        self.tt_entry = self.env.from_string(ATOM_ENTRY)
+        self.tt_body = self.env.from_string(ATOM_BODY)
 
 
 class rss(Feed):
@@ -58,9 +55,14 @@ class rss(Feed):
     __view__ = True
     path = '/rss/'
 
-    def __init__(self, conf, env):
-        self.tt_entry = RSS_ENTRY
-        self.tt_body = RSS_BODY
+    def __init__(self, conf, env):      
+        
+        from wsgiref.handlers import format_date_time
+        from time import mktime
+        
+        self.env.filters['rfc822'] = lambda x: format_date_time(mktime(x.timetuple()))
+        self.tt_entry = self.env.from_string(RSS_ENTRY)
+        self.tt_body = self.env.from_string(RSS_BODY)
 
 
 ATOM_BODY = r'''
@@ -102,8 +104,8 @@ RSS_BODY = r'''
         <title>{{ blog_title | escape }}</title>
         <link>{{ website }}</link>
         <description>{{ description }}</description>
-        <language>{{ lang }}</language>
-        <pubDate>{{ updated.strftime('%a, %d %b %Y %H:%M:%S GMT') }}</pubDate>
+        <language>{{ lang.replace('_', '-').lower() }}</language>
+        <pubDate>{{ updated | rfc822 }}</pubDate>
         <docs>{{ www_root+rss.path }}</docs>
         <generator>{{ lilith_name }} {{ lilith_version }}</generator>
         <atom:link href="{{ www_root+atom.path }}" rel="self" type="application/rss+xml" />
@@ -117,7 +119,7 @@ RSS_ENTRY = r'''
     <title>{{ title | escape }}</title>
     <link>{{ www_root + permalink }}</link>
     <description>{{ content | escape }}</description>
-    <pubDate>{{ date.strftime('%a, %d %b %Y %H:%M:%S GMT') }}</pubDate>
+    <pubDate>{{ date | rfc822 }}</pubDate>
     <guid isPermaLink="false">{{ id }}</guid>
 </item>
 '''.strip()
