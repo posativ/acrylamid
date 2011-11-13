@@ -15,7 +15,7 @@ callbacks = []
 def get_views():
     
     global callbacks
-    return callbacks
+    return [cb for cb in callbacks if getattr(sys.modules['lilith.views'], cb.__module__).enabled]
 
 
 def index_views(module, conf, env):
@@ -27,6 +27,9 @@ def index_views(module, conf, env):
     """
 
     global callbacks
+    
+    if not hasattr(module, 'enabled'):
+        raise ImportError("'enabled' property is missing")
 
     cs = [getattr(module, c) for c in dir(module) if not c.startswith('_')]
     for mem in cs:
@@ -59,8 +62,6 @@ def initialize(ext_dir, conf, env):
         try:
             _module = __import__(mem)
             sys.modules[__package__].__dict__[mem] = _module
-#            print dir(sys.modules[__package__])
-            #globals()[mem] = _module
             index_views(_module, conf, env)
         except (ImportError, Exception), e:
             print `mem`, 'ImportError:', e
