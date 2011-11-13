@@ -140,7 +140,7 @@ class ColorFormatter(logging.Formatter):
     def format(self, record):
 
         keywords = {'skip': self.BLACK, 'create': self.GREEN, 'identical': self.BLACK,
-                    'update': self.YELLOW, 'change': self.YELLOW}
+                    'update': self.YELLOW, 'changed': self.YELLOW}
                     
         if record.levelno == logging.INFO:
             for item in keywords:
