@@ -1,11 +1,21 @@
-# Copyright 2011 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see lilith.py
+# License: New BSD Style
+#
+# [typography.py][1] is a set of filters enhancing written text output. As the
+# name says, it adds specific typography things documented in the definitions
+# itself and [smartypants][2].
+#
+# The typography.py filter comes with two options: `mode` and `default`.
+# ``mode`` sets the `smartypants_attributes` as documented in [2]. `default`
+# is a list of filters that will be always applied if __match__ is invoked +
+# everything you specify as additional arguments.
+#
+# [1]: https://github.com/mintchaos/typogrify
+# [2]: http://web.chad.org/projects/smartypants.py/
 
 from lilith.filters import Filter
-
 import re, smartypants
 
-mode = "2" # -- en-dash, --- em-dash, see <http://web.chad.org/projects/smartypants.py/>
+mode = "2" # -- en-dash, --- em-dash
 default = ['amp', 'widont', 'smartypants', 'caps']
 
 class Typography(Filter):
