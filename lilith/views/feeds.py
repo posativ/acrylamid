@@ -11,6 +11,7 @@ from lilith.utils import expand, render, mkfile, joinurl
 from jinja2 import Environment
 
 filters = []
+enabled = True
 
 class Feed(View):
         
@@ -23,8 +24,6 @@ class Feed(View):
         env = request['env']
         entrylist = request['entrylist']
         
-#        utc_offset = timedelta(hours=2)
-
         result = []
         for entry in entrylist[:self.num_entries]:
             _id = 'tag:' + conf.get('www_root', '').replace(env['protocol']+'://', '') \
@@ -86,8 +85,8 @@ ATOM_BODY = r'''
 ATOM_ENTRY = r'''
 <entry>
     <title>{{ title | escape }}</title>
-    <link rel="alternate" type="text/html" href="{{ www_root+permalink }}" />
-    <id>{{ id }}</id>
+    <link rel="alternate" type="text/html" href="{{ www_root + permalink }}" />
+    <id>{{ id.rstrip('/') }}</id>
     <updated>{{ date.strftime('%Y-%m-%dT%H:%M:%SZ') }}</updated>
     <author>
         <name>{{ author }}</name>
@@ -120,6 +119,6 @@ RSS_ENTRY = r'''
     <link>{{ www_root + permalink }}</link>
     <description>{{ content | escape }}</description>
     <pubDate>{{ date | rfc822 }}</pubDate>
-    <guid isPermaLink="false">{{ id }}</guid>
+    <guid isPermaLink="false">{{ id.rstrip('/') }}</guid>
 </item>
 '''.strip()
