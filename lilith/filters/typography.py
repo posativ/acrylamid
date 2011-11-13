@@ -42,6 +42,15 @@ class Typography(Filter):
         
         return content
 
+def new_dashes(str):
+    # patching something-- to return something-- not something&#8212.
+    str = re.sub(r"""(\s)---""", r"""\1&#8211;""", str) # en  (yes, backwards)
+    str = re.sub(r"""(\s)--""", r"""\1&#8212;""", str) # em (yes, backwards)
+    return str
+
+smartypants.educateDashes = new_dashes
+smartypants.educateDashesOldSchool = new_dashes
+
 def amp(text, autoescape=None):
     """Wraps apersands in HTML with ``<span class="amp">`` so they can be
     styled with CSS. Apersands are also normalized to ``&amp;``. Requires
