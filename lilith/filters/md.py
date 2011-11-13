@@ -13,7 +13,7 @@ from lilith.filters import log
 class Markdown(Filter):
     
     __name__ = 'Markdown'
-    __match__ = ['md', 'mkdown', 'markdown']
+    __match__ = ['md', 'mkdown', 'markdown', 'Markdown']
     __conflicts__ = ['rst', 'plain']
     
     __ext__ = dict((x,x) for x in ['abbr', 'fenced_code', 'footnotes',
@@ -45,12 +45,15 @@ class Markdown(Filter):
         
         err = []; val = []
         for f in filters:
-            x = f.split('(', 1)[:1][0]
-            if not x in self:
-                log.warn('%s is not available' % x)
+            if f in self:
+                val.append(f)
             else:
-                val.append(x)
-                self.__ext__[x] = f
+                x = f.split('(', 1)[:1][0]
+                if not x in self:
+                    log.warn('%s is not available' % x)
+                else:
+                    val.append(x)
+                    self.__ext__[x] = f
 
         md = markdown.Markdown(extensions=[self.__ext__[m] for m in val])
         return md.convert(content)
