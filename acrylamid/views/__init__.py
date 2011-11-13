@@ -2,20 +2,20 @@
 # -*- encoding: utf-8 -*-
 #
 # Copyright 2011 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see lilith.py
+# License: BSD Style, 2 clauses. see acrylamid.py
 
 import sys, os, glob, fnmatch
 import logging
 
 sys.path.insert(0, os.path.dirname(__file__))
-log = logging.getLogger('lilith.views')
+log = logging.getLogger('acrylamid.views')
 
 callbacks = []
 
 def get_views():
     
     global callbacks
-    return [cb for cb in callbacks if getattr(sys.modules['lilith.views'], cb.__module__).enabled]
+    return [cb for cb in callbacks if getattr(sys.modules['acrylamid.views'], cb.__module__).enabled]
 
 
 def index_views(module, conf, env):

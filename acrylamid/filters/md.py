@@ -2,13 +2,13 @@
 # -*- encoding: utf-8 -*-
 #
 # Copyright 2011 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see lilith.py
+# License: BSD Style, 2 clauses. see acrylamid.py
 
 import os
 import markdown
 
-from lilith.filters import Filter
-from lilith.filters import log
+from acrylamid.filters import Filter
+from acrylamid.filters import log
 
 class Markdown(Filter):
     

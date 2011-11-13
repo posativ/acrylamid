@@ -29,19 +29,19 @@ from datetime import datetime
 
 from os.path import abspath
 
-from lilith import defaults
-from lilith import filters
-from lilith import views
-from lilith.utils import check_conf, ColorFormatter
+from acrylamid import defaults
+from acrylamid import filters
+from acrylamid import views
+from acrylamid.utils import check_conf, ColorFormatter
 
 import yaml
 from jinja2 import Template
 
-log = logging.getLogger('lilith')
+log = logging.getLogger('acrylamid')
 sys.path.insert(0, os.path.dirname(__package__))
 
-class Lilith:
-    """Main class for Lilith functionality.  It handles initialization,
+class Acryl:
+    """Main class for acrylamid functionality.  It handles initialization,
     defines default behavior, and also pushes the request through all
     steps until the output is rendered and we're complete."""
     
@@ -83,13 +83,13 @@ class Lilith:
         if options.verbose == logging.DEBUG:
             fmt = '%(msecs)d [%(levelname)s] %(name)s.py:%(lineno)s:%(funcName)s %(message)s'
             console.setFormatter(ColorFormatter(fmt))
-        log = logging.getLogger('lilith')
+        log = logging.getLogger('acrylamid')
         log.addHandler(console)
         log.setLevel(options.verbose)
         
         env = {'VERSION': VERSION, 'VERSION_SPLIT': VERSION_SPLIT}
         if options.version:
-            print "lilith" + ' ' + env['VERSION']
+            print "acrylamid" + ' ' + env['VERSION']
             sys.exit(0)
         
         if len(args) < 1:
@@ -97,7 +97,7 @@ class Lilith:
             sys.exit(1)
         
         # -- init -- #
-        # TODO: lilith init --layout_dir=somedir to overwrite defaults
+        # TODO: acrylamid init --layout_dir=somedir to overwrite defaults
         
         if 'init' in args:
             if len(args) == 2:
@@ -109,13 +109,13 @@ class Lilith:
         try:
             conf = yaml.load(open(options.conf).read())
         except OSError:
-            log.critical('no config file found: %s. Try "lilith init".', options.conf)
+            log.critical('no config file found: %s. Try "acrylamid init".', options.conf)
             sys.exit(1)
         
         assert check_conf(conf)
                 
-        conf['lilith_name'] = "lilith"
-        conf['lilith_version'] = env['VERSION']
+        conf['acrylamid_name'] = "acrylamid"
+        conf['acrylamid_version'] = env['VERSION']
 
         conf['output_dir'] = conf.get('output_dir', 'output/')
         conf['entries_dir'] = conf.get('entries_dir', 'content/')
@@ -172,19 +172,19 @@ class Lilith:
         
                 
     def run(self):
-        """This is the main loop for lilith.  This method will run
+        """This is the main loop for acrylamid.  This method will run
         the handle callback to allow registered handlers to handle
         the request. If nothing handles the request, then we use the
-        ``_lilith_handler``.
+        ``_acrylamid_handler``.
         """
         request = self.req
         conf = self.req['conf']
         #print conf['filters']
         self.initialize(request)
         
-        from lilith.core import start, handle
-        from lilith.filters import get_filters, FilterList
-        from lilith.views import get_views
+        from acrylamid.core import start, handle
+        from acrylamid.filters import get_filters, FilterList
+        from acrylamid.views import get_views
         
         request = start(request)
         request = handle(request)

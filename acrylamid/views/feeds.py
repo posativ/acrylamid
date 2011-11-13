@@ -1,12 +1,12 @@
 # Copyright 2011 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see lilith.py
+# License: BSD Style, 2 clauses. see acrylamid.py
 # -*- encoding: utf-8 -*-
 
 import os, cgi
 from datetime import datetime, timedelta
 
-from lilith.views import View
-from lilith.utils import expand, render, mkfile, joinurl
+from acrylamid.views import View
+from acrylamid.utils import expand, render, mkfile, joinurl
 
 from jinja2 import Environment
 
@@ -77,7 +77,7 @@ ATOM_BODY = r'''
     <link rel="alternate" type="text/html" href="{{ website }}" />
     <link rel="self" type="application/atom+xml" href="{{ www_root+atom.path }}" />
     <updated>{{ updated.strftime('%Y-%m-%dT%H:%M:%SZ') }}</updated>
-    <generator uri="https://posativ.org/lilith/" version="{{ lilith_version }}">{{ lilith_name }}</generator>
+    <generator uri="https://posativ.org/acrylamid/" version="{{ acrylamid_version }}">{{ acrylamid_name }}</generator>
     {{ entrylist }}
 </feed>
 '''.strip()
@@ -106,7 +106,7 @@ RSS_BODY = r'''
         <language>{{ lang.replace('_', '-').lower() }}</language>
         <pubDate>{{ updated | rfc822 }}</pubDate>
         <docs>{{ www_root+rss.path }}</docs>
-        <generator>{{ lilith_name }} {{ lilith_version }}</generator>
+        <generator>{{ acrylamid_name }} {{ acrylamid_version }}</generator>
         <atom:link href="{{ www_root+atom.path }}" rel="self" type="application/rss+xml" />
         {{ entrylist }}
     </channel>

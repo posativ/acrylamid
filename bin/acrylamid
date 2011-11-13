@@ -4,7 +4,7 @@
 # Copyright 2011 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see lilith.py
 
-from lilith import Lilith
+from acrylamid import Acryl
 
 if __name__ == '__main__':
-    Lilith()
+    Acryl()

@@ -12,7 +12,7 @@
 # [1]: https://github.com/mintchaos/typogrify
 # [2]: http://web.chad.org/projects/smartypants.py/
 
-from lilith.filters import Filter
+from acrylamid.filters import Filter
 import re, smartypants
 
 mode = "2" # -- en-dash, --- em-dash

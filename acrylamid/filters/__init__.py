@@ -2,13 +2,13 @@
 # -*- encoding: utf-8 -*-
 #
 # Copyright 2011 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see lilith.py
+# License: BSD Style, 2 clauses. see acrylamid.py
 
 import sys, os, glob, fnmatch, copy
 import logging
 
 sys.path.insert(0, os.path.dirname(__file__))
-log = logging.getLogger('lilith.filters')
+log = logging.getLogger('acrylamid.filters')
 
 def get_filters():
     

@@ -2,7 +2,7 @@
 # -*- encoding: utf-8 -*-
 #
 # Copyright 2011 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see lilith.py
+# License: BSD Style, 2 clauses. see acrylamid.py
 
 import logging
 import os
@@ -12,10 +12,10 @@ import time
 from datetime import datetime
 from collections import defaultdict
 
-from lilith.utils import FileEntry
+from acrylamid.utils import FileEntry
 from jinja2 import Template
 
-log = logging.getLogger('lilith.core')
+log = logging.getLogger('acrylamid.core')
     
 
 def start(request):
@@ -39,7 +39,7 @@ def start(request):
     
 
 def handle(request):
-    """This is the lilith handle:
+    """This is the acrylamid handle:
         - generate filelist
         - sort filelist by date"""
         

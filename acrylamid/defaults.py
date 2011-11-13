@@ -2,7 +2,7 @@
 # -*- encoding: utf-8 -*-
 #
 # Copyright 2011 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see lilith.py
+# License: BSD Style, 2 clauses. see acrylamid.py
 
 import sys
 import os
@@ -11,7 +11,7 @@ import yaml
 
 from os.path import exists, isfile, isdir, join
 
-log = logging.getLogger('lilith.defaults')
+log = logging.getLogger('acrylamid.defaults')
 
 def init(root='.', overwrite=False):
     

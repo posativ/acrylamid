@@ -2,7 +2,7 @@
 # -*- encoding: utf-8 -*-
 #
 # Copyright 2011 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see lilith.py
+# License: BSD Style, 2 clauses. see acrylamid.py
 
 import sys, os, re
 import yaml
@@ -11,7 +11,7 @@ from os.path import join, exists, getmtime, dirname
 from time import gmtime
 import logging
 
-log = logging.getLogger('lilith.utils')
+log = logging.getLogger('acrylamid.utils')
 _slug_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
 
 try:

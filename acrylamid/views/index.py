@@ -1,9 +1,9 @@
 # Copyright 2011 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see lilith.py
+# License: BSD Style, 2 clauses. see acrylamid.py
 # -*- encoding: utf-8 -*-
 
-from lilith.views import View
-from lilith.utils import render, mkfile, joinurl
+from acrylamid.views import View
+from acrylamid.utils import render, mkfile, joinurl
 
 from jinja2 import Template
 
