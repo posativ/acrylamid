@@ -7,14 +7,10 @@
 import sys, os, glob, fnmatch
 import logging
 
-
 sys.path.insert(0, os.path.dirname(__file__))
 log = logging.getLogger('lilith.filters')
 
-callbacks = []
-
-
-def get_filter_chain():
+def get_filters():
     
     global callbacks
     return callbacks
@@ -33,7 +29,7 @@ def index_filters(module, env):
     cs = [getattr(module, c) for c in dir(module) if not c.startswith('_')]
     for mem in cs:
         if callable(mem) and hasattr(mem, '__match__'):
-            callbacks.append(mem(**env))
+            callbacks[getattr(mem, '__match__')] = mem(**env)
 
             
 def initialize(ext_dir, conf, env, include=[], exclude=[]):
@@ -107,6 +103,49 @@ class InitFilterException(Exception): pass
 class Filter:
     
     __priority__ = 50.0
-    
-    def __cmp__(self, other):
-        return 0 if other in self.__match__ else 1
+    __conflicts__ = []
+        
+        
+class FilterList(list):
+
+    def __contains__(self, y):
+        for x in self:
+            if x[1].__name__ == y.__name__:
+                return True
+        for f in y.__conflicts__:
+            for x in self:
+                if f in x[1].__match__:
+                    return True
+        return False
+
+class FilterStorage(dict):
+    """store multiple keys per value and make __call__ do nothing, when
+    filter is lead by *no*."""
+
+    def __init__(self, *args):
+        dict.__init__(self, args)
+        self.map = {}
+
+    def __contains__(self, key):
+        return True if key in self.map else False
+
+    def __setitem__(self, key, value):
+
+        if isinstance(key, basestring):
+            self.map[key] = key
+            dict.__setitem__(self, key, value)
+        else:
+            for k in key:
+                self.map[k] = key[0]
+            dict.__setitem__(self, key[0], value)
+
+    def __getitem__(self, key):
+
+        q = key[2:] if key.startswith('no') else key
+        f = dict.__getitem__(self, self.map[q])
+        if key.startswith('no'):
+            f = copy.copy(f)
+            f.__call__ = lambda x,y,*z: x
+        return f
+        
+callbacks = FilterStorage()
