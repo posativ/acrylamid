@@ -73,8 +73,7 @@ class Lilith:
         
         for key, value in yaml.load(defaults.conf).iteritems():
             ext_group.add_option('--'+key.replace('_', '-'), action="store",
-                            dest=key, metavar=value, default=value,
-                            type=type(value) if type(value) != list else str)
+                            dest=key, metavar=value, type=type(value) if type(value) != list else str)
                             
         parser.add_option_group(ext_group)
         (options, args) = parser.parse_args()
@@ -122,7 +121,7 @@ class Lilith:
         conf['entries_dir'] = conf.get('entries_dir', 'content/')
         conf['layout_dir'] = conf.get('layout_dir', 'layouts/')
         
-        conf.update(options.__dict__)
+        conf.update(dict((k,v) for k,v in options.__dict__.iteritems() if v != None))
 
         # -- run -- #
                     
@@ -168,6 +167,7 @@ class Lilith:
                               exclude=conf.get("ext_ignore", []),
                               include=conf.get("ext_include", []))
         views.initialize(conf.get("ext_dir", []), request['conf'], request['env'])
+        exec(open('conf.py')) in globals()
         #conf['filters'] = [ex.__name__ for ex in filters.extensions]
         
                 
@@ -177,36 +177,38 @@ class Lilith:
         the request. If nothing handles the request, then we use the
         ``_lilith_handler``.
         """
-        
         request = self.req
         conf = self.req['conf']
         #print conf['filters']
         self.initialize(request)
         
         from lilith.core import start, handle
-        from lilith.filters import get_filter_chain
+        from lilith.filters import get_filters, FilterList
         from lilith.views import get_views
         
         request = start(request)
         request = handle(request)
         
-        chain = get_filter_chain()
+        filtersdict = get_filters()
         _views = get_views()
-        exec(open('conf.py')) in globals()
-        
+
         for v in _views:
         
             for i, entry in enumerate(request['entrylist']):
-                entry.content = entry.source
                 
-                _filters = entry.get('filters', entry.get('filter', getattr(views, v.__module__).filters))
-                _chain = []
-                for f in _filters:
+                entry.content = entry.source
+                entryfilters = entry.get('filters', [])
+                if isinstance(entryfilters, basestring):
+                    entryfilters = [entryfilters]
+                viewsfilters = getattr(views, v.__module__).filters
+                
+                _filters = FilterList()
+                for f in entryfilters+viewsfilters:
                     x,y = f.split('+')[:1][0], f.split('+')[1:]
-                    if x in chain:
-                        _chain.append((x, chain[chain.index(x)], y))
-
-                for i, f, args in _chain:
+                    if filtersdict[x] not in _filters:
+                        _filters.append((x, filtersdict[x], y))
+                
+                for i, f, args in _filters:
                     f.__dict__['__matched__'] = i
                     entry.content = f(entry.content, entry, *args)
                         
