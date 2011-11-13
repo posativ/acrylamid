@@ -19,14 +19,14 @@ import asciimathml
 __match__ = ['mathml', 'math', 'asciimathml']
 __author__ = 'Gabriele Favalessa'
 
+RE = re.compile(r'^(.*)\$([^\$]*)\$(.*)$', re.M) # $ a $
+
 class ASCIIMathMLExtension(markdown.Extension):
     def __init__(self, configs):
         pass
 
     def extendMarkdown(self, md, md_globals):
         self.md = md
-
-        RE = re.compile(r'^(.*)\$\$([^\$]*)\$\$(.*)$', re.M) # $$ a $$
 
         md.inlinePatterns.add('', ASCIIMathMLPattern(RE), '_begin')
 
@@ -35,7 +35,7 @@ class ASCIIMathMLExtension(markdown.Extension):
 
 class ASCIIMathMLPattern(markdown.inlinepatterns.Pattern):
     def getCompiledRegExp(self):
-        return re.compile(r'^(.*)\$\$([^\$]*)\$\$(.*)$', re.M) # $$ a $$
+        return RE
 
     def handleMatch(self, m):
         math = asciimathml.parse(m.group(2).strip(), markdown.etree.Element, markdown.AtomicString)
