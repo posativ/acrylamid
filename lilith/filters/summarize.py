@@ -45,11 +45,11 @@ class Summarizer(HTMLParser):
                 self.summarized += data
             else:
                 '''we can put some words before we reach the word limit'''
-                if not 'a' in self.stack:                
+                if 'a' not in self.stack and self.stack[-1] != 'ul':
                     somewords = self.maxwords - self.words
                     self.words += somewords
                     self.summarized += ' '.join(words[:somewords]) + ' '
-                    self.summarized += '... <a href="%s" class="continue">weiterlesen</a>.' % self.href
+                    self.summarized += '<span>&#8230;<a href="%s" class="continue">weiterlesen</a>.</span>' % self.href
                 else:
                     self.maxwords += len(words)
                     self.words += len(words)
@@ -80,7 +80,7 @@ class Summarize(Filter):
     
     __name__ = 'Summarize'
     __match__ = ['summarize', 'sum']
-    
+   
     def __init__(self, **env):
         self.env = env
         
