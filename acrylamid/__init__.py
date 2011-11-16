@@ -46,7 +46,8 @@ class Acryl:
         
         usage = "usage: %prog [options] init\n" + '\n' \
                 + "init     - initializes base structure\n" \
-                + ""
+                + "gen      - rendering blog\n"
+#                + "srv (-p) - serving on port p (8000) and auto-rendering changes\n"
         
         options = [
             make_option("-v", "--verbose", action="store_const", dest="verbose",
