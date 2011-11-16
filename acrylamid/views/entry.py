@@ -31,8 +31,8 @@ class Entry(View):
 
         for entry in entrylist:
             html = render(tt_main, conf, env, type='item',
-                                entrylist=render(tt_entry, conf, env,
-                                                entry, type='item'))
+                          entrylist=render(tt_entry, conf, env, entry, type='item'),
+                          title=entry.title)
 
             p = joinurl(conf['output_dir'],  expand(path, entry), 'index.html')
             mkfile(html, entry, p)
