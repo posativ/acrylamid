@@ -57,24 +57,23 @@ def init(root='.', overwrite=False):
 
 
 conf =  '''
-www_root: http://example.org/
-# ext_dir: [ext, ]
-# ext_include: [syndication, head_offset, articles, mathml, ]  # available builtin extensions
-# extensions available in ext/: hyphenate, summarize, head_offset, articles, mathml, disqus
-# in ext/unsupported: multilang
-entries_dir: content/
-entries_ignore: [drafts/*, ]
-parser: Markdown
-strptime: "%d.%m.%Y, %H:%M"
+blog_title: A descriptive blog title
 
 author: anonymous
 website: http://example.org/
 email: info@example.org
-blog_title: A descriptive blog title
+
+www_root: http://example.org/
 lang: de_DE
-items_per_page: 12
+strptime: "%d.%m.%Y, %H:%M"
 
 disqus_shortname: yourname
+
+views.filters: ['markdown+codehilite(css_class=highlight)', 'typo', 'hyph']
+
+views.index.filters: ['summarize', 'h1']
+views.entry.filters: ['h1']
+views.feeds.filters: ['h2']
 '''.strip()
 
 css = '''

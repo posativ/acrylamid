@@ -29,10 +29,7 @@ from optparse import OptionParser, make_option, OptionGroup
 from acrylamid import defaults
 from acrylamid import filters
 from acrylamid import views
-from acrylamid.utils import check_conf, ColorFormatter
-
-import yaml
-from jinja2 import Template
+from acrylamid.utils import check_conf, yamllike, ColorFormatter
 
 log = logging.getLogger('acrylamid')
 sys.path.insert(0, os.path.dirname(__package__))
@@ -69,7 +66,8 @@ class Acryl:
         parser = OptionParser(option_list=options, usage=usage)
         ext_group = OptionGroup(parser, "conf.yaml override")
         
-        for key, value in yaml.load(defaults.conf).iteritems():
+        for key, value in yamllike(defaults.conf).iteritems():
+            if key in ['views.', 'filters.']: continue
             ext_group.add_option('--'+key.replace('_', '-'), action="store",
                             dest=key, metavar=value, type=type(value) if type(value) != list else str)
                             
@@ -105,7 +103,7 @@ class Acryl:
             sys.exit(0)
         
         try:
-            conf = yaml.load(open(options.conf).read())
+            conf = yamllike(open(options.conf).read())
         except OSError:
             log.critical('no config file found: %s. Try "acrylamid init".', options.conf)
             sys.exit(1)
@@ -165,7 +163,10 @@ class Acryl:
                               exclude=conf.get("ext_ignore", []),
                               include=conf.get("ext_include", []))
         views.initialize(conf.get("ext_dir", []), request['conf'], request['env'])
-        exec(open('conf.py')) in globals()
+        
+        ns = views.__dict__
+        exec(''.join(conf['views.'])) in ns
+        #exec(open('conf.py')) in ns
         #conf['filters'] = [ex.__name__ for ex in filters.extensions]
         
                 
@@ -197,7 +198,7 @@ class Acryl:
                 entryfilters = entry.get('filters', [])
                 if isinstance(entryfilters, basestring):
                     entryfilters = [entryfilters]
-                viewsfilters = getattr(views, v.__module__).filters
+                viewsfilters = getattr(views, v.__module__).filters + views.filters
                 
                 _filters = FilterList()
                 for f in entryfilters+viewsfilters:

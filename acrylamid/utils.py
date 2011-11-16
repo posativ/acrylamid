@@ -176,6 +176,33 @@ def check_conf(conf):
                 log.warning('%s created...' % value)
 
     return True
+    
+def yamllike(conf):
+    
+    conf = [line.strip() for line in conf.split('\n')
+                if not line.startswith('#') or not line.strip()]
+    
+    config = {}
+    config['views.'] = config['filters.'] = []
+    for line in conf:
+        try:
+            key, value = [x.strip() for x in line.split(':', 1)]
+        except ValueError:
+            # do something
+            continue
+        
+        for keyword in ('views.', 'filters.'):
+            if key.startswith(keyword):
+                config[keyword].append(key.replace(keyword, '')+' = '+value+'\n')
+        else:
+            if value.isdigit():
+                config[key] = int(value)
+            elif value.lower() in ['true', 'false']:
+                 config[key] = True if value.capitalize() == 'True' else False
+            else:
+                config[key] = value
+    
+    return config
 
 
 def render(tt, *dicts, **kvalue):

@@ -4,12 +4,13 @@
 # Copyright 2011 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid.py
 
-import sys, os, glob, fnmatch
+import sys, os, glob
 import logging
 
 sys.path.insert(0, os.path.dirname(__file__))
 log = logging.getLogger('acrylamid.views')
 
+filters = []
 callbacks = []
 
 def get_views():
