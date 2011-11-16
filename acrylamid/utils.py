@@ -183,7 +183,8 @@ def yamllike(conf):
                 if not line.startswith('#') or not line.strip()]
     
     config = {}
-    config['views.'] = config['filters.'] = []
+    config['views.'] = []
+    config['filters.'] = []
     for line in conf:
         try:
             key, value = [x.strip() for x in line.split(':', 1)]
@@ -191,9 +192,10 @@ def yamllike(conf):
             # do something
             continue
         
-        for keyword in ('views.', 'filters.'):
-            if key.startswith(keyword):
-                config[keyword].append(key.replace(keyword, '')+' = '+value+'\n')
+        if key.startswith('filters.'):
+            config['filters.'].append(key.replace('filters.', '')+' = '+value+'\n')
+        elif key.startswith('views.'):
+            config['views.'].append(key.replace('views.', '')+' = '+value+'\n')
         else:
             if value.isdigit():
                 config[key] = int(value)

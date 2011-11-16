@@ -163,12 +163,12 @@ class Acryl:
                               exclude=conf.get("ext_ignore", []),
                               include=conf.get("ext_include", []))
         views.initialize(conf.get("ext_dir", []), request['conf'], request['env'])
-        
+
+        ns = filters.__dict__
+        print ''.join(conf['filters.']), ''.join(conf['views.'])
+        exec(''.join(conf['filters.'])) in ns
         ns = views.__dict__
         exec(''.join(conf['views.'])) in ns
-        #exec(open('conf.py')) in ns
-        #conf['filters'] = [ex.__name__ for ex in filters.extensions]
-        
                 
     def run(self):
         """This is the main loop for acrylamid.  This method will run
