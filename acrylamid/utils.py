@@ -31,11 +31,11 @@ class FileEntry:
     
     # TODO: remap internally
     __map__ = {'tag': 'tags', 'filter': 'filters'}
-    __keys__ = ['permalink', 'filters', 'author', 'draft', 'tags', 'date', 'title', 'content']
+    __keys__ = ['permalink', 'filters', 'author', 'draft', 'tags', 'date', 'title', 'content', 'lang']
     
     title = content = ''
     draft = False
-    permalink = None
+    permalink = lang = None
     tags = filters = []
     
     def __init__(self, filename, encoding='utf-8', new=True):
