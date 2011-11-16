@@ -17,7 +17,7 @@
 # those of the authors and should not be interpreted as representing official
 # policies, either expressed or implied, of posativ <info@posativ.org>.
 
-VERSION = "0.1.9-dev"
+VERSION = "0.1.10-dev"
 VERSION_SPLIT = tuple(VERSION.split('-')[0].split('.'))
 
 import sys
