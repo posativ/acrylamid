@@ -5,6 +5,7 @@
 # License: BSD Style, 2 clauses. see acrylamid.py
 
 import sys, os, re
+import codecs
 import yaml
 from datetime import datetime
 from os.path import join, exists, getmtime, dirname
@@ -37,7 +38,7 @@ class FileEntry:
     permalink = None
     tags = filters = []
     
-    def __init__(self, filename, new=True):
+    def __init__(self, filename, encoding='utf-8', new=True):
         """Arguments:
         request -- the Request object
         filename -- the complete filename including path
@@ -45,10 +46,11 @@ class FileEntry:
         
         self.date = datetime.fromtimestamp(os.path.getmtime(filename))
         self.filename = filename
+        self.encoding = encoding
         self.parse()
         
     def __repr__(self):
-        return "<fileentry f'%s'>" % (self.filename)
+        return "<fileentry f'%s'>" % self.filename
         
     @property
     def extension(self):
@@ -56,8 +58,8 @@ class FileEntry:
         
     @property
     def source(self):
-        with file(self.filename, 'r') as f:
-            return unicode(''.join(f.readlines()[self._i:]).strip())
+        with codecs.open(self.filename, 'r', encoding=self.encoding) as f:
+            return ''.join(f.readlines()[self._i:]).strip()
             
     @property
     def slug(self):
@@ -187,7 +189,7 @@ def render(tt, *dicts, **kvalue):
         env.update(d)
     for key in kvalue:
         env[key] = kvalue[key]
-
+    
     return tt.render(env)
 
 
