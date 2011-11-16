@@ -7,7 +7,7 @@
 import sys
 import os
 import logging
-import yaml
+from acrylamid.utils import yamllike
 
 from os.path import exists, isfile, isdir, join
 
@@ -23,7 +23,7 @@ def init(root='.', overwrite=False):
              '%(layout_dir)s/entry.html': entry,
              '%(entries_dir)s/sample entry.txt': kafka}
              
-    default = yaml.load(conf)
+    default = yamllike(conf)
     default['output_dir'] = default.get('output_dir', 'output/').rstrip('/')
     default['entries_dir'] = default.get('entries_dir', 'content/').rstrip('/')
     default['layout_dir'] = default.get('layout_dir', 'layouts/').rstrip('/')

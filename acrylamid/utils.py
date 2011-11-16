@@ -102,12 +102,12 @@ class FileEntry:
                     break
                 
         self._i = i
-        for key, value in yaml.load(''.join(meta)).iteritems():
+        for key, value in yamllike(''.join(meta)).iteritems():
             if not hasattr(self, key):
                 self.__dict__[key] = value
             elif key in self.__keys__:
-                if isinstance(value, basestring):
-                    self.__dict__[key] = unicode(value)
+                if isinstance(value, unicode):
+                    self.__dict__[key] = value.strip('"')
                 else:
                     self.__dict__[key] = value
                     
@@ -180,7 +180,7 @@ def check_conf(conf):
 def yamllike(conf):
     
     conf = [line.strip() for line in conf.split('\n')
-                if not line.startswith('#') or not line.strip()]
+                if not line.startswith('#') and line.strip()]
     
     config = {}
     config['views.'] = []
@@ -190,6 +190,7 @@ def yamllike(conf):
             key, value = [x.strip() for x in line.split(':', 1)]
         except ValueError:
             # do something
+            log.warn('conf.yaml -> ValueError: %s' % line)
             continue
         
         if key.startswith('filters.'):
@@ -197,10 +198,14 @@ def yamllike(conf):
         elif key.startswith('views.'):
             config['views.'].append(key.replace('views.', '')+' = '+value+'\n')
         else:
-            if value.isdigit():
+            if value == '':
+                config[key] = None
+            elif value.isdigit():
                 config[key] = int(value)
             elif value.lower() in ['true', 'false']:
                  config[key] = True if value.capitalize() == 'True' else False
+            elif value[0] == '[' and value[-1] == ']':
+                config[key] = list([x.strip() for x in value[1:-1].split(',')])
             else:
                 config[key] = value
     
