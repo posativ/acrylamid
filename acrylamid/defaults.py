@@ -15,8 +15,7 @@ log = logging.getLogger('acrylamid.defaults')
 
 def init(root='.', overwrite=False):
     
-    dirs = ['%(entries_dir)s/', '%(layout_dir)s/',
-            '%(output_dir)s/', 'extensions/', ]
+    dirs = ['%(entries_dir)s/', '%(layout_dir)s/', '%(output_dir)s/']
     files = {'conf.yaml': conf,
              '%(output_dir)s/blog.css': css,
              '%(layout_dir)s/main.html': main,
@@ -69,7 +68,7 @@ strptime: "%d.%m.%Y, %H:%M"
 
 disqus_shortname: yourname
 
-views.filters: ['markdown+codehilite(css_class=highlight)', 'typo', 'hyph']
+views.filters: ['markdown+codehilite(css_class=highlight)', 'typography', 'hyphenate']
 
 views.index.filters: ['summarize', 'h1']
 views.entry.filters: ['h1']
@@ -482,22 +481,27 @@ object[type="application/x-shockwave-flash"] {
 }'''.strip()
 
 main = r'''
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN"
+         "http://www.w3.org/Math/DTD/mathml2/xhtml-math11-f.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
  <head>
   <title>
-   {{ blog_title }}
+      {% if type != 'item' %}
+        {{ blog_title }}
+      {% else %}
+        {{ title }}
+      {% endif %}
   </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Type" content="text/xhtml; charset=utf-8" />
   <meta http-equiv="content-language" content="de, en" />
-  <meta content="{{ content }}" name="description" />
-  <meta content="{{ keywords }}" name="keywords" />
+  <!-- <meta content="{{ content }}" name="description" /> -->
+  <!-- <meta content="{{ keywords }}" name="keywords" /> -->
   <link media="all" href="/blog.css" type="text/css" rel="stylesheet" />
   <link href="/favicon.ico" rel="shortcut icon" />
   <link href="/" rel="home" />
-  <link href="/atom" type="application/atom+xml" rel="alternate" title="Atom-Feed" />
-  <link href="/rss" type="application/rss+xml" rel="alternate" title="RSS-Feed" />
+  <link href="/atom/" type="application/atom+xml" rel="alternate" title="Atom-Feed" />
+  <link href="/rss/" type="application/rss+xml" rel="alternate" title="RSS-Feed" />
  </head>
  <body>
     <div id="blogheader">
@@ -549,8 +553,19 @@ main = r'''
             <img src="/img/cc.png" alt="by-nc-sa" />
         </a>
     </div>
-    {% if 'disqus' in extensions and type == 'page' %}
-        {{ include: disqus_script }}
+    {% if disqus_shortname and type == 'page' %}
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = '{{ disqus_shortname }}'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script'); s.async = true;
+            s.type = 'text/javascript';
+            s.src = '{{ protocol }}://' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
     {% endif %}
  </body>
 </html>'''.strip()
@@ -559,7 +574,7 @@ entry = r'''
 <div class="posting">
     <div class="postheader">
         <h1 class="subject">
-            <a href="{{ url }}">{{ title }}</a>
+            <a href="{{ permalink }}">{{ title }}</a>
         </h1>
         <span class="date">{{ date.strftime("%d.%m.%Y, %H:%M") }}</span>
     </div>
@@ -567,13 +582,33 @@ entry = r'''
         {{ content }}
     </div>
     <div class="postfooter">
-        {% if 'disqus' in extensions and type == 'page' %}
-            <a href="{{ url }}#disqus_thread">Kommentieren</a>
+        {% if disqus_shortname and type == 'page' %}
+            <a href="{{ www_root + permalink }}#disqus_thread">Kommentieren</a>
         {% endif %}
     </div>
     <div class="comments">
-        {% if 'disqus' in extensions and type == 'item' %}
-            {{ include: disqus_thread }}
+        {% if disqus_shortname and type == 'item' %}
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            var disqus_shortname = '{{ disqus_shortname }}'; // required: replace example with your forum shortname
+
+            // The following are highly recommended additional parameters. Remove the slashes in front to use.
+            var disqus_identifier = "{{ www_root + permalink }}";
+            var disqus_url = "{{ www_root + permalink }}";
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                dsq.src = '{{ protocol }}://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>
+            <p>Please enable JavaScript to view the <a href="{{ protocol }}://disqus.com/?ref_noscript">comments powered by Disqus.</a></p>
+        </noscript>
+        <a href="{{ protocol }}://disqus.com" class="dsq-brlink">
+            blog comments powered by <span class="logo-disqus">Disqus</span>
+        </a>
         {% endif %}
     </div>
 </div>'''.strip()
@@ -584,8 +619,6 @@ title: Die Verwandlung
 author: Franz Kafka
 identifier: kafka
 ---
-
-Und er kam - und das schon zu spät - und traute seinen Augen nicht mehr.
 
 Als Gregor Samsa eines Morgens aus unruhigen Träumen erwachte, fand er sich in
 seinem Bett zu einem ungeheueren Ungeziefer verwandelt. Er lag auf seinem
@@ -598,7 +631,7 @@ kläglich dünnen Beine flimmerten ihm hilflos vor den Augen.
 »Was ist mit mir geschehen?« dachte er. Es war kein Traum, sein Zimmer, ein
 richtiges, nur etwas zu kleines Menschenzimmer, lag ruhig zwischen den vier
 wohlbekannten Wänden, über dem Tisch, auf dem eine auseinandergepackte
-Musterkollektion von Tuchwaren ausgebreitet war - Samsa war Reisender -, hing
+Musterkollektion von Tuchwaren ausgebreitet war -- Samsa war Reisender --, hing
 das Bild, das er vor kurzem aus einer illustrierten Zeitschrift ausgeschnitten
 und in einem hübschen, vergoldeten Rahmen untergebracht hatte. Es stellte eine
 Dame dar, die, mit einem Pelzhut und einer Pelzboa versehen, aufrecht dasaß
