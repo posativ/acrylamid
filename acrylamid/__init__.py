@@ -25,9 +25,6 @@ reload(sys); sys.setdefaultencoding('utf-8')
 
 import os, logging, locale
 from optparse import OptionParser, make_option, OptionGroup
-from datetime import datetime
-
-from os.path import abspath
 
 from acrylamid import defaults
 from acrylamid import filters
@@ -39,6 +36,7 @@ from jinja2 import Template
 
 log = logging.getLogger('acrylamid')
 sys.path.insert(0, os.path.dirname(__package__))
+
 
 class Acryl:
     """Main class for acrylamid functionality.  It handles initialization,
@@ -179,7 +177,6 @@ class Acryl:
         """
         request = self.req
         conf = self.req['conf']
-        #print conf['filters']
         self.initialize(request)
         
         from acrylamid.core import start, handle
