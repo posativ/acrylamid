@@ -81,7 +81,7 @@ class Summarize(Filter):
     __name__ = 'Summarize'
     __match__ = ['summarize', 'sum']
    
-    def __init__(self, **env):
+    def __init__(self, conf, env):
         self.env = env
         
     def __call__(self, content, req):

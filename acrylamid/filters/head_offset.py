@@ -9,7 +9,7 @@ class Headoffset(Filter):
     __name__ = 'head_offset'
     __match__ = ['h'+str(i+1) for i in range(5)]
     
-    def __init__(self, **env):
+    def __init__(self, conf, env):
         pass
         
     def __call__(self, content, request, *args):

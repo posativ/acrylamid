@@ -19,7 +19,7 @@ class Markdown(Filter):
     __ext__ = dict((x,x) for x in ['abbr', 'fenced_code', 'footnotes',
                                    'headerid', 'tables', 'codehilite'])
 
-    def __init__(self, **env):
+    def __init__(self, conf, env):
         
         self.env = env
         # -- discover markdown extensions --

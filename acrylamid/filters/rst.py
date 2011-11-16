@@ -32,7 +32,7 @@ class Restructuredtext(Filter):
     
     __ext__ = dict((x,x) for x in [])
         
-    def __init__(self, **env):
+    def __init__(self, conf, env):
         self.formatter = HtmlFormatter(noclasses=inlinestyles)
     
         class Pygments(Directive):

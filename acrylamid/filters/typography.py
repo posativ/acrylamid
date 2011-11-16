@@ -23,7 +23,7 @@ class Typography(Filter):
     __name__ = 'typography'
     __match__ = ['typography', 'typo', 'smartypants']
     
-    def __init__(self, **env):
+    def __init__(self, conf, env):
         self.filters = {'amp': amp, 'widont': widont, 'smartypants': smartypants.smartyPants,
                    'caps': caps, 'initial_quotes': initial_quotes, 'number_suffix': number_suffix,
                    'typo': typogrify, 'typogrify': typogrify, 'all': typogrify}

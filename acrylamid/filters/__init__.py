@@ -16,7 +16,7 @@ def get_filters():
     return callbacks
 
 
-def index_filters(module, env):
+def index_filters(module, conf, env):
     """Goes through the modules' contents and indexes all the funtions/classes
     having a __call__ and __match__ attribute.
     
@@ -29,7 +29,7 @@ def index_filters(module, env):
     cs = [getattr(module, c) for c in dir(module) if not c.startswith('_')]
     for mem in cs:
         if callable(mem) and hasattr(mem, '__match__'):
-            callbacks[getattr(mem, '__match__')] = mem(**env)
+            callbacks[getattr(mem, '__match__')] = mem(conf, env)
 
             
 def initialize(ext_dir, conf, env, include=[], exclude=[]):
@@ -94,7 +94,7 @@ def initialize(ext_dir, conf, env, include=[], exclude=[]):
             print `mem`, 'ImportError:', e
             continue
         
-        index_filters(_module, env)
+        index_filters(_module, conf, env)
 
 
 class InitFilterException(Exception): pass
