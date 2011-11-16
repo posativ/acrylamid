@@ -41,7 +41,8 @@ class Index(View):
         for i, mem in enumerate([entrylist[x*ipp:(x+1)*ipp] for x in range(len(entrylist)/ipp+1)]):
 
             html = render(tt_main, conf, env, type='page', page=i+1,
-                        entrylist='\n'.join(mem), num_entries=len(entrylist))
+                        entrylist='\n'.join(mem), num_entries=len(entrylist),
+                        items_per_page=items_per_page)
             directory = conf['output_dir']
             if i > 0:
                 directory = joinurl(conf['output_dir'], (path + str(i+1)))

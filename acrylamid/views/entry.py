@@ -33,6 +33,9 @@ class Entry(View):
             html = render(tt_main, conf, env, type='item',
                           entrylist=render(tt_entry, conf, env, entry, type='item'),
                           title=entry.title)
-
-            p = joinurl(conf['output_dir'],  expand(path, entry), 'index.html')
+            
+            if entry.permalink != expand(path, entry):
+                p = joinurl(conf['output_dir'], entry.permalink, 'index.html')
+            else:
+                p = joinurl(conf['output_dir'], expand(path, entry), 'index.html')
             mkfile(html, entry, p)
