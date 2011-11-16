@@ -165,11 +165,10 @@ class Acryl:
         views.initialize(conf.get("ext_dir", []), request['conf'], request['env'])
 
         ns = filters.__dict__
-        print ''.join(conf['filters.']), ''.join(conf['views.'])
         exec(''.join(conf['filters.'])) in ns
         ns = views.__dict__
         exec(''.join(conf['views.'])) in ns
-                
+        
     def run(self):
         """This is the main loop for acrylamid.  This method will run
         the handle callback to allow registered handlers to handle
@@ -189,16 +188,18 @@ class Acryl:
         
         filtersdict = get_filters()
         _views = get_views()
-
-        for v in _views:
         
+        for v in _views:
+            log.debug(v)
             for i, entry in enumerate(request['entrylist']):
+                if not v.__filters__: break
                 
+                log.debug(entry.filename)
                 entry.content = entry.source
                 entryfilters = entry.get('filters', [])
                 if isinstance(entryfilters, basestring):
                     entryfilters = [entryfilters]
-                viewsfilters = getattr(views, v.__module__).filters + views.filters
+                viewsfilters = views.filters+getattr(views, v.__module__).filters
                 
                 _filters = FilterList()
                 for f in entryfilters+viewsfilters:
@@ -209,5 +210,5 @@ class Acryl:
                 for i, f, args in _filters:
                     f.__dict__['__matched__'] = i
                     entry.content = f(entry.content, entry, *args)
-                        
+            
             v(request)
