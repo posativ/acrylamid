@@ -66,7 +66,7 @@ class rss(Feed):
 
 ATOM_BODY = r'''
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="{{ lang.replace('_', '-') }}">
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="{{ lang[0].replace('_', '-') }}">
     <author>
         <name>{{ author }}</name>
         <uri>{{ website }}</uri>
@@ -103,7 +103,7 @@ RSS_BODY = r'''
         <title>{{ blog_title | escape }}</title>
         <link>{{ website }}</link>
         <description>{{ description }}</description>
-        <language>{{ lang.replace('_', '-').lower() }}</language>
+        <language>{{ lang[0].replace('_', '-').lower() }}</language>
         <pubDate>{{ updated | rfc822 }}</pubDate>
         <docs>{{ www_root+rss.path }}</docs>
         <generator>{{ acrylamid_name }} {{ acrylamid_version }}</generator>

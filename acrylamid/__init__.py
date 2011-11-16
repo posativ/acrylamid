@@ -146,12 +146,12 @@ class Acryl:
         # initialize the locale, will silently fail if locale is not
         # available and uses system's locale
         try:
-            locale.setlocale(locale.LC_ALL, conf.get('lang', False))
+            locale.setlocale(locale.LC_ALL, conf.get('lang', ''))
         except (locale.Error, TypeError):
             # invalid locale
-            log.warn('unsupported locale `%s`' % conf['lang'])
             locale.setlocale(locale.LC_ALL, '')
-            conf['lang'] = locale.getlocale()
+            log.warn("unsupported locale '%s', set to '%s'", conf['lang'], locale.getlocale()[0])
+        conf['lang'] = locale.getlocale()
 
         if not conf.has_key('www_root'):
             log.warn('no `www_root` specified, using localhost:8000')
