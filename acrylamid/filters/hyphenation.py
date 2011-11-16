@@ -7,7 +7,7 @@ from acrylamid.filters import log
 import re, os, codecs
 from HTMLParser import HTMLParser
 from cgi import escape
-from os.path import join, dirname
+from os.path import join, dirname, basename
 
 class HyphenPatternNotFound(Exception): pass
 
@@ -125,8 +125,8 @@ class Separator(HTMLParser):
 
         if filter(lambda i: i in self.stack, ['pre', 'code', 'math', 'em']):
             pass
-        else:        
-            split = [word for word in re.split("[.:, !?+=\(\)/]+", data) if len(word) > 10]
+        else:
+            split = [word for word in re.split(r"[.:,\s!?+=\(\)/]+", data) if len(word) > 10]
             for word in split:
                 hyphenated = '&shy;'.join(self.hyphenate(word))
                 data = data.replace(word, hyphenated)
@@ -174,6 +174,7 @@ def build(lang):
         
         hyphenator = Hyphenator(chars, patterns, exceptions='')
         del patterns; del chars
+        log.debug("built Hyphenator from <%s>" % basename(fpath))
         return hyphenator.hyphenate_word
         
     except HyphenPatternNotFound, e:
