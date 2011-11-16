@@ -15,6 +15,8 @@ enabled = True
 class Articles(View):
     """Generates a overview of all articles."""
     
+    __filters__ = False
+    
     def __init__(self, conf, env):
         layout = join(conf['layout_dir'], 'articles.html')
         with file(layout) as f:

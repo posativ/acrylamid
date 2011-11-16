@@ -186,6 +186,7 @@ class Hyphenate(Filter):
 
     __name__ = 'Hyphenate'
     __match__ = ['hyphenate', 'hyph']
+#    __priority__ = 5.0
 
     def __init__(self, conf, env):
         

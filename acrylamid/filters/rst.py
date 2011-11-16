@@ -29,6 +29,7 @@ class Restructuredtext(Filter):
     __name__ = 'RestructuredText'
     __match__ = ['restructuredtest', 'rst', 'rest', 'reST']
     __conflicts__ = ['markdown', 'plain']
+    __priority__ = 70.00
     
     __ext__ = dict((x,x) for x in [])
         

@@ -72,3 +72,4 @@ def initialize(ext_dir, conf, env):
 class View:
     
     __view__ = True
+    __filters__ = True
