@@ -105,8 +105,8 @@ class FileEntry:
             if not hasattr(self, key):
                 self.__dict__[key] = value
             elif key in self.__keys__:
-                if isinstance(value, unicode):
-                    self.__dict__[key] = value.strip('"')
+                if isinstance(value, basestring):
+                    self.__dict__[key] = unicode(value.strip('"'))
                 else:
                     self.__dict__[key] = value
                     
