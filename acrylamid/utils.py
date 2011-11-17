@@ -6,7 +6,6 @@
 
 import sys, os, re
 import codecs
-import yaml
 from datetime import datetime
 from os.path import join, exists, getmtime, dirname
 from time import gmtime
