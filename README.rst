@@ -27,13 +27,12 @@ Quickstart
     pip install acrylamid
 
 You'll need ``python``, ``jinja2`` and either ``markdown`` (default) or
-``docutils``. For nicer urls also ``translitcodec`` is required. ``pygments``
-and ``asciimathml`` for colored code listings respectively MathML.
-Full-featured installation do:
+``docutils``.``pygments`` and ``asciimathml`` for colored code listings
+respectively MathML. To get a full-featured installation do:
 
 ::
 
-    pip install docutils translitcodec pygments asciimathml
+    pip install docutils pygments asciimathml
 
 Get acrylamid and edit *conf.yaml* and *layouts/*. Run acrylamid with:
 
@@ -53,7 +52,6 @@ Get acrylamid and edit *conf.yaml* and *layouts/*. Run acrylamid with:
 
 Using acrylamid
 ***************
-
 
 ::
 
