@@ -69,7 +69,7 @@ strptime: "%d.%m.%Y, %H:%M"
 
 disqus_shortname: yourname
 
-views.filters: ['markdown+codehilite(css_class=highlight)', 'typography', 'hyphenate']
+views.filters: ['markdown+codehilite(css_class=highlight)', 'hyphenate']
 
 views.index.filters: ['summarize', 'h1']
 views.entry.filters: ['h1']
