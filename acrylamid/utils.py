@@ -91,14 +91,13 @@ class FileEntry:
                 
         self._i = i
         for key, value in yamllike(''.join(meta)).iteritems():
-            if not hasattr(self, key):
+            if key not in self.__keys__+self.__map__.keys():
+                continue
+            if isinstance(value, basestring):
+                self.__dict__[key] = unicode(value.strip('"'))
+            else:
                 self.__dict__[key] = value
-            elif key in self.__keys__:
-                if isinstance(value, basestring):
-                    self.__dict__[key] = unicode(value.strip('"'))
-                else:
-                    self.__dict__[key] = value
-                    
+
     def keys(self):
         return filter(lambda k: hasattr(self, k), self.__keys__)
         
