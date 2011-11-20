@@ -27,12 +27,12 @@ Quickstart
     pip install acrylamid
 
 You'll need ``python``, ``jinja2`` and either ``markdown`` (default) or
-``docutils``.``pygments`` and ``asciimathml`` for colored code listings
+``docutils``. ``pygments`` and ``asciimathml`` for colored code listings
 respectively MathML. To get a full-featured installation do:
 
 ::
 
-    pip install docutils pygments asciimathml
+    pip install docutils pygments asciimathml smartypants
 
 Get acrylamid and edit *conf.yaml* and *layouts/*. Run acrylamid with:
 
@@ -53,22 +53,12 @@ Get acrylamid and edit *conf.yaml* and *layouts/*. Run acrylamid with:
 Using acrylamid
 ***************
 
-::
-
-    output/
-    ├── 2011/
-    │   └── a-meaningful-title/
-    │       └── index.html
-    ├── articles/
-    │   └── index.html
-    ├── atom/
-    │   └── index.html
-    ├── rss/
-    │   └── index.html
-    └── index.html
 
 Filters
 **********
+
+See [docs/filters.rst](/posativ/acrylamid/blob/master/docs/filters.rst) for
+detailed information. Currently supported by acrylamid:
 
 - **markdown**: rendering Markdown (+asciimathml,pygments)
 - **rest**: reStructuredText (+pygments)
