@@ -57,7 +57,7 @@ Using acrylamid
 Filters
 **********
 
-See [docs/filters.rst](/posativ/acrylamid/blob/master/docs/filters.rst) for
+See `docs/filters.rst </posativ/acrylamid/blob/master/docs/filters.rst>`_ for
 detailed information. Currently supported by acrylamid:
 
 - **markdown**: rendering Markdown (+asciimathml,pygments)
