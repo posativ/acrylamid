@@ -44,8 +44,8 @@ class Typography(Filter):
 
 def new_dashes(str):
     # patching something-- to return something-- not something&#8212.
-    str = re.sub(r"""(\s)---""", r"""\1&#8211;""", str) # en  (yes, backwards)
-    str = re.sub(r"""(\s)--""", r"""\1&#8212;""", str) # em (yes, backwards)
+    str = re.sub(r"""(\s)--""", r"""\1&#8211;""", str) # en  (yes, backwards)
+    str = re.sub(r"""(\s)---""", r"""\1&#8212;""", str) # em (yes, backwards)
     return str
 
 smartypants.educateDashes = new_dashes
