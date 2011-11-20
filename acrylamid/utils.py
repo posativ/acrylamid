@@ -62,18 +62,7 @@ class FileEntry:
             
     @property
     def slug(self):
-        """Generates an ASCII-only slug.  Borrowed from
-        http://flask.pocoo.org/snippets/5/"""
-
-        result = []
-        for word in _slug_re.split(self.title.lower()):
-            if translitcodec:
-                word = word.encode('translit/long')
-            else:
-                word = normalize('NFKD', word).encode('ascii', 'ignore')
-            if word and not word[0] in '-:':
-                result.append(word)
-        return unicode('-'.join(result))
+        return safeslug(self.title)
         
     @property
     def permalink(self):
@@ -120,7 +109,6 @@ class FileEntry:
             return getattr(self, key)
         else:
             raise KeyError("%s has no such attribute '%s'" % (self, key))
-            
 
 
 class ColorFormatter(logging.Formatter):
@@ -204,7 +192,7 @@ def yamllike(conf):
             elif value.lower() in ['true', 'false']:
                  config[key] = True if value.capitalize() == 'True' else False
             elif value[0] == '[' and value[-1] == ']':
-                config[key] = list([x.strip() for x in value[1:-1].split(',')])
+                config[key] = list([unicode(x.strip()) for x in value[1:-1].split(',') if x.strip()])
             else:
                 config[key] = value
     
@@ -278,3 +266,18 @@ def joinurl(*args):
         r.append(mem)
     
     return join(*r)
+    
+
+def safeslug(slug):
+    """Generates an ASCII-only slug.  Borrowed from
+    http://flask.pocoo.org/snippets/5/"""
+
+    result = []
+    for word in _slug_re.split(slug.lower()):
+        if translitcodec:
+            word = word.encode('translit/long')
+        else:
+            word = normalize('NFKD', word).encode('ascii', 'ignore')
+        if word and not word[0] in '-:':
+            result.append(word)
+    return unicode('-'.join(result))   
