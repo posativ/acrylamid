@@ -25,6 +25,7 @@ reload(sys); sys.setdefaultencoding('utf-8')
 
 import os, logging, locale
 from optparse import OptionParser, make_option, OptionGroup
+from jinja2 import Environment, FileSystemLoader
 
 from acrylamid import defaults
 from acrylamid import filters
@@ -139,6 +140,9 @@ class Acryl:
         
         conf = request['conf']
         env = request['env']
+        
+        # set up templating environment
+        env['tt_env'] = Environment(loader=FileSystemLoader(conf['layout_dir']))
 
         # initialize the locale, will silently fail if locale is not
         # available and uses system's locale

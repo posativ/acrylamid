@@ -6,35 +6,15 @@
 
 import logging
 import os
-import re
 import fnmatch
 import time
 from datetime import datetime
-from collections import defaultdict
 
 from acrylamid.utils import FileEntry
-from jinja2 import Template
-
 log = logging.getLogger('acrylamid.core')
     
 
 def start(request):
-    """this loads entry.html and main.html into data and does a little
-    preprocessing: {{ include: identifier }} will be replaced by the
-    corresponding identifier in request._env if exist else empty string."""
-    
-    conf = request['conf']
-    env = request['env']
-    
-    regex = re.compile('{{\s*include:\s+(\w+)\s*}}')
-    entry = open(os.path.join(conf['layout_dir'], 'entry.html')).read()
-    main = open(os.path.join(conf['layout_dir'], 'main.html')).read()
-    
-    d = defaultdict(str)
-    d.update(env)
-    env['tt_entry'] = re.sub(regex, lambda m: d[m.group(1)], entry)
-    env['tt_main'] = re.sub(regex, lambda m: d[m.group(1)], main)
-    
     return request
     
 

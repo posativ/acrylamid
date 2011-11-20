@@ -5,7 +5,6 @@ from acrylamid.views import View
 from acrylamid.utils import expand, render, mkfile, joinurl
 
 from os.path import join
-from jinja2 import Template
 
 filters = []
 path = '/:year/:slug/'
@@ -26,8 +25,8 @@ class Entry(View):
         env = request['env']
         entrylist = request['entrylist']
         
-        tt_entry = Template(env['tt_entry'])
-        tt_main = Template(env['tt_main'])
+        tt_entry = env['tt_env'].get_template('entry.html')
+        tt_main = env['tt_env'].get_template('main.html')
 
         for entry in entrylist:
             html = render(tt_main, conf, env, type='item',

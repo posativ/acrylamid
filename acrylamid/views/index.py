@@ -5,7 +5,6 @@
 from acrylamid.views import View
 from acrylamid.utils import render, mkfile, joinurl
 
-from jinja2 import Template
 
 filters = []
 path = '/page/'
@@ -33,8 +32,8 @@ class Index(View):
         entrylist = request['entrylist']
         ipp = items_per_page
 
-        tt_entry = Template(env['tt_entry'])
-        tt_main = Template(env['tt_main'])
+        tt_entry = env['tt_env'].get_template('entry.html')
+        tt_main = env['tt_env'].get_template('main.html')
 
         entrylist = [render(tt_entry, conf, env, entry, type="page") for entry in entrylist]
 

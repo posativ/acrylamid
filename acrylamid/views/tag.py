@@ -6,7 +6,6 @@ from acrylamid.views import View
 from acrylamid.utils import render, mkfile, joinurl, safeslug
 
 from collections import defaultdict
-from jinja2 import Template
 
 
 filters = []
@@ -17,7 +16,15 @@ enabled = True
 class Tag(View):
     
     def __init__(self, conf, env):
-        pass
+        
+        class Link:
+            
+            def __init__(self, title, href):
+                self.title = title
+                self.href = href if href.endswith('/') else href + '/'
+        
+        env['tt_env'].filters['safeslug'] = safeslug
+        env['tt_env'].filters['tagify'] = lambda e: [Link(t, joinurl(path, safeslug(t))) for t in e]
         
     def __call__(self, request):
         """Creates paged listing by tag.
@@ -31,9 +38,9 @@ class Tag(View):
         env = request['env']
         entrylist = request['entrylist']
         ipp = items_per_page
-
-        tt_entry = Template(env['tt_entry'])
-        tt_main = Template(env['tt_main'])
+        
+        tt_entry = env['tt_env'].get_template('entry.html')
+        tt_main = env['tt_env'].get_template('main.html')
 
         tags = defaultdict(list)
         for e in entrylist:
