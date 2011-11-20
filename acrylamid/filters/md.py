@@ -15,7 +15,7 @@ class Markdown(Filter):
     __name__ = 'Markdown'
     __match__ = ['md', 'mkdown', 'markdown', 'Markdown']
     __conflicts__ = ['rst', 'plain']
-    __priority__ = 70.00
+    __priority__ = 70.0
     
     __ext__ = dict((x,x) for x in ['abbr', 'fenced_code', 'footnotes',
                                    'headerid', 'tables', 'codehilite'])

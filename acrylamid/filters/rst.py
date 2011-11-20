@@ -27,7 +27,7 @@ inlinestyles = False
 class Restructuredtext(Filter):
     
     __name__ = 'RestructuredText'
-    __match__ = ['restructuredtest', 'rst', 'rest', 'reST']
+    __match__ = ['restructuredtext', 'rst', 'rest', 'reST', 'RestructuredText']
     __conflicts__ = ['markdown', 'plain']
     __priority__ = 70.00
     
