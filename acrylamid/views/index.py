@@ -5,7 +5,6 @@
 from acrylamid.views import View
 from acrylamid.utils import render, mkfile, joinurl
 
-
 filters = []
 path = '/page/'
 items_per_page = 10
@@ -34,12 +33,20 @@ class Index(View):
 
         tt_entry = env['tt_env'].get_template('entry.html')
         tt_main = env['tt_env'].get_template('main.html')
-
+        
         entrylist = [render(tt_entry, conf, env, entry, type="page") for entry in entrylist]
 
         for i, mem in enumerate([entrylist[x*ipp:(x+1)*ipp] for x in range(len(entrylist)/ipp+1)]):
 
-            html = render(tt_main, conf, env, type='page', page=i+1,
+            if i == 0:
+                next = None
+                curr = path
+            else:
+                curr = joinurl(path, i+1)
+                next = path if i==1 else joinurl(path, i)
+            prev = None if i==(len(entrylist)/ipp+1)-1 else joinurl(path, i+2)
+
+            html = render(tt_main, conf, env, type='page', prev=prev, curr=curr, next=next,
                         entrylist='\n'.join(mem), num_entries=len(entrylist),
                         items_per_page=items_per_page)
             directory = conf['output_dir']

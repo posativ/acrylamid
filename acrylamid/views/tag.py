@@ -51,9 +51,16 @@ class Tag(View):
             entrylist = [render(tt_entry, conf, env, entry, type="tag") for entry in tags[tag]]
             for i, mem in enumerate([entrylist[x*ipp:(x+1)*ipp] for x in range(len(entrylist)/ipp+1)]):
                 
-                html = render(tt_main, conf, env, type='tag', page=i+1,
+                if i == 0:
+                    next = None
+                    curr = joinurl(path, tag)
+                else:
+                    curr = joinurl(path, tag, i+1)
+                    next = joinurl(path, tag) if i==1 else joinurl(path, tag, i)
+                prev = None if i==(len(entrylist)/ipp+1)-1 else joinurl(path, tag, i+2)
+                
+                html = render(tt_main, conf, env, type='tag', prev=prev, curr=curr, next=next,
                             entrylist='\n'.join(mem), num_entries=len(entrylist),
                             items_per_page=items_per_page)
-                directory = joinurl(conf['output_dir'], path, tag)
-                p = joinurl(directory, str(i+1) if i>0 else '', 'index.html')
-                mkfile(html, {'title': joinurl(path, tag, str(i+1) if i>0 else '')}, p)
+                directory = joinurl(conf['output_dir'], curr, 'index.html')
+                mkfile(html, {'title': curr}, directory)

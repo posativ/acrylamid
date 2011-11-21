@@ -530,20 +530,17 @@ main = r'''
     </div>
     <div id="blogbody">
         {{ entrylist }}
-        {% if page and page > 2 %}
-            <a href="/page/{{ page-1 }}/" class="page floatleft">
-            ← neuere Beiträge
-            </a>
-        {%- endif %}
-        {% if page and page == 2 %}
-            <a href="/" class="page floatleft">
-            ← neuere Beiträge
-            </a>
-        {%- endif %}
-        {% if page and page < num_entries/items_per_page %}
-            <a href="/page/{{ page+1 }}/" class="page floatright">
-            ältere Beiträge →
-            </a>
+        {% if type in ['tag', 'page'] %}
+            {% if prev %}
+                <a href="{{ prev }}" class="page floatright">
+                ältere Beiträge →
+                </a>
+            {% endif %}
+            {% if next %}
+                <a href="{{ next }}" class="page floatleft">
+                ← neuere Beiträge
+                </a>
+            {% endif %}
         {%- endif  %}
     </div>
     <div id="blogfooter">
