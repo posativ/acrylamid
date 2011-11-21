@@ -123,7 +123,7 @@ arguments:
 
 Brings some typography to your content. This includes no widows, correct quotes
 and special css-classes for words written as CAPS (sophisticated recognition) and
-& (ampersand). See [original project](https://code.google.com/p/typogrify/).
+& (ampersand). See `original project <https://code.google.com/p/typogrify/>`_.
 
 By default *amp*, *widont*, *smartypants*, *caps* are applied. *all*, *typo*
 and *typogrify* applying "widont, smartypants, caps, amp, initial_quotes". All

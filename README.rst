@@ -28,7 +28,8 @@ Quickstart
 
 You'll need ``python``, ``jinja2`` and either ``markdown`` (default) or
 ``docutils``. ``pygments`` and ``asciimathml`` for colored code listings
-respectively MathML. To get a full-featured installation do:
+respectively MathML. Typography needs ``smartypants``. To get a full-featured
+installation do:
 
 ::
 
@@ -66,6 +67,7 @@ detailed information. Currently supported by acrylamid:
 - **summarize**: summarizes posts to 200 words
 - **hyphenation**: hyphenate words (len > 10) based on language
 - **head_offset**: decrease headings by offset
+- **pass-through**: don't render with Markdown or reStructuredText
 
 Views
 *****
@@ -74,3 +76,5 @@ Views
 - **entry**: renders single entry to given slug
 - **index**: creates pagination / and /page/:num
 - **feeds**: valid atom/rss feed
+- **tags**: sort by tag with pagination (/:tag and /:tag/:num)
+
