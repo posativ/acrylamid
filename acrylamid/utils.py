@@ -261,7 +261,7 @@ def joinurl(*args):
     r = []
     for i, mem in enumerate(args):
         if i > 0:
-            mem = mem.lstrip('/')
+            mem = str(mem).lstrip('/')
         r.append(mem)
     
     return join(*r)
