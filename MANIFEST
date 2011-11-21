@@ -9,6 +9,7 @@ acrylamid/filters/head_offset.py
 acrylamid/filters/hyphenation.py
 acrylamid/filters/md.py
 acrylamid/filters/mdx_asciimathml.py
+acrylamid/filters/plain.py
 acrylamid/filters/rst.py
 acrylamid/filters/summarize.py
 acrylamid/filters/typography.py
@@ -26,4 +27,5 @@ acrylamid/views/articles.py
 acrylamid/views/entry.py
 acrylamid/views/feeds.py
 acrylamid/views/index.py
+acrylamid/views/tag.py
 bin/acrylamid
