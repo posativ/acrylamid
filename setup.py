@@ -2,7 +2,7 @@ from distutils.core import setup
 from os.path import join
 
 """acrylamid documentation
-==========================
+=======================
 
 acrylamid is yet another lightweight static blogging software written in python
 and designed to get a high quality output. Its licensed under BSD Style, 2 clauses.
@@ -30,13 +30,13 @@ Quickstart
     pip install acrylamid
 
 You'll need ``python``, ``jinja2`` and either ``markdown`` (default) or
-``docutils``. For nicer urls also ``translitcodec`` is required. ``pygments``
-and ``asciimathml`` for colored code listings respectively MathML.
-Full-featured installation do:
+``docutils``. ``pygments`` and ``asciimathml`` for colored code listings
+respectively MathML. Typography needs ``smartypants``. To get a full-featured
+installation do:
 
 ::
 
-    pip install docutils translitcodec pygments asciimathml
+    pip install docutils pygments asciimathml smartypants
 
 Get acrylamid and edit *conf.yaml* and *layouts/*. Run acrylamid with:
 
@@ -54,8 +54,15 @@ Get acrylamid and edit *conf.yaml* and *layouts/*. Run acrylamid with:
         create  '/rss/index.html', written to output/rss/index.html
         create  '/', written to output/index.html
 
+Using acrylamid
+***************
+
+
 Filters
-*******
+**********
+
+See `docs/filters.rst </posativ/acrylamid/blob/master/docs/filters.rst>`_ for
+detailed information. Currently supported by acrylamid:
 
 - **markdown**: rendering Markdown (+asciimathml,pygments)
 - **rest**: reStructuredText (+pygments)
@@ -63,6 +70,7 @@ Filters
 - **summarize**: summarizes posts to 200 words
 - **hyphenation**: hyphenate words (len > 10) based on language
 - **head_offset**: decrease headings by offset
+- **pass-through**: don't render with Markdown or reStructuredText
 
 Views
 *****
@@ -71,6 +79,7 @@ Views
 - **entry**: renders single entry to given slug
 - **index**: creates pagination / and /page/:num
 - **feeds**: valid atom/rss feed
+- **tags**: sort by tag with pagination (/:tag and /:tag/:num)
 """
 
 hyph_files = ['hyph-de-1996.chr.txt', 'hyph-en-us.chr.txt', 'hyph-fr.chr.txt',
@@ -79,7 +88,7 @@ hyph_files = ['hyph-de-1996.chr.txt', 'hyph-en-us.chr.txt', 'hyph-fr.chr.txt',
 
 setup(
     name='acrylamid',
-    version='0.1.10',
+    version='0.1.11',
     author='posativ',
     author_email='info@posativ.org',
     packages=['acrylamid', 'acrylamid.filters', 'acrylamid.views'],
