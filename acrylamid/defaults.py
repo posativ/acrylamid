@@ -584,7 +584,21 @@ entry = r'''
     </div>
     <div class="postfooter">
         {% if disqus_shortname and type == 'page' %}
-            <a href="{{ www_root + permalink }}#disqus_thread">Kommentieren</a>
+            <a class="floatright" href="{{ www_root + permalink }}#disqus_thread">Kommentieren</a>
+        {% endif %}
+        {% if tags %}
+            <p>verschlagwortet als
+                {% for link in tags | tagify -%}
+                    <a href="{{ link.href }}">{{ link.title }}</a>
+                    {%- if loop.revindex > 2 -%}
+                    ,
+                    {%- elif loop.revindex == 2 %}
+                    und 
+                    {% endif %}
+                {% endfor %}
+            </p>
+        {% else %}
+            <p>nicht verschlagwortet</p>
         {% endif %}
     </div>
     <div class="comments">
