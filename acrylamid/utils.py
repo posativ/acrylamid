@@ -30,7 +30,7 @@ class FileEntry:
     
     # TODO: remap internally
     __map__ = {'tag': 'tags', 'filter': 'filters'}
-    __keys__ = ['permalink', 'filters', 'author', 'draft', 'tags', 'date', 'title', 'content', 'lang']
+    __keys__ = ['permalink', 'filters', 'author', 'draft', 'tags', 'date', 'title', 'content', 'lang', 'description']
     
     title = content = ''
     draft = False
@@ -68,6 +68,11 @@ class FileEntry:
     def permalink(self):
         # TODO: fix hard-coded slug
         return expand('/:year/:slug/', self)
+
+    @property
+    def description(self):
+        # TODO: this is really poor
+        return self.source[:50].strip()+'...'
         
     def get(self, key, default=None):
         return self.__dict__.get(key, default)

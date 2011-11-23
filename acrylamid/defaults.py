@@ -488,16 +488,18 @@ main = r'''
 <html xmlns="http://www.w3.org/1999/xhtml">
  <head>
   <title>
-      {% if type != 'item' %}
+      {%- if type != 'item' -%}
         {{ blog_title }}
-      {% else %}
+      {%- else -%}
         {{ title }}
-      {% endif %}
+      {%- endif -%}
   </title>
   <meta http-equiv="Content-Type" content="text/xhtml; charset=utf-8" />
   <meta http-equiv="content-language" content="de, en" />
-  <!-- <meta content="{{ content }}" name="description" /> -->
-  <!-- <meta content="{{ keywords }}" name="keywords" /> -->
+  {% if type == 'item' -%}
+  <meta name="description" content="{{ description }}" />
+  <meta name="keywords" content="{{ tags | join(', ') }}" />
+  {%- endif %}
   <link media="all" href="/blog.css" type="text/css" rel="stylesheet" />
   <link href="/favicon.ico" rel="shortcut icon" />
   <link href="/" rel="home" />
@@ -513,18 +515,10 @@ main = r'''
         </div>
         <div id="mainlinks">
             <ul>
-                <li>
-                    <a href="/">blog</a>
-                </li>
-                <li>
-                    <a href="/atom/">atom</a>
-                </li>
-                <li>
-                    <a href="/rss/">rss</a>
-                </li>
-                <li>
-                    <a href="/articles/">articles</a>
-                </li>
+                <li><a href="/">blog</a></li>
+                <li><a href="/atom/">atom</a></li>
+                <li><a href="/rss/">rss</a></li>
+                <li><a href="/articles/">articles</a></li>
             </ul>
         </div>
     </div>

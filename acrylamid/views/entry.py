@@ -4,8 +4,6 @@
 from acrylamid.views import View
 from acrylamid.utils import expand, render, mkfile, joinurl
 
-from os.path import join
-
 filters = []
 path = '/:year/:slug/'
 enabled = True
@@ -31,7 +29,7 @@ class Entry(View):
         for entry in entrylist:
             html = render(tt_main, conf, env, type='item',
                           entrylist=render(tt_entry, conf, env, entry, type='item'),
-                          title=entry.title)
+                          title=entry.title, description=entry.description, tags=entry.tags)
             
             if entry.permalink != expand(path, entry):
                 p = joinurl(conf['output_dir'], entry.permalink, 'index.html')
