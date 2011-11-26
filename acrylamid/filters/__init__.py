@@ -20,8 +20,9 @@ def index_filters(module, conf, env):
     """Goes through the modules' contents and indexes all the funtions/classes
     having a __call__ and __match__ attribute.
     
-    Arguments:
-    module -- the module to index
+    :param module: the module to index
+    :param conf: user config
+    :param env: environment
     """
     
     global callbacks
@@ -38,10 +39,11 @@ def initialize(ext_dir, conf, env, include=[], exclude=[]):
     plugins. 'include' and 'exclude' may contain a list of shell patterns
     used for fnmatch. If empty, this filter is not applied.
     
-    Arguments:
-    ext_dir -- list of directories
-    include -- a list of filename patterns to include
-    exclude -- a list of filename patterns to exclude
+    :param ext_dir: list of directories
+    :conf: user config
+    :env: environment
+    :param include: a list of filename patterns to include
+    :param exclude: a list of filename patterns to exclude
     """
     
     def get_name(filename):
@@ -72,12 +74,10 @@ def initialize(ext_dir, conf, env, include=[], exclude=[]):
         return sorted(ext_list)
     
     global plugins
-    #callbacks = []
     
     exclude.extend(['mdx_*', 'rstx_*'])
     ext_dir.extend([os.path.dirname(__file__)])
     
-    # handle ext_dir
     for mem in ext_dir[:]:
         if os.path.isdir(mem):
             sys.path.insert(0, mem)
@@ -85,8 +85,7 @@ def initialize(ext_dir, conf, env, include=[], exclude=[]):
             ext_dir.remove(mem)
             log.error("Extension directory '%s' does not exist. -- skipping" % mem)
             
-    ext_list = get_extension_list(ext_dir, include, exclude)
-    
+    ext_list = get_extension_list(ext_dir, include, exclude)    
     for mem in ext_list:
         try:
             _module = __import__(mem)
@@ -117,7 +116,6 @@ class FilterList(list):
                 if f in x[1].__match__:
                     return True
         return False
-        
     
     def __iter__(self):
         for item in sorted(list.__iter__(self), key=lambda k: k[1].__priority__, reverse=True):
@@ -125,7 +123,7 @@ class FilterList(list):
 
 class FilterStorage(dict):
     """store multiple keys per value and make __call__ do nothing, when
-    filter is lead by *no*."""
+    filter is prefixed by *no*."""
 
     def __init__(self, *args):
         dict.__init__(self, args)

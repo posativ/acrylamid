@@ -21,11 +21,7 @@ def get_views():
 
 def index_views(module, conf, env):
     """Goes through the modules' contents and indexes all the funtions/classes
-    having a __call__ and __match__ attribute.
-
-    Arguments:
-    module -- the module to index
-    """
+    having a __init__, __call__ and __match__ attribute."""
 
     global callbacks
     

@@ -126,7 +126,7 @@ class Separator(HTMLParser):
         if filter(lambda i: i in self.stack, ['pre', 'code', 'math', 'em']):
             pass
         else:
-            split = [word for word in re.split(r"[.:,\s!?+=\(\)/]+", data) if len(word) > 10]
+            split = [word for word in re.split(r"[.:,\s!?+=\(\)/-]+", data) if len(word) > 10]
             for word in split:
                 hyphenated = '&shy;'.join(self.hyphenate(word))
                 data = data.replace(word, hyphenated)

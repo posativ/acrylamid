@@ -14,14 +14,10 @@ from acrylamid.utils import FileEntry
 log = logging.getLogger('acrylamid.core')
     
 
-def start(request):
-    return request
-    
-
 def handle(request):
-    """This is the acrylamid handle:
-        - generate filelist
-        - sort filelist by date"""
+    """This will prepare the whole thing. Dir-walks through content dir and
+    try to get the timestamp (fallback to '%d.%m.%Y, %H:%M' parsing, or even
+    worse: mtime). return entrylist reverse sorted by date."""
         
     conf = request['conf']
 
@@ -42,15 +38,7 @@ def handle(request):
 
 
 def filelist(request):
-    """This is the default handler for getting entries.  It takes the
-    request object in and figures out which entries bases on the default
-    behavior that we want to show and generates a list of EntryBase
-    subclass objects which it returns.
-    
-    Arguments:
-    args -- dict containing the incoming Request object
-    
-    Returns the content we want to render"""
+    """gathering all entries in entries_dir except entries_ignore via fnmatch."""
     
     conf = request['conf']
     

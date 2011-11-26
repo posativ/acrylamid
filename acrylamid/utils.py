@@ -7,8 +7,7 @@
 import sys, os, re
 import codecs
 from datetime import datetime
-from os.path import join, exists, getmtime, dirname
-from time import gmtime
+from os.path import join, exists, dirname
 import logging
 
 log = logging.getLogger('acrylamid.utils')
@@ -17,8 +16,6 @@ _slug_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
 try:
     import translitcodec
 except ImportError:
-    import unicodedata
-    from string import maketrans
     from unicodedata import normalize
     translitcodec = None
     log.debug("no 'translitcodec' found, using NFKD algorithm")
@@ -28,20 +25,19 @@ class FileEntry:
     """This class gets it's data and metadata from the file specified
     by the filename argument"""
     
-    # TODO: remap internally
     __map__ = {'tag': 'tags', 'filter': 'filters'}
     __keys__ = ['permalink', 'filters', 'author', 'draft', 'tags', 'date', 'title', 'content', 'lang', 'description']
     
-    title = content = ''
+    title = ''
     draft = False
     permalink = lang = None
     tags = filters = []
     
-    def __init__(self, filename, encoding='utf-8', new=True):
-        """Arguments:
-        request -- the Request object
-        filename -- the complete filename including path
-        datadir --  the data dir"""
+    def __init__(self, filename, encoding='utf-8'):
+        """parsing FileEntry's YAML header.
+        
+        :param filename: path to open, plain text preferred
+        :param encoding: reading content using this specific encoding codec."""
         
         self.date = datetime.fromtimestamp(os.path.getmtime(filename))
         self.filename = filename
@@ -78,7 +74,8 @@ class FileEntry:
         return self.__dict__.get(key, default)
         
     def parse(self):
-        """parsing yaml header and remember when content begins."""
+        """parsing yaml header and remember where content begins. Only append
+        key,value if whitelisted in __keys__ and __map__ ."""
         
         meta = []; i = 0
         with file(self.filename, 'r') as f:
@@ -107,6 +104,7 @@ class FileEntry:
         return filter(lambda k: hasattr(self, k), self.__keys__)
         
     def __getitem__(self, key):
+        """surjective dict. Return mapped key (tag -> tags) or raise KeyError."""
         if key in self.__map__:
             return self.__dict__[self.__map__[key]]
         elif key in self.__keys__:
@@ -118,7 +116,7 @@ class FileEntry:
 class ColorFormatter(logging.Formatter):
     """Implements basic colored output using ANSI escape codes."""
 
-    # -- and BOLD
+    # $color + BOLD
     BLACK = '\033[1;30m%s\033[0m'
     RED = '\033[1;31m%s\033[0m'
     GREEN = '\033[1;32m%s\033[0m'
@@ -169,6 +167,10 @@ def check_conf(conf):
     return True
     
 def yamllike(conf):
+    """pyyaml replacement (not really yet, but works for me). Parsing
+    first-layer YAML (okay: key,value assignments) into a python dict.
+    yamllike is filter. and view. aware, that means all assignments starting
+    with this string will exec into the given __init__ environment."""
     
     conf = [line.strip() for line in conf.split('\n')
                 if not line.startswith('#') and line.strip()]
@@ -219,15 +221,12 @@ def render(tt, *dicts, **kvalue):
 
 
 def mkfile(content, entry, path, force=False):
-    """Creates entry in filesystem. Overwrite only if content
-    differs.
+    """Creates entry in filesystem. Overwrite only if content differs.
 
-    Arguments:
-    content -- rendered html
-    entry -- FileEntry object
-    path -- path to write
-    force -- force overwrite, even nothing has changed (defaults to `False`)
-    """
+    :param content: rendered html/xml to write
+    :param entry: FileEntry object
+    :param path: path to write to
+    :param force: force overwrite, even nothing has changed (defaults to `False`)"""
 
     if exists(dirname(path)) and exists(path):
         with file(path) as f:
@@ -252,6 +251,7 @@ def mkfile(content, entry, path, force=False):
 
     
 def expand(url, entry):
+    """expanding '/:year/:slug/' scheme into e.g. '/2011/awesome-title/"""
     m = {':year': str(entry.date.year), ':month': str(entry.date.month),
          ':day': str(entry.date.day), ':slug': entry.slug}
     
@@ -268,7 +268,6 @@ def joinurl(*args):
         if i > 0:
             mem = str(mem).lstrip('/')
         r.append(mem)
-    
     return join(*r)
     
 

@@ -125,17 +125,12 @@ class Acryl:
                     
         if args[0] in ['gen', 'generate', 'render']:
             self.req = {'conf': conf, 'env': env, 'data': {}}
-            
             self.run()
-            # from filters.md import Markdown
-            # md = Markdown()
-            # print md('Hallo $$beta$$-Welt', [],  *['math'])
-            #self.run(request)
                 
     def initialize(self, request):
-        """The initialize step further initializes the Request by
-        setting additional information in the ``data`` dict,
-        registering plugins, and entryparsers.
+        """Initializes Jinja2 environment, prepare locale and configure
+        some minor things. Filter and View are inited and the user
+        configuration is passed to.
         """
         
         conf = request['conf']
@@ -175,20 +170,15 @@ class Acryl:
         exec(''.join(conf['views.'])) in ns
         
     def run(self):
-        """This is the main loop for acrylamid.  This method will run
-        the handle callback to allow registered handlers to handle
-        the request. If nothing handles the request, then we use the
-        ``_acrylamid_handler``.
+        """This will render everything.
         """
         request = self.req
-        conf = self.req['conf']
         self.initialize(request)
         
-        from acrylamid.core import start, handle
+        from acrylamid.core import handle
         from acrylamid.filters import get_filters, FilterList
         from acrylamid.views import get_views
         
-        request = start(request)
         request = handle(request)
         
         filtersdict = get_filters()
