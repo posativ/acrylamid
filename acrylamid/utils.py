@@ -4,11 +4,17 @@
 # Copyright 2011 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid.py
 
-import sys, os, re
+import sys, os, re, logging
 import codecs
+import tempfile
 from datetime import datetime
-from os.path import join, exists, dirname
-import logging
+from os.path import join, exists, dirname, getmtime
+from hashlib import md5
+
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 
 log = logging.getLogger('acrylamid.utils')
 _slug_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
@@ -28,10 +34,10 @@ class FileEntry:
     __map__ = {'tag': 'tags', 'filter': 'filters'}
     __keys__ = ['permalink', 'filters', 'author', 'draft', 'tags', 'date', 'title', 'content', 'lang', 'description']
     
-    title = ''
+    title = content = ''
     draft = False
     permalink = lang = None
-    tags = filters = []
+    tags = filters = lazy_eval = []
     
     def __init__(self, filename, encoding='utf-8'):
         """parsing FileEntry's YAML header.
@@ -39,13 +45,24 @@ class FileEntry:
         :param filename: path to open, plain text preferred
         :param encoding: reading content using this specific encoding codec."""
         
-        self.date = datetime.fromtimestamp(os.path.getmtime(filename))
+        self.mtime = os.path.getmtime(filename)
+        self.date = datetime.fromtimestamp(self.mtime)
         self.filename = filename
         self.encoding = encoding
         self.parse()
         
     def __repr__(self):
         return "<fileentry f'%s'>" % self.filename
+    
+    @property
+    def hash(self):
+        if len(self.lazy_eval) == 0:
+            return ''
+        
+        to_hash = []
+        for t in self.lazy_eval:
+            to_hash.append('%s:%.2f:%s:%s' % (t[0], t[1].__priority__, t[2], self.filename))
+        return '-'.join(to_hash)
         
     @property
     def extension(self):
@@ -55,6 +72,18 @@ class FileEntry:
     def source(self):
         with codecs.open(self.filename, 'r', encoding=self.encoding) as f:
             return ''.join(f.readlines()[self._i:]).strip()
+    
+    @property
+    def content(self):
+        rv = cache.get(self.hash, None, mtime=self.mtime)
+        if rv is not None:
+            return rv
+        res = self.source
+        for i, f, args in self.lazy_eval:
+            f.__dict__['__matched__'] = i
+            res = f(res, self, *args)
+        cache.set(self.hash, res)
+        return res
             
     @property
     def slug(self):
@@ -283,4 +312,80 @@ def safeslug(slug):
             word = normalize('NFKD', word).encode('ascii', 'ignore')
         if word and not word[0] in '-:':
             result.append(word)
-    return unicode('-'.join(result))   
+    return unicode('-'.join(result))
+
+
+class cache(object):
+    """A cache that stores the entries on the file system.  Borrowed from
+    werkzeug.contrib.cache, see their AUTHORS and LICENSE for additional
+    copyright information.
+    
+    cache is designed as singleton and should not constructed using __init__ .
+    >>> cache.init('.mycache/')
+    >>> cache.get(key, default=None, mtime=0.0)
+    >>> cache.set(key, value)
+
+    :param cache_dir: the directory where cache files are stored.
+    :param mode: the file mode wanted for the cache files, default 0600
+    """
+    
+    _fs_transaction_suffix = '.__ac_cache'
+    cache_dir = '.cache/'
+    mode = 0600
+    
+    @classmethod
+    def _get_filename(self, key):
+        hash = md5(key).hexdigest()
+        return os.path.join(self.cache_dir, hash)
+    
+    @classmethod
+    def _list_dir(self):
+        """return a list of (fully qualified) cache filenames"""
+        return [os.path.join(self._path, fn) for fn in os.listdir(self._path)
+                if not fn.endswith(self._fs_transaction_suffix)]
+    
+    @classmethod
+    def init(self, cache_dir=None, mode=0600):
+        if cache_dir:
+            self.cache_dir = cache_dir
+        if mode:
+            self.mode = mode
+        if not exists(self.cache_dir):
+            try:
+                os.mkdir(self.cache_dir, 0700)
+            except OSError:
+                log.fatal("could not create directory '%s'" % self.cache_dir)
+                sys.exit(1)
+
+    @classmethod
+    def clear(self):
+        for fname in self._list_dir():
+            try:
+                os.remove(fname)
+            except (IOError, OSError):
+                pass
+
+    @classmethod
+    def get(self, key, default=None, mtime=0.0):
+        try:
+            filename = self._get_filename(key)
+            if mtime > getmtime(filename):
+                return default
+            with open(filename, 'rb') as fp:
+                return pickle.load(fp)
+            os.remove(filename)
+        except (OSError, IOError, pickle.PickleError):
+            return default
+
+    @classmethod
+    def set(self, key, value):
+        filename = self._get_filename(key)
+        try:
+            fd, tmp = tempfile.mkstemp(suffix=self._fs_transaction_suffix,
+                                       dir=self.cache_dir)
+            with os.fdopen(fd, 'wb') as fp:
+                pickle.dump(value, fp, pickle.HIGHEST_PROTOCOL)
+            os.rename(tmp, filename)
+            os.chmod(filename, self.mode)
+        except (IOError, OSError):
+            pass

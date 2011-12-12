@@ -103,11 +103,24 @@ class Filter:
     
     __priority__ = 50.0
     __conflicts__ = []
-        
-        
+
+
 class FilterList(list):
+    """a list containing tuples of (filtername, filterfunc, arguments).
+    
+    >>> x = FilterList()
+    >>> x.append((x,y,z))
+    
+    :param x: the filter's name, type: str
+    :param y: function (Filter with __call__)
+    :param z: additional arguments, a tuple of strings e.g. ('mathml', 'pygments')
+    """
 
     def __contains__(self, y):
+        """first checks, wether the item itself is in the list. Next, all Filters
+        providing __conflicts__ are checked wether y conflicts with a filter.
+        Otherwise y is not in FilterList.
+        """
         for x in self:
             if x[1].__name__ == y.__name__:
                 return True
@@ -120,6 +133,7 @@ class FilterList(list):
     def __iter__(self):
         for item in sorted(list.__iter__(self), key=lambda k: k[1].__priority__, reverse=True):
             yield item
+
 
 class FilterStorage(dict):
     """store multiple keys per value and make __call__ do nothing, when

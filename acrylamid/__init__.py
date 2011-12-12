@@ -30,7 +30,7 @@ from jinja2 import Environment, FileSystemLoader
 from acrylamid import defaults
 from acrylamid import filters
 from acrylamid import views
-from acrylamid.utils import check_conf, yamllike, ColorFormatter
+from acrylamid.utils import check_conf, yamllike, ColorFormatter, cache
 
 log = logging.getLogger('acrylamid')
 sys.path.insert(0, os.path.dirname(__package__))
@@ -157,7 +157,11 @@ class Acryl:
         # take off the trailing slash for base_url
         if conf['www_root'].endswith("/"):
             conf['www_root'] = conf['www_root'][:-1]
-
+        
+        # XXX implement _optional_ config argments like cache_dir
+        # init to conf['cache_dir'] (defaults to '.cache/')
+        cache.init()
+        
         # import and initialize plugins
         filters.initialize(conf.get("ext_dir", []), request['conf'], request['env'],
                               exclude=conf.get("ext_ignore", []),
@@ -190,7 +194,6 @@ class Acryl:
                 if not v.__filters__: break
                 
                 log.debug(entry.filename)
-                entry.content = entry.source
                 entryfilters = entry.get('filters', [])
                 if isinstance(entryfilters, basestring):
                     entryfilters = [entryfilters]
@@ -202,8 +205,6 @@ class Acryl:
                     if filtersdict[x] not in _filters:
                         _filters.append((x, filtersdict[x], y))
                 
-                for i, f, args in _filters:
-                    f.__dict__['__matched__'] = i
-                    entry.content = f(entry.content, entry, *args)
+                entry.lazy_eval = _filters
             
             v(request)
