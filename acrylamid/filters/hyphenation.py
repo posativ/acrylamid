@@ -3,6 +3,7 @@
 
 from acrylamid.filters import Filter
 from acrylamid.filters import log
+from acrylamid.utils import cached_property
 
 import re, os, codecs
 from HTMLParser import HTMLParser
@@ -187,7 +188,7 @@ class Hyphenate(Filter):
     __name__ = 'Hyphenate'
     __match__ = ['hyphenate', 'hyph']
 
-    @property
+    @cached_property
     def default(self):
         # build default hyphenate_word using conf's lang (if available)
         return build(self.conf['lang'][0].replace('_', '-'))
