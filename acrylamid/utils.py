@@ -75,15 +75,14 @@ class FileEntry:
     
     @property
     def content(self):
-        rv = cache.get(self.hash, None, mtime=self.mtime)
-        if rv is not None:
-            return rv
-        res = self.source
-        for i, f, args in self.lazy_eval:
-            f.__dict__['__matched__'] = i
-            res = f(res, self, *args)
-        cache.set(self.hash, res)
-        return res
+        rv = cache.get(self.hash, mtime=self.mtime)
+        if rv is None:
+            res = self.source
+            for i, f, args in self.lazy_eval:
+                f.__dict__['__matched__'] = i
+                res = f(res, self, *args)
+            rv = cache.set(self.hash, res)
+        return rv
             
     @property
     def slug(self):
