@@ -11,6 +11,8 @@ from datetime import datetime
 from os.path import join, exists, dirname, getmtime
 from hashlib import md5
 
+import traceback
+
 try:
     import cPickle as pickle
 except ImportError:
@@ -75,14 +77,18 @@ class FileEntry:
     
     @property
     def content(self):
-        rv = cache.get(self.hash, mtime=self.mtime)
-        if rv is None:
-            res = self.source
-            for i, f, args in self.lazy_eval:
-                f.__dict__['__matched__'] = i
-                res = f(res, self, *args)
-            rv = cache.set(self.hash, res)
-        return rv
+       try:
+            rv = cache.get(self.hash, mtime=self.mtime)
+            if not rv:
+                res = self.source
+                for i, f, args in self.lazy_eval:
+                    f.__dict__['__matched__'] = i
+                    res = f(res, self, *args)
+                rv = cache.set(self.hash, res)
+            return rv
+       except (IndexError, AttributeError):
+           # jinja2 will ignore these Exceptions, better to catch them before
+           traceback.print_exc(file=sys.stdout)
             
     @property
     def slug(self):
@@ -374,7 +380,8 @@ class cache(object):
                 return pickle.load(fp)
             os.remove(filename)
         except (OSError, IOError, pickle.PickleError):
-            return default
+            pass
+        return default
 
     @classmethod
     def set(self, key, value):

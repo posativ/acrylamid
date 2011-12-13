@@ -137,8 +137,10 @@ class Separator(HTMLParser):
     def handle_endtag(self, tag):
         """Until we reach not the maxwords limit, we can safely pop every ending tag,
            added by handle_starttag. Afterwards, we apply missing endings tags if missing."""
-        try: self.stack.pop()
-        except Exception: pass
+        try:
+            self.stack.pop()
+        except IndexError:
+            pass
         self.result.append('</%s>' % tag)
 
     def handle_entityref(self, name):

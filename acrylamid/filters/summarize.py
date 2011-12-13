@@ -45,7 +45,7 @@ class Summarizer(HTMLParser):
                 self.summarized += data
             else:
                 '''we can put some words before we reach the word limit'''
-                if 'a' not in self.stack and self.stack[-1] != 'ul':
+                if 'a' not in self.stack and self.stack and self.stack[-1] != 'ul':
                     somewords = self.maxwords - self.words
                     self.words += somewords
                     self.summarized += ' '.join(words[:somewords]) + ' '

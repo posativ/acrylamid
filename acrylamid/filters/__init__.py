@@ -96,9 +96,6 @@ def initialize(ext_dir, conf, env, include=[], exclude=[]):
         index_filters(_module, conf, env)
 
 
-class InitFilterException(Exception): pass
-
-
 class Filter:
     
     __priority__ = 50.0
