@@ -54,6 +54,9 @@ Get acrylamid and edit *conf.yaml* and *layouts/*. Run acrylamid with:
 Using acrylamid
 ***************
 
+- `conf.yaml </posativ/acrylamid/blob/master/docs/conf.yaml.rst>`_
+- `filters </posativ/acrylamid/blob/master/docs/filters.rst>`_
+
 
 Filters
 **********
