@@ -7,7 +7,7 @@ from os.path import exists
 from collections import defaultdict
 
 from acrylamid.views import View
-from acrylamid.utils import render, mkfile, joinurl, safeslug
+from acrylamid.utils import render, mkfile, joinurl, safeslug, event
 
 filters = []
 path = '/tag/'
@@ -63,7 +63,8 @@ class Tag(View):
                 
                 if exists(p) and not filter(lambda e: e.has_changed, mem):
                     if not (tt_entry.has_changed or tt_main.has_changed):
-                        return
+                        event.skip(curr)
+                        continue
 
                 mem = [render(tt_entry, conf, env, entry, type="tag") for entry in mem]
                 html = render(tt_main, conf, env, type='tag', prev=prev, curr=curr, next=next,

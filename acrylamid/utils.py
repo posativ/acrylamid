@@ -117,8 +117,8 @@ class FileEntry:
         
         to_hash = []
         for t in self.lazy_eval:
-            to_hash.append('%s:%.2f:%s:%s' % (t[0], t[1].__priority__, t[2], self.filename))
-        return '-'.join(to_hash)
+            to_hash.append('%s:%.2f:%s' % (t[0], t[1].__priority__, t[2]))
+        return '-'.join(to_hash) + self.filename
         
     @property
     def extension(self):
@@ -160,6 +160,8 @@ class FileEntry:
     
     @cached_property
     def has_changed(self):
+        if not exists(cache._get_filename(self.hash)):
+            self.content
         if getmtime(self.filename) > cache.get_mtime(self.hash):
             return True
         else:

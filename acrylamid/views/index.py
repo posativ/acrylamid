@@ -5,7 +5,7 @@
 from os.path import exists
 
 from acrylamid.views import View
-from acrylamid.utils import render, mkfile, joinurl
+from acrylamid.utils import render, mkfile, joinurl, event
 
 filters = []
 path = '/page/'
@@ -54,7 +54,8 @@ class Index(View):
             
             if exists(p) and not filter(lambda e: e.has_changed, mem):
                 if not (tt_entry.has_changed or tt_main.has_changed):
-                    return
+                    event.skip('/' if i==0 else (path+str(i+1)))
+                    continue
             
             mem = [render(tt_entry, conf, env, entry, type="page") for entry in mem]
             

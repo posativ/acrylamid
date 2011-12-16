@@ -6,7 +6,7 @@ from datetime import datetime
 from os.path import exists
 
 from acrylamid.views import View
-from acrylamid.utils import render, mkfile, joinurl
+from acrylamid.utils import render, mkfile, joinurl, event
 
 from jinja2 import Environment
 
@@ -25,7 +25,8 @@ class Feed(View):
         entrylist = request['entrylist']
         p = joinurl(conf['output_dir'], self.path , 'index.html')
         
-        if exists(p) and not filter(lambda e: e.has_changed, entrylist):
+        if exists(p) and not filter(lambda e: e.has_changed, entrylist[:self.num_entries]):
+            event.skip(joinurl(self.path, 'index.html'))
             return
         
         result = []

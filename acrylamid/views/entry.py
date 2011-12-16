@@ -4,7 +4,7 @@
 from os.path import exists
 
 from acrylamid.views import View
-from acrylamid.utils import expand, render, mkfile, joinurl
+from acrylamid.utils import expand, render, mkfile, joinurl, event
 
 filters = []
 path = '/:year/:slug/'
@@ -36,7 +36,8 @@ class Entry(View):
             
             if exists(p) and not entry.has_changed:
                 if not (tt_entry.has_changed or tt_main.has_changed):
-                    return
+                    event.skip(entry.title)
+                    continue
             
             html = render(tt_main, conf, env, type='item',
                           entrylist=render(tt_entry, conf, env, entry, type='item'),
