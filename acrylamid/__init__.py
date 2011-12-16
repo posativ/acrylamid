@@ -25,12 +25,13 @@ reload(sys); sys.setdefaultencoding('utf-8')
 
 import os, logging, locale
 from optparse import OptionParser, make_option, OptionGroup
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemBytecodeCache
 
 from acrylamid import defaults
 from acrylamid import filters
 from acrylamid import views
-from acrylamid.utils import check_conf, yamllike, ColorFormatter, cache
+from acrylamid.utils import check_conf, yamllike, ColorFormatter, cache, \
+                            ExtendedFileSystemLoader
 
 log = logging.getLogger('acrylamid')
 sys.path.insert(0, os.path.dirname(__package__))
@@ -147,7 +148,8 @@ class Acryl:
         env = request['env']
         
         # set up templating environment
-        env['tt_env'] = Environment(loader=FileSystemLoader(conf['layout_dir']))
+        env['tt_env'] = Environment(loader=ExtendedFileSystemLoader(conf['layout_dir']),
+                                    bytecode_cache=FileSystemBytecodeCache('.cache/'))
 
         # initialize the locale, will silently fail if locale is not
         # available and uses system's locale

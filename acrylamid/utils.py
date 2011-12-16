@@ -12,6 +12,7 @@ from os.path import join, exists, dirname, getmtime
 from hashlib import md5
 
 import traceback
+from jinja2 import FileSystemLoader
 
 try:
     import cPickle as pickle
@@ -238,6 +239,36 @@ class ColorFormatter(logging.Formatter):
                                   '  ', record.msg])
 
         return logging.Formatter.format(self, record)
+
+
+class ExtendedFileSystemLoader(FileSystemLoader):
+
+    def load(self, environment, name, globals=None):
+        """patched `load` to add a has_changed property"""
+        code = None
+        if globals is None:
+            globals = {}
+
+        source, filename, uptodate = self.get_source(environment, name)
+
+        bcc = environment.bytecode_cache
+        if bcc is not None:
+            bucket = bcc.get_bucket(environment, name, filename, source)
+            p = bcc._get_cache_filename(bucket)
+            has_changed = getmtime(filename) > getmtime(p) if exists(p) else False
+            print filename, has_changed
+            code = bucket.code
+
+        if code is None:
+            code = environment.compile(source, name, filename)
+
+        if bcc is not None and bucket.code is None:
+            bucket.code = code
+            bcc.set_bucket(bucket)
+
+        tt = environment.template_class.from_code(environment, code, globals, uptodate)
+        tt.has_changed = has_changed
+        return tt
 
 
 def check_conf(conf):
