@@ -258,7 +258,6 @@ class ExtendedFileSystemLoader(FileSystemLoader):
             bucket = bcc.get_bucket(environment, name, filename, source)
             p = bcc._get_cache_filename(bucket)
             has_changed = getmtime(filename) > getmtime(p) if exists(p) else False
-            print filename, has_changed
             code = bucket.code
 
         if code is None:
@@ -439,8 +438,9 @@ class cache(object):
     @classmethod
     def _list_dir(self):
         """return a list of (fully qualified) cache filenames"""
-        return [os.path.join(self._path, fn) for fn in os.listdir(self._path)
-                if not fn.endswith(self._fs_transaction_suffix)]
+        return [os.path.join(self.cache_dir, fn) for fn in os.listdir(self.cache_dir)
+                if not fn.endswith(self._fs_transaction_suffix) \
+                   and not fn.endswith('.cache')]
     
     @classmethod
     def init(self, cache_dir=None, mode=0600):
