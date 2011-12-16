@@ -4,7 +4,7 @@
 from acrylamid.views import View
 from acrylamid.utils import mkfile, joinurl
 
-from os.path import normpath, join
+from os.path import join, getmtime, exists
 from collections import defaultdict
 from jinja2 import Template
 
@@ -28,6 +28,11 @@ class Articles(View):
         conf = request['conf']
         entrylist = request['entrylist']
         
+        p = joinurl(conf['output_dir'], path, 'index.html')
+        last_modified = max([getmtime(e.filename) for e in entrylist])
+        if exists(p) and last_modified < getmtime(p):
+            return
+        
         for entry in sorted(entrylist, key=lambda k: k.date, reverse=True):
             url, title, year = entry.permalink, entry.title, entry.date.year
         
@@ -38,6 +43,4 @@ class Articles(View):
                      'num_entries': len(entrylist)})
                  
         html = self.tt_articles.render(articlesdict)
-        p = joinurl(conf['output_dir'], path, 'index.html')
-    
-        mkfile(html, {'title': joinurl(path, 'index.html')}, p)
+        mkfile(html, {'title': joinurl(path, 'index.html')}, p, force=True)

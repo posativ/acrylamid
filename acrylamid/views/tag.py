@@ -1,12 +1,13 @@
 # Copyright 2011 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid.py
+# 
 # -*- encoding: utf-8 -*-
+
+from os.path import exists
+from collections import defaultdict
 
 from acrylamid.views import View
 from acrylamid.utils import render, mkfile, joinurl, safeslug
-
-from collections import defaultdict
-
 
 filters = []
 path = '/tag/'
@@ -48,19 +49,24 @@ class Tag(View):
                 tags[safeslug(tag)].append(e)
         
         for tag in tags:
-            entrylist = [render(tt_entry, conf, env, entry, type="tag") for entry in tags[tag]]
-            for i, mem in enumerate([entrylist[x*ipp:(x+1)*ipp] for x in range(len(entrylist)/ipp+1)]):
-                
+            entrylist = [entry for entry in tags[tag]]
+            for i, mem in enumerate([entrylist[x*ipp:(x+1)*ipp] for x in range(len(entrylist)/ipp+1)]):                
                 if i == 0:
                     next = None
                     curr = joinurl(path, tag)
                 else:
                     curr = joinurl(path, tag, i+1)
                     next = joinurl(path, tag) if i==1 else joinurl(path, tag, i)
-                prev = None if i==(len(entrylist)/ipp+1)-1 else joinurl(path, tag, i+2)
                 
+                prev = None if i==(len(entrylist)/ipp+1)-1 else joinurl(path, tag, i+2)
+                p = joinurl(conf['output_dir'], curr, 'index.html')
+                
+                if exists(p) and not filter(lambda e: e.has_changed, mem):
+                    return
+
+                mem = [render(tt_entry, conf, env, entry, type="tag") for entry in mem]
                 html = render(tt_main, conf, env, type='tag', prev=prev, curr=curr, next=next,
                             entrylist='\n'.join(mem), num_entries=len(entrylist),
                             items_per_page=items_per_page)
-                directory = joinurl(conf['output_dir'], curr, 'index.html')
-                mkfile(html, {'title': curr}, directory)
+                
+                mkfile(html, {'title': curr}, p)

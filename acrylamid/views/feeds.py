@@ -2,11 +2,11 @@
 # License: BSD Style, 2 clauses. see acrylamid.py
 # -*- encoding: utf-8 -*-
 
-import os, cgi
-from datetime import datetime, timedelta
+from datetime import datetime
+from os.path import exists
 
 from acrylamid.views import View
-from acrylamid.utils import expand, render, mkfile, joinurl
+from acrylamid.utils import render, mkfile, joinurl
 
 from jinja2 import Environment
 
@@ -23,6 +23,10 @@ class Feed(View):
         conf = request['conf']
         env = request['env']
         entrylist = request['entrylist']
+        p = joinurl(conf['output_dir'], self.path , 'index.html')
+        
+        if exists(p) and not filter(lambda e: e.has_changed, entrylist):
+            return
         
         result = []
         for entry in entrylist[:self.num_entries]:
@@ -35,7 +39,6 @@ class Feed(View):
                       'updated': entrylist[0].date if entrylist else datetime.now()},
                       atom=atom, rss=rss)
         
-        p = joinurl(conf['output_dir'], self.path , 'index.html')
         mkfile(xml, {'title': joinurl(self.path, 'index.html')}, p)
 
         
