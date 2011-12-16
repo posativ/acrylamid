@@ -71,4 +71,4 @@ class Tag(View):
                             entrylist='\n'.join(mem), num_entries=len(entrylist),
                             items_per_page=items_per_page)
                 
-                mkfile(html, {'title': curr}, p)
+                mkfile(html, p, curr)

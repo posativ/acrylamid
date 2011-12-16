@@ -346,7 +346,7 @@ def render(tt, *dicts, **kvalue):
     return tt.render(env)
 
 
-def mkfile(content, entry, path, force=False):
+def mkfile(content, path, message, force=False):
     """Creates entry in filesystem. Overwrite only if content differs.
 
     :param content: rendered html/xml to write
@@ -358,22 +358,20 @@ def mkfile(content, entry, path, force=False):
         with file(path) as f:
             old = f.read()
         if content == old and not force:
-            event.skip(entry['title'])
+            event.skip(message)
         else:
-            f = open(path, 'w')
-            f.write(content)
-            f.close()
-            event.changed(entry['title'])
+            with open(path, 'w') as f:
+                f.write(content)
+            event.changed(message)
     else:
         try:
             os.makedirs(dirname(path))
         except OSError:
             # dir already exists (mostly)
             pass
-        f = open(path, 'w')
-        f.write(content)
-        f.close()
-        event.create(entry['title'], path)
+        with open(path, 'w') as f:
+            f.write(content)
+        event.create(message, path)
 
     
 def expand(url, entry):

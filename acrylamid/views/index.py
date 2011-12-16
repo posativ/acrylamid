@@ -51,10 +51,11 @@ class Index(View):
             if i > 0:
                 directory = joinurl(conf['output_dir'], (path + str(i+1)))                
             p = joinurl(directory, 'index.html')
+            message = '/' if i==0 else (path+str(i+1))
             
             if exists(p) and not filter(lambda e: e.has_changed, mem):
                 if not (tt_entry.has_changed or tt_main.has_changed):
-                    event.skip('/' if i==0 else (path+str(i+1)))
+                    event.skip(message)
                     continue
             
             mem = [render(tt_entry, conf, env, entry, type="page") for entry in mem]
@@ -63,4 +64,4 @@ class Index(View):
                         entrylist='\n'.join(mem), num_entries=len(entrylist),
                         items_per_page=items_per_page)
             
-            mkfile(html, {'title': '/' if i==0 else (path+str(i+1))}, p)
+            mkfile(html, p, message)

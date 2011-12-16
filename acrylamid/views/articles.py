@@ -44,4 +44,4 @@ class Articles(View):
                      'num_entries': len(entrylist)})
                  
         html = self.tt_articles.render(articlesdict)
-        mkfile(html, {'title': joinurl(path, 'index.html')}, p, force=True)
+        mkfile(html, p, joinurl(path, 'index.html'))

@@ -40,7 +40,7 @@ class Feed(View):
                       'updated': entrylist[0].date if entrylist else datetime.now()},
                       atom=atom, rss=rss)
         
-        mkfile(xml, {'title': joinurl(self.path, 'index.html')}, p)
+        mkfile(xml, p, joinurl(self.path, 'index.html'))
 
         
 class atom(Feed):

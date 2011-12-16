@@ -43,4 +43,4 @@ class Entry(View):
                           entrylist=render(tt_entry, conf, env, entry, type='item'),
                           title=entry.title, description=entry.description, tags=entry.tags)
             
-            mkfile(html, entry, p)
+            mkfile(html, p, entry.title)
