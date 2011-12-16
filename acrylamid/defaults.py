@@ -691,7 +691,7 @@ kafka = '''
 ---
 title: Die Verwandlung
 author: Franz Kafka
-identifier: kafka
+tags: [Franz Kafka, Die Verwandlung]
 ---
 
 Als Gregor Samsa eines Morgens aus unruhigen Träumen erwachte, fand er sich in
