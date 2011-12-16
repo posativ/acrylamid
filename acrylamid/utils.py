@@ -273,12 +273,12 @@ def mkfile(content, entry, path, force=False):
         with file(path) as f:
             old = f.read()
         if content == old and not force:
-            log.info("skip  '%s' is up to date" % entry['title'])
+            event.skip(entry['title'])
         else:
             f = open(path, 'w')
             f.write(content)
             f.close()
-            log.info("changed  content of '%s'" % entry['title'])
+            event.changed(entry['title'])
     else:
         try:
             os.makedirs(dirname(path))
@@ -288,7 +288,7 @@ def mkfile(content, entry, path, force=False):
         f = open(path, 'w')
         f.write(content)
         f.close()
-        log.info("create  '%s', written to %s" % (entry['title'], path))
+        event.create(entry['title'], path)
 
     
 def expand(url, entry):
@@ -466,3 +466,22 @@ class cached_property(object):
             value = self.func(obj)
             obj.__dict__[self.__name__] = value
         return value
+
+
+class event:
+    
+    @classmethod
+    def __init__(self):
+        pass
+    
+    @classmethod
+    def create(self, what, path):
+        log.info("create  '%s', written to %s", what, path)
+    
+    @classmethod
+    def changed(self, what):
+        log.info("changed  content of '%s'", what)
+    
+    @classmethod
+    def skip(self, what):
+        log.info("skip  '%s' is up to date", what)
