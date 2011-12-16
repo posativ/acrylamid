@@ -30,6 +30,7 @@ class Articles(View):
         
         p = joinurl(conf['output_dir'], path, 'index.html')
         last_modified = max([getmtime(e.filename) for e in entrylist])
+        
         if exists(p) and last_modified < getmtime(p):
             return
         

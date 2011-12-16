@@ -35,7 +35,8 @@ class Entry(View):
                 p = joinurl(conf['output_dir'], expand(path, entry), 'index.html')
             
             if exists(p) and not entry.has_changed:
-                return
+                if not (tt_entry.has_changed or tt_main.has_changed):
+                    return
             
             html = render(tt_main, conf, env, type='item',
                           entrylist=render(tt_entry, conf, env, entry, type='item'),

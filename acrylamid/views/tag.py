@@ -62,7 +62,8 @@ class Tag(View):
                 p = joinurl(conf['output_dir'], curr, 'index.html')
                 
                 if exists(p) and not filter(lambda e: e.has_changed, mem):
-                    return
+                    if not (tt_entry.has_changed or tt_main.has_changed):
+                        return
 
                 mem = [render(tt_entry, conf, env, entry, type="tag") for entry in mem]
                 html = render(tt_main, conf, env, type='tag', prev=prev, curr=curr, next=next,

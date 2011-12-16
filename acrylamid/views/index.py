@@ -53,7 +53,8 @@ class Index(View):
             p = joinurl(directory, 'index.html')
             
             if exists(p) and not filter(lambda e: e.has_changed, mem):
-                return
+                if not (tt_entry.has_changed or tt_main.has_changed):
+                    return
             
             mem = [render(tt_entry, conf, env, entry, type="page") for entry in mem]
             
