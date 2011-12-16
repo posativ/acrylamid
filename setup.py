@@ -1,5 +1,4 @@
 from distutils.core import setup
-from os.path import join
 
 """acrylamid documentation
 =======================
@@ -57,11 +56,14 @@ Get acrylamid and edit *conf.yaml* and *layouts/*. Run acrylamid with:
 Using acrylamid
 ***************
 
+- `conf.yaml <https://github.com/posativ/acrylamid/blob/master/docs/conf.yaml.rst>`_
+- `filters <https://github.com/posativ/acrylamid/blob/master/docs/filters.rst>`_
 
 Filters
 **********
 
-See `docs/filters.rst </posativ/acrylamid/blob/master/docs/filters.rst>`_ for
+See `docs/filters.rst
+<https://github.com/posativ/acrylamid/blob/master/docs/filters.rst>`_ for
 detailed information. Currently supported by acrylamid:
 
 - **markdown**: rendering Markdown (+asciimathml,pygments)
@@ -96,11 +98,14 @@ setup(
     package_data={'acrylamid.filters': ['hyph/*.txt']},
     url='http://pypi.python.org/pypi/acrylamid/',
     license='LICENSE.txt',
-    description='yet another static blog generator.',
+    description='yet another static blog generator',
     long_description=__doc__,
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Topic :: Internet",
+        "Topic :: Internet :: WWW/HTTP :: Dynamic Content :: News/Diary",
+        "Environment :: Console",
+        "Intended Audience :: End Users/Desktop",
         "License :: OSI Approved :: BSD License",
         "Programming Language :: Python",
     ],
