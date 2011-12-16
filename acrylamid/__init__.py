@@ -47,7 +47,8 @@ class Acryl:
         
         usage = "usage: %prog [options] init\n" + '\n' \
                 + "init     - initializes base structure\n" \
-                + "gen      - rendering blog\n"
+                + "gen      - render blog\n" \
+                + "clean    - clean .cache/ and output/ dir"
 #                + "srv (-p) - serving on port p (8000) and auto-rendering changes\n"
         
         options = [
@@ -57,7 +58,7 @@ class Acryl:
                               help="be silent (mostly)", const=logging.WARN,
                               default=logging.INFO),
             make_option("-f", "--force", action="store_true", dest="force",
-                              help="force overwriting", default=False),
+                              help="force re-render", default=False),
             make_option("-c", "--config", dest="conf", help="alternate conf.yaml",
                               default="conf.yaml"),
             make_option("--version", action="store_true", dest="version",
@@ -122,11 +123,20 @@ class Acryl:
         conf.update(dict((k,v) for k,v in options.__dict__.iteritems() if v != None))
 
         # -- run -- #
+        
+        # clean .cache/ on --force and on `clean` to force re-rendering
+        if options.force or args[0] in ['clean', 'rm']:
+            try:
+                for p in os.listdir('.cache/'):
+                    os.remove(os.path.join('.cache/', p))
+            except (OSError, IOError):
+                pass
+            if args[0] in ['clean', 'rm']: sys.exit(0)
                     
         if args[0] in ['gen', 'generate', 'render']:
             self.req = {'conf': conf, 'env': env, 'data': {}}
             self.run()
-                
+        
     def initialize(self, request):
         """Initializes Jinja2 environment, prepare locale and configure
         some minor things. Filter and View are inited and the user
@@ -167,7 +177,7 @@ class Acryl:
                               exclude=conf.get("ext_ignore", []),
                               include=conf.get("ext_include", []))
         views.initialize(conf.get("ext_dir", []), request['conf'], request['env'])
-
+        
         ns = filters.__dict__
         exec(''.join(conf['filters.'])) in ns
         ns = views.__dict__
