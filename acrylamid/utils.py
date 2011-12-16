@@ -103,6 +103,13 @@ class FileEntry:
     def description(self):
         # TODO: this is really poor
         return self.source[:50].strip()+'...'
+    
+    @property
+    def has_changed(self):
+        if getmtime(self.filename) > cache.get_mtime(self.hash):
+            return True
+        else:
+            return False
         
     def get(self, key, default=None):
         return self.__dict__.get(key, default)
@@ -303,7 +310,7 @@ def joinurl(*args):
             mem = str(mem).lstrip('/')
         r.append(mem)
     return join(*r)
-    
+
 
 def safeslug(slug):
     """Generates an ASCII-only slug.  Borrowed from
@@ -397,6 +404,15 @@ class cache(object):
             pass
         
         return value
+    
+    @classmethod
+    def get_mtime(self, key, default=0.0):
+        filename = self._get_filename(key)
+        try:
+            mtime = getmtime(filename)
+        except (OSError, IOError):
+            return default
+        return mtime
 
 
 # Borrowed from werkzeug._internal
