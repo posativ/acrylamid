@@ -106,8 +106,10 @@ class Acryl:
                 defaults.init(overwrite=options.force)
             sys.exit(0)
         
+        conf = yamllike(defaults.conf)
+        
         try:
-            conf = yamllike(open(options.conf).read())
+            conf.update(yamllike(open(options.conf).read()))
         except OSError:
             log.critical('no config file found: %s. Try "acrylamid init".', options.conf)
             sys.exit(1)
