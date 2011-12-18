@@ -23,7 +23,7 @@ VERSION_SPLIT = tuple(VERSION.split('-')[0].split('.'))
 import sys
 reload(sys); sys.setdefaultencoding('utf-8')
 
-import os, logging, locale
+import os, logging, locale, codecs
 from optparse import OptionParser, make_option, OptionGroup
 from jinja2 import Environment, FileSystemBytecodeCache
 
@@ -169,6 +169,13 @@ class Acryl:
         # take off the trailing slash for base_url
         if conf['www_root'].endswith("/"):
             conf['www_root'] = conf['www_root'][:-1]
+        
+        # check encoding is available
+        try:
+            codecs.lookup(conf['encoding'])
+        except LookupError as e:
+            log.fatal('no such encoding available: %s', conf['encoding'])
+            sys.exit(1)
         
         # XXX implement _optional_ config argments like cache_dir
         # init to conf['cache_dir'] (defaults to '.cache/')

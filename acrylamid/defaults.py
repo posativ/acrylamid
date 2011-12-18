@@ -65,7 +65,8 @@ email: info@example.org
 
 www_root: http://example.org/
 lang: de_DE
-strptime: "%d.%m.%Y, %H:%M"
+strptime: %d.%m.%Y, %H:%M
+encoding: utf-8
 
 disqus_shortname: yourname
 

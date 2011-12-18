@@ -126,7 +126,7 @@ class FileEntry:
         
     @property
     def source(self):
-        with codecs.open(self.filename, 'r', encoding=self.encoding) as f:
+        with codecs.open(self.filename, 'r', encoding=self.encoding, errors='replace') as f:
             return ''.join(f.readlines()[self._i:]).strip()
     
     @property
@@ -162,6 +162,7 @@ class FileEntry:
     def has_changed(self):
         if not exists(cache._get_filename(self.hash)):
             self.content
+            return True
         if getmtime(self.filename) > cache.get_mtime(self.hash):
             return True
         else:
@@ -175,7 +176,7 @@ class FileEntry:
         key,value if whitelisted in __keys__ and __map__ ."""
         
         meta = []; i = 0
-        with file(self.filename, 'r') as f:
+        with codecs.open(self.filename, 'r', encoding=self.encoding, errors='replace') as f:
             while True:
                 line = f.readline()
                 i += 1

@@ -51,5 +51,5 @@ def filelist(request):
             if not fn:
                 filelist.append(path)
     
-    entrylist = [FileEntry(e) for e in filelist]
+    entrylist = [FileEntry(e, encoding=conf['encoding']) for e in filelist]
     return entrylist
