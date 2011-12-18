@@ -43,7 +43,7 @@ class Index(View):
                 curr = path
             else:
                 curr = joinurl(path, i+1)
-                next = path if i==1 else joinurl(path, i)
+                next = '/' if i==1 else joinurl(path, i)
             
             prev = None if i==(len(entrylist)/ipp+1)-1 else joinurl(path, i+2)
             directory = conf['output_dir']
