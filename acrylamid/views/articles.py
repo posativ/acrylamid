@@ -35,8 +35,9 @@ class Articles(View):
             return
         
         for entry in sorted(entrylist, key=lambda k: k.date, reverse=True):
+            if entry.draft: continue
+
             url, title, year = entry.permalink, entry.title, entry.date.year
-        
             articles[year].append((entry.date, url, title))
         
         articlesdict = conf.copy()

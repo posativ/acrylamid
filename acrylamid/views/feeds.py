@@ -31,6 +31,7 @@ class Feed(View):
         
         result = []
         for entry in entrylist[:self.num_entries]:
+            if entry.draft: continue
             _id = 'tag:' + conf.get('www_root', '').replace(env['protocol']+'://', '') \
                          + ',' + entry.date.strftime('%Y-%m-%d') + ':' \
                          + entry.permalink

@@ -7,7 +7,7 @@ from os.path import exists
 from collections import defaultdict
 
 from acrylamid.views import View
-from acrylamid.utils import render, mkfile, joinurl, safeslug, event
+from acrylamid.utils import render, mkfile, joinurl, safeslug, event, paginate
 
 filters = []
 path = '/tag/'
@@ -50,7 +50,7 @@ class Tag(View):
         
         for tag in tags:
             entrylist = [entry for entry in tags[tag]]
-            for i, mem in enumerate([entrylist[x*ipp:(x+1)*ipp] for x in range(len(entrylist)/ipp+1)]):                
+            for i, mem in enumerate(paginate(entrylist, items_per_page, lambda e: not e.draft)):
                 if i == 0:
                     next = None
                     curr = joinurl(path, tag)

@@ -167,6 +167,10 @@ class FileEntry:
             return True
         else:
             return False
+    
+    @property
+    def draft(self):
+        return True if self.get('draft', False) else False
         
     def get(self, key, default=None):
         return self.__dict__.get(key, default)
@@ -409,6 +413,11 @@ def safeslug(slug):
         if word and not word[0] in '-:':
             result.append(word)
     return unicode('-'.join(result))
+
+
+def paginate(list, ipp, func=lambda x: x):
+    list = filter(func, list)
+    return (list[x*ipp:(x+1)*ipp] for x in range(len(list)/ipp+1))
 
 
 class cache(object):

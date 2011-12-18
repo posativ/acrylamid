@@ -5,7 +5,7 @@
 from os.path import exists
 
 from acrylamid.views import View
-from acrylamid.utils import render, mkfile, joinurl, event
+from acrylamid.utils import render, mkfile, joinurl, event, paginate
 
 filters = []
 path = '/page/'
@@ -35,8 +35,8 @@ class Index(View):
 
         tt_entry = env['tt_env'].get_template('entry.html')
         tt_main = env['tt_env'].get_template('main.html')
-        
-        for i, mem in enumerate([entrylist[x*ipp:(x+1)*ipp] for x in range(len(entrylist)/ipp+1)]):
+
+        for i, mem in enumerate(paginate(entrylist, items_per_page, lambda e: not e.draft)):
 
             if i == 0:
                 next = None
