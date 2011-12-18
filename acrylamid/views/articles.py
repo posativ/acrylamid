@@ -18,8 +18,8 @@ class Articles(View):
     __filters__ = False
     
     def __init__(self, conf, env):
-        layout = join(conf['layout_dir'], 'articles.html')
-        with file(layout) as f:
+        self.layoutpath = join(conf['layout_dir'], 'articles.html')
+        with file(self.layoutpath) as f:
             self.tt_articles = Template(f.read())
         
     def __call__(self, request):
@@ -32,7 +32,8 @@ class Articles(View):
         last_modified = max([getmtime(e.filename) for e in entrylist])
         
         if exists(p) and last_modified < getmtime(p):
-            return
+            if getmtime(self.layoutpath) < getmtime(p):
+                return
         
         for entry in sorted(entrylist, key=lambda k: k.date, reverse=True):
             if entry.draft: continue
