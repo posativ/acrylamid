@@ -355,12 +355,12 @@ entry = r'''
                     {% endif %}
                 {% endfor %}
             </p>
-        {% else %}
+        {% elif not draft %}
             <p>nicht verschlagwortet</p>
         {% endif %}
     </div>
     <div class="comments">
-        {% if disqus_shortname and type == 'item' %}
+        {% if disqus_shortname and type == 'item' and not draft %}
         <div id="disqus_thread"></div>
         <script type="text/javascript">
             var disqus_shortname = '{{ disqus_shortname }}'; // required: replace example with your forum shortname

@@ -1,10 +1,10 @@
 Filters
 =======
 
-All transformations of the entries' content is done with filters. You an
-either set them for the whole blog in *conf.yaml* and/or override them in blog
-posts individually. The keyword in the YAML-header is `filters` (though, a
-*filter* without s would work to). The most basic configuration would be:
+All transformations of the entries' content is done with filters. You an either
+set them for the whole blog in *conf.yaml* and/or override them in blog posts
+individually. The keyword in the YAML-header is `filters` (*filter* without "s"
+would work, though). The most basic configuration would be:
 
 ::
 
@@ -18,7 +18,7 @@ You can specify multiple filters, too:
 ::
 
     filters: reST, sumarize
-    
+
 If you pass conflicting filters like ``reST, Markdown`` the first one wins. This
 is useful, when you define as overall filter *Markdown* but want to write a single
 entry in *reStructuredText*. Filters can also have aliases. Therefore, *rst*,

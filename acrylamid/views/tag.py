@@ -23,7 +23,6 @@ class Tag(View):
             def __init__(self, title, href):
                 self.title = title
                 self.href = href if href.endswith('/') else href + '/'
-        
         env['tt_env'].filters['safeslug'] = safeslug
         env['tt_env'].filters['tagify'] = lambda e: [Link(t, joinurl(path, safeslug(t))) for t in e]
         
