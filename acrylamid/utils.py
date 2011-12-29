@@ -131,7 +131,7 @@ class FileEntry:
     
     @property
     def content(self):
-       try:
+        try:
             rv = cache.get(self.hash, mtime=self.mtime)
             if not rv:
                 res = self.source
@@ -140,10 +140,10 @@ class FileEntry:
                     res = f(res, self, *args)
                 rv = cache.set(self.hash, res)
             return rv
-       except (IndexError, AttributeError):
-           # jinja2 will ignore these Exceptions, better to catch them before
-           traceback.print_exc(file=sys.stdout)
-            
+        except (IndexError, AttributeError):
+            # jinja2 will ignore these Exceptions, better to catch them before
+            traceback.print_exc(file=sys.stdout)
+        
     @property
     def slug(self):
         return safeslug(self.title)
