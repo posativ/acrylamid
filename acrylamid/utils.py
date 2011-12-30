@@ -83,6 +83,13 @@ class cached_property(object):
         return value
 
 
+class EntryList(list):
+
+    @cached_property
+    def has_changed(self):
+        return filter(lambda e: e.has_changed, self)
+
+
 class FileEntry:
     """This class gets it's data and metadata from the file specified
     by the filename argument"""
