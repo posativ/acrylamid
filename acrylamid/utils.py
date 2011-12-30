@@ -423,8 +423,15 @@ def safeslug(slug):
 
 
 def paginate(list, ipp, func=lambda x: x):
-    list = filter(func, list)
-    return (list[x*ipp:(x+1)*ipp] for x in range(len(list)/ipp+1))
+
+    res = EntryList(filter(func, list))
+
+    if len(res) != len(list):
+        has_changed = True
+    else:
+        has_changed = res.has_changed
+    
+    return (res[x*ipp:(x+1)*ipp] for x in range(len(res)/ipp+1)), has_changed
 
 
 class cache(object):

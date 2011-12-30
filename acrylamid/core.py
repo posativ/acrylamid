@@ -10,7 +10,7 @@ import fnmatch
 import time
 from datetime import datetime
 
-from acrylamid.utils import FileEntry
+from acrylamid.utils import EntryList, FileEntry
 log = logging.getLogger('acrylamid.core')
     
 
@@ -22,7 +22,7 @@ def handle(request):
     conf = request['conf']
 
     # generate a list of entries
-    request['entrylist'] = filelist(request)
+    request['entrylist'] = EntryList(filelist(request))
 
     for i,entry in enumerate(request['entrylist']):
         # convert mtime timestamp or `date:` to localtime (float), required for sort

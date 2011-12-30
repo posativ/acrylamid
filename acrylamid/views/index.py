@@ -36,7 +36,8 @@ class Index(View):
         tt_entry = env['tt_env'].get_template('entry.html')
         tt_main = env['tt_env'].get_template('main.html')
 
-        for i, mem in enumerate(paginate(entrylist, items_per_page, lambda e: not e.draft)):
+        pages, has_changed = paginate(entrylist, items_per_page, lambda e: not e.draft)
+        for i, mem in enumerate(pages):
 
             if i == 0:
                 next = None
@@ -53,7 +54,7 @@ class Index(View):
             p = joinurl(directory, 'index.html')
             message = '/' if i==0 else (path+str(i+1))
             
-            if exists(p) and not filter(lambda e: e.has_changed, mem):
+            if exists(p) and not has_changed:
                 if not (tt_entry.has_changed or tt_main.has_changed):
                     event.skip(message)
                     continue

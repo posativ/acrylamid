@@ -7,7 +7,8 @@ from os.path import exists
 from collections import defaultdict
 
 from acrylamid.views import View
-from acrylamid.utils import render, mkfile, joinurl, safeslug, event, paginate
+from acrylamid.utils import render, mkfile, joinurl, safeslug, event, paginate, \
+                            EntryList
 
 filters = []
 path = '/tag/'
@@ -48,8 +49,9 @@ class Tag(View):
                 tags[safeslug(tag)].append(e)
         
         for tag in tags:
-            entrylist = [entry for entry in tags[tag]]
-            for i, mem in enumerate(paginate(entrylist, items_per_page, lambda e: not e.draft)):
+            entrylist = EntryList([entry for entry in tags[tag]])
+            pages, has_changed = paginate(entrylist, items_per_page, lambda e: not e.draft)
+            for i, mem in enumerate(pages):
                 if i == 0:
                     next = None
                     curr = joinurl(path, tag)
@@ -60,7 +62,7 @@ class Tag(View):
                 prev = None if i==(len(entrylist)/ipp+1)-1 else joinurl(path, tag, i+2)
                 p = joinurl(conf['output_dir'], curr, 'index.html')
                 
-                if exists(p) and not filter(lambda e: e.has_changed, mem):
+                if exists(p) and not has_changed:
                     if not (tt_entry.has_changed or tt_main.has_changed):
                         event.skip(curr)
                         continue
