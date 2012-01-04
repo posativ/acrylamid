@@ -12,38 +12,40 @@ filters = []
 path = '/articles/'
 enabled = True
 
+
 class Articles(View):
     """Generates a overview of all articles."""
-    
+
     __filters__ = False
-    
+
     def __init__(self, conf, env):
         self.layoutpath = join(conf['layout_dir'], 'articles.html')
         with file(self.layoutpath) as f:
             self.tt_articles = Template(f.read())
-        
+
     def __call__(self, request):
-        
+
         articles = defaultdict(list)
         conf = request['conf']
         entrylist = request['entrylist']
-        
+
         p = joinurl(conf['output_dir'], path, 'index.html')
         last_modified = max([getmtime(e.filename) for e in entrylist])
-        
+
         if exists(p) and last_modified < getmtime(p):
             if getmtime(self.layoutpath) < getmtime(p):
                 return
-        
+
         for entry in sorted(entrylist, key=lambda k: k.date, reverse=True):
-            if entry.draft: continue
+            if entry.draft:
+                continue
 
             url, title, year = entry.permalink, entry.title, entry.date.year
             articles[year].append((entry.date, url, title))
-        
+
         articlesdict = conf.copy()
         articlesdict.update({'articles': articles,
                      'num_entries': len(entrylist)})
-                 
+
         html = self.tt_articles.render(articlesdict)
         mkfile(html, p, joinurl(path, 'index.html'))

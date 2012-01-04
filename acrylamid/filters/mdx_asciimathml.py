@@ -13,13 +13,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import re, markdown
+import re
+import markdown
 import asciimathml
 
 __match__ = ['mathml', 'math', 'asciimathml']
 __author__ = 'Gabriele Favalessa'
 
-RE = re.compile(r'^(.*)\$([^\$]*)\$(.*)$', re.M) # $ a $
+RE = re.compile(r'^(.*)\$([^\$]*)\$(.*)$', re.M)  # $ a $
+
 
 class ASCIIMathMLExtension(markdown.Extension):
     def __init__(self, configs):
@@ -33,6 +35,7 @@ class ASCIIMathMLExtension(markdown.Extension):
     def reset(self):
         pass
 
+
 class ASCIIMathMLPattern(markdown.inlinepatterns.Pattern):
     def getCompiledRegExp(self):
         return RE
@@ -41,6 +44,7 @@ class ASCIIMathMLPattern(markdown.inlinepatterns.Pattern):
         math = asciimathml.parse(m.group(2).strip(), markdown.etree.Element, markdown.AtomicString)
         math.set('xmlns', 'http://www.w3.org/1998/Math/MathML')
         return math
+
 
 def makeExtension(configs=None):
     return ASCIIMathMLExtension(configs=configs)

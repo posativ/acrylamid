@@ -10,21 +10,22 @@ import markdown
 from acrylamid.filters import Filter
 from acrylamid.filters import log
 
+
 class Markdown(Filter):
-    
+
     __name__ = 'Markdown'
     __match__ = ['md', 'mkdown', 'markdown', 'Markdown']
     __conflicts__ = ['rst', 'plain']
     __priority__ = 70.0
-    
-    __ext__ = dict((x,x) for x in ['abbr', 'fenced_code', 'footnotes',
-                                   'headerid', 'tables', 'codehilite'])
+
+    __ext__ = dict((x, x) for x in ['abbr', 'fenced_code', 'footnotes',
+                                    'headerid', 'tables', 'codehilite'])
 
     def __init__(self, conf, env):
-        
+
         self.env = env
         # -- discover markdown extensions --
-        
+
         for mem in os.listdir(os.path.dirname(__file__)):
             if mem.startswith('mdx_') and mem.endswith('.py'):
                 try:
@@ -37,14 +38,14 @@ class Markdown(Filter):
                         for name in mod.__match__:
                             self.__ext__[name] = mdx
                 except (ImportError, Exception), e:
-                    print `mem`, 'ImportError:', e
+                    print repr(mem), 'ImportError:', e
 
     def __contains__(self, key):
         return True if key in self.__ext__ else False
-        
+
     def __call__(self, content, request, *filters):
-        
-        err = []; val = []
+
+        val = []
         for f in filters:
             if f in self:
                 val.append(f)

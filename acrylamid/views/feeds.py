@@ -13,39 +13,41 @@ from jinja2 import Environment
 filters = []
 enabled = True
 
+
 class Feed(View):
-        
+
     num_entries = 25
     env = Environment()
-    
+
     def __call__(self, request):
-        
+
         conf = request['conf']
         env = request['env']
         entrylist = request['entrylist']
-        p = joinurl(conf['output_dir'], self.path , 'index.html')
-        
+        p = joinurl(conf['output_dir'], self.path, 'index.html')
+
         if exists(p) and not filter(lambda e: e.has_changed, entrylist[:self.num_entries]):
             event.skip(joinurl(self.path, 'index.html'))
             return
-        
+
         result = []
         for entry in entrylist[:self.num_entries]:
-            if entry.draft: continue
-            _id = 'tag:' + conf.get('www_root', '').replace(env['protocol']+'://', '') \
+            if entry.draft:
+                continue
+            _id = 'tag:' + conf.get('www_root', '').replace(env['protocol'] + '://', '') \
                          + ',' + entry.date.strftime('%Y-%m-%d') + ':' \
                          + entry.permalink
             result.append(render(self.tt_entry, env, conf, entry, id=_id))
-        
+
         xml = render(self.tt_body, env, conf, {'entrylist': '\n'.join(result),
                       'updated': entrylist[0].date if entrylist else datetime.now()},
                       atom=atom, rss=rss)
-        
+
         mkfile(xml, p, joinurl(self.path, 'index.html'))
 
-        
+
 class atom(Feed):
-    
+
     __view__ = True
     path = '/atom/'
 
@@ -59,11 +61,11 @@ class rss(Feed):
     __view__ = True
     path = '/rss/'
 
-    def __init__(self, conf, env):      
-        
+    def __init__(self, conf, env):
+
         from wsgiref.handlers import format_date_time
         from time import mktime
-        
+
         self.env.filters['rfc822'] = lambda x: format_date_time(mktime(x.timetuple()))
         self.tt_entry = self.env.from_string(RSS_ENTRY)
         self.tt_body = self.env.from_string(RSS_BODY)

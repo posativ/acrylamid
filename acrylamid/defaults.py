@@ -13,8 +13,9 @@ from os.path import exists, isfile, isdir, join
 
 log = logging.getLogger('acrylamid.defaults')
 
+
 def init(root='.', overwrite=False):
-    
+
     dirs = ['%(entries_dir)s/', '%(layout_dir)s/', '%(output_dir)s/']
     files = {'conf.yaml': conf,
              '%(output_dir)s/blog.css': css,
@@ -22,15 +23,15 @@ def init(root='.', overwrite=False):
              '%(layout_dir)s/entry.html': entry,
              '%(layout_dir)s/articles.html': articles,
              '%(entries_dir)s/sample entry.txt': kafka}
-             
+
     default = yamllike(conf)
     default['output_dir'] = default.get('output_dir', 'output/').rstrip('/')
     default['entries_dir'] = default.get('entries_dir', 'content/').rstrip('/')
     default['layout_dir'] = default.get('layout_dir', 'layouts/').rstrip('/')
-    
+
     if root != '.' and not exists(root):
         os.mkdir(root)
-                
+
     for directory in dirs:
         directory = join(root, directory % default)
         if exists(directory) and not isdir(directory):
@@ -41,7 +42,7 @@ def init(root='.', overwrite=False):
             log.info('create  %s', directory)
         else:
             log.info('skip  %s already exists', directory)
-    
+
     for path, content in files.iteritems():
         path = join(root, path % default)
         if exists(path) and not isfile(path):
@@ -55,8 +56,7 @@ def init(root='.', overwrite=False):
         else:
             log.info('skip  %s already exists', path)
 
-
-conf =  '''
+conf = '''
 blog_title: A descriptive blog title
 
 author: anonymous
@@ -337,7 +337,7 @@ entry = r'''
         </h1>
         <span class="date">{{ date.strftime("%d.%m.%Y, %H:%M") }}</span>
     </div>
-    <div class="postbody">        
+    <div class="postbody">
         {{ content }}
     </div>
     <div class="postfooter">
@@ -351,7 +351,7 @@ entry = r'''
                     {%- if loop.revindex > 2 -%}
                     ,
                     {%- elif loop.revindex == 2 %}
-                    und 
+                    und
                     {% endif %}
                 {% endfor %}
             </p>

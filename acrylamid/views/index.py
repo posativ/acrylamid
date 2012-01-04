@@ -13,11 +13,12 @@ items_per_page = 10
 paginating = True
 enabled = True
 
+
 class Index(View):
-    
+
     def __init__(self, conf, env):
         pass
-        
+
     def __call__(self, request):
         """Creates nicely paged listing of your posts.  First page is the
         index.hml used to have this nice url: http://yourblog.com/ with a recent
@@ -43,26 +44,26 @@ class Index(View):
                 next = None
                 curr = path
             else:
-                curr = joinurl(path, i+1)
-                next = '/' if i==1 else joinurl(path, i)
-            
-            prev = None if i==(len(entrylist)/ipp+1)-1 else joinurl(path, i+2)
+                curr = joinurl(path, i + 1)
+                next = '/' if i == 1 else joinurl(path, i)
+
+            prev = None if i == (len(entrylist)/ipp + 1) - 1 else joinurl(path, i + 2)
             directory = conf['output_dir']
-            
+
             if i > 0:
-                directory = joinurl(conf['output_dir'], (path + str(i+1)))                
+                directory = joinurl(conf['output_dir'], (path + str(i+1)))
             p = joinurl(directory, 'index.html')
             message = '/' if i==0 else (path+str(i+1))
-            
+
             if exists(p) and not has_changed:
                 if not (tt_entry.has_changed or tt_main.has_changed):
                     event.skip(message)
                     continue
-            
+
             mem = [render(tt_entry, conf, env, entry, type="page") for entry in mem]
-            
+
             html = render(tt_main, conf, env, type='page', prev=prev, curr=curr, next=next,
                         entrylist='\n'.join(mem), num_entries=len(entrylist),
                         items_per_page=items_per_page)
-            
+
             mkfile(html, p, message)

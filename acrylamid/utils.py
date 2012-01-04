@@ -4,7 +4,10 @@
 # Copyright 2011 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid.py
 
-import sys, os, re, logging
+import sys
+import os
+import re
+import logging
 import codecs
 import tempfile
 from datetime import datetime
@@ -93,49 +96,49 @@ class EntryList(list):
 class FileEntry:
     """This class gets it's data and metadata from the file specified
     by the filename argument"""
-    
+
     __map__ = {'tag': 'tags', 'filter': 'filters'}
     __keys__ = ['permalink', 'filters', 'author', 'draft', 'tags', 'date', 'title', 'content', 'lang', 'description']
-    
+
     title = content = ''
     draft = False
     permalink = lang = None
     tags = filters = lazy_eval = []
-    
+
     def __init__(self, filename, encoding='utf-8'):
         """parsing FileEntry's YAML header.
-        
+
         :param filename: path to open, plain text preferred
         :param encoding: reading content using this specific encoding codec."""
-        
+
         self.mtime = os.path.getmtime(filename)
         self.date = datetime.fromtimestamp(self.mtime)
         self.filename = filename
         self.encoding = encoding
         self.parse()
-        
+
     def __repr__(self):
         return "<fileentry f'%s'>" % self.filename
-    
+
     @property
     def hash(self):
         if len(self.lazy_eval) == 0:
             return ''
-        
+
         to_hash = []
         for t in self.lazy_eval:
             to_hash.append('%s:%.2f:%s' % (t[0], t[1].__priority__, t[2]))
         return '-'.join(to_hash) + self.filename
-        
+
     @property
     def extension(self):
         return os.path.splitext(self.filename)[1][1:]
-        
+
     @property
     def source(self):
         with codecs.open(self.filename, 'r', encoding=self.encoding, errors='replace') as f:
             return ''.join(f.readlines()[self._i:]).strip()
-    
+
     @property
     def content(self):
         try:
@@ -150,11 +153,11 @@ class FileEntry:
         except (IndexError, AttributeError):
             # jinja2 will ignore these Exceptions, better to catch them before
             traceback.print_exc(file=sys.stdout)
-        
+
     @property
     def slug(self):
         return safeslug(self.title)
-        
+
     @property
     def permalink(self):
         # TODO: fix hard-coded slug
@@ -163,8 +166,8 @@ class FileEntry:
     @property
     def description(self):
         # TODO: this is really poor
-        return self.source[:50].strip()+'...'
-    
+        return self.source[:50].strip() + '...'
+
     @cached_property
     def has_changed(self):
         if not exists(cache._get_filename(self.hash)):
@@ -174,19 +177,20 @@ class FileEntry:
             return True
         else:
             return False
-    
+
     @property
     def draft(self):
         return True if self.get('draft', False) else False
-        
+
     def get(self, key, default=None):
         return self.__dict__.get(key, default)
-        
+
     def parse(self):
         """parsing yaml header and remember where content begins. Only append
         key,value if whitelisted in __keys__ and __map__ ."""
-        
-        meta = []; i = 0
+
+        meta = []
+        i = 0
         with codecs.open(self.filename, 'r', encoding=self.encoding, errors='replace') as f:
             while True:
                 line = f.readline()
@@ -199,10 +203,10 @@ class FileEntry:
                     meta.append(line)
                 else:
                     break
-                
+
         self._i = i
         for key, value in yamllike(''.join(meta)).iteritems():
-            if key not in self.__keys__+self.__map__.keys():
+            if key not in self.__keys__ + self.__map__.keys():
                 continue
             if isinstance(value, basestring):
                 self.__dict__[key] = unicode(value.strip('"'))
@@ -211,7 +215,7 @@ class FileEntry:
 
     def keys(self):
         return filter(lambda k: hasattr(self, k), self.__keys__)
-        
+
     def __getitem__(self, key):
         """surjective dict. Return mapped key (tag -> tags) or raise KeyError."""
         if key in self.__map__:
@@ -241,7 +245,7 @@ class ColorFormatter(logging.Formatter):
 
         keywords = {'skip': self.BLACK, 'create': self.GREEN, 'identical': self.BLACK,
                     'update': self.YELLOW, 'changed': self.YELLOW}
-                    
+
         if record.levelno == logging.INFO:
             for item in keywords:
                 if record.msg.startswith(item):
@@ -303,16 +307,17 @@ def check_conf(conf):
                 log.warning('%s created...' % value)
 
     return True
-    
+
+
 def yamllike(conf):
     """pyyaml replacement (not really yet, but works for me). Parsing
     first-layer YAML (okay: key,value assignments) into a python dict.
     yamllike is filter. and view. aware, that means all assignments starting
     with this string will exec into the given __init__ environment."""
-    
+
     conf = [line.strip() for line in conf.split('\n')
                 if not line.startswith('#') and line.strip()]
-    
+
     config = {}
     config['views.'] = []
     config['filters.'] = []
@@ -323,7 +328,7 @@ def yamllike(conf):
             # do something
             log.warn('conf.yaml -> ValueError: %s' % line)
             continue
-        
+
         if key.startswith('filters.'):
             config['filters.'].append(key.replace('filters.', '')+' = '+value+'\n')
         elif key.startswith('views.'):
@@ -334,12 +339,12 @@ def yamllike(conf):
             elif value.isdigit():
                 config[key] = int(value)
             elif value.lower() in ['true', 'false']:
-                 config[key] = True if value.capitalize() == 'True' else False
+                config[key] = True if value.capitalize() == 'True' else False
             elif value[0] == '[' and value[-1] == ']':
                 config[key] = list([unicode(x.strip()) for x in value[1:-1].split(',') if x.strip()])
             else:
                 config[key] = value
-    
+
     return config
 
 
@@ -354,7 +359,7 @@ def render(tt, *dicts, **kvalue):
         env.update(d)
     for key in kvalue:
         env[key] = kvalue[key]
-    
+
     return tt.render(env)
 
 
@@ -385,12 +390,12 @@ def mkfile(content, path, message, force=False):
             f.write(content)
         event.create(message, path)
 
-    
+
 def expand(url, entry):
     """expanding '/:year/:slug/' scheme into e.g. '/2011/awesome-title/"""
     m = {':year': str(entry.date.year), ':month': str(entry.date.month),
          ':day': str(entry.date.day), ':slug': entry.slug}
-    
+
     for val in m:
         url = url.replace(val, m[val])
     return url
@@ -398,7 +403,7 @@ def expand(url, entry):
 
 def joinurl(*args):
     """joins multiple urls to one single domain without loosing root (first element)"""
-    
+
     r = []
     for i, mem in enumerate(args):
         if i > 0:
@@ -430,7 +435,7 @@ def paginate(list, ipp, func=lambda x: x):
         has_changed = True
     else:
         has_changed = res.has_changed
-    
+
     return (res[x*ipp:(x+1)*ipp] for x in range(len(res)/ipp+1)), has_changed
 
 
@@ -438,7 +443,7 @@ class cache(object):
     """A cache that stores the entries on the file system.  Borrowed from
     werkzeug.contrib.cache, see their AUTHORS and LICENSE for additional
     copyright information.
-    
+
     cache is designed as singleton and should not constructed using __init__ .
     >>> cache.init('.mycache/')
     >>> cache.get(key, default=None, mtime=0.0)
@@ -447,23 +452,23 @@ class cache(object):
     :param cache_dir: the directory where cache files are stored.
     :param mode: the file mode wanted for the cache files, default 0600
     """
-    
+
     _fs_transaction_suffix = '.__ac_cache'
     cache_dir = '.cache/'
     mode = 0600
-    
+
     @classmethod
     def _get_filename(self, key):
         hash = md5(key).hexdigest()
         return os.path.join(self.cache_dir, hash)
-    
+
     @classmethod
     def _list_dir(self):
         """return a list of (fully qualified) cache filenames"""
         return [os.path.join(self.cache_dir, fn) for fn in os.listdir(self.cache_dir)
                 if not fn.endswith(self._fs_transaction_suffix) \
                    and not fn.endswith('.cache')]
-    
+
     @classmethod
     def init(self, cache_dir=None, mode=0600):
         if cache_dir:
@@ -510,9 +515,9 @@ class cache(object):
             os.chmod(filename, self.mode)
         except (IOError, OSError):
             pass
-        
+
         return value
-    
+
     @classmethod
     def get_mtime(self, key, default=0.0):
         filename = self._get_filename(key)
@@ -524,19 +529,19 @@ class cache(object):
 
 
 class event:
-    
+
     @classmethod
     def __init__(self):
         pass
-    
+
     @classmethod
     def create(self, what, path):
         log.info("create  '%s', written to %s", what, path)
-    
+
     @classmethod
     def changed(self, what):
         log.info("changed  content of '%s'", what)
-    
+
     @classmethod
     def skip(self, what):
         log.info("skip  '%s' is up to date", what)
