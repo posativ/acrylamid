@@ -412,11 +412,11 @@ def safeslug(slug):
     http://flask.pocoo.org/snippets/5/"""
 
     result = []
+    if translitcodec:
+        slug = slug.encode('translit/long').strip()
     for word in _slug_re.split(slug.lower()):
-        if translitcodec:
-            word = word.encode('translit/long')
-        else:
-            word = normalize('NFKD', word).encode('ascii', 'ignore')
+        if not translitcodec:
+            word = normalize('NFKD', word).encode('ascii', 'ignore').strip()
         if word and not word[0] in '-:':
             result.append(word)
     return unicode('-'.join(result))

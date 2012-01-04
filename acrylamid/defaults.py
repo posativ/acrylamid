@@ -387,7 +387,10 @@ entry = r'''
 </div>'''.strip()
 
 articles = r'''
-<xhtml>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN"
+         "http://www.w3.org/Math/DTD/mathml2/xhtml-math11-f.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <title>{{ blog_title }} – Artikelübersicht</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -433,7 +436,7 @@ articles = r'''
                         {% for entry in articles[year] %}
                             <li>
                                 <span>{{ entry[0].strftime('%d.%m.%Y: ') }}</span>
-                                <a href="{{entry[1]}}">{{ entry[2] }}</a>
+                                <a href="{{ entry[1]}}">{{ entry[2] | e }}</a>
                             </li>
                         {% endfor %}
                     </ul>
@@ -451,7 +454,7 @@ articles = r'''
             </a>
         </div>
     </body>
-</xhtml>
+</html>
 '''
 
 kafka = '''
