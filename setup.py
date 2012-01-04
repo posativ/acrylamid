@@ -90,7 +90,7 @@ hyph_files = ['hyph-de-1996.chr.txt', 'hyph-en-us.chr.txt', 'hyph-fr.chr.txt',
 
 setup(
     name='acrylamid',
-    version='0.2.1',
+    version='0.2.2',
     author='posativ',
     author_email='info@posativ.org',
     packages=['acrylamid', 'acrylamid.filters', 'acrylamid.views'],
