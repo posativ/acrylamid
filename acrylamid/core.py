@@ -42,14 +42,14 @@ def filelist(request):
 
     conf = request['conf']
 
-    filelist = []
+    flist = []
     for root, dirs, files in os.walk(conf['entries_dir']):
-        for file in files:
-            path = os.path.join(root, file)
+        for f in files:
+            path = os.path.join(root, f)
             fn = filter(lambda p: fnmatch.fnmatch(path, os.path.join(conf['entries_dir'], p)),
                         conf.get('entries_ignore', []))
             if not fn:
-                filelist.append(path)
+                flist.append(path)
 
-    entrylist = [FileEntry(e, encoding=conf['encoding']) for e in filelist]
+    entrylist = [FileEntry(e, encoding=conf['encoding']) for e in flist]
     return entrylist

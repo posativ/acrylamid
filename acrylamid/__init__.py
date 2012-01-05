@@ -217,7 +217,7 @@ class Acryl:
 
         for v in _views:
             log.debug(v)
-            for i, entry in enumerate(request['entrylist']):
+            for entry in request['entrylist']:
                 if not v.__filters__:
                     break
 

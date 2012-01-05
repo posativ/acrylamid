@@ -100,9 +100,8 @@ class FileEntry:
     __map__ = {'tag': 'tags', 'filter': 'filters'}
     __keys__ = ['permalink', 'filters', 'author', 'draft', 'tags', 'date', 'title', 'content', 'lang', 'description']
 
-    title = content = ''
-    draft = False
-    permalink = lang = None
+    title = ''
+    lang = draft = False
     tags = filters = lazy_eval = []
 
     def __init__(self, filename, encoding='utf-8'):
