@@ -17,7 +17,7 @@ A basic configuration looks like this:
 
     www_root: http://example.org/
     lang: de_DE
-    strptime: "%d.%m.%Y, %H:%M"
+    strptime: %d.%m.%Y, %H:%M
 
     disqus_shortname: yourname
 
@@ -53,7 +53,7 @@ www_root
     (required for disqus and feeds)
 lang
     your language code, see
-    `ISO_639 <https://en.wikipedia.org/wiki/ISO_639>`_, if not set the 
+    `ISO_639 <https://en.wikipedia.org/wiki/ISO_639>`_, if not set the
     system's will be used. If not available, fallback to ``'C'``.
 strptime
     the parsing format of your ``date:`` key-value pair. Defaults to
