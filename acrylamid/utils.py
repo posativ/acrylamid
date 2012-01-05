@@ -115,6 +115,7 @@ class FileEntry:
         self.date = datetime.fromtimestamp(self.mtime)
         self.filename = filename
         self.encoding = encoding
+        self.offset = 0
         self.parse()
 
     def __repr__(self):
@@ -137,7 +138,7 @@ class FileEntry:
     @property
     def source(self):
         with codecs.open(self.filename, 'r', encoding=self.encoding, errors='replace') as f:
-            return ''.join(f.readlines()[self._i:]).strip()
+            return ''.join(f.readlines()[self.offset:]).strip()
 
     @property
     def content(self):
@@ -204,7 +205,7 @@ class FileEntry:
                 else:
                     break
 
-        self._i = i
+        self.offset = i
         for key, value in yamllike(''.join(meta)).iteritems():
             if key not in self.__keys__ + self.__map__.keys():
                 continue
@@ -224,6 +225,12 @@ class FileEntry:
             return getattr(self, key)
         else:
             raise KeyError("%s has no such attribute '%s'" % (self, key))
+
+    def __setitem__(self, key, value):
+        if key not in ['parse', 'offset', 'get', 'has_changed']:
+            setattr(self, key, value)
+        else:
+            log.warn("invalid key '%s'" % key)
 
 
 class ColorFormatter(logging.Formatter):
