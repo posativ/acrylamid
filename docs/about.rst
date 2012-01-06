@@ -1,9 +1,9 @@
-Third-party tools used by lilith
-================================
+Third-party libraries used by acrylamid
+=======================================
 
-- `pyyaml <http://pyyaml.org/>`_ – human-readable config
 - `jinja2 <http://jinja.pocoo.org/>`_ – awesome templating
-- `shpaml <http://shpaml.webfactional.com/>`_ – simple xml/html generation
+- `smartypants <http://http://daringfireball.net/projects/smartypants/>`_ &
+  `typogrify <https://code.google.com/p/typogrify/>`_ – modern typography
 
 Markup languages
 ****************
@@ -23,18 +23,18 @@ Extensions
 Ideas
 =====
 
-lilith is a mixture of mainly three ingredients: PyBlosxom_, nanoc_ and
-several complete rewrites (including data loss near the end) of lilith_
+Acrylamid is a mixture of mainly three projects: PyBlosxom_, nanoc_ and
+several complete rewrites (including data loss near the end) of acrylamid_
 itself.
 
 From PyBlosxom I've stolen the awesome flat filesystem idea and the concept of
 chaining callbacks to produce a default blog and/or extend it to your needs,
 when you need it. Nanoc is quite difficult for me, since I am not familiar
-with the ruby language, but is has two cool aspects: YAML configuration
-files and filters. And from my own project, I got boring markup rendering,
-several HTML/XML preprocessors and the basic concept of how to develop a
-web 2.0 blog system.
+with the ruby language, but is has two cool aspects: YAML configuration files
+and filters. And from my own project, I got boring markup rendering, several
+HTML/XML preprocessors and the basic concept of how to develop a web 2.0 blog
+system.
 
 .. _PyBlosxom: http://pyblosxom.bluesock.org/
 .. _nanoc: http://nanoc.stoneship.org/
-.. _lilith: http://blog.posativ.org/2010/es-lebt/
+.. _acrylamid: http://blog.posativ.org/2010/es-lebt/
