@@ -25,6 +25,7 @@ Ideas
 
 Acrylamid is a mixture of mainly three projects: PyBlosxom_, nanoc_ and
 several complete rewrites (including data loss near the end) of acrylamid_
+(formerly known as lilith_)
 itself.
 
 From PyBlosxom I've stolen the awesome flat filesystem idea and the concept of
@@ -37,4 +38,5 @@ system.
 
 .. _PyBlosxom: http://pyblosxom.bluesock.org/
 .. _nanoc: http://nanoc.stoneship.org/
-.. _acrylamid: http://blog.posativ.org/2010/es-lebt/
+.. _lilith: http://blog.posativ.org/2010/es-lebt/
+.. _acrylamid: https://github.com/posativ/acrylamid

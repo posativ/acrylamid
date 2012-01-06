@@ -1,5 +1,5 @@
-HowTos
-======
+Knowledge base
+==============
 
 about-page and other static pages
 *********************************

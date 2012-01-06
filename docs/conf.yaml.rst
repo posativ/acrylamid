@@ -1,5 +1,5 @@
-conf.yaml
-=========
+Configuration
+=============
 
 Acrylamid's configuration is read from `conf.yaml` inside your blog-folder. It
 is a YAML-like syntax (key: value) and don't requires every key to be set. If
