@@ -21,7 +21,7 @@ Extensions
   `TEX hyphenation patterns <http://tug.org/tex-hyphen/>`_
 
 Ideas
-=====
+*****
 
 Acrylamid is a mixture of mainly three projects: PyBlosxom_, nanoc_ and
 several complete rewrites (including data loss near the end) of acrylamid_

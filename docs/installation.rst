@@ -8,7 +8,7 @@ features you may not have with dynamic web pages such as code highlighting,
 typography, mathml and hyphenation. See :doc:`about` for a listing of
 third-party libraries used.
 
-I'm aware of tools like javascript-based syntax highlighting and 
+I'm aware of tools like javascript-based syntax highlighting and
 browser/javascript provided hyphenation, but the latter is rather slow and a
 browser may not distuingish between different languages. Acrylamids focuses on
 plain HTML generation and avoids javascript usage whenever possible.
@@ -33,16 +33,10 @@ translitcodec are not must-have dependency).
     version 2.5
 
 .. warning::
-    
+
     Avoid removing ``translitcodec`` egg after you start writing your blog. It
     might break all your permanent links.
 
-If you don't care about further explanation and just want a full featured 
-installation, just do::
+If you  want a full featured  installation, just do::
 
     $> easy_install -U docutils pygments asciimathml smartypants
-
-Additional features
-*******************
-
-

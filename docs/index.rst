@@ -12,15 +12,16 @@ Style, 2 clauses.
 
 .. toctree::
    :maxdepth: 2
-   
+
    installation
-   tutorial
-   usage
+   .. tutorial
+   .. usage
    conf.yaml
    filters
-   views
-   deployment
+   .. views
+   .. deployment
    howtos
+   static_search
    about
 
 Features

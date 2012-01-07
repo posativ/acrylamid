@@ -9,11 +9,11 @@ use an easy (but not intuitive) trick:
 
 ::
 
-	---
-	title: About Me
-	draft: True
-	permalink: /about/
-	---
+    ---
+    title: About Me
+    draft: True
+    permalink: /about/
+    ---
 
 A YAML-header like this will hide the entry from the tag/page/article
 views. Save static pages for example to ``content/about.txt`` instead
@@ -40,7 +40,7 @@ it loads at least the default language pattern and adds a huge constant in
 profiling of generation using hyphenate and reST filters.
 
 ::
-    
+
     ncalls  tottime  percall  cumtime  percall filename:lineno(function)
          1    0.000    0.000    0.685    0.685 acrylamid:7(<module>)
      14263    0.130    0.000    0.257    0.000 hyphenation.py:45(_insert_pattern)
