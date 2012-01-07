@@ -1,8 +1,11 @@
 acrylamid documentation
 =======================
 
-acrylamid is yet another lightweight static blogging software written in python
-and designed to get a high quality output. Its licensed under BSD Style, 2 clauses.
+acrylamid is yet another lightweight static blogging software written in
+python and designed to get a high quality output. Its licensed under BSD
+Style, 2 clauses.
+
+`See Documentation! <http://acrylamid.readthedocs.org/en/latest/>`_
 
 Features
 ********
@@ -13,6 +16,7 @@ Features
 - MathML generation using AsciiMathML_
 - hyphenation using `&shy;`
 - modern web-typography
+- static site search
 
 .. _jinja2: http://jinja.pocoo.org/
 .. _reStructuredText: http://docutils.sourceforge.net/rst.html
