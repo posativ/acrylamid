@@ -3,20 +3,24 @@
 
 from acrylamid.filters import Filter
 from acrylamid.filters import log
+from acrylamid.utils import cached_property
 
-import re, os, codecs
+import re
+import os
+import codecs
 from HTMLParser import HTMLParser
 from cgi import escape
 from os.path import join, dirname, basename
 
-class HyphenPatternNotFound(Exception): pass
 
+class HyphenPatternNotFound(Exception):
+    pass
 
 
 class Hyphenator:
     """ Hyphenation, using Frank Liang's algorithm.
-    
-    This module provides a single function to hyphenate words.  hyphenate_word takes 
+
+    This module provides a single function to hyphenate words.  hyphenate_word takes
     a string (the word), and returns a list of parts that can be separated by hyphens.
 
     >>> hyphenate_word("hyphenation")
@@ -32,21 +36,21 @@ class Hyphenator:
     __version__ = '1.0.20070709'
 
     def __init__(self, chars, patterns, exceptions=''):
-        self.chars = unicode('[.'+chars+']')
+        self.chars = unicode('[.' + chars + ']')
         self.tree = {}
         for pattern in patterns.split():
             self._insert_pattern(pattern)
-    
+
         self.exceptions = {}
         for ex in exceptions.split():
             # Convert the hyphenated pattern into a point array for use later.
-            self.exceptions[ex.replace('-', '')] = [0] + [ int(h == '-') for h in re.split(r"[a-z]", ex) ]
-                
+            self.exceptions[ex.replace('-', '')] = [0] + [int(h == '-') for h in re.split(r"[a-z]", ex)]
+
     def _insert_pattern(self, pattern):
         # Convert the a pattern like 'a1bc3d4' into a string of chars 'abcd'
         # and a list of points [ 1, 0, 3, 4 ].
         chars = re.sub('[0-9]', '', pattern)
-        points = [ int(d or 0) for d in re.split(self.chars, pattern, flags=re.U) ]
+        points = [int(d or 0) for d in re.split(self.chars, pattern, flags=re.U)]
 
         # Insert the pattern into the tree.  Each character finds a dict
         # another level down in the tree, and leaf nodes have the list of
@@ -57,7 +61,7 @@ class Hyphenator:
                 t[c] = {}
             t = t[c]
         t[None] = points
-        
+
     def hyphenate_word(self, word):
         """ Given a word, returns a list of pieces, broken at the possible
             hyphenation points.
@@ -70,7 +74,7 @@ class Hyphenator:
             points = self.exceptions[word.lower()]
         else:
             work = '.' + word.lower() + '.'
-            points = [0] * (len(work)+1)
+            points = [0] * (len(work) + 1)
             for i in range(len(work)):
                 t = self.tree
                 for c in work[i:]:
@@ -79,7 +83,7 @@ class Hyphenator:
                         if None in t:
                             p = t[None]
                             for j in range(len(p)):
-                                points[i+j] = max(points[i+j], p[j])
+                                points[i + j] = max(points[i + j], p[j])
                     else:
                         break
             # No hyphens in the first two chars or the last two.
@@ -92,7 +96,7 @@ class Hyphenator:
             if p % 2:
                 pieces.append('')
         return pieces
-    
+
 
 class Separator(HTMLParser):
     """helper class to apply Hyphenator to each word except in pre, code,
@@ -113,7 +117,7 @@ class Separator(HTMLParser):
             """convert parsed tag back into a html tag"""
             if attrs:
                 return '<%s %s>' % (tag, ' '.join(['%s="%s"' % (k, escape(v))
-                                        for k,v in attrs]))
+                                        for k, v in attrs]))
             else:
                 return '<%s>' % tag
 
@@ -126,7 +130,7 @@ class Separator(HTMLParser):
         if filter(lambda i: i in self.stack, ['pre', 'code', 'math', 'em']):
             pass
         else:
-            split = [word for word in re.split(r"[.:,\s!?+=\(\)/]+", data) if len(word) > 10]
+            split = [word for word in re.split(r"[.:,\s!?+=\(\)/-]+", data) if len(word) > 10]
             for word in split:
                 hyphenated = '&shy;'.join(self.hyphenate(word))
                 data = data.replace(word, hyphenated)
@@ -136,13 +140,15 @@ class Separator(HTMLParser):
     def handle_endtag(self, tag):
         """Until we reach not the maxwords limit, we can safely pop every ending tag,
            added by handle_starttag. Afterwards, we apply missing endings tags if missing."""
-        try: self.stack.pop()
-        except Exception: pass
+        try:
+            self.stack.pop()
+        except IndexError:
+            pass
         self.result.append('</%s>' % tag)
 
     def handle_entityref(self, name):
-        self.result.append('&'  + name + ';')
-        
+        self.result.append('&' + name + ';')
+
     def handle_charref(self, char):
         self.result.append('&#' + char + ';')
 
@@ -150,17 +156,17 @@ class Separator(HTMLParser):
 def build(lang):
     """build the Hyphenator from given language.  If you want add more, see
     http://tug.org/svn/texhyphen/trunk/hyph-utf8/tex/generic/hyph-utf8/patterns/txt/ ."""
-    
+
     def gethyph(lang, directory='hyph/', prefix='hyph-'):
-        
-        for la in [prefix+lang, prefix+lang[:2]]:
+
+        for la in [prefix + lang, prefix + lang[:2]]:
             for p in os.listdir(directory):
                 f = os.path.basename(p)
                 if f.startswith(la):
                     return join(directory, p)
-                
+
         raise HyphenPatternNotFound("no hyph-definition found for '%s'" % lang)
-        
+
     try:
         dir = os.path.join(dirname(__file__), 'hyph/')
         fpath = gethyph(lang, dir).rsplit('.', 2)[0]
@@ -171,12 +177,13 @@ def build(lang):
                 patterns = f.read()
         except IOError:
             raise HyphenPatternNotFound('hyph/%s.chr.txt or hyph/%s.pat.txt missing' % (lang, lang))
-        
+
         hyphenator = Hyphenator(chars, patterns, exceptions='')
-        del patterns; del chars
+        del patterns
+        del chars
         log.debug("built Hyphenator from <%s>" % basename(fpath))
         return hyphenator.hyphenate_word
-        
+
     except HyphenPatternNotFound, e:
         log.warn(e.message)
         return lambda x: [x]
@@ -186,15 +193,16 @@ class Hyphenate(Filter):
 
     __name__ = 'Hyphenate'
     __match__ = ['hyphenate', 'hyph']
-#    __priority__ = 5.0
+
+    @cached_property
+    def default(self):
+        # build default hyphenate_word using conf's lang (if available)
+        return build(self.conf['lang'][0].replace('_', '-'))
 
     def __init__(self, conf, env):
-        
-        # build default hyphenate_word using conf's lang (if available)
-        self.default = build(conf['lang'][0].replace('_', '-'))
-        
+        self.conf = conf
+
     def __call__(self, content, req):
-        
         if req.lang:
             hyphenate_word = build(req.lang[0].replace('_', '-'))
         else:

@@ -4,7 +4,9 @@
 # Copyright 2011 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid.py
 
-import sys, os, glob
+import sys
+import os
+import glob
 import logging
 
 sys.path.insert(0, os.path.dirname(__file__))
@@ -13,22 +15,19 @@ log = logging.getLogger('acrylamid.views')
 filters = []
 callbacks = []
 
+
 def get_views():
-    
+
     global callbacks
     return [cb for cb in callbacks if getattr(sys.modules['acrylamid.views'], cb.__module__).enabled]
 
 
 def index_views(module, conf, env):
     """Goes through the modules' contents and indexes all the funtions/classes
-    having a __call__ and __match__ attribute.
-
-    Arguments:
-    module -- the module to index
-    """
+    having a __init__, __call__ and __match__ attribute."""
 
     global callbacks
-    
+
     if not hasattr(module, 'enabled'):
         raise ImportError("'enabled' property is missing")
 
@@ -40,7 +39,7 @@ def index_views(module, conf, env):
 
 
 def initialize(ext_dir, conf, env):
-    
+
     global callbacks
 
     # handle ext_dir
@@ -55,8 +54,10 @@ def initialize(ext_dir, conf, env):
     ext_list = []
     for mem in ext_dir:
         files = glob.glob(os.path.join(mem, "*.py"))
+        files += [p.rstrip('/__init__.py') for p in \
+                    glob.glob(os.path.join(mem, '*/__init__.py'))]
         ext_list += files
-    
+
     for mem in [os.path.basename(x).replace('.py', '') for x in ext_list]:
         if mem.startswith('_'):
             continue
@@ -65,11 +66,11 @@ def initialize(ext_dir, conf, env):
             sys.modules[__package__].__dict__[mem] = _module
             index_views(_module, conf, env)
         except (ImportError, Exception), e:
-            print `mem`, 'ImportError:', e
+            print repr(mem), 'ImportError:', e
             continue
 
 
 class View:
-    
+
     __view__ = True
     __filters__ = True

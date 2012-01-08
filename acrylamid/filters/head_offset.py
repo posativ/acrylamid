@@ -4,23 +4,25 @@
 from acrylamid.filters import Filter
 from re import sub
 
+
 class Headoffset(Filter):
-    
+
     __name__ = 'head_offset'
-    __match__ = ['h'+str(i+1) for i in range(5)]
-    
+    __match__ = ['h' + str(i + 1) for i in range(5)]
+
     def __init__(self, conf, env):
         pass
-        
+
     def __call__(self, content, request, *args):
-        
+
         def f(m):
             '''will return html with all headers increased by 1'''
-            l = lambda i: i if i not in [str(x) for x in range(1, 6)] else str(int(i)+1) if int(i) < 5 else '6'
+            l = lambda i: i if i not in [str(x) for x in range(1, 6)] \
+                            else str(int(i) + 1) if int(i) < 5 else '6'
             return ''.join([l(i) for i in m.groups()])
 
         offset = int(self.__matched__[1])
-        
+
         for i in range(offset):
             content = sub('(<h)(\d)(>)(.+)(</h)(\d)(>)', f, content)
 

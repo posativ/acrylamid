@@ -1,10 +1,11 @@
-from distutils.core import setup
-
-"""acrylamid documentation
+acrylamid documentation
 =======================
 
-acrylamid is yet another lightweight static blogging software written in python
-and designed to get a high quality output. Its licensed under BSD Style, 2 clauses.
+acrylamid is yet another lightweight static blogging software written in
+python and designed to get a high quality output. Its licensed under BSD
+Style, 2 clauses.
+
+`See Documentation! <http://acrylamid.readthedocs.org/en/latest/>`_
 
 Features
 ********
@@ -15,6 +16,7 @@ Features
 - MathML generation using AsciiMathML_
 - hyphenation using `&shy;`
 - modern web-typography
+- static site search
 
 .. _jinja2: http://jinja.pocoo.org/
 .. _reStructuredText: http://docutils.sourceforge.net/rst.html
@@ -56,14 +58,14 @@ Get acrylamid and edit *conf.yaml* and *layouts/*. Run acrylamid with:
 Using acrylamid
 ***************
 
-- `conf.yaml <https://github.com/posativ/acrylamid/blob/master/docs/conf.yaml.rst>`_
-- `filters <https://github.com/posativ/acrylamid/blob/master/docs/filters.rst>`_
+- `conf.yaml </posativ/acrylamid/blob/master/docs/conf.yaml.rst>`_
+- `filters </posativ/acrylamid/blob/master/docs/filters.rst>`_
+
 
 Filters
 **********
 
-See `docs/filters.rst
-<https://github.com/posativ/acrylamid/blob/master/docs/filters.rst>`_ for
+See `docs/filters.rst </posativ/acrylamid/blob/master/docs/filters.rst>`_ for
 detailed information. Currently supported by acrylamid:
 
 - **markdown**: rendering Markdown (+asciimathml,pygments)
@@ -82,36 +84,4 @@ Views
 - **index**: creates pagination / and /page/:num
 - **feeds**: valid atom/rss feed
 - **tags**: sort by tag with pagination (/:tag and /:tag/:num)
-"""
 
-hyph_files = ['hyph-de-1996.chr.txt', 'hyph-en-us.chr.txt', 'hyph-fr.chr.txt',
-    'hyph-de-1996.lic.txt', 'hyph-en-us.lic.txt', 'hyph-fr.lic.txt',
-    'hyph-de-1996.pat.txt', 'hyph-en-us.pat.txt', 'hyph-fr.pat.txt']
-
-setup(
-    name='acrylamid',
-    version='0.2.2',
-    author='posativ',
-    author_email='info@posativ.org',
-    packages=['acrylamid', 'acrylamid.filters', 'acrylamid.views'],
-    scripts=['bin/acrylamid'],
-    package_data={'acrylamid.filters': ['hyph/*.txt']},
-    url='http://pypi.python.org/pypi/acrylamid/',
-    license='LICENSE.txt',
-    description='yet another static blog generator',
-    long_description=__doc__,
-    classifiers=[
-        "Development Status :: 5 - Production/Stable",
-        "Topic :: Internet",
-        "Topic :: Internet :: WWW/HTTP :: Dynamic Content :: News/Diary",
-        "Environment :: Console",
-        "Intended Audience :: End Users/Desktop",
-        "License :: OSI Approved :: BSD License",
-        "Programming Language :: Python",
-    ],
-    install_requires=[
-        'Jinja2>=2.4',
-        'Markdown>=2.0.1',
-        'translitcodec>=0.2'
-    ],
-)

@@ -6,6 +6,7 @@ from acrylamid.filters import Filter
 from HTMLParser import HTMLParser
 from cgi import escape
 
+
 class Summarizer(HTMLParser):
 
     def __init__(self, text, href, maxwords=100):
@@ -25,7 +26,7 @@ class Summarizer(HTMLParser):
             '''convert parsed tag back into a html tag'''
             if attrs:
                 return '<%s %s>' % (tag, ' '.join(['%s="%s"' % (k, escape(v))
-                                        for k,v in attrs]))
+                                        for k, v in attrs]))
             else:
                 return '<%s>' % tag
 
@@ -45,7 +46,7 @@ class Summarizer(HTMLParser):
                 self.summarized += data
             else:
                 '''we can put some words before we reach the word limit'''
-                if 'a' not in self.stack and self.stack[-1] != 'ul':
+                if 'a' not in self.stack and self.stack and self.stack[-1] != 'ul':
                     somewords = self.maxwords - self.words
                     self.words += somewords
                     self.summarized += ' '.join(words[:somewords]) + ' '
@@ -65,25 +66,25 @@ class Summarizer(HTMLParser):
             if self.stack:
                 for x in range(len(self.stack)):
                     self.summarized += '</%s>' % self.stack.pop()
-                    
+
     def handle_entityref(self, entity):
         '''handle &shy; correctly'''
         if self.words < self.maxwords:
-            self.summarized += '&'+ entity + ';'
-            
+            self.summarized += '&' + entity + ';'
+
     def handle_charref(self, char):
         if self.words < self.maxwords:
             self.summarized += '&#' + char + ';'
 
 
 class Summarize(Filter):
-    
+
     __name__ = 'Summarize'
     __match__ = ['summarize', 'sum']
-   
+
     def __init__(self, conf, env):
         self.env = env
-        
+
     def __call__(self, content, req):
-        
+
         return Summarizer(content, req.permalink, 200).summarized
