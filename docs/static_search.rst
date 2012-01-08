@@ -11,18 +11,18 @@ only modified to match acrylamid's default layout (and fixing some issues).
 
 .. code-block:: console
 
-    $> cd ~/your/blog/output
-    $> mkdir js images
-    $> wget http://code.jquery.com/jquery-1.7.1.min.js -O js/jquery-1.7.1.min.js
-    $> wget http://github.com/cowboy/jquery-bbq/raw/master/jquery.ba-bbq.min.js -O js/jquery.ba-bbq.min.js
-    $> wget https://gist.github.com/gists/1575138/download -O js/search.js
-    $> cd images/
-    $> wget http://joevennix.com/images/searchicon.png
-    $> wget http://joevennix.com/images/closelabel.png
-    $> wget http://joevennix.com/images/ajax-loader.gif
+    cd ~/your/blog/output
+    mkdir js images
+    wget http://code.jquery.com/jquery-1.7.1.min.js -O js/jquery-1.7.1.min.js
+    wget http://github.com/cowboy/jquery-bbq/raw/master/jquery.ba-bbq.min.js -O js/jquery.ba-bbq.min.js
+    wget https://gist.github.com/gists/1575138/download -O js/search.js
+    cd images/
+    wget http://joevennix.com/images/searchicon.png
+    wget http://joevennix.com/images/closelabel.png
+    wget http://joevennix.com/images/ajax-loader.gif
 
 layouts/main.html
------------------
+*****************
 
 .. code-block:: html
     :emphasize-lines: 7-9, 14-20
