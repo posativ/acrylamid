@@ -115,14 +115,14 @@ def parse(filename, encoding, remap):
                 elif i == 1 and line.startswith('---'):
                     pass
                 elif i > 1 and not line.startswith('---'):
-                    if line[0] == '#':
+                    if line[0] == '#' or not line.strip():
                         continue
                     try:
                         key, value = [x.strip() for x in line.split(':', 1)]
                         if key in remap:
                             key = remap[key]
                     except ValueError:
-                        log.warn('conf.py -> ValueError: %s' % line)
+                        log.warn('conf.py -> ValueError: %r' % line)
                         continue
                     props[key] = distinguish(value)
                 else:
@@ -231,7 +231,7 @@ class FileEntry:
             return ''
 
         to_hash = []
-        for t in self.lazy_eval:
+        for t in sorted(self.lazy_eval):
             to_hash.append('%s:%.2f:%s' % (t[0], t[1].__priority__, t[2]))
         return '-'.join(to_hash) + self.filename
 

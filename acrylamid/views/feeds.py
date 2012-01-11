@@ -13,7 +13,6 @@ from jinja2 import Environment
 
 class Feed(View):
 
-    num_entries = 25
     env = Environment()
 
     def __call__(self, request):
@@ -40,6 +39,7 @@ class Feed(View):
                          + entry.permalink
             result.append(render(self.tt_entry, env, conf, entry, id=_id))
 
+        # XXX let user modify the path
         xml = render(self.tt_body, env, conf, {'entrylist': '\n'.join(result),
                       'updated': entrylist[0].date if entrylist else datetime.now()},
                       atom=Atom, rss=RSS)
@@ -51,19 +51,20 @@ class Atom(Feed):
 
     path = '/atom/'
 
-    def __init__(self, conf, env, filters=[], path='/atom/'):
+    def __init__(self, conf, env, filters=[], path='/atom/', num_entries=25):
         self.tt_entry = self.env.from_string(ATOM_ENTRY)
         self.tt_body = self.env.from_string(ATOM_BODY)
 
         self.filters = filters
         self.path = path
+        self.num_entries = num_entries
 
 
 class RSS(Feed):
 
     path = '/rss/'
 
-    def __init__(self, conf, env, filters=[], path='/rss/'):
+    def __init__(self, conf, env, filters=[], path='/rss/', num_entries=25):
 
         from wsgiref.handlers import format_date_time
         from time import mktime
@@ -74,6 +75,7 @@ class RSS(Feed):
 
         self.filters = filters
         self.path = path
+        self.num_entries = num_entries
 
 
 ATOM_BODY = r'''

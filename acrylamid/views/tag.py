@@ -65,12 +65,12 @@ class Tag(View):
                     next = None
                     curr = expand(self.path, {'name': tag})
                 else:
-                    curr = expand(self.pagination, {'num': i + 1, 'name': tag})
-                    next = expand(self.path, {'name': tag}) if i == 1 \
+                    curr = expand(self.pagination, {'num': str(i+1), 'name': tag})
+                    next = expand(self.path, {'name': tag}) if i==1 \
                              else expand(self.pagination, {'name': tag, 'num': i})
 
                 prev = None if i == (len(entrylist)/ipp + 1) - 1 \
-                            else expand(self.path, {'name': tag, 'num': i + 2})
+                            else expand(self.path, {'name': tag, 'num': str(i+2)})
                 p = joinurl(conf['output_dir'], curr, 'index.html')
 
                 if exists(p) and not has_changed:

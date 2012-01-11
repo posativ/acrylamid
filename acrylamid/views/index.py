@@ -49,21 +49,21 @@ class Index(View):
                 next = None
                 curr = self.path
             else:
-                curr = self.pagination.replace(':num', str(i+1))
-                next = self.path if i == 1 else self.pagination.replace(':num', str(i))
+                curr = expand(self.pagination, {'num': str(i+1)})
+                next = self.path if i == 1 else expand(self.pagination, {'num': str(i)})
 
             prev = None if i == (len(entrylist)/ipp + 1) - 1 \
-                        else self.pagination.replace(':num', str(i+2))
+                        else expand(self.pagination, {'num': str(i+2)})
             directory = conf['output_dir']
 
             if i == 0:
                 directory = joinurl(conf['output_dir'], self.path)
             else:
                 directory = joinurl(conf['output_dir'],
-                                self.pagination.replace(':num', str(i+1)))
+                                expand(self.pagination, {'num': str(i+1)}))
 
             p = joinurl(directory, 'index.html')
-            message = self.path if i==0 else (self.pagination+str(i+1))
+            message = self.path if i==0 else expand(self.pagination, {'num': str(i+1)})
 
             if exists(p) and not has_changed:
                 if not (tt_entry.has_changed or tt_main.has_changed):
