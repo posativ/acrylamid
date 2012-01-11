@@ -39,7 +39,7 @@ class Entry(View):
 
             if exists(p) and not entry.has_changed:
                 if not (tt_entry.has_changed or tt_main.has_changed):
-                    event.skip(entry.title)
+                    event.skip(entry.title, path=p)
                     continue
 
             html = render(tt_main, conf, env, type='item',

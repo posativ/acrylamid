@@ -75,7 +75,7 @@ class Tag(View):
 
                 if exists(p) and not has_changed:
                     if not (tt_entry.has_changed or tt_main.has_changed):
-                        event.skip(curr)
+                        event.skip(curr, path=p)
                         continue
 
                 mem = [render(tt_entry, conf, env, entry, type="tag") for entry in mem]

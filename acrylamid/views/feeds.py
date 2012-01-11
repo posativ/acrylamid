@@ -27,7 +27,7 @@ class Feed(View):
 
 
         if exists(p) and not filter(lambda e: e.has_changed, entrylist[:self.num_entries]):
-            event.skip(p.replace(conf['output_dir'], ''))
+            event.skip(p.replace(conf['output_dir'], ''), path=p)
             return
 
         result = []

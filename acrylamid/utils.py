@@ -390,19 +390,19 @@ def mkfile(content, path, message, force=False):
     """Creates entry in filesystem. Overwrite only if content differs.
 
     :param content: rendered html/xml to write
-    :param entry: FileEntry object
     :param path: path to write to
+    :param message: message to display
     :param force: force overwrite, even nothing has changed (defaults to `False`)"""
 
     if exists(dirname(path)) and exists(path):
         with file(path) as f:
             old = f.read()
         if content == old and not force:
-            event.skip(message)
+            event.skip(message, path=path)
         else:
             with open(path, 'w') as f:
                 f.write(content)
-            event.changed(message)
+            event.changed(message, path=path)
     else:
         try:
             os.makedirs(dirname(path))
@@ -411,7 +411,7 @@ def mkfile(content, path, message, force=False):
             pass
         with open(path, 'w') as f:
             f.write(content)
-        event.create(message, path)
+        event.create(message, path=path)
 
 
 def expand(url, obj):

@@ -2,7 +2,7 @@
 # License: BSD Style, 2 clauses. see acrylamid.py
 
 from acrylamid.views import View
-from acrylamid.utils import mkfile, joinurl
+from acrylamid.utils import mkfile, joinurl, event
 
 from os.path import join, getmtime, exists
 from collections import defaultdict
@@ -13,7 +13,6 @@ class Articles(View):
     """Generates a overview of all articles."""
 
     __filters__ = False
-    __name__ = 'articles'
 
     def __init__(self, conf, env, path='/articles/'):
         self.layoutpath = join(conf['layout_dir'], 'articles.html')
@@ -34,6 +33,7 @@ class Articles(View):
 
         if exists(p) and last_modified < getmtime(p):
             if getmtime(self.layoutpath) < getmtime(p):
+                event.skip(p.replace(conf['output_dir'], ''), path=p)
                 return
 
         for entry in sorted(entrylist, key=lambda k: k.date, reverse=True):

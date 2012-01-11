@@ -67,7 +67,7 @@ class Index(View):
 
             if exists(p) and not has_changed:
                 if not (tt_entry.has_changed or tt_main.has_changed):
-                    event.skip(message)
+                    event.skip(message, path=p)
                     continue
 
             mem = [render(tt_entry, conf, env, entry, type="page") for entry in mem]
