@@ -591,7 +591,7 @@ articles = r'''
 kafka = '''
 ---
 title: Die Verwandlung
-author: Franz Kafka
+date: 13.12.2011, 23:42
 tags: [Franz Kafka, Die Verwandlung]
 ---
 
