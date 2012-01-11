@@ -220,7 +220,7 @@ class Acryl:
                     break
 
                 log.debug(entry.filename)
-                entryfilters = entry.get('filters', [])
+                entryfilters = entry.filters
                 if isinstance(entryfilters, basestring):
                     entryfilters = [entryfilters]
                 viewsfilters = request['conf']['filters'] + v.filters

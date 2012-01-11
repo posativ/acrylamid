@@ -7,8 +7,6 @@
 import logging
 import os
 import fnmatch
-import time
-from datetime import datetime
 
 from acrylamid.utils import EntryList, FileEntry
 log = logging.getLogger('acrylamid.core')
@@ -21,18 +19,7 @@ def handle(request):
 
     conf = request['conf']
 
-    # generate a list of entries
     request['entrylist'] = EntryList(filelist(request))
-
-    for entry in request['entrylist']:
-        # convert mtime timestamp or `date:` to localtime (float), required for sort
-        if isinstance(entry.date, basestring):
-            timestamp = time.mktime(time.strptime(entry.date,
-                conf.get('strptime', '%d.%m.%Y, %H:%M')))
-            entry.date = datetime.fromtimestamp(timestamp)
-        else:
-            log.warn("using mtime from %s" % entry)
-
     request['entrylist'].sort(key=lambda k: k.date, reverse=True)
     return request
 
@@ -51,5 +38,5 @@ def filelist(request):
             if not fn:
                 flist.append(path)
 
-    entrylist = [FileEntry(e, encoding=conf['encoding']) for e in flist]
+    entrylist = [FileEntry(e, conf) for e in flist]
     return entrylist

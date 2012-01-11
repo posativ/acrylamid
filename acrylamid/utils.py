@@ -10,6 +10,7 @@ import re
 import logging
 import codecs
 import tempfile
+import time
 from datetime import datetime
 from os.path import join, exists, dirname, getmtime
 from hashlib import md5
@@ -86,6 +87,49 @@ class cached_property(object):
         return value
 
 
+def parse(filename, encoding, remap):
+        """parsing yaml header and remember where content begins."""
+
+        def distinguish(value):
+            if value == '':
+                return None
+            elif value.isdigit():
+                return int(value)
+            elif value.lower() in ['true', 'false']:
+                 return True if value.capitalize() == 'True' else False
+            elif value[0] == '[' and value[-1] == ']':
+                return list([unicode(x.strip())
+                    for x in value[1:-1].split(',') if x.strip()])
+            else:
+                return unicode(value.strip('"').strip("'"))
+
+        props = {}
+        i = 0
+
+        with codecs.open(filename, 'r', encoding=encoding, errors='replace') as f:
+            while True:
+                line = f.readline()
+                i += 1
+                if i == 1 and not line.strip():
+                    break
+                elif i == 1 and line.startswith('---'):
+                    pass
+                elif i > 1 and not line.startswith('---'):
+                    if line[0] == '#':
+                        continue
+                    try:
+                        key, value = [x.strip() for x in line.split(':', 1)]
+                        if key in remap:
+                            key = remap[key]
+                    except ValueError:
+                        log.warn('conf.py -> ValueError: %s' % line)
+                        continue
+                    props[key] = distinguish(value)
+                else:
+                    break
+        return i, props
+
+
 class EntryList(list):
 
     @cached_property
@@ -97,31 +141,92 @@ class FileEntry:
     """This class gets it's data and metadata from the file specified
     by the filename argument"""
 
-    __map__ = {'tag': 'tags', 'filter': 'filters'}
-    __keys__ = ['permalink', 'filters', 'author', 'draft', 'tags', 'date', 'title', 'content', 'lang', 'description']
+    __keys__ = ['permalink', 'date', 'year', 'month', 'day', 'filters', 'tags',
+                'title', 'author', 'content', 'description', 'lang', 'draft',
+                'extension', 'slug']
+    __permalink_ = '/:year/:slug/'
+    lazy_eval = []
 
-    title = ''
-    lang = draft = False
-    tags = filters = lazy_eval = []
+    def __init__(self, filename, conf):
+        """parsing FileEntry's YAML header."""
 
-    def __init__(self, filename, encoding='utf-8'):
-        """parsing FileEntry's YAML header.
-
-        :param filename: path to open, plain text preferred
-        :param encoding: reading content using this specific encoding codec."""
-
-        self.mtime = os.path.getmtime(filename)
-        self.date = datetime.fromtimestamp(self.mtime)
         self.filename = filename
-        self.encoding = encoding
-        self.offset = 0
-        self.parse()
+        self.mtime = os.path.getmtime(filename)
+        self.props = dict((k, v) for k, v in conf.iteritems()
+                        if k in ['author', 'lang', 'encoding', 'strptime'])
+
+        i, yaml = parse(filename, self.props['encoding'], {'tag': 'tags',
+                        'filter': 'filters'})
+        self.offset = i
+        self.props.update(yaml)
 
     def __repr__(self):
         return "<fileentry f'%s'>" % self.filename
 
     @property
+    def permalink(self):
+        # TODO: fix hard-coded slug
+        # return expand('/:year/:slug/', {':year': self.year, ':month': self.month,
+        #               ':day': self.day, ':slug': self.slug, ':extension': self.extension})
+        return expand('/:year/:slug/', self)
+
+    @cached_property
+    def date(self):
+        """return datetime.datetime obj.  Either converted from given key and fmt
+        or fallback to mtime."""
+        if 'date' in self.props:
+            try:
+                ts = time.mktime(time.strptime(self.props['date'], self.props['strptime']))
+                return datetime.fromtimestamp(ts)
+            except ValueError:
+                pass
+        return datetime.fromtimestamp(self.mtime)
+
+    @property
+    def year(self):
+        return str(self.date.year)
+
+    @property
+    def month(self):
+        return str(self.date.month)
+
+    @property
+    def day(self):
+        return str(self.date.day)
+
+    @property
+    def filters(self):
+        fx = self.props.get('filters', [])
+        if isinstance(fx, basestring):
+            return [fx]
+        return fx
+
+    @property
+    def tags(self):
+        fx = self.props.get('tags', [])
+        if isinstance(fx, basestring):
+            return [fx]
+        return fx
+
+    @property
+    def title(self):
+        return self.props.get('title', 'No Title!')
+
+    @property
+    def author(self):
+        return self.props['author']
+
+    @property
+    def draft(self):
+        return True if self.props.get('draft', False) else False
+
+    @property
+    def lang(self):
+        return self.props['lang']
+
+    @property
     def hash(self):
+        # XXX: __hash__
         if len(self.lazy_eval) == 0:
             return ''
 
@@ -136,7 +241,8 @@ class FileEntry:
 
     @property
     def source(self):
-        with codecs.open(self.filename, 'r', encoding=self.encoding, errors='replace') as f:
+        with codecs.open(self.filename, 'r', encoding=self.props['encoding'],
+        errors='replace') as f:
             return ''.join(f.readlines()[self.offset:]).strip()
 
     @property
@@ -159,11 +265,6 @@ class FileEntry:
         return safeslug(self.title)
 
     @property
-    def permalink(self):
-        # TODO: fix hard-coded slug
-        return expand('/:year/:slug/', self)
-
-    @property
     def description(self):
         # TODO: this is really poor
         return self.source[:50].strip() + '...'
@@ -178,58 +279,15 @@ class FileEntry:
         else:
             return False
 
-    @property
-    def draft(self):
-        return True if self.get('draft', False) else False
-
-    def get(self, key, default=None):
-        return self.__dict__.get(key, default)
-
-    def parse(self):
-        """parsing yaml header and remember where content begins. Only append
-        key,value if whitelisted in __keys__ and __map__ ."""
-
-        meta = []
-        i = 0
-        with codecs.open(self.filename, 'r', encoding=self.encoding, errors='replace') as f:
-            while True:
-                line = f.readline()
-                i += 1
-                if i == 1 and not line.strip():
-                    break
-                elif i == 1 and line.startswith('---'):
-                    pass
-                elif i > 1 and not line.startswith('---'):
-                    meta.append(line)
-                else:
-                    break
-
-        self.offset = i
-        for key, value in yamllike(''.join(meta)).iteritems():
-            if key not in self.__keys__ + self.__map__.keys():
-                continue
-            if isinstance(value, basestring):
-                self.__dict__[key] = unicode(value.strip('"'))
-            else:
-                self.__dict__[key] = value
-
     def keys(self):
-        return filter(lambda k: hasattr(self, k), self.__keys__)
+        return list(iter(self))
+
+    def __iter__(self):
+        for k in self.__keys__:
+            yield k
 
     def __getitem__(self, key):
-        """surjective dict. Return mapped key (tag -> tags) or raise KeyError."""
-        if key in self.__map__:
-            return self.__dict__[self.__map__[key]]
-        elif key in self.__keys__:
-            return getattr(self, key)
-        else:
-            raise KeyError("%s has no such attribute '%s'" % (self, key))
-
-    def __setitem__(self, key, value):
-        if key not in ['parse', 'offset', 'get', 'has_changed']:
-            setattr(self, key, value)
-        else:
-            log.warn("invalid key '%s'" % key)
+        return getattr(self, key)
 
 
 class ColorFormatter(logging.Formatter):
@@ -316,45 +374,6 @@ def check_conf(conf):
     return True
 
 
-def yamllike(conf):
-    """pyyaml replacement (not really yet, but works for me). Parsing
-    first-layer YAML (okay: key,value assignments) into a python dict.
-    yamllike is filter. and view. aware, that means all assignments starting
-    with this string will exec into the given __init__ environment."""
-
-    conf = [line.strip() for line in conf.split('\n')
-                if not line.startswith('#') and line.strip()]
-
-    config = {}
-    config['views.'] = []
-    config['filters.'] = []
-    for line in conf:
-        try:
-            key, value = [x.strip() for x in line.split(':', 1)]
-        except ValueError:
-            # do something
-            log.warn('conf.yaml -> ValueError: %s' % line)
-            continue
-
-        if key.startswith('filters.'):
-            config['filters.'].append(key.replace('filters.', '')+' = '+value+'\n')
-        elif key.startswith('views.'):
-            config['views.'].append(key.replace('views.', '')+' = '+value+'\n')
-        else:
-            if value == '':
-                config[key] = None
-            elif value.isdigit():
-                config[key] = int(value)
-            elif value.lower() in ['true', 'false']:
-                config[key] = True if value.capitalize() == 'True' else False
-            elif value[0] == '[' and value[-1] == ']':
-                config[key] = list([unicode(x.strip()) for x in value[1:-1].split(',') if x.strip()])
-            else:
-                config[key] = value
-
-    return config
-
-
 def render(tt, *dicts, **kvalue):
     """helper function to merge multiple dicts and additional key=val params
     to a single environment dict used by jinja2 templating. Note, merging will
@@ -398,13 +417,12 @@ def mkfile(content, path, message, force=False):
         event.create(message, path)
 
 
-def expand(url, entry):
+def expand(url, obj):
     """expanding '/:year/:slug/' scheme into e.g. '/2011/awesome-title/"""
-    m = {':year': str(entry.date.year), ':month': str(entry.date.month),
-         ':day': str(entry.date.day), ':slug': entry.slug}
 
-    for val in m:
-        url = url.replace(val, m[val])
+    for k in obj:
+        if not k.endswith('/') and (':' + k) in url:
+            url = url.replace(':'+k, obj[k])
     return url
 
 
