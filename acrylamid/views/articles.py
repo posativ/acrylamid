@@ -8,18 +8,16 @@ from os.path import join, getmtime, exists
 from collections import defaultdict
 from jinja2 import Template
 
-filters = []
-path = '/articles/'
-enabled = True
-
 
 class Articles(View):
     """Generates a overview of all articles."""
 
     __filters__ = False
+    __name__ = 'articles'
 
-    def __init__(self, conf, env):
+    def __init__(self, conf, env, path='/articles/'):
         self.layoutpath = join(conf['layout_dir'], 'articles.html')
+        self.path = path
         with file(self.layoutpath) as f:
             self.tt_articles = Template(f.read())
 
@@ -29,7 +27,9 @@ class Articles(View):
         conf = request['conf']
         entrylist = request['entrylist']
 
-        p = joinurl(conf['output_dir'], path, 'index.html')
+        p = joinurl(conf['output_dir'], self.path)
+        if not filter(lambda e: p.endswith(e), ['.xml', '.html']):
+            p = joinurl(p, 'index.html')
         last_modified = max([getmtime(e.filename) for e in entrylist])
 
         if exists(p) and last_modified < getmtime(p):
@@ -48,4 +48,4 @@ class Articles(View):
                      'num_entries': len(entrylist)})
 
         html = self.tt_articles.render(articlesdict)
-        mkfile(html, p, joinurl(path, 'index.html'))
+        mkfile(html, p, p.replace(conf['output_dir'], ''))

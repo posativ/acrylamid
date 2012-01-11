@@ -6,19 +6,18 @@ from os.path import exists
 from acrylamid.views import View
 from acrylamid.utils import expand, render, mkfile, joinurl, event
 
-filters = []
-path = '/:year/:slug/'
-enabled = True
-
-
 class Entry(View):
     """Creates single full-length entry.
     entry.html -- layout of Post's entry
     main.html -- layout of the website
     """
 
-    def __init__(self, conf, env):
-        pass
+    __name__ = 'entry'
+
+    def __init__(self, conf, env, filters=[], path='/:year/:slug/'):
+
+        self.filters = filters
+        self.path = path
 
     def __call__(self, request):
 
@@ -30,10 +29,13 @@ class Entry(View):
         tt_main = env['tt_env'].get_template('main.html')
 
         for entry in entrylist:
-            if entry.permalink != expand(path, entry):
-                p = joinurl(conf['output_dir'], entry.permalink, 'index.html')
+            if entry.permalink != expand(self.path, entry):
+                p = joinurl(conf['output_dir'], entry.permalink)
             else:
-                p = joinurl(conf['output_dir'], expand(path, entry), 'index.html')
+                p = joinurl(conf['output_dir'], expand(self.path, entry))
+
+            if not filter(lambda e: p.endswith(e), ['.xml', '.html']):
+                p = joinurl(p, 'index.html')
 
             if exists(p) and not entry.has_changed:
                 if not (tt_entry.has_changed or tt_main.has_changed):
