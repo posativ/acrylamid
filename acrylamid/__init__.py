@@ -37,7 +37,7 @@ from acrylamid import defaults
 from acrylamid import filters
 from acrylamid import views
 from acrylamid.utils import check_conf, ColorFormatter, cache, \
-                            ExtendedFileSystemLoader
+                            ExtendedFileSystemLoader, clean
 
 log = logging.getLogger('acrylamid')
 sys.path.insert(0, os.path.dirname(__package__))
@@ -54,8 +54,7 @@ class Acryl:
 
         usage = "usage: %prog [options] init\n" + '\n' \
                 + "init     - initializes base structure\n" \
-                + "gen      - render blog\n" \
-                + "clean    - clean .cache/ and output/ dir"
+                + "gen      - render blog\n"
 #                + "srv (-p) - serving on port p (8000) and auto-rendering changes\n"
 
         options = [
@@ -66,8 +65,12 @@ class Acryl:
                               default=logging.INFO),
             make_option("-f", "--force", action="store_true", dest="force",
                               help="force re-render", default=False),
-            make_option("-c", "--config", dest="conf", help="alternate conf.py",
+            make_option("-c", "--conf", dest="conf", help="alternate conf.py",
                               default="conf.py"),
+            make_option("--clean", dest="clean", action="store_true", default=False,
+                               help="remove old entries from output_dir"),
+            make_option("-n", "--dry-run", dest="dryrun", action='store_true',
+                               default=False, help="show what would have been deleted"),
             make_option("--version", action="store_true", dest="version",
                                help="print version details", default=False),
             ]
@@ -113,6 +116,8 @@ class Acryl:
             sys.exit(0)
 
         conf = defaults.conf
+        conf['auto_clean'] = options.clean
+        conf['dry-run'] = options.dryrun
 
         try:
             ns = {}
@@ -140,14 +145,12 @@ class Acryl:
         # -- run -- #
 
         # clean .cache/ on --force and on `clean` to force re-rendering
-        if options.force or args[0] in ['clean', 'rm']:
+        if options.force:
             try:
                 for p in os.listdir('.cache/'):
                     os.remove(os.path.join('.cache/', p))
             except (OSError, IOError):
                 pass
-            if args[0] in ['clean', 'rm']:
-                sys.exit(0)
 
         if args[0] in ['gen', 'generate', 'render']:
             self.req = {'conf': conf, 'env': env, 'data': {}}
@@ -202,10 +205,10 @@ class Acryl:
         cache.init()
 
         # import and initialize plugins
-        filters.initialize(conf.get("ext_dir", []), request['conf'], request['env'],
-                              exclude=conf.get("ext_ignore", []),
-                              include=conf.get("ext_include", []))
-        views.initialize(conf.get("ext_dir", []), request['conf'], request['env'])
+        filters.initialize(conf.get("filters_dir", []), request['conf'], request['env'],
+                              exclude=conf.get("filters_ignore", []),
+                              include=conf.get("filters_include", []))
+        views.initialize(conf.get("views_dir", []), request['conf'], request['env'])
 
     def run(self):
         """This will render everything.
@@ -243,3 +246,6 @@ class Acryl:
                 entry.lazy_eval = _filters
 
             v(request)
+
+        if request['conf']['auto_clean']:
+            clean(request['conf'], dryrun=request['conf']['dry-run'])

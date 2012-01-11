@@ -113,6 +113,7 @@ conf = default = {
     'date_format': '%d.%m.%Y, %H:%M',
     'encoding': 'utf-8',
     'permalink_format': '/:year/:slug/',
+    'output_ignore': ['blog.css', 'img/*', 'images/*'],
 
     'filters': ['markdown+codehilite(css_class=highlight)', 'hyphenate'],
     'views': {

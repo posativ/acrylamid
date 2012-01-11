@@ -11,6 +11,7 @@ import logging
 import codecs
 import tempfile
 import time
+from fnmatch import fnmatch
 from datetime import datetime
 from os.path import join, exists, dirname, getmtime
 from hashlib import md5
@@ -25,6 +26,7 @@ except ImportError:
 
 log = logging.getLogger('acrylamid.utils')
 _slug_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
+_tracked_files = set([])
 
 try:
     import translitcodec
@@ -306,7 +308,7 @@ class ColorFormatter(logging.Formatter):
 
         keywords = {'skip': self.BLACK, 'create': self.GREEN, 'identical': self.BLACK,
                     'update': self.YELLOW, 'changed': self.YELLOW,
-                    're-initialized': self.YELLOW}
+                    're-initialized': self.YELLOW, 'removed': self.BLACK}
 
         if record.levelno == logging.INFO:
             for item in keywords:
@@ -550,20 +552,82 @@ class cache(object):
         return mtime
 
 
+def track(f):
+    """decorator to track files when event.create|change|skip is called."""
+    def dec(cls, what, path):
+        global _tracked_files
+        _tracked_files.add(path)
+        return f(cls, what, path)
+    return dec
+
+
+def clean(conf, dryrun=False):
+    """Attention: this function may eat your data!  Every create, changed
+    or skip event call tracks automatically files. After generation, --clean
+    will call this function and removes untracked files.
+
+    - with OUTPUT_IGNORE you can specify a list of patterns which are ignored.
+    - you can use --dry-run to see what would have been removed
+    - by default acrylamid does NOT call this function
+
+    :param conf: user configuration
+    :param dryrun: don't delete, just show what would have been done
+    """
+
+    def excluded(path, excl_files):
+        """test if path should be ignored"""
+        if filter(lambda p: fnmatch(path, p), excl_files):
+            return True
+        return False
+
+    global _tracked_files
+    ignored = [join(conf['output_dir'], p) for p in conf['output_ignore']]
+
+    for root, dirs, files in os.walk(conf['output_dir'], topdown=False):
+        found = set([join(root, p) for p in files
+                     if not excluded(join(root, p), ignored)])
+        for i, p in enumerate(found.difference(_tracked_files)):
+            if not dryrun:
+                os.remove(p)
+            event.removed(p)
+
+        for name in dirs:
+            try:
+                p = join(root, name)
+                os.rmdir(p)
+                event.removed(p)
+            except OSError:
+                pass  # dir not empty XXX don't use try-except
+
+
 class event:
+    """this helper class provides an easy mechanism to give user feedback of
+    created, changed or deleted files.  As side-effect every non-destructive
+    call will add the given path to the global tracking list and makes it
+    possible to remove unused files (e.g. after you've changed your url scheme
+    or just reworded your title).
+
+    This class is a singleton and can't be initialized."""
 
     @classmethod
     def __init__(self):
-        pass
+        raise NotImplemented
 
     @classmethod
+    @track
     def create(self, what, path):
         log.info("create  '%s', written to %s", what, path)
 
     @classmethod
-    def changed(self, what):
+    @track
+    def changed(self, what, path):
         log.info("changed  content of '%s'", what)
 
     @classmethod
-    def skip(self, what):
+    @track
+    def skip(self, what, path):
         log.info("skip  '%s' is up to date", what)
+
+    @classmethod
+    def removed(self, path):
+        log.info("removed  %r", path)
