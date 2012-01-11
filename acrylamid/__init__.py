@@ -35,7 +35,7 @@ from jinja2 import Environment, FileSystemBytecodeCache
 from acrylamid import defaults
 from acrylamid import filters
 from acrylamid import views
-from acrylamid.utils import check_conf, yamllike, ColorFormatter, cache, \
+from acrylamid.utils import check_conf, ColorFormatter, cache, \
                             ExtendedFileSystemLoader
 
 log = logging.getLogger('acrylamid')
@@ -65,17 +65,17 @@ class Acryl:
                               default=logging.INFO),
             make_option("-f", "--force", action="store_true", dest="force",
                               help="force re-render", default=False),
-            make_option("-c", "--config", dest="conf", help="alternate conf.yaml",
-                              default="conf.yaml"),
+            make_option("-c", "--config", dest="conf", help="alternate conf.py",
+                              default="conf.py"),
             make_option("--version", action="store_true", dest="version",
                                help="print version details", default=False),
             ]
 
         parser = OptionParser(option_list=options, usage=usage)
-        ext_group = OptionGroup(parser, "conf.yaml override")
+        ext_group = OptionGroup(parser, "conf.py override")
 
-        for key, value in yamllike(defaults.conf).iteritems():
-            if key in ['views.', 'filters.']:
+        for key, value in defaults.conf.iteritems():
+            if key in ['views', 'filters']:
                 continue
             ext_group.add_option('--' + key.replace('_', '-'), action="store",
                             dest=key, metavar=value, type=type(value) if type(value) != list else str)
@@ -111,10 +111,13 @@ class Acryl:
                 defaults.init(overwrite=options.force)
             sys.exit(0)
 
-        conf = yamllike(defaults.conf)
+        conf = defaults.conf
 
         try:
-            conf.update(yamllike(open(options.conf).read()))
+            with open(options.conf) as fp:
+                ns = {}
+                exec(fp.read()) in ns
+                conf.update(ns['conf'])
         except OSError:
             log.critical('no config file found: %s. Try "acrylamid init".', options.conf)
             sys.exit(1)
@@ -195,11 +198,6 @@ class Acryl:
                               include=conf.get("ext_include", []))
         views.initialize(conf.get("ext_dir", []), request['conf'], request['env'])
 
-        ns = filters.__dict__
-        exec(''.join(conf['filters.'])) in ns
-        ns = views.__dict__
-        exec(''.join(conf['views.'])) in ns
-
     def run(self):
         """This will render everything.
         """
@@ -225,7 +223,7 @@ class Acryl:
                 entryfilters = entry.get('filters', [])
                 if isinstance(entryfilters, basestring):
                     entryfilters = [entryfilters]
-                viewsfilters = views.filters + getattr(views, v.__module__).filters
+                viewsfilters = request['conf']['filters'] + v.filters
 
                 _filters = FilterList()
                 for f in entryfilters + viewsfilters:

@@ -7,27 +7,29 @@
 import sys
 import os
 import logging
-from acrylamid.utils import yamllike
+import StringIO
 
 from os.path import exists, isfile, isdir, join
+from pprint import pprint
 
 log = logging.getLogger('acrylamid.defaults')
 
 
 def init(root='.', overwrite=False):
 
-    dirs = ['%(entries_dir)s/', '%(layout_dir)s/', '%(output_dir)s/']
-    files = {'conf.yaml': conf,
-             '%(output_dir)s/blog.css': css,
-             '%(layout_dir)s/main.html': main,
-             '%(layout_dir)s/entry.html': entry,
-             '%(layout_dir)s/articles.html': articles,
-             '%(entries_dir)s/sample entry.txt': kafka}
+    global default
 
-    default = yamllike(conf)
-    default['output_dir'] = default.get('output_dir', 'output/').rstrip('/')
-    default['entries_dir'] = default.get('entries_dir', 'content/').rstrip('/')
-    default['layout_dir'] = default.get('layout_dir', 'layouts/').rstrip('/')
+    default['output_dir'] = default.get('output_dir', 'output').rstrip('/')
+    default['entries_dir'] = default.get('entries_dir', 'content').rstrip('/')
+    default['layout_dir'] = default.get('layout_dir', 'layouts').rstrip('/')
+
+    dirs = ['%(entries_dir)s/', '%(layout_dir)s/', '%(output_dir)s/']
+    files = {'conf.py': format(default),
+             '%(output_dir)s/blog.css' % default: css,
+             '%(layout_dir)s/main.html' % default: main,
+             '%(layout_dir)s/entry.html' % default: entry,
+             '%(layout_dir)s/articles.html' % default: articles,
+             '%(entries_dir)s/sample entry.txt' % default: kafka}
 
     if root != '.' and not exists(root):
         os.mkdir(root)
@@ -35,7 +37,7 @@ def init(root='.', overwrite=False):
     for directory in dirs:
         directory = join(root, directory % default)
         if exists(directory) and not isdir(directory):
-            log.critical('Unable to create %s. Please remove this file', directory)
+            log.critical('Unable to create %r. Please remove this file', directory)
             sys.exit(1)
         elif not exists(directory):
             os.mkdir(directory)
@@ -46,36 +48,116 @@ def init(root='.', overwrite=False):
     for path, content in files.iteritems():
         path = join(root, path % default)
         if exists(path) and not isfile(path):
-            log.critical('%s must be a regular file' % path)
+            log.critical('%r must be a regular file' % path)
             sys.exit(1)
         elif not exists(path) or overwrite == True:
-            f = open(path, 'w')
-            f.write(content)
-            f.close()
+            with open(path, 'w') as fp:
+                fp.write(content)
             log.info('create  %s', path)
         else:
             log.info('skip  %s already exists', path)
 
-conf = '''
-blog_title: A descriptive blog title
 
-author: anonymous
-website: http://example.org/
-email: info@example.org
+conf = default = {
+    'blog_title': 'A descriptive blog title',
+    'author': 'anonymous',
+    'website': 'http://example.org/',
+    'email': 'info@posativ.org',
+    'www_root': 'http://example.com/',
+    'lang': 'de_DE',
+    'strptime': '%d.%m.%Y, %H:%M',
+    'encoding': 'utf-8',
+    'permalink': '/:year/:slug/',
 
-www_root: http://example.org/
-lang: de_DE
-strptime: %d.%m.%Y, %H:%M
-encoding: utf-8
+    'filters': ['markdown+codehilite(css_class=highlight)', 'hyphenate'],
+    'views': {
+        '/': {
+            'view': 'index',
+            'pagination': '/page/:num',
+            'filters': ['summarize', 'h1'],
+        },
+        '/:year/:slug/': {
+            'view': 'entry',
+            'filters': ['h1'],
+        },
+        # TODO: autodetect file extension
+        '/atom/index.xml': {
+            'view': 'atom',
+            'filters': ['h2'],
+        },
+        # 'tag': {
+        #     'enabled': False,
+        # },
+        # 'articles': {
+        #     'enabled': False
+        # }
+    }
+}
 
-disqus_shortname: yourname
 
-views.filters: ['markdown+codehilite(css_class=highlight)', 'hyphenate']
+def format(conf):
+    """Make human-readable conf.py.  Sort by category and circumvent pprint's
+    default behavior to print a more url-map style of conf['views'].
 
-views.index.filters: ['summarize', 'h1']
-views.entry.filters: ['h1']
-views.feeds.filters: ['h2']
-'''.strip()
+    Example output:
+
+    $> cat conf.py
+    $> conf = {
+
+        "blog_title": "A descriptive blog title",
+        # ...
+        "email": "info@posativ.org",
+
+        "filters": ["markdown+codehilite(css_class=highlight)", "hyphenate"],
+        # view keys sorted by key-length (wordwrap after 40 chars)
+        "views": {
+            "/": {"filters": ["summarize", "h1"],
+                  "pagination": "/page/:num",
+                  "view": "index"},
+            "/:year/:slug/": {"filters": ["h1"], "view": "entry"},
+            "/atom/index.xml": {"filters": ["h2"], "view": "atom"},
+            },
+
+        "encoding": "utf-8",
+        # ...
+        }
+    """
+
+    def pretty(obj, width=80):
+        """inplace pretty-print"""
+        fp = StringIO.StringIO()
+        pprint(obj, stream=fp, width=width)
+        fp.seek(0)
+        return fp.read().strip()
+
+    description = ("# This is your config file.  Please write in a valid python syntax!\n"
+                   "# See http://acrylamid.readthedocs.org/en/latest/conf.py.html\n\n")
+    res = [description + 'conf = {\n\n']
+    keys = conf.keys()
+
+    for key in ['blog_title', 'www_root', 'author', 'website', 'email', 'filters']:
+        keys.remove(key)
+        if key == 'filters':
+            res.append('\n')
+        res.append("'%s': %s,\n" % (key, pretty(conf[key])))
+
+    for key in ['views']:
+
+        keys.remove(key)
+        res.append("'%s': {\n" % key)
+        for k in sorted(conf['views'], key=lambda k: len(k)):
+            res.append("    '%s': " % k)
+            res.append(pretty(conf[key][k], width=40).replace('\n', '\n         '))
+            res.append(",\n")
+        res.append('    },\n')
+    res.append('\n')
+
+    for key in sorted(keys):
+        res.append("'%s': %s,\n" % (key, pretty(conf[key])))
+    res.append('}\n')
+
+    return ''.join(res).replace('\'', '"')
+
 
 css = '''
 @import url(pygments.css);
