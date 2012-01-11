@@ -144,7 +144,6 @@ class FileEntry:
     __keys__ = ['permalink', 'date', 'year', 'month', 'day', 'filters', 'tags',
                 'title', 'author', 'content', 'description', 'lang', 'draft',
                 'extension', 'slug']
-    __permalink_ = '/:year/:slug/'
     lazy_eval = []
 
     def __init__(self, filename, conf):
@@ -153,10 +152,11 @@ class FileEntry:
         self.filename = filename
         self.mtime = os.path.getmtime(filename)
         self.props = dict((k, v) for k, v in conf.iteritems()
-                        if k in ['author', 'lang', 'encoding', 'strptime'])
+                        if k in ['author', 'lang', 'encoding', 'strptime',
+                                 'permalink_fmt'])
 
-        i, yaml = parse(filename, self.props['encoding'], {'tag': 'tags',
-                        'filter': 'filters'})
+        i, yaml = parse(filename, self.props['encoding'],
+                        remap={'tag': 'tags', 'filter': 'filters'})
         self.offset = i
         self.props.update(yaml)
 
@@ -165,10 +165,7 @@ class FileEntry:
 
     @property
     def permalink(self):
-        # TODO: fix hard-coded slug
-        # return expand('/:year/:slug/', {':year': self.year, ':month': self.month,
-        #               ':day': self.day, ':slug': self.slug, ':extension': self.extension})
-        return expand('/:year/:slug/', self)
+        return expand(self.props['permalink_fmt'], self)
 
     @cached_property
     def date(self):

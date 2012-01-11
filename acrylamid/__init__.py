@@ -122,14 +122,14 @@ class Acryl:
             log.critical('no config file found: %s. Try "acrylamid init".', options.conf)
             sys.exit(1)
 
-        assert check_conf(conf)
-
         conf['acrylamid_name'] = "acrylamid"
         conf['acrylamid_version'] = env['VERSION']
 
         conf['output_dir'] = conf.get('output_dir', 'output/')
         conf['entries_dir'] = conf.get('entries_dir', 'content/')
         conf['layout_dir'] = conf.get('layout_dir', 'layouts/')
+
+        assert check_conf(conf)
 
         conf.update(dict((k, v) for k, v in options.__dict__.iteritems() if v != None))
 
