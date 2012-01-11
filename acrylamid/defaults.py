@@ -475,7 +475,7 @@ entry = r'''
         {% if disqus_shortname and type == 'page' %}
             <a class="floatright" href="{{ www_root + permalink }}#disqus_thread">Kommentieren</a>
         {% endif %}
-        {% if tags %}
+        {% if tags and tagify %}
             <p>verschlagwortet als
                 {% for link in tags | tagify -%}
                     <a href="{{ link.href }}">{{ link.title }}</a>

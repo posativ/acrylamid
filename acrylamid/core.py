@@ -18,6 +18,9 @@ def handle(request):
     worse: mtime). return entrylist reverse sorted by date."""
 
     conf = request['conf']
+    env = request['env']
+    env['tt_env'].filters['safeslug'] = False
+    env['tt_env'].filters['tagify'] = False
 
     request['entrylist'] = EntryList(filelist(request))
     request['entrylist'].sort(key=lambda k: k.date, reverse=True)
