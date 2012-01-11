@@ -8,11 +8,23 @@ import sys
 import os
 import logging
 import StringIO
+import hashlib
 
-from os.path import exists, isfile, isdir, join
 from pprint import pprint
+from os.path import exists, isfile, isdir, join, dirname
 
 log = logging.getLogger('acrylamid.defaults')
+
+
+def md5(fp):
+    h = hashlib.md5()
+    while True:
+        chunks = fp.read(128)
+        if chunks:
+            h.update(chunks)
+        else:
+            break
+    return h.digest()
 
 
 def init(root='.', overwrite=False):
@@ -30,6 +42,43 @@ def init(root='.', overwrite=False):
              '%(layout_dir)s/entry.html' % default: entry,
              '%(layout_dir)s/articles.html' % default: articles,
              '%(entries_dir)s/sample entry.txt' % default: kafka}
+
+    # restore a given file from defaults
+    # XXX works only for default sub-folders
+    if root.replace('./', '') in files:
+        if isfile(root):
+            with open(root) as fp:
+                old = md5(fp)
+            content = files[root.replace('./', '')]
+            if hashlib.md5(content).digest() != old:
+                q = raw_input('re-initialize %r? [yn]: ' % root)
+                if q == 'y':
+                    with open(root, 'w') as fp:
+                        fp.write(content)
+                    log.info('re-initialized %s' % root)
+            else:
+                log.info('skip  %s is identical', root)
+        else:
+            q = raw_input('re-create %r? [yn]: ' % root)
+            if q == 'y':
+                if not isdir(dirname(root)):
+                    os.makedirs(dirname(root))
+                with open(root, 'w') as fp:
+                    fp.write(files[root.replace('./', '')])
+                log.info('create %s' % root)
+
+        sys.exit(0)
+
+    # YO DAWG I HERD U LIEK BLOGS SO WE PUT A BLOG IN UR BLOG -- ask user before
+    if isfile('conf.py'):
+        q = raw_input("Create blog inside a blog? [yn]: ")
+        if q != 'y':
+            sys.exit(1)
+
+    if exists(root) and len(os.listdir(root)) > 0:
+        q = raw_input("Destination directory not empty! Continue? [yn]: ")
+        if q != 'y':
+            sys.exit(1)
 
     if root != '.' and not exists(root):
         os.mkdir(root)
