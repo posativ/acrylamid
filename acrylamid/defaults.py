@@ -7,10 +7,8 @@
 import sys
 import os
 import logging
-import StringIO
 import hashlib
 
-from pprint import pprint
 from os.path import exists, isfile, isdir, join, dirname
 
 log = logging.getLogger('acrylamid.defaults')
@@ -36,7 +34,7 @@ def init(root='.', overwrite=False):
     default['layout_dir'] = default.get('layout_dir', 'layouts').rstrip('/')
 
     dirs = ['%(entries_dir)s/', '%(layout_dir)s/', '%(output_dir)s/']
-    files = {'conf.py': format(default),
+    files = {'conf.py': confstring,
              '%(output_dir)s/blog.css' % default: css,
              '%(layout_dir)s/main.html' % default: main,
              '%(layout_dir)s/entry.html' % default: entry,
@@ -109,14 +107,12 @@ def init(root='.', overwrite=False):
 
 conf = default = {
     'blog_title': 'A descriptive blog title',
-    'author': 'anonymous',
-    'website': 'http://example.org/',
-    'email': 'info@posativ.org',
-    'www_root': 'http://example.com/',
+    'author': 'Anonymous',
+    'email': 'info@example.com',
     'lang': 'de_DE',
-    'strptime': '%d.%m.%Y, %H:%M',
+    'date_format': '%d.%m.%Y, %H:%M',
     'encoding': 'utf-8',
-    'permalink': '/:year/:slug/',
+    'permalink_format': '/:year/:slug/',
 
     'filters': ['markdown+codehilite(css_class=highlight)', 'hyphenate'],
     'views': {
@@ -129,83 +125,44 @@ conf = default = {
             'view': 'entry',
             'filters': ['h1'],
         },
-        # TODO: autodetect file extension
-        '/atom/index.xml': {
+        '/atom/index.html': {
             'view': 'atom',
             'filters': ['h2'],
         },
-        # 'tag': {
-        #     'enabled': False,
-        # },
-        # 'articles': {
-        #     'enabled': False
-        # }
+        '/rss/': {'filters': ['h2'], 'view': 'rss'},
+        '/articles/': {'view': 'articles'}
     }
 }
 
 
-def format(conf):
-    """Make human-readable conf.py.  Sort by category and circumvent pprint's
-    default behavior to print a more url-map style of conf['views'].
+confstring = """
+# -*- encoding: utf-8 -*-
+# This is your config file.  Please write in a valid python syntax!
+# See http://acrylamid.readthedocs.org/en/latest/conf.py.html
 
-    Example output:
+SITENAME = "A descriptive blog title"
+WWW_ROOT = "http://example.com/"
 
-    $> cat conf.py
-    $> conf = {
+AUTHOR = "Anonymous"
+EMAIL = "info@example.org"
 
-        "blog_title": "A descriptive blog title",
-        # ...
-        "email": "info@posativ.org",
+FILTERS = ["markdown+codehilite(css_class=highlight)", "hyphenate"]
+VIEWS = {
+    "/": {"filters": ["summarize", "h1"],
+          "pagination": "/page/:num",
+          "view": "index"},
+    "/:year/:slug/": {"filters": ["h1"], "view": "entry"},
+    "/atom/": {"filters": ["h2"], "view": "atom"},
+    "/rss/": {"filters": ["h2"], "view": "rss"},
+    "/articles/": {"view": "articles"},
+    #"/atom/full": {"filters": ["h2"], "view": "atom", "num_entries": 1000},
+    "/tag/:name/": {"filters": ["h1", "summarize"], "view":"tag",
+                   "pagination": "/tag/:name/:num"},
+    }
 
-        "filters": ["markdown+codehilite(css_class=highlight)", "hyphenate"],
-        # view keys sorted by key-length (wordwrap after 40 chars)
-        "views": {
-            "/": {"filters": ["summarize", "h1"],
-                  "pagination": "/page/:num",
-                  "view": "index"},
-            "/:year/:slug/": {"filters": ["h1"], "view": "entry"},
-            "/atom/index.xml": {"filters": ["h2"], "view": "atom"},
-            },
-
-        "encoding": "utf-8",
-        # ...
-        }
-    """
-
-    def pretty(obj, width=80):
-        """inplace pretty-print"""
-        fp = StringIO.StringIO()
-        pprint(obj, stream=fp, width=width)
-        fp.seek(0)
-        return fp.read().strip()
-
-    description = ("# This is your config file.  Please write in a valid python syntax!\n"
-                   "# See http://acrylamid.readthedocs.org/en/latest/conf.py.html\n\n")
-    res = [description + 'conf = {\n\n']
-    keys = conf.keys()
-
-    for key in ['blog_title', 'www_root', 'author', 'website', 'email', 'filters']:
-        keys.remove(key)
-        if key == 'filters':
-            res.append('\n')
-        res.append("'%s': %s,\n" % (key, pretty(conf[key])))
-
-    for key in ['views']:
-
-        keys.remove(key)
-        res.append("'%s': {\n" % key)
-        for k in sorted(conf['views'], key=lambda k: len(k)):
-            res.append("    '%s': " % k)
-            res.append(pretty(conf[key][k], width=40).replace('\n', '\n         '))
-            res.append(",\n")
-        res.append('    },\n')
-    res.append('\n')
-
-    for key in sorted(keys):
-        res.append("'%s': %s,\n" % (key, pretty(conf[key])))
-    res.append('}\n')
-
-    return ''.join(res).replace('\'', '"')
+PERMALINK_FORMAT = "/:year/:slug/index.html"
+DATE_FORMAT = "%d.%m.%Y, %H:%M"
+""".strip()
 
 
 css = '''

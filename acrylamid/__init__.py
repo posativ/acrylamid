@@ -28,6 +28,7 @@ import os
 import logging
 import locale
 import codecs
+import traceback
 
 from optparse import OptionParser, make_option, OptionGroup
 from jinja2 import Environment, FileSystemBytecodeCache
@@ -114,12 +115,15 @@ class Acryl:
         conf = defaults.conf
 
         try:
-            with open(options.conf) as fp:
-                ns = {}
-                exec(fp.read()) in ns
-                conf.update(ns['conf'])
+            ns = {}
+            execfile('conf.py', ns)
+            conf.update(dict([(k.lower(), ns[k]) for k in ns if k.upper() == k]))
         except OSError:
             log.critical('no config file found: %s. Try "acrylamid init".', options.conf)
+            sys.exit(1)
+        except Exception, e:
+            log.critical("%s in `conf.py`" % e.__class__.__name__)
+            traceback.print_exc(file=sys.stdout)
             sys.exit(1)
 
         conf['acrylamid_name'] = "acrylamid"
@@ -172,9 +176,14 @@ class Acryl:
             log.warn("unsupported locale '%s', set to '%s'", conf['lang'], locale.getlocale()[0])
         conf['lang'] = locale.getlocale()
 
-        if 'www_root' not in conf:
+        if 'www_root' not in conf and 'website' in conf:
+            conf['www_root'] = conf['website']
+        elif 'www_root' not in conf:
             log.warn('no `www_root` specified, using localhost:8000')
             conf['www_root'] = 'http://localhost:8000/'
+
+        if 'website' not in conf:
+            conf['website'] = conf['www_root']
 
         env['protocol'] = conf['www_root'][0:conf['www_root'].find('://')]
         # take off the trailing slash for base_url
@@ -185,7 +194,7 @@ class Acryl:
         try:
             codecs.lookup(conf['encoding'])
         except LookupError:
-            log.fatal('no such encoding available: %s', conf['encoding'])
+            log.fatal('no such encoding available: %r', conf['encoding'])
             sys.exit(1)
 
         # XXX implement _optional_ config argments like cache_dir

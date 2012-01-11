@@ -152,8 +152,8 @@ class FileEntry:
         self.filename = filename
         self.mtime = os.path.getmtime(filename)
         self.props = dict((k, v) for k, v in conf.iteritems()
-                        if k in ['author', 'lang', 'encoding', 'strptime',
-                                 'permalink_fmt'])
+                        if k in ['author', 'lang', 'encoding', 'date_format',
+                                 'permalink_format'])
 
         i, yaml = parse(filename, self.props['encoding'],
                         remap={'tag': 'tags', 'filter': 'filters'})
@@ -165,7 +165,7 @@ class FileEntry:
 
     @property
     def permalink(self):
-        return expand(self.props['permalink_fmt'], self)
+        return expand(self.props['permalink_format'], self)
 
     @cached_property
     def date(self):
@@ -173,7 +173,7 @@ class FileEntry:
         or fallback to mtime."""
         if 'date' in self.props:
             try:
-                ts = time.mktime(time.strptime(self.props['date'], self.props['strptime']))
+                ts = time.mktime(time.strptime(self.props['date'], self.props['date_format']))
                 return datetime.fromtimestamp(ts)
             except ValueError:
                 pass
