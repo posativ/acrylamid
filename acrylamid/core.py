@@ -22,15 +22,14 @@ def handle(request):
     env['tt_env'].filters['safeslug'] = False
     env['tt_env'].filters['tagify'] = False
 
-    request['entrylist'] = EntryList(filelist(request))
+    request['entrylist'] = [FileEntry(e, conf) for e in filelist(request['conf'])]
+    request['entrylist'] = EntryList(request['entrylist'])
     request['entrylist'].sort(key=lambda k: k.date, reverse=True)
     return request
 
 
-def filelist(request):
+def filelist(conf):
     """gathering all entries in entries_dir except entries_ignore via fnmatch."""
-
-    conf = request['conf']
 
     flist = []
     for root, dirs, files in os.walk(conf['entries_dir']):
@@ -41,5 +40,4 @@ def filelist(request):
             if not fn:
                 flist.append(path)
 
-    entrylist = [FileEntry(e, conf) for e in flist]
-    return entrylist
+    return flist

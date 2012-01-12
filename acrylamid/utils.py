@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 #
 # Copyright 2011 posativ <info@posativ.org>. All rights reserved.
@@ -7,7 +6,6 @@
 import sys
 import os
 import re
-import logging
 import codecs
 import tempfile
 import time
@@ -15,6 +13,8 @@ from fnmatch import fnmatch
 from datetime import datetime
 from os.path import join, exists, dirname, getmtime
 from hashlib import md5
+
+from acrylamid import log
 
 import traceback
 from jinja2 import FileSystemLoader
@@ -24,7 +24,6 @@ try:
 except ImportError:
     import pickle
 
-log = logging.getLogger('acrylamid.utils')
 _slug_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
 _tracked_files = set([])
 
@@ -289,40 +288,6 @@ class FileEntry:
         return getattr(self, key)
 
 
-class ColorFormatter(logging.Formatter):
-    """Implements basic colored output using ANSI escape codes."""
-
-    # $color + BOLD
-    BLACK = '\033[1;30m%s\033[0m'
-    RED = '\033[1;31m%s\033[0m'
-    GREEN = '\033[1;32m%s\033[0m'
-    YELLOW = '\033[1;33m%s\033[0m'
-    GREY = '\033[1;37m%s\033[0m'
-    RED_UNDERLINE = '\033[4;31m%s\033[0m'
-
-    def __init__(self, fmt='[%(levelname)s] %(name)s: %(message)s', debug=False):
-        logging.Formatter.__init__(self, fmt)
-        self.debug = debug
-
-    def format(self, record):
-
-        keywords = {'skip': self.BLACK, 'create': self.GREEN, 'identical': self.BLACK,
-                    'update': self.YELLOW, 'changed': self.YELLOW,
-                    're-initialized': self.YELLOW, 'removed': self.BLACK}
-
-        if record.levelno == logging.INFO:
-            for item in keywords:
-                if record.msg.startswith(item):
-                    record.msg = record.msg.replace(item, ' '*2 + \
-                                    keywords[item] % item.rjust(8))
-        elif record.levelno >= logging.WARN:
-            record.levelname = record.levelname.replace('WARNING', 'WARN')
-            record.msg = ''.join([' '*2, self.RED % record.levelname.lower().rjust(8),
-                                  '  ', record.msg])
-
-        return logging.Formatter.format(self, record)
-
-
 class ExtendedFileSystemLoader(FileSystemLoader):
 
     def load(self, environment, name, globals=None):
@@ -350,27 +315,6 @@ class ExtendedFileSystemLoader(FileSystemLoader):
         tt = environment.template_class.from_code(environment, code, globals, uptodate)
         tt.has_changed = has_changed
         return tt
-
-
-def check_conf(conf):
-    """Rudimentary conf checking.  Currently every *_dir except
-    `ext_dir` (it's a list of dirs) is checked wether it exists."""
-
-    # directories
-
-    for key, value in conf.iteritems():
-        if key.endswith('_dir') and not key in ['ext_dir', ]:
-            if os.path.exists(value):
-                if os.path.isdir(value):
-                    pass
-                else:
-                    log.error("'%s' must be a directory" % value)
-                    sys.exit(1)
-            else:
-                os.mkdir(value)
-                log.warning('%s created...' % value)
-
-    return True
 
 
 def render(tt, *dicts, **kvalue):
@@ -626,7 +570,7 @@ class event:
     @classmethod
     @track
     def skip(self, what, path):
-        log.info("skip  '%s' is up to date", what)
+        log.skip("skip  '%s' is up to date", what)
 
     @classmethod
     def removed(self, path):
