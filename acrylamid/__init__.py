@@ -55,7 +55,7 @@ class Acryl:
             make_option("-q", "--quit", action="store_const", dest="verbosity",
                               help="be silent", const=log.WARN,
                               default=log.INFO),
-            make_option("-c", "--conf", dest="conf", help="alternate conf.py",
+            make_option("-c", "--conf", dest="cfile", help="alternate conf.py",
                               default="conf.py"),
 
             # --- gen params --- #
@@ -116,7 +116,7 @@ class Acryl:
 
         try:
             ns = {}
-            execfile('conf.py', ns)
+            execfile(options.cfile, ns)
             conf.update(dict([(k.lower(), ns[k]) for k in ns if k.upper() == k]))
         except OSError:
             log.critical('no config file found: %s. Try "acrylamid init".', options.conf)
