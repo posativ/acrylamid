@@ -130,7 +130,7 @@ def check_conf(conf):
 
 
 conf = default = {
-    'blog_title': 'A descriptive blog title',
+    'sitename': 'A descriptive blog title',
     'author': 'Anonymous',
     'email': 'info@example.com',
     'lang': 'de_DE',
@@ -369,7 +369,7 @@ main = r'''
  <head>
   <title>
       {%- if type != 'item' -%}
-        {{ blog_title }}
+        {{ sitename }}
       {%- else -%}
         {{ title }}
       {%- endif -%}
@@ -390,7 +390,7 @@ main = r'''
     <div id="blogheader">
         <div id="blogtitle">
             <h2>
-                <a href="/" class="blogtitle">{{ blog_title }}</a>
+                <a href="/" class="blogtitle">{{ sitename }}</a>
             </h2>
         </div>
         <div id="mainlinks">
@@ -505,7 +505,7 @@ articles = r'''
          "http://www.w3.org/Math/DTD/mathml2/xhtml-math11-f.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
-        <title>{{ blog_title }} – Artikelübersicht</title>
+        <title>{{ sitename }} – Artikelübersicht</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <link rel="stylesheet" type="text/css" media="all," href="/blog.css" />
         <link rel="shortcut icon" href="/favicon.ico" />
@@ -517,7 +517,7 @@ articles = r'''
         <div id="blogheader">
             <div id="blogtitle">
                 <h2>
-                    <a href="/" class="blogtitle">{{ blog_title }}</a>
+                    <a href="/" class="blogtitle">{{ sitename }}</a>
                 </h2>
             </div>
             <div id="mainlinks">

@@ -67,7 +67,7 @@ class Tag(View):
                 else:
                     curr = expand(self.pagination, {'num': str(i+1), 'name': tag})
                     next = expand(self.path, {'name': tag}) if i==1 \
-                             else expand(self.pagination, {'name': tag, 'num': i})
+                             else expand(self.pagination, {'name': tag, 'num': str(i)})
 
                 prev = None if i == (len(entrylist)/ipp + 1) - 1 \
                             else expand(self.path, {'name': tag, 'num': str(i+2)})

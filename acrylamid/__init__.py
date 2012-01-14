@@ -145,9 +145,10 @@ class Acryl:
                 sys.exit(1)
 
         elif args[0] in ['clean', 'rm']:
-            log.setLevel(options.verbosity+5)
             try:
+                log.setLevel(options.verbosity+5)
                 helpers.compile(conf, env, dryrun=True, force=False)
+                log.setLevel(options.verbosity)
                 utils.clean(conf, **options.__dict__)
             except AcrylamidException as e:
                 log.fatal(e.message)

@@ -86,7 +86,7 @@ ATOM_BODY = r'''
         <uri>{{ website }}</uri>
         <email>{{ email }}</email>
     </author>
-    <title>{{ blog_title | escape }}</title>
+    <title>{{ sitename | escape }}</title>
     <id>{{ website }}</id>
     <link rel="alternate" type="text/html" href="{{ website }}" />
     <link rel="self" type="application/atom+xml" href="{{ www_root+atom.path }}" />
@@ -114,7 +114,7 @@ ATOM_ENTRY = r'''
 RSS_BODY = r'''
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
-        <title>{{ blog_title | escape }}</title>
+        <title>{{ sitename | escape }}</title>
         <link>{{ website }}</link>
         <description>{{ description }}</description>
         <language>{{ lang[0].replace('_', '-').lower() }}</language>

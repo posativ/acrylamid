@@ -30,7 +30,6 @@ class Entry(View):
         tt_main = env['tt_env'].get_template('main.html')
         pathes = dict()
 
-
         for entry in entrylist:
             if entry.permalink != expand(self.path, entry):
                 p = joinurl(conf['output_dir'], entry.permalink)

@@ -172,9 +172,12 @@ class FileEntry:
     def __repr__(self):
         return "<fileentry f'%s'>" % self.filename
 
-    @property
+    @cached_property
     def permalink(self):
-        return expand(self.props['permalink_format'], self)
+        try:
+            return self.props['permalink']
+        except KeyError:
+            return expand(self.props['permalink_format'], self)
 
     @cached_property
     def date(self):
