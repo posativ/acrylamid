@@ -34,6 +34,8 @@ def filelist(conf):
     flist = []
     for root, dirs, files in os.walk(conf['entries_dir']):
         for f in files:
+            if f[0] == '.':
+                continue
             path = os.path.join(root, f)
             fn = filter(lambda p: fnmatch.fnmatch(path, os.path.join(conf['entries_dir'], p)),
                         conf.get('entries_ignore', []))
