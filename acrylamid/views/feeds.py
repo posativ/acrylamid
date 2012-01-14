@@ -15,7 +15,7 @@ class Feed(View):
 
     env = Environment()
 
-    def __call__(self, request):
+    def __call__(self, request, *args, **kwargs):
 
         conf = request['conf']
         env = request['env']
@@ -44,7 +44,7 @@ class Feed(View):
                       'updated': entrylist[0].date if entrylist else datetime.now()},
                       atom=Atom, rss=RSS)
 
-        mkfile(xml, p, p.replace(conf['output_dir'], ''))
+        mkfile(xml, p, p.replace(conf['output_dir'], ''), **kwargs)
 
 
 class Atom(Feed):

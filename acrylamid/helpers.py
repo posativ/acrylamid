@@ -56,8 +56,7 @@ def initialize(conf, env):
     try:
         codecs.lookup(conf['encoding'])
     except LookupError:
-        log.fatal('no such encoding available: %r', conf['encoding'])
-        raise AcrylamidException
+        raise AcrylamidException('no such encoding available: %r' % conf['encoding'])
 
     # XXX implement _optional_ config argments like cache_dir
     # init to conf['cache_dir'] (defaults to '.cache/')
@@ -72,7 +71,7 @@ def initialize(conf, env):
     return {'conf': conf, 'env': env}
 
 
-def compile(conf, env, force=False):
+def compile(conf, env, force=False, **options):
 
     request = initialize(conf, env)
     request = prepare(request)
@@ -103,24 +102,28 @@ def compile(conf, env, force=False):
 
             entry.lazy_eval = _filters
 
-        v(request)
-
-    if request['conf']['auto_clean']:
-        clean(request['conf'], dryrun=request['conf']['dry-run'])
+        v(request, **options)
 
 
-def autocompile(conf, env, force=False):
+def autocompile(conf, env, **options):
 
     f = lambda l: dict([(p, getmtime(p)) for p in l])
 
     # first run to have everything up-to-date
     files = f(filelist(conf))
-    compile(conf, env, force=force)
+    try:
+        compile(conf, env, **options)
+    except AcrylamidException as e:
+        log.fatal(e.message)
 
     while True:
         if files != f(filelist(conf)):
-            # something has changed
-            compile(conf, env, force=force)
+            # something changed
+            try:
+                compile(conf, env, **options)
+            except AcrylamidException as e:
+                log.fatal(e.message)
+                pass
             files = f(filelist(conf))
         time.sleep(1)
 

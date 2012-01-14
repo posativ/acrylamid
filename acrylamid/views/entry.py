@@ -5,6 +5,7 @@ from os.path import exists
 
 from acrylamid.views import View
 from acrylamid.utils import expand, render, mkfile, joinurl, event
+from acrylamid.errors import AcrylamidException
 
 class Entry(View):
     """Creates single full-length entry.
@@ -19,7 +20,7 @@ class Entry(View):
         self.filters = filters
         self.path = path
 
-    def __call__(self, request):
+    def __call__(self, request, *args, **kwargs):
 
         conf = request['conf']
         env = request['env']
@@ -27,6 +28,8 @@ class Entry(View):
 
         tt_entry = env['tt_env'].get_template('entry.html')
         tt_main = env['tt_env'].get_template('main.html')
+        pathes = dict()
+
 
         for entry in entrylist:
             if entry.permalink != expand(self.path, entry):
@@ -37,6 +40,12 @@ class Entry(View):
             if not filter(lambda e: p.endswith(e), ['.xml', '.html']):
                 p = joinurl(p, 'index.html')
 
+            if p in pathes:
+                raise AcrylamidException("title collision %r" % entry.filename)
+            pathes[p] = entry
+
+        for p, entry in pathes.iteritems():
+
             if exists(p) and not entry.has_changed:
                 if not (tt_entry.has_changed or tt_main.has_changed):
                     event.skip(entry.title, path=p)
@@ -46,4 +55,4 @@ class Entry(View):
                           entrylist=render(tt_entry, conf, env, entry, type='item'),
                           title=entry.title, description=entry.description, tags=entry.tags)
 
-            mkfile(html, p, entry.title)
+            mkfile(html, p, entry.title, **kwargs)

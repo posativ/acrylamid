@@ -23,7 +23,7 @@ class Index(View):
                 continue
             setattr(self, key, value)
 
-    def __call__(self, request):
+    def __call__(self, request, *args, **kwargs):
         """Creates nicely paged listing of your posts.  First page is the
         index.hml used to have this nice url: http://yourblog.com/ with a recent
         list of your (e.g. summarized) Posts. Other pages are enumerated to /page/n+1
@@ -76,4 +76,4 @@ class Index(View):
                         entrylist='\n'.join(mem), num_entries=len(entrylist),
                         items_per_page=ipp)
 
-            mkfile(html, p, message)
+            mkfile(html, p, message, **kwargs)

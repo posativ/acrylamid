@@ -20,7 +20,7 @@ class Articles(View):
         with file(self.layoutpath) as f:
             self.tt_articles = Template(f.read())
 
-    def __call__(self, request):
+    def __call__(self, request, *args, **kwargs):
 
         articles = defaultdict(list)
         conf = request['conf']
@@ -48,4 +48,4 @@ class Articles(View):
                      'num_entries': len(entrylist)})
 
         html = self.tt_articles.render(articlesdict)
-        mkfile(html, p, p.replace(conf['output_dir'], ''))
+        mkfile(html, p, p.replace(conf['output_dir'], ''), **kwargs)

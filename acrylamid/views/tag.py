@@ -35,7 +35,7 @@ class Tag(View):
         env['tt_env'].filters['safeslug'] = safeslug
         env['tt_env'].filters['tagify'] = lambda e: [Link(t, joinurl(path, safeslug(t))) for t in e]
 
-    def __call__(self, request):
+    def __call__(self, request, *args, **kwargs):
         """Creates paged listing by tag.
 
         required:
@@ -83,4 +83,4 @@ class Tag(View):
                             entrylist='\n'.join(mem), num_entries=len(entrylist),
                             items_per_page=ipp)
 
-                mkfile(html, p, curr)
+                mkfile(html, p, curr, **kwargs)

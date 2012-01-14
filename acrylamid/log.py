@@ -7,7 +7,7 @@ import logging
 from logging import WARN, INFO, DEBUG
 
 SKIP = 15
-logger = warn = warning = info = skip = debug = None
+logger = fatal = critical = warn = warning = info = skip = debug = None
 
 
 class ANSIFormatter(logging.Formatter):
@@ -55,7 +55,7 @@ class SkipHandler(logging.Logger):
 
 def init(name, level, handler=logging.StreamHandler()):
 
-    global logger, warn, warning, info, skip, debug
+    global logger, critical, fatal, warn, warning, info, skip, debug
 
     logging.setLoggerClass(SkipHandler)
     logger = logging.getLogger(name)
@@ -68,6 +68,8 @@ def init(name, level, handler=logging.StreamHandler()):
     logger.addHandler(handler)
     logger.setLevel(level)
 
+    critical = logger.critical
+    fatal = logger.fatal
     warn = logger.warn
     warning = logger.warning
     info = logger.info

@@ -15,6 +15,7 @@ from os.path import join, exists, dirname, getmtime
 from hashlib import md5
 
 from acrylamid import log
+from acrylamid.errors import AcrylamidException
 
 import traceback
 from jinja2 import FileSystemLoader
@@ -106,10 +107,13 @@ def parse(filename, encoding, remap):
 
         props = {}
         i = 0
+        valid = False
 
         with codecs.open(filename, 'r', encoding=encoding, errors='replace') as f:
             while True:
                 line = f.readline()
+                if not line:
+                    break
                 i += 1
                 if i == 1 and not line.strip():
                     break
@@ -123,11 +127,15 @@ def parse(filename, encoding, remap):
                         if key in remap:
                             key = remap[key]
                     except ValueError:
-                        log.warn('conf.py -> ValueError: %r' % line)
+                        log.warn('%r -> ValueError: %r' % (filename, line))
                         continue
                     props[key] = distinguish(value)
                 else:
+                    valid = True
                     break
+
+        if not valid:
+            raise AcrylamidException("%r has no valid YAML header" % filename)
         return i, props
 
 
@@ -332,7 +340,7 @@ def render(tt, *dicts, **kvalue):
     return tt.render(env)
 
 
-def mkfile(content, path, message, force=False):
+def mkfile(content, path, message, force=False, dryrun=False, **kwargs):
     """Creates entry in filesystem. Overwrite only if content differs.
 
     :param content: rendered html/xml to write
@@ -346,17 +354,20 @@ def mkfile(content, path, message, force=False):
         if content == old and not force:
             event.skip(message, path=path)
         else:
-            with open(path, 'w') as f:
-                f.write(content)
+            if not dryrun:
+                with open(path, 'w') as f:
+                    f.write(content)
             event.changed(message, path=path)
     else:
         try:
-            os.makedirs(dirname(path))
+            if not dryrun:
+                os.makedirs(dirname(path))
         except OSError:
             # dir already exists (mostly)
             pass
-        with open(path, 'w') as f:
-            f.write(content)
+        if not dryrun:
+            with open(path, 'w') as f:
+                f.write(content)
         event.create(message, path=path)
 
 
