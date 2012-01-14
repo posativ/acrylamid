@@ -139,7 +139,7 @@ class Acryl:
 
         # -- run -- #
 
-        if args[0] in ['gen', 'generate', 'render']:
+        if args[0] in ['gen', 'generate', 'render', 'co', 'compile']:
             log.setLevel(options.verbosity-5)
             try:
                 helpers.compile(conf, env, **options.__dict__)
