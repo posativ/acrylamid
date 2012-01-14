@@ -9,38 +9,59 @@ import os
 import glob
 import logging
 
+import traceback
+
 sys.path.insert(0, os.path.dirname(__file__))
 log = logging.getLogger('acrylamid.views')
 
-filters = []
-callbacks = []
+# module-wide callbacks variable contaning views
+__views_list = []
 
 
 def get_views():
 
-    global callbacks
-    return [cb for cb in callbacks if getattr(sys.modules['acrylamid.views'], cb.__module__).enabled]
+    global __views_list
+    return __views_list
 
 
-def index_views(module, conf, env):
-    """Goes through the modules' contents and indexes all the funtions/classes
-    having a __init__, __call__ and __match__ attribute."""
+def index_views(module, urlmap, conf, env):
+    """Stupid an naïve try getting attribute specified in `views` in
+    various flavours and fail silent.
 
-    global callbacks
+    We remove already mapped urls and pop views'name from kwargs to
+    avoid the practical worst-case O(m*n), m=num rules, n=num modules.
 
-    if not hasattr(module, 'enabled'):
-        raise ImportError("'enabled' property is missing")
+    Views are stored into module-global variable `callbacks` and can be
+    retrieved using :func:`views.get_views`.
+    """
 
-    cs = [getattr(module, c) for c in dir(module) if not c.startswith('_')]
-    for mem in cs:
-        if hasattr(mem, '__view__') and getattr(mem, '__view__') \
-        and hasattr(mem, '__call__') and hasattr(mem, '__init__'):
-            callbacks.append(mem(conf, env))
+    global __views_list
+
+    for view, rule in urlmap[:]:
+        try:
+            mem = getattr(module, view)
+        except AttributeError:
+            try:
+                mem = getattr(module, view.capitalize())
+            except AttributeError:
+                try:
+                    mem = getattr(module, view.lower())
+                except AttributeError:
+                    try:
+                        mem = getattr(module, view.upper())
+                    except AttributeError:
+                        mem = None
+        if mem:
+            kwargs = conf['views'][rule].copy()
+            kwargs.pop('view')
+            __views_list.append(mem(conf, env, path=rule, **kwargs))
+            urlmap.remove((view, rule))
 
 
 def initialize(ext_dir, conf, env):
 
-    global callbacks
+    # view -> path
+    urlmap = [(conf['views'][k]['view'], k) for k in conf['views']]
 
     # handle ext_dir
     for mem in ext_dir[:]:
@@ -48,10 +69,11 @@ def initialize(ext_dir, conf, env):
             sys.path.insert(0, mem)
         else:
             ext_dir.remove(mem)
-            log.error("Extension directory '%s' does not exist. -- skipping" % mem)
+            log.error("Extension directory %r does not exist. -- skipping" % mem)
 
     ext_dir.extend([os.path.dirname(__file__)])
     ext_list = []
+
     for mem in ext_dir:
         files = glob.glob(os.path.join(mem, "*.py"))
         files += [p.rstrip('/__init__.py') for p in \
@@ -63,14 +85,14 @@ def initialize(ext_dir, conf, env):
             continue
         try:
             _module = __import__(mem)
-            sys.modules[__package__].__dict__[mem] = _module
-            index_views(_module, conf, env)
+            #sys.modules[__package__].__dict__[mem] = _module
+            index_views(_module, urlmap, conf, env)
         except (ImportError, Exception), e:
-            print repr(mem), 'ImportError:', e
-            continue
+            log.error('%r ImportError %r', mem, e)
+            traceback.print_exc(file=sys.stdout)
 
 
-class View:
+class View(object):
 
     __view__ = True
     __filters__ = True

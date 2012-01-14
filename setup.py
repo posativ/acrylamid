@@ -84,24 +84,20 @@ Views
 - **tags**: sort by tag with pagination (/:tag and /:tag/:num)
 """
 
-hyph_files = ['hyph-de-1996.chr.txt', 'hyph-en-us.chr.txt', 'hyph-fr.chr.txt',
-    'hyph-de-1996.lic.txt', 'hyph-en-us.lic.txt', 'hyph-fr.lic.txt',
-    'hyph-de-1996.pat.txt', 'hyph-en-us.pat.txt', 'hyph-fr.pat.txt']
-
 setup(
     name='acrylamid',
-    version='0.2.2',
+    version='0.3.0',
     author='posativ',
     author_email='info@posativ.org',
     packages=['acrylamid', 'acrylamid.filters', 'acrylamid.views'],
     scripts=['bin/acrylamid'],
     package_data={'acrylamid.filters': ['hyph/*.txt']},
     url='http://pypi.python.org/pypi/acrylamid/',
-    license='LICENSE.txt',
+    license='BSD style',
     description='yet another static blog generator',
     long_description=__doc__,
     classifiers=[
-        "Development Status :: 5 - Production/Stable",
+        "Development Status :: 4 - Beta",
         "Topic :: Internet",
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content :: News/Diary",
         "Environment :: Console",

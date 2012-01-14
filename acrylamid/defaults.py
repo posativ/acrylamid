@@ -7,27 +7,79 @@
 import sys
 import os
 import logging
-from acrylamid.utils import yamllike
+import hashlib
 
-from os.path import exists, isfile, isdir, join
+from os.path import exists, isfile, isdir, join, dirname
 
 log = logging.getLogger('acrylamid.defaults')
 
 
+def md5(fp):
+    h = hashlib.md5()
+    while True:
+        chunks = fp.read(128)
+        if chunks:
+            h.update(chunks)
+        else:
+            break
+    return h.digest()
+
+
 def init(root='.', overwrite=False):
 
-    dirs = ['%(entries_dir)s/', '%(layout_dir)s/', '%(output_dir)s/']
-    files = {'conf.yaml': conf,
-             '%(output_dir)s/blog.css': css,
-             '%(layout_dir)s/main.html': main,
-             '%(layout_dir)s/entry.html': entry,
-             '%(layout_dir)s/articles.html': articles,
-             '%(entries_dir)s/sample entry.txt': kafka}
+    global default
 
-    default = yamllike(conf)
-    default['output_dir'] = default.get('output_dir', 'output/').rstrip('/')
-    default['entries_dir'] = default.get('entries_dir', 'content/').rstrip('/')
-    default['layout_dir'] = default.get('layout_dir', 'layouts/').rstrip('/')
+    default['output_dir'] = default.get('output_dir', 'output').rstrip('/')
+    default['entries_dir'] = default.get('entries_dir', 'content').rstrip('/')
+    default['layout_dir'] = default.get('layout_dir', 'layouts').rstrip('/')
+
+    dirs = ['%(entries_dir)s/', '%(layout_dir)s/', '%(output_dir)s/']
+    files = {'conf.py': confstring,
+             '%(output_dir)s/blog.css' % default: css,
+             '%(layout_dir)s/main.html' % default: main,
+             '%(layout_dir)s/entry.html' % default: entry,
+             '%(layout_dir)s/articles.html' % default: articles,
+             '%(entries_dir)s/sample entry.txt' % default: kafka}
+
+    # restore a given file from defaults
+    # XXX works only for default sub-folders
+    if root.replace('./', '') in files:
+        if isfile(root):
+            with open(root) as fp:
+                old = md5(fp)
+            content = files[root.replace('./', '')]
+            if hashlib.md5(content).digest() != old:
+                q = raw_input('re-initialize %r? [yn]: ' % root)
+                if q == 'y':
+                    with open(root, 'w') as fp:
+                        fp.write(content)
+                    log.info('re-initialized %s' % root)
+            else:
+                log.info('skip  %s is identical', root)
+        else:
+            q = raw_input('re-create %r? [yn]: ' % root)
+            if q == 'y':
+                if not isdir(dirname(root)):
+                    try:
+                        os.makedirs(dirname(root))
+                    except OSError:
+                        pass
+                with open(root, 'w') as fp:
+                    fp.write(files[root.replace('./', '')])
+                log.info('create %s' % root)
+
+        sys.exit(0)
+
+    # YO DAWG I HERD U LIEK BLOGS SO WE PUT A BLOG IN UR BLOG -- ask user before
+    if isfile('conf.py'):
+        q = raw_input("Create blog inside a blog? [yn]: ")
+        if q != 'y':
+            sys.exit(1)
+
+    if exists(root) and len(os.listdir(root)) > 0:
+        q = raw_input("Destination directory not empty! Continue? [yn]: ")
+        if q != 'y':
+            sys.exit(1)
 
     if root != '.' and not exists(root):
         os.mkdir(root)
@@ -35,7 +87,7 @@ def init(root='.', overwrite=False):
     for directory in dirs:
         directory = join(root, directory % default)
         if exists(directory) and not isdir(directory):
-            log.critical('Unable to create %s. Please remove this file', directory)
+            log.critical('Unable to create %r. Please remove this file', directory)
             sys.exit(1)
         elif not exists(directory):
             os.mkdir(directory)
@@ -46,36 +98,97 @@ def init(root='.', overwrite=False):
     for path, content in files.iteritems():
         path = join(root, path % default)
         if exists(path) and not isfile(path):
-            log.critical('%s must be a regular file' % path)
+            log.critical('%r must be a regular file' % path)
             sys.exit(1)
         elif not exists(path) or overwrite == True:
-            f = open(path, 'w')
-            f.write(content)
-            f.close()
+            with open(path, 'w') as fp:
+                fp.write(content)
             log.info('create  %s', path)
         else:
             log.info('skip  %s already exists', path)
 
-conf = '''
-blog_title: A descriptive blog title
 
-author: anonymous
-website: http://example.org/
-email: info@example.org
+def check_conf(conf):
+    """Rudimentary conf checking.  Currently every *_dir except
+    `ext_dir` (it's a list of dirs) is checked wether it exists."""
 
-www_root: http://example.org/
-lang: de_DE
-strptime: %d.%m.%Y, %H:%M
-encoding: utf-8
+    # directories
 
-disqus_shortname: yourname
+    for key, value in conf.iteritems():
+        if key.endswith('_dir') and not key in ['ext_dir', ]:
+            if os.path.exists(value):
+                if os.path.isdir(value):
+                    pass
+                else:
+                    log.error("'%s' must be a directory" % value)
+                    sys.exit(1)
+            else:
+                os.mkdir(value)
+                log.warning('%s created...' % value)
 
-views.filters: ['markdown+codehilite(css_class=highlight)', 'hyphenate']
+    return True
 
-views.index.filters: ['summarize', 'h1']
-views.entry.filters: ['h1']
-views.feeds.filters: ['h2']
-'''.strip()
+
+conf = default = {
+    'sitename': 'A descriptive blog title',
+    'author': 'Anonymous',
+    'email': 'info@example.com',
+    'lang': 'de_DE',
+    'date_format': '%d.%m.%Y, %H:%M',
+    'encoding': 'utf-8',
+    'permalink_format': '/:year/:slug/',
+    'output_ignore': ['blog.css', 'img/*', 'images/*'],
+
+    'filters': ['markdown+codehilite(css_class=highlight)', 'hyphenate'],
+    'views': {
+        '/': {
+            'view': 'index',
+            'pagination': '/page/:num',
+            'filters': ['summarize', 'h1'],
+        },
+        '/:year/:slug/': {
+            'view': 'entry',
+            'filters': ['h1'],
+        },
+        '/atom/index.html': {
+            'view': 'atom',
+            'filters': ['h2'],
+        },
+        '/rss/': {'filters': ['h2'], 'view': 'rss'},
+        '/articles/': {'view': 'articles'}
+    }
+}
+
+
+confstring = """
+# -*- encoding: utf-8 -*-
+# This is your config file.  Please write in a valid python syntax!
+# See http://acrylamid.readthedocs.org/en/latest/conf.py.html
+
+SITENAME = "A descriptive blog title"
+WWW_ROOT = "http://example.com/"
+
+AUTHOR = "Anonymous"
+EMAIL = "info@example.org"
+
+FILTERS = ["markdown+codehilite(css_class=highlight)", "hyphenate"]
+VIEWS = {
+    "/": {"filters": ["summarize", "h1"],
+          "pagination": "/page/:num",
+          "view": "index"},
+    "/:year/:slug/": {"filters": ["h1"], "view": "entry"},
+    "/atom/": {"filters": ["h2"], "view": "atom"},
+    "/rss/": {"filters": ["h2"], "view": "rss"},
+    "/articles/": {"view": "articles"},
+    #"/atom/full": {"filters": ["h2"], "view": "atom", "num_entries": 1000},
+    "/tag/:name/": {"filters": ["h1", "summarize"], "view":"tag",
+                   "pagination": "/tag/:name/:num"},
+    }
+
+PERMALINK_FORMAT = "/:year/:slug/index.html"
+DATE_FORMAT = "%d.%m.%Y, %H:%M"
+""".strip()
+
 
 css = '''
 @import url(pygments.css);
@@ -256,7 +369,7 @@ main = r'''
  <head>
   <title>
       {%- if type != 'item' -%}
-        {{ blog_title }}
+        {{ sitename }}
       {%- else -%}
         {{ title }}
       {%- endif -%}
@@ -277,7 +390,7 @@ main = r'''
     <div id="blogheader">
         <div id="blogtitle">
             <h2>
-                <a href="/" class="blogtitle">{{ blog_title }}</a>
+                <a href="/" class="blogtitle">{{ sitename }}</a>
             </h2>
         </div>
         <div id="mainlinks">
@@ -344,7 +457,7 @@ entry = r'''
         {% if disqus_shortname and type == 'page' %}
             <a class="floatright" href="{{ www_root + permalink }}#disqus_thread">Kommentieren</a>
         {% endif %}
-        {% if tags %}
+        {% if tags and tagify %}
             <p>verschlagwortet als
                 {% for link in tags | tagify -%}
                     <a href="{{ link.href }}">{{ link.title }}</a>
@@ -392,7 +505,7 @@ articles = r'''
          "http://www.w3.org/Math/DTD/mathml2/xhtml-math11-f.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
-        <title>{{ blog_title }} – Artikelübersicht</title>
+        <title>{{ sitename }} – Artikelübersicht</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <link rel="stylesheet" type="text/css" media="all," href="/blog.css" />
         <link rel="shortcut icon" href="/favicon.ico" />
@@ -404,7 +517,7 @@ articles = r'''
         <div id="blogheader">
             <div id="blogtitle">
                 <h2>
-                    <a href="/" class="blogtitle">{{ blog_title }}</a>
+                    <a href="/" class="blogtitle">{{ sitename }}</a>
                 </h2>
             </div>
             <div id="mainlinks">
@@ -460,7 +573,7 @@ articles = r'''
 kafka = '''
 ---
 title: Die Verwandlung
-author: Franz Kafka
+date: 13.12.2011, 23:42
 tags: [Franz Kafka, Die Verwandlung]
 ---
 

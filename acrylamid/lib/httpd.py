@@ -1,0 +1,61 @@
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
+#
+# Copyright 2011 posativ <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses. see acrylamid.py
+
+from threading import Thread
+import os
+import SimpleHTTPServer
+import SocketServer
+import posixpath, urllib
+
+class AcrylServe(SimpleHTTPServer.SimpleHTTPRequestHandler):
+    """This is a modified version of python's -m SimpleHTTPServer to
+    serve on a specific sub directory of :func:`os.getcwd`."""
+
+    www_root = '.'
+
+    def translate_path(self, path):
+        """Translate a /-separated PATH to the local filename syntax.
+
+        Components that mean special things to the local file system
+        (e.g. drive or directory names) are ignored. (XXX They should
+        probably be diagnosed.)
+
+        """
+        # abandon query parameters
+        path = path.split('?',1)[0]
+        path = path.split('#',1)[0]
+        path = posixpath.normpath(urllib.unquote(path))
+        words = path.split('/')
+        words = filter(None, words)
+        path = os.path.join(os.getcwd(), self.www_root)
+        for word in words:
+            drive, word = os.path.splitdrive(word)
+            head, word = os.path.split(word)
+            if word in (os.curdir, os.pardir): continue
+            path = os.path.join(path, word)
+        return path
+
+
+class Webserver(Thread):
+    """A single-threaded webserver to server while generation."""
+
+    def __init__(self, port=8000, www_root='.'):
+        Thread.__init__(self)
+        Handler = AcrylServe
+        Handler.www_root = www_root
+        Handler.log_error = lambda x, *y: None
+        Handler.log_message = lambda x, *y: None
+        self.httpd = SocketServer.TCPServer(("", port), Handler)
+        self.kill_received = False
+
+    def serve_forever(self):
+        """Handle one request at a time until doomsday."""
+        while not self.kill_received:
+            self.handle_request()
+
+    def run(self):
+        self.httpd.serve_forever()
+        self.join(1)

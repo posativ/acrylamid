@@ -3,3 +3,4 @@ v0.1.11-dev, 22. Nov 2011 -- Tag-View, pass-through filter, removed pyyaml depen
 v0.2.0, 16. Dec 2011 -- introduced caching and lazy evaluation of expensive operations, docs
 v0.2.1, 18. Dec 2011 -- init sets wrong strptime string, render index correctly, draft ability
 v0.2.2, 30. Dec 2011 -- pages support (see docs/howtows.txt), fix update when entry moved/drafted
+v0.3.0, 14. Jan 2012 -- internal webserver, autocompile, remove orphans, refactoring

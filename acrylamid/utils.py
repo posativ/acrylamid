@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 #
 # Copyright 2011 posativ <info@posativ.org>. All rights reserved.
@@ -7,12 +6,16 @@
 import sys
 import os
 import re
-import logging
 import codecs
 import tempfile
+import time
+from fnmatch import fnmatch
 from datetime import datetime
 from os.path import join, exists, dirname, getmtime
 from hashlib import md5
+
+from acrylamid import log
+from acrylamid.errors import AcrylamidException
 
 import traceback
 from jinja2 import FileSystemLoader
@@ -22,8 +25,8 @@ try:
 except ImportError:
     import pickle
 
-log = logging.getLogger('acrylamid.utils')
 _slug_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
+_tracked_files = set([])
 
 try:
     import translitcodec
@@ -86,6 +89,56 @@ class cached_property(object):
         return value
 
 
+def parse(filename, encoding, remap):
+        """parsing yaml header and remember where content begins."""
+
+        def distinguish(value):
+            if value == '':
+                return None
+            elif value.isdigit():
+                return int(value)
+            elif value.lower() in ['true', 'false']:
+                 return True if value.capitalize() == 'True' else False
+            elif value[0] == '[' and value[-1] == ']':
+                return list([unicode(x.strip())
+                    for x in value[1:-1].split(',') if x.strip()])
+            else:
+                return unicode(value.strip('"').strip("'"))
+
+        props = {}
+        i = 0
+        valid = False
+
+        with codecs.open(filename, 'r', encoding=encoding, errors='replace') as f:
+            while True:
+                line = f.readline()
+                if not line:
+                    break
+                i += 1
+                if i == 1 and not line.strip():
+                    break
+                elif i == 1 and line.startswith('---'):
+                    pass
+                elif i > 1 and not line.startswith('---'):
+                    if line[0] == '#' or not line.strip():
+                        continue
+                    try:
+                        key, value = [x.strip() for x in line.split(':', 1)]
+                        if key in remap:
+                            key = remap[key]
+                    except ValueError:
+                        log.warn('%r -> ValueError: %r' % (filename, line))
+                        continue
+                    props[key] = distinguish(value)
+                else:
+                    valid = True
+                    break
+
+        if not valid:
+            raise AcrylamidException("%r has no valid YAML header" % filename)
+        return i, props
+
+
 class EntryList(list):
 
     @cached_property
@@ -97,36 +150,97 @@ class FileEntry:
     """This class gets it's data and metadata from the file specified
     by the filename argument"""
 
-    __map__ = {'tag': 'tags', 'filter': 'filters'}
-    __keys__ = ['permalink', 'filters', 'author', 'draft', 'tags', 'date', 'title', 'content', 'lang', 'description']
+    __keys__ = ['permalink', 'date', 'year', 'month', 'day', 'filters', 'tags',
+                'title', 'author', 'content', 'description', 'lang', 'draft',
+                'extension', 'slug']
+    lazy_eval = []
 
-    title = ''
-    lang = draft = False
-    tags = filters = lazy_eval = []
+    def __init__(self, filename, conf):
+        """parsing FileEntry's YAML header."""
 
-    def __init__(self, filename, encoding='utf-8'):
-        """parsing FileEntry's YAML header.
-
-        :param filename: path to open, plain text preferred
-        :param encoding: reading content using this specific encoding codec."""
-
-        self.mtime = os.path.getmtime(filename)
-        self.date = datetime.fromtimestamp(self.mtime)
         self.filename = filename
-        self.encoding = encoding
-        self.offset = 0
-        self.parse()
+        self.mtime = os.path.getmtime(filename)
+        self.props = dict((k, v) for k, v in conf.iteritems()
+                        if k in ['author', 'lang', 'encoding', 'date_format',
+                                 'permalink_format'])
+
+        i, yaml = parse(filename, self.props['encoding'],
+                        remap={'tag': 'tags', 'filter': 'filters'})
+        self.offset = i
+        self.props.update(yaml)
 
     def __repr__(self):
         return "<fileentry f'%s'>" % self.filename
 
+    @cached_property
+    def permalink(self):
+        try:
+            return self.props['permalink']
+        except KeyError:
+            return expand(self.props['permalink_format'], self)
+
+    @cached_property
+    def date(self):
+        """return datetime.datetime obj.  Either converted from given key and fmt
+        or fallback to mtime."""
+        if 'date' in self.props:
+            try:
+                ts = time.mktime(time.strptime(self.props['date'], self.props['date_format']))
+                return datetime.fromtimestamp(ts)
+            except ValueError:
+                pass
+        return datetime.fromtimestamp(self.mtime)
+
+    @property
+    def year(self):
+        return str(self.date.year)
+
+    @property
+    def month(self):
+        return str(self.date.month)
+
+    @property
+    def day(self):
+        return str(self.date.day)
+
+    @property
+    def filters(self):
+        fx = self.props.get('filters', [])
+        if isinstance(fx, basestring):
+            return [fx]
+        return fx
+
+    @property
+    def tags(self):
+        fx = self.props.get('tags', [])
+        if isinstance(fx, basestring):
+            return [fx]
+        return fx
+
+    @property
+    def title(self):
+        return self.props.get('title', 'No Title!')
+
+    @property
+    def author(self):
+        return self.props['author']
+
+    @property
+    def draft(self):
+        return True if self.props.get('draft', False) else False
+
+    @property
+    def lang(self):
+        return self.props['lang']
+
     @property
     def hash(self):
+        # XXX: __hash__
         if len(self.lazy_eval) == 0:
             return ''
 
         to_hash = []
-        for t in self.lazy_eval:
+        for t in sorted(self.lazy_eval):
             to_hash.append('%s:%.2f:%s' % (t[0], t[1].__priority__, t[2]))
         return '-'.join(to_hash) + self.filename
 
@@ -136,7 +250,8 @@ class FileEntry:
 
     @property
     def source(self):
-        with codecs.open(self.filename, 'r', encoding=self.encoding, errors='replace') as f:
+        with codecs.open(self.filename, 'r', encoding=self.props['encoding'],
+        errors='replace') as f:
             return ''.join(f.readlines()[self.offset:]).strip()
 
     @property
@@ -159,11 +274,6 @@ class FileEntry:
         return safeslug(self.title)
 
     @property
-    def permalink(self):
-        # TODO: fix hard-coded slug
-        return expand('/:year/:slug/', self)
-
-    @property
     def description(self):
         # TODO: this is really poor
         return self.source[:50].strip() + '...'
@@ -178,91 +288,15 @@ class FileEntry:
         else:
             return False
 
-    @property
-    def draft(self):
-        return True if self.get('draft', False) else False
-
-    def get(self, key, default=None):
-        return self.__dict__.get(key, default)
-
-    def parse(self):
-        """parsing yaml header and remember where content begins. Only append
-        key,value if whitelisted in __keys__ and __map__ ."""
-
-        meta = []
-        i = 0
-        with codecs.open(self.filename, 'r', encoding=self.encoding, errors='replace') as f:
-            while True:
-                line = f.readline()
-                i += 1
-                if i == 1 and not line.strip():
-                    break
-                elif i == 1 and line.startswith('---'):
-                    pass
-                elif i > 1 and not line.startswith('---'):
-                    meta.append(line)
-                else:
-                    break
-
-        self.offset = i
-        for key, value in yamllike(''.join(meta)).iteritems():
-            if key not in self.__keys__ + self.__map__.keys():
-                continue
-            if isinstance(value, basestring):
-                self.__dict__[key] = unicode(value.strip('"'))
-            else:
-                self.__dict__[key] = value
-
     def keys(self):
-        return filter(lambda k: hasattr(self, k), self.__keys__)
+        return list(iter(self))
+
+    def __iter__(self):
+        for k in self.__keys__:
+            yield k
 
     def __getitem__(self, key):
-        """surjective dict. Return mapped key (tag -> tags) or raise KeyError."""
-        if key in self.__map__:
-            return self.__dict__[self.__map__[key]]
-        elif key in self.__keys__:
-            return getattr(self, key)
-        else:
-            raise KeyError("%s has no such attribute '%s'" % (self, key))
-
-    def __setitem__(self, key, value):
-        if key not in ['parse', 'offset', 'get', 'has_changed']:
-            setattr(self, key, value)
-        else:
-            log.warn("invalid key '%s'" % key)
-
-
-class ColorFormatter(logging.Formatter):
-    """Implements basic colored output using ANSI escape codes."""
-
-    # $color + BOLD
-    BLACK = '\033[1;30m%s\033[0m'
-    RED = '\033[1;31m%s\033[0m'
-    GREEN = '\033[1;32m%s\033[0m'
-    YELLOW = '\033[1;33m%s\033[0m'
-    GREY = '\033[1;37m%s\033[0m'
-    RED_UNDERLINE = '\033[4;31m%s\033[0m'
-
-    def __init__(self, fmt='[%(levelname)s] %(name)s: %(message)s', debug=False):
-        logging.Formatter.__init__(self, fmt)
-        self.debug = debug
-
-    def format(self, record):
-
-        keywords = {'skip': self.BLACK, 'create': self.GREEN, 'identical': self.BLACK,
-                    'update': self.YELLOW, 'changed': self.YELLOW}
-
-        if record.levelno == logging.INFO:
-            for item in keywords:
-                if record.msg.startswith(item):
-                    record.msg = record.msg.replace(item, ' '*2 + \
-                                    keywords[item] % item.rjust(8))
-        elif record.levelno >= logging.WARN:
-            record.levelname = record.levelname.replace('WARNING', 'WARN')
-            record.msg = ''.join([' '*2, self.RED % record.levelname.lower().rjust(8),
-                                  '  ', record.msg])
-
-        return logging.Formatter.format(self, record)
+        return getattr(self, key)
 
 
 class ExtendedFileSystemLoader(FileSystemLoader):
@@ -294,66 +328,6 @@ class ExtendedFileSystemLoader(FileSystemLoader):
         return tt
 
 
-def check_conf(conf):
-    """Rudimentary conf checking.  Currently every *_dir except
-    `ext_dir` (it's a list of dirs) is checked wether it exists."""
-
-    # directories
-
-    for key, value in conf.iteritems():
-        if key.endswith('_dir') and not key in ['ext_dir', ]:
-            if os.path.exists(value):
-                if os.path.isdir(value):
-                    pass
-                else:
-                    log.error("'%s' must be a directory" % value)
-                    sys.exit(1)
-            else:
-                os.mkdir(value)
-                log.warning('%s created...' % value)
-
-    return True
-
-
-def yamllike(conf):
-    """pyyaml replacement (not really yet, but works for me). Parsing
-    first-layer YAML (okay: key,value assignments) into a python dict.
-    yamllike is filter. and view. aware, that means all assignments starting
-    with this string will exec into the given __init__ environment."""
-
-    conf = [line.strip() for line in conf.split('\n')
-                if not line.startswith('#') and line.strip()]
-
-    config = {}
-    config['views.'] = []
-    config['filters.'] = []
-    for line in conf:
-        try:
-            key, value = [x.strip() for x in line.split(':', 1)]
-        except ValueError:
-            # do something
-            log.warn('conf.yaml -> ValueError: %s' % line)
-            continue
-
-        if key.startswith('filters.'):
-            config['filters.'].append(key.replace('filters.', '')+' = '+value+'\n')
-        elif key.startswith('views.'):
-            config['views.'].append(key.replace('views.', '')+' = '+value+'\n')
-        else:
-            if value == '':
-                config[key] = None
-            elif value.isdigit():
-                config[key] = int(value)
-            elif value.lower() in ['true', 'false']:
-                config[key] = True if value.capitalize() == 'True' else False
-            elif value[0] == '[' and value[-1] == ']':
-                config[key] = list([unicode(x.strip()) for x in value[1:-1].split(',') if x.strip()])
-            else:
-                config[key] = value
-
-    return config
-
-
 def render(tt, *dicts, **kvalue):
     """helper function to merge multiple dicts and additional key=val params
     to a single environment dict used by jinja2 templating. Note, merging will
@@ -369,41 +343,43 @@ def render(tt, *dicts, **kvalue):
     return tt.render(env)
 
 
-def mkfile(content, path, message, force=False):
+def mkfile(content, path, message, force=False, dryrun=False, **kwargs):
     """Creates entry in filesystem. Overwrite only if content differs.
 
     :param content: rendered html/xml to write
-    :param entry: FileEntry object
     :param path: path to write to
+    :param message: message to display
     :param force: force overwrite, even nothing has changed (defaults to `False`)"""
 
     if exists(dirname(path)) and exists(path):
         with file(path) as f:
             old = f.read()
         if content == old and not force:
-            event.skip(message)
+            event.skip(message, path=path)
         else:
-            with open(path, 'w') as f:
-                f.write(content)
-            event.changed(message)
+            if not dryrun:
+                with open(path, 'w') as f:
+                    f.write(content)
+            event.changed(message, path=path)
     else:
         try:
-            os.makedirs(dirname(path))
+            if not dryrun:
+                os.makedirs(dirname(path))
         except OSError:
             # dir already exists (mostly)
             pass
-        with open(path, 'w') as f:
-            f.write(content)
-        event.create(message, path)
+        if not dryrun:
+            with open(path, 'w') as f:
+                f.write(content)
+        event.create(message, path=path)
 
 
-def expand(url, entry):
+def expand(url, obj):
     """expanding '/:year/:slug/' scheme into e.g. '/2011/awesome-title/"""
-    m = {':year': str(entry.date.year), ':month': str(entry.date.month),
-         ':day': str(entry.date.day), ':slug': entry.slug}
 
-    for val in m:
-        url = url.replace(val, m[val])
+    for k in obj:
+        if not k.endswith('/') and (':' + k) in url:
+            url = url.replace(':'+k, obj[k])
     return url
 
 
@@ -534,20 +510,82 @@ class cache(object):
         return mtime
 
 
+def track(f):
+    """decorator to track files when event.create|change|skip is called."""
+    def dec(cls, what, path):
+        global _tracked_files
+        _tracked_files.add(path)
+        return f(cls, what, path)
+    return dec
+
+
+def clean(conf, dryrun=False, **kwargs):
+    """Attention: this function may eat your data!  Every create, changed
+    or skip event call tracks automatically files. After generation, --clean
+    will call this function and removes untracked files.
+
+    - with OUTPUT_IGNORE you can specify a list of patterns which are ignored.
+    - you can use --dry-run to see what would have been removed
+    - by default acrylamid does NOT call this function
+
+    :param conf: user configuration
+    :param dryrun: don't delete, just show what would have been done
+    """
+
+    def excluded(path, excl_files):
+        """test if path should be ignored"""
+        if filter(lambda p: fnmatch(path, p), excl_files):
+            return True
+        return False
+
+    global _tracked_files
+    ignored = [join(conf['output_dir'], p) for p in conf['output_ignore']]
+
+    for root, dirs, files in os.walk(conf['output_dir'], topdown=False):
+        found = set([join(root, p) for p in files
+                     if not excluded(join(root, p), ignored)])
+        for i, p in enumerate(found.difference(_tracked_files)):
+            if not dryrun:
+                os.remove(p)
+            event.removed(p)
+
+        for name in dirs:
+            try:
+                p = join(root, name)
+                os.rmdir(p)
+                event.removed(p)
+            except OSError:
+                pass  # dir not empty XXX don't use try-except
+
+
 class event:
+    """this helper class provides an easy mechanism to give user feedback of
+    created, changed or deleted files.  As side-effect every non-destructive
+    call will add the given path to the global tracking list and makes it
+    possible to remove unused files (e.g. after you've changed your url scheme
+    or just reworded your title).
+
+    This class is a singleton and can't be initialized."""
 
     @classmethod
     def __init__(self):
-        pass
+        raise NotImplemented
 
     @classmethod
+    @track
     def create(self, what, path):
         log.info("create  '%s', written to %s", what, path)
 
     @classmethod
-    def changed(self, what):
+    @track
+    def changed(self, what, path):
         log.info("changed  content of '%s'", what)
 
     @classmethod
-    def skip(self, what):
-        log.info("skip  '%s' is up to date", what)
+    @track
+    def skip(self, what, path):
+        log.skip("skip  '%s' is up to date", what)
+
+    @classmethod
+    def removed(self, path):
+        log.info("removed  %r", path)

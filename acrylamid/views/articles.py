@@ -2,15 +2,11 @@
 # License: BSD Style, 2 clauses. see acrylamid.py
 
 from acrylamid.views import View
-from acrylamid.utils import mkfile, joinurl
+from acrylamid.utils import mkfile, joinurl, event
 
 from os.path import join, getmtime, exists
 from collections import defaultdict
 from jinja2 import Template
-
-filters = []
-path = '/articles/'
-enabled = True
 
 
 class Articles(View):
@@ -18,22 +14,26 @@ class Articles(View):
 
     __filters__ = False
 
-    def __init__(self, conf, env):
+    def __init__(self, conf, env, path='/articles/'):
         self.layoutpath = join(conf['layout_dir'], 'articles.html')
+        self.path = path
         with file(self.layoutpath) as f:
             self.tt_articles = Template(f.read())
 
-    def __call__(self, request):
+    def __call__(self, request, *args, **kwargs):
 
         articles = defaultdict(list)
         conf = request['conf']
         entrylist = request['entrylist']
 
-        p = joinurl(conf['output_dir'], path, 'index.html')
+        p = joinurl(conf['output_dir'], self.path)
+        if not filter(lambda e: p.endswith(e), ['.xml', '.html']):
+            p = joinurl(p, 'index.html')
         last_modified = max([getmtime(e.filename) for e in entrylist])
 
         if exists(p) and last_modified < getmtime(p):
             if getmtime(self.layoutpath) < getmtime(p):
+                event.skip(p.replace(conf['output_dir'], ''), path=p)
                 return
 
         for entry in sorted(entrylist, key=lambda k: k.date, reverse=True):
@@ -48,4 +48,4 @@ class Articles(View):
                      'num_entries': len(entrylist)})
 
         html = self.tt_articles.render(articlesdict)
-        mkfile(html, p, joinurl(path, 'index.html'))
+        mkfile(html, p, p.replace(conf['output_dir'], ''), **kwargs)
