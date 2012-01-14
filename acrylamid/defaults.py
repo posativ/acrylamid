@@ -60,7 +60,10 @@ def init(root='.', overwrite=False):
             q = raw_input('re-create %r? [yn]: ' % root)
             if q == 'y':
                 if not isdir(dirname(root)):
-                    os.makedirs(dirname(root))
+                    try:
+                        os.makedirs(dirname(root))
+                    except OSError:
+                        pass
                 with open(root, 'w') as fp:
                     fp.write(files[root.replace('./', '')])
                 log.info('create %s' % root)
