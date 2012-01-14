@@ -29,7 +29,7 @@ import traceback
 import signal
 
 from optparse import OptionParser, make_option, OptionGroup
-from acrylamid import defaults, log, helpers, errors
+from acrylamid import defaults, log, helpers, utils
 from acrylamid.errors import AcrylamidException
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -48,7 +48,8 @@ class Acryl:
         usage = "usage: %prog [options] init\n" + '\n' \
                 + "init         - initializes base structure\n" \
                 + "compile      - render blog\n" \
-                + "autocompile  - serving on port -p (8000) with auto-compile\n"
+                + "autocompile  - serving on port -p (8000) with auto-compile\n" \
+                + "clean        - remove orphans from output_dir\n"
 
         options = [
             make_option("-v", "--verbose", action="store_const", dest="verbosity",
@@ -62,8 +63,6 @@ class Acryl:
             # --- gen params --- #
             make_option("-f", "--force", action="store_true", dest="force",
                               help="force re-render", default=False),
-            make_option("--clean", dest="clean", action="store_true", default=False,
-                               help="remove old entries from output_dir"),
             make_option("-n", "--dry-run", dest="dryrun", action='store_true',
                                default=False, help="show what would have been deleted"),
 
@@ -112,8 +111,6 @@ class Acryl:
 
         # -- teh real thing -- #
         conf = defaults.conf
-        conf['auto_clean'] = options.clean
-        conf['dry-run'] = options.dryrun
 
         try:
             ns = {}
@@ -147,6 +144,14 @@ class Acryl:
                 log.fatal(e.message)
                 sys.exit(1)
 
+        elif args[0] in ['clean', 'rm']:
+            log.setLevel(options.verbosity+5)
+            try:
+                helpers.compile(conf, env, dryrun=True, force=False)
+                utils.clean(conf, **options.__dict__)
+            except AcrylamidException as e:
+                log.fatal(e.message)
+                sys.exit(1)
 
         elif args[0] in ['aco', 'autocompile', 'srv', 'serve']:
             from acrylamid.lib.httpd import Webserver

@@ -516,7 +516,7 @@ def track(f):
     return dec
 
 
-def clean(conf, dryrun=False):
+def clean(conf, dryrun=False, **kwargs):
     """Attention: this function may eat your data!  Every create, changed
     or skip event call tracks automatically files. After generation, --clean
     will call this function and removes untracked files.
