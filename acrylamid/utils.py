@@ -189,6 +189,7 @@ class FileEntry:
                 return datetime.fromtimestamp(ts)
             except ValueError:
                 pass
+        log.warn("using mtime from %r" % self.filename)
         return datetime.fromtimestamp(self.mtime)
 
     @property
