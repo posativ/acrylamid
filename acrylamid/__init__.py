@@ -49,7 +49,7 @@ class Acryl:
                 + "init         - initializes base structure\n" \
                 + "compile      - render blog\n" \
                 + "autocompile  - serving on port -p (8000) with auto-compile\n" \
-                + "clean        - remove orphans from output_dir\n"
+                + "clean        - remove orphans or all from output_dir\n"
 
         options = [
             make_option("-v", "--verbose", action="store_const", dest="verbosity",
@@ -149,7 +149,7 @@ class Acryl:
                 log.setLevel(options.verbosity+5)
                 helpers.compile(conf, env, dryrun=True, force=False)
                 log.setLevel(options.verbosity)
-                utils.clean(conf, **options.__dict__)
+                utils.clean(conf, everything=options.force, **options.__dict__)
             except AcrylamidException as e:
                 log.fatal(e.message)
                 sys.exit(1)
