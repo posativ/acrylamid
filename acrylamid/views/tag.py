@@ -14,19 +14,11 @@ from acrylamid.utils import render, mkfile, joinurl, safeslug, event, \
 
 class Tag(View):
 
-    __name__ = 'tag'
-    filters = []
-    path = '/tag/:name/'
-    items_per_page = 10
-    pagination = '/tag/:name/:num/'
-
-    def __init__(self, conf, env, **kw):
-
-        for key, value in kw.iteritems():
-            if not hasattr(self, key):
-                log.warn("no such option `%s'", key)
-                continue
-            setattr(self, key, value)
+    def __init__(self, conf, env, items_per_page=25,
+                 pagination='/tag/:name/:num/', *args, **kwargs):
+        View.__init__(self, *args, **kwargs)
+        self.items_per_page = items_per_page
+        self.pagination = pagination
 
         class Link:
 

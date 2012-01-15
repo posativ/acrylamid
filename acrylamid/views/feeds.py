@@ -49,34 +49,31 @@ class Feed(View):
 
 class Atom(Feed):
 
+    filters = []
     path = '/atom/'
 
-    def __init__(self, conf, env, filters=[], path='/atom/', num_entries=25):
+    def __init__(self, conf, env, num_entries=25, *args, **kwargs):
+
+        View.__init__(self, *args, **kwargs)
+        self.num_entries = num_entries
         self.tt_entry = self.env.from_string(ATOM_ENTRY)
         self.tt_body = self.env.from_string(ATOM_BODY)
-
-        self.filters = filters
-        self.path = path
-        self.num_entries = num_entries
 
 
 class RSS(Feed):
 
     path = '/rss/'
 
-    def __init__(self, conf, env, filters=[], path='/rss/', num_entries=25):
+    def __init__(self, conf, env, num_entries=25, *args, **kwargs):
 
+        View.__init__(self, *args, **kwargs)
         from wsgiref.handlers import format_date_time
         from time import mktime
 
+        self.num_entries = num_entries
         self.env.filters['rfc822'] = lambda x: format_date_time(mktime(x.timetuple()))
         self.tt_entry = self.env.from_string(RSS_ENTRY)
         self.tt_body = self.env.from_string(RSS_BODY)
-
-        self.filters = filters
-        self.path = path
-        self.num_entries = num_entries
-
 
 ATOM_BODY = r'''
 <?xml version="1.0" encoding="utf-8"?>

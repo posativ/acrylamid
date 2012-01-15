@@ -80,13 +80,16 @@ def compile(conf, env, force=False, **options):
     if force:
         cache.clear()
 
+    entrylist = request.pop('entrylist')
     filtersdict = get_filters()
     _views = get_views()
 
     for v in _views:
         log.debug(v)
-        for entry in request['entrylist']:
-            if not v.__filters__:
+        request['entrylist'] = []
+        for entry in entrylist:
+            if not v.filters:
+                request['entrylist'] = entrylist
                 break
 
             log.debug(entry.filename)
@@ -102,7 +105,9 @@ def compile(conf, env, force=False, **options):
                     _filters.append((x, filtersdict[x], y))
 
             entry.lazy_eval = _filters
+            request['entrylist'].append(entry)
 
+        request['entrylist'] = filter(v.condition, entrylist)
         v(request, **options)
 
 

@@ -11,18 +11,10 @@ from acrylamid.utils import render, mkfile, joinurl, event, paginate, expand
 
 class Index(View):
 
-    __name__ = 'index'
-    filters = []
-    path = '/'
-    items_per_page = 10
-    pagination = '/page/:num/'
-
-    def __init__(self, conf, env, **kw):
-        for key, value in kw.iteritems():
-            if not hasattr(self, key):
-                log.warn("no such option `%s'", key)
-                continue
-            setattr(self, key, value)
+    def __init__(self, conf, env, items_per_page=10, pagination='/page/:num/', *args, **kwargs):
+        View.__init__(self, *args, **kwargs)
+        self.items_per_page = items_per_page
+        self.pagination = pagination
 
     def __call__(self, request, *args, **kwargs):
         """Creates nicely paged listing of your posts.  First page is the

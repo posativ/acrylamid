@@ -12,11 +12,11 @@ from jinja2 import Template
 class Articles(View):
     """Generates a overview of all articles."""
 
-    __filters__ = False
+    path = '/articles/'
 
-    def __init__(self, conf, env, path='/articles/'):
+    def __init__(self, conf, env, *args, **kwargs):
+        View.__init__(self, *args, **kwargs)
         self.layoutpath = join(conf['layout_dir'], 'articles.html')
-        self.path = path
         with file(self.layoutpath) as f:
             self.tt_articles = Template(f.read())
 

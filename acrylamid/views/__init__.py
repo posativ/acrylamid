@@ -53,8 +53,13 @@ def index_views(module, urlmap, conf, env):
                         mem = None
         if mem:
             kwargs = conf['views'][rule].copy()
-            kwargs.pop('view')
-            __views_list.append(mem(conf, env, path=rule, **kwargs))
+            kwargs['path'] = rule
+            try:
+                kwargs['condition'] = conf['views'][rule]['if']
+            except KeyError:
+                pass
+            kwargs.pop('if', None)
+            __views_list.append(mem(conf, env, **kwargs))
             urlmap.remove((view, rule))
 
 
@@ -95,4 +100,17 @@ def initialize(ext_dir, conf, env):
 class View(object):
 
     __view__ = True
-    __filters__ = True
+
+    filters = None
+    condition = lambda v, e: True
+    view = 'View'
+    path = '/'
+
+    def __init__(self, *args, **kwargs):
+        for k in ('condition', 'view', 'path', 'filters'):
+            try:
+                setattr(self, k, kwargs[k])
+            except KeyError:
+                pass
+        for k in ('condition', 'view', 'path', 'filters'):
+            kwargs.pop(k, None)

@@ -8,17 +8,14 @@ from acrylamid.utils import expand, render, mkfile, joinurl, event
 from acrylamid.errors import AcrylamidException
 
 class Entry(View):
-    """Creates single full-length entry.
-    entry.html -- layout of Post's entry
-    main.html -- layout of the website
-    """
+    """Creates single full-length entry."""
 
-    __name__ = 'entry'
+    path = '/:year/:slug/'
+    filters = []
 
-    def __init__(self, conf, env, filters=[], path='/:year/:slug/'):
+    def __init__(self, conf, env, *args, **kwargs):
 
-        self.filters = filters
-        self.path = path
+        View.__init__(self, *args, **kwargs)
 
     def __call__(self, request, *args, **kwargs):
 
