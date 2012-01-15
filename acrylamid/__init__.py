@@ -25,6 +25,7 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 import os
+import time
 import traceback
 import signal
 
@@ -49,7 +50,8 @@ class Acryl:
                 + "init         - initializes base structure\n" \
                 + "compile      - render blog\n" \
                 + "autocompile  - serving on port -p (8000) with auto-compile\n" \
-                + "clean        - remove orphans or all from output_dir\n"
+                + "clean        - remove orphans or all from output_dir\n" \
+                + "serve        - builtin webserver on port -p (8000)\n"
 
         options = [
             make_option("-v", "--verbose", action="store_const", dest="verbosity",
@@ -136,7 +138,7 @@ class Acryl:
 
         # -- run -- #
 
-        if args[0] in ['gen', 'generate', 'render', 'co', 'compile']:
+        if args[0] in ('gen', 'generate', 'co', 'compile'):
             log.setLevel(options.verbosity-5)
             try:
                 helpers.compile(conf, env, **options.__dict__)
@@ -144,7 +146,7 @@ class Acryl:
                 log.fatal(e.message)
                 sys.exit(1)
 
-        elif args[0] in ['clean', 'rm']:
+        elif args[0] in ('clean', 'rm'):
             try:
                 log.setLevel(options.verbosity+5)
                 helpers.compile(conf, env, dryrun=True, force=False)
@@ -154,7 +156,19 @@ class Acryl:
                 log.fatal(e.message)
                 sys.exit(1)
 
-        elif args[0] in ['aco', 'autocompile', 'srv', 'serve']:
+        elif args[0] in ('srv', 'serve'):
+            from acrylamid.lib.httpd import Webserver
+            ws = Webserver(options.port, conf['output_dir']); ws.start()
+            log.info(' * Running on http://127.0.0.1:%i/' % options.port)
+
+            try:
+                while True:
+                    time.sleep(1)
+            except (SystemExit, KeyboardInterrupt, Exception) as e:
+                ws.kill_received = True
+                sys.exit(0)
+
+        elif args[0] in ('aco', 'autocompile'):
             from acrylamid.lib.httpd import Webserver
             # XXX compile on request _or_ use inotify/fsevent
             ws = Webserver(options.port, conf['output_dir']); ws.start()
@@ -162,6 +176,6 @@ class Acryl:
 
             try:
                 helpers.autocompile(conf, env, **options.__dict__)
-            except (SystemExit, KeyboardInterrupt, Exception), e:
+            except (SystemExit, KeyboardInterrupt, Exception) as e:
                 ws.kill_received = True
                 sys.exit(0)
