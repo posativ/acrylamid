@@ -33,8 +33,13 @@ class Tag(View):
             def __init__(self, title, href):
                 self.title = title
                 self.href = href if href.endswith('/') else href + '/'
+
+        def tagify(tags):
+            href = lambda t: expand(self.path, {'name': safeslug(t)})
+            return [Link(t, href(t)) for t in tags]
+
         env['tt_env'].filters['safeslug'] = safeslug
-        env['tt_env'].filters['tagify'] = lambda e: [Link(t, joinurl(self.path, safeslug(t))) for t in e]
+        env['tt_env'].filters['tagify'] = tagify
 
     def __call__(self, request, *args, **kwargs):
         """Creates paged listing by tag.

@@ -27,6 +27,7 @@ def initialize(conf, env):
     # set up templating environment
     env['tt_env'] = Environment(loader=ExtendedFileSystemLoader(conf['layout_dir']),
                                 bytecode_cache=FileSystemBytecodeCache('.cache/'))
+    env['tt_env'].filters.update({'safeslug': False, 'tagify': False})
 
     # initialize the locale, will silently fail if locale is not
     # available and uses system's locale

@@ -19,8 +19,6 @@ def handle(request):
 
     conf = request['conf']
     env = request['env']
-    env['tt_env'].filters['safeslug'] = False
-    env['tt_env'].filters['tagify'] = False
 
     request['entrylist'] = [FileEntry(e, conf) for e in filelist(request['conf'])]
     request['entrylist'] = EntryList(request['entrylist'])
