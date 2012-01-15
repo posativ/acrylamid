@@ -6,9 +6,10 @@
 from os.path import exists
 from collections import defaultdict
 
+from acrylamid import log
 from acrylamid.views import View
-from acrylamid.utils import render, mkfile, joinurl, safeslug, event, paginate, \
-                            EntryList, expand
+from acrylamid.utils import render, mkfile, joinurl, safeslug, event, \
+                            paginate, EntryList, expand
 
 
 class Tag(View):
@@ -33,7 +34,7 @@ class Tag(View):
                 self.title = title
                 self.href = href if href.endswith('/') else href + '/'
         env['tt_env'].filters['safeslug'] = safeslug
-        env['tt_env'].filters['tagify'] = lambda e: [Link(t, joinurl(path, safeslug(t))) for t in e]
+        env['tt_env'].filters['tagify'] = lambda e: [Link(t, joinurl(self.path, safeslug(t))) for t in e]
 
     def __call__(self, request, *args, **kwargs):
         """Creates paged listing by tag.

@@ -82,7 +82,7 @@ def setLevel(level):
     logger.setLevel(level)
 
 
-__all__ = ['fatal', 'error', 'warn', 'info', 'skip', 'debug',
+__all__ = ['fatal', 'warn', 'info', 'skip', 'debug',
            'WARN', 'INFO', 'SKIP', 'DEBUG', 'setLevel']
 
 if __name__ == '__main__':

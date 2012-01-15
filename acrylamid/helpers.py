@@ -11,7 +11,7 @@ from os.path import getmtime
 from jinja2 import Environment, FileSystemBytecodeCache
 
 from acrylamid import filters, views, log
-from acrylamid.utils import cache, clean, ExtendedFileSystemLoader
+from acrylamid.utils import cache, ExtendedFileSystemLoader
 from acrylamid.errors import AcrylamidException
 
 from acrylamid.core import handle as prepare, filelist

@@ -4,6 +4,7 @@
 
 from os.path import exists
 
+from acrylamid import log
 from acrylamid.views import View
 from acrylamid.utils import render, mkfile, joinurl, event, paginate, expand
 

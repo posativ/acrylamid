@@ -562,10 +562,10 @@ class event:
     """this helper class provides an easy mechanism to give user feedback of
     created, changed or deleted files.  As side-effect every non-destructive
     call will add the given path to the global tracking list and makes it
-    possible to remove unused files (e.g. after you've changed your url scheme
-    or just reworded your title).
+    possible to remove unused files (e.g. after you've changed your permalink
+    scheme or just reworded your title).
 
-    This class is a singleton and can't be initialized."""
+    This class is a singleton and should not be initialized."""
 
     @classmethod
     def __init__(self):

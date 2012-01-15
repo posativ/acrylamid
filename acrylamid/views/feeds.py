@@ -3,7 +3,7 @@
 # -*- encoding: utf-8 -*-
 
 from datetime import datetime
-from os.path import exists, basename
+from os.path import exists
 
 from acrylamid.views import View
 from acrylamid.utils import render, mkfile, joinurl, event
