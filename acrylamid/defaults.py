@@ -91,11 +91,8 @@ def init(root='.', overwrite=False):
             sys.exit(1)
         elif not exists(directory):
             os.mkdir(directory)
-            log.info('create  %s', directory)
-        else:
-            log.info('skip  %s already exists', directory)
 
-    for path, content in files.iteritems():
+    for path, content in sorted(files.iteritems(), key=lambda k: k[0]):
         path = join(root, path % default)
         if exists(path) and not isfile(path):
             log.critical('%r must be a regular file' % path)
