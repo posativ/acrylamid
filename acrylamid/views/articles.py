@@ -6,7 +6,6 @@ from acrylamid.utils import mkfile, joinurl, event
 
 from os.path import join, getmtime, exists
 from collections import defaultdict
-from jinja2 import Template
 
 
 class Articles(View):
@@ -16,15 +15,15 @@ class Articles(View):
 
     def __init__(self, conf, env, *args, **kwargs):
         View.__init__(self, *args, **kwargs)
-        self.layoutpath = join(conf['layout_dir'], 'articles.html')
-        with file(self.layoutpath) as f:
-            self.tt_articles = Template(f.read())
 
     def __call__(self, request, *args, **kwargs):
 
-        articles = defaultdict(list)
         conf = request['conf']
+        env = request['env']
         entrylist = request['entrylist']
+
+        articles = defaultdict(list)
+        tt_articles = env['tt_env'].get_template('articles.html')
 
         p = joinurl(conf['output_dir'], self.path)
         if not filter(lambda e: p.endswith(e), ['.xml', '.html']):
@@ -32,7 +31,7 @@ class Articles(View):
         last_modified = max([getmtime(e.filename) for e in entrylist])
 
         if exists(p) and last_modified < getmtime(p):
-            if getmtime(self.layoutpath) < getmtime(p):
+            if not tt_articles.has_changed:
                 event.skip(p.replace(conf['output_dir'], ''), path=p)
                 return
 
@@ -46,6 +45,7 @@ class Articles(View):
         articlesdict = conf.copy()
         articlesdict.update({'articles': articles,
                      'num_entries': len(entrylist)})
+        articlesdict.update(request['env'])
 
-        html = self.tt_articles.render(articlesdict)
+        html = tt_articles.render(articlesdict)
         mkfile(html, p, p.replace(conf['output_dir'], ''), **kwargs)

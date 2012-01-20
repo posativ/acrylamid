@@ -83,8 +83,8 @@ class Summarize(Filter):
     __match__ = ['summarize', 'sum']
 
     def __init__(self, conf, env):
-        self.env = env
+        self.path = env['path']
 
     def __call__(self, content, req):
 
-        return Summarizer(content, req.permalink, 200).summarized
+        return Summarizer(content, self.path+req.permalink, 200).summarized

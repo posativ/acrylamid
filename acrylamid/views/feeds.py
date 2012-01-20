@@ -80,12 +80,12 @@ ATOM_BODY = r'''
 <feed xmlns="http://www.w3.org/2005/Atom" xml:lang="{{ lang[0].replace('_', '-') }}">
     <author>
         <name>{{ author }}</name>
-        <uri>{{ website }}</uri>
+        <uri>{{ www_root + '/' }}</uri>
         <email>{{ email }}</email>
     </author>
     <title>{{ sitename | escape }}</title>
-    <id>{{ website }}</id>
-    <link rel="alternate" type="text/html" href="{{ website }}" />
+    <id>{{ www_root + '/' }}</id>
+    <link rel="alternate" type="text/html" href="{{ www_root + '/' }}" />
     <link rel="self" type="application/atom+xml" href="{{ www_root+atom.path }}" />
     <updated>{{ updated.strftime('%Y-%m-%dT%H:%M:%SZ') }}</updated>
     <generator uri="https://posativ.org/acrylamid/" version="{{ acrylamid_version }}">{{ acrylamid_name }}</generator>
@@ -101,7 +101,7 @@ ATOM_ENTRY = r'''
     <updated>{{ date.strftime('%Y-%m-%dT%H:%M:%SZ') }}</updated>
     <author>
         <name>{{ author }}</name>
-        <uri>{{ website }}</uri>
+        <uri>{{ www_root + '/' }}</uri>
         <email>{{ email }}</email>
     </author>
     <content type="html">{{ content | escape }}</content>
@@ -112,7 +112,7 @@ RSS_BODY = r'''
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>{{ sitename | escape }}</title>
-        <link>{{ website }}</link>
+        <link>{{ www_root + '/' }}</link>
         <description>{{ description }}</description>
         <language>{{ lang[0].replace('_', '-').lower() }}</language>
         <pubDate>{{ updated | rfc822 }}</pubDate>

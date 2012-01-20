@@ -8,6 +8,7 @@ import locale
 import codecs
 
 from os.path import getmtime
+from urlparse import urlsplit
 from jinja2 import Environment, FileSystemBytecodeCache
 
 from acrylamid import filters, views, log
@@ -39,19 +40,15 @@ def initialize(conf, env):
         log.warn("unsupported locale '%s', set to '%s'", conf['lang'], locale.getlocale()[0])
     conf['lang'] = locale.getlocale()
 
-    if 'www_root' not in conf and 'website' in conf:
-        conf['www_root'] = conf['website']
-    elif 'www_root' not in conf:
+    if 'www_root' not in conf:
         log.warn('no `www_root` specified, using localhost:8000')
         conf['www_root'] = 'http://localhost:8000/'
 
-    if 'website' not in conf:
-        conf['website'] = conf['www_root']
+    env['protocol'], env['netloc'], env['path'], x, y = urlsplit(conf['www_root'])
 
-    env['protocol'] = conf['www_root'][0:conf['www_root'].find('://')]
-    # take off the trailing slash for base_url
-    if conf['www_root'].endswith("/"):
-        conf['www_root'] = conf['www_root'][:-1]
+    # take off the trailing slash for www_root and path
+    conf['www_root'] = conf['www_root'].rstrip('/')
+    env['path'] = env['path'].rstrip('/')
 
     # check encoding is available
     try:

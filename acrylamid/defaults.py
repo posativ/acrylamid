@@ -36,6 +36,7 @@ def init(root='.', overwrite=False):
     dirs = ['%(entries_dir)s/', '%(layout_dir)s/', '%(output_dir)s/']
     files = {'conf.py': confstring,
              '%(output_dir)s/blog.css' % default: css,
+             '%(layout_dir)s/base.html' % default: base,
              '%(layout_dir)s/main.html' % default: main,
              '%(layout_dir)s/entry.html' % default: entry,
              '%(layout_dir)s/articles.html' % default: articles,
@@ -358,92 +359,111 @@ object[type="application/x-shockwave-flash"] {
   float: left; }
 '''.strip()
 
-main = r'''
+base = r'''
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN"
          "http://www.w3.org/Math/DTD/mathml2/xhtml-math11-f.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
- <head>
-  <title>
-      {%- if type != 'item' -%}
-        {{ sitename }}
-      {%- else -%}
-        {{ title }}
-      {%- endif -%}
-  </title>
-  <meta http-equiv="Content-Type" content="text/xhtml; charset=utf-8" />
-  <meta http-equiv="content-language" content="de, en" />
-  {% if type == 'item' -%}
-  <meta name="description" content="{{ description }}" />
-  <meta name="keywords" content="{{ tags | join(', ') }}" />
-  {%- endif %}
-  <link media="all" href="/blog.css" type="text/css" rel="stylesheet" />
-  <link href="/favicon.ico" rel="shortcut icon" />
-  <link href="/" rel="home" />
-  <link href="/atom/" type="application/atom+xml" rel="alternate" title="Atom-Feed" />
-  <link href="/rss/" type="application/rss+xml" rel="alternate" title="RSS-Feed" />
- </head>
- <body>
+<head>
+    {% block head -%}
+    <title>{% block title %}{% endblock %}</title>
+    <meta http-equiv="Content-Type" content="text/xhtml; charset=utf-8" />
+    <meta http-equiv="content-language" content="de, en" />
+    <link media="all" href="{{ path + '/blog.css' }}" type="text/css" rel="stylesheet" />
+    <link href="/favicon.ico" rel="shortcut icon" />
+    <link href="{{ path + '/' }}" rel="home" />
+    <link href="{{ path + '/atom/' }}" type="application/atom+xml" rel="alternate" title="Atom-Feed" />
+    <link href="{{ path + '/rss/' }}" type="application/rss+xml" rel="alternate" title="RSS-Feed" />
+    {%- endblock %}
+</head>
+<body>
     <div id="blogheader">
         <div id="blogtitle">
-            <h2>
-                <a href="/" class="blogtitle">{{ sitename }}</a>
-            </h2>
+            <h2><a href="{{ path + '/' }}" class="blogtitle">{{ sitename }}</a></h2>
         </div>
         <div id="mainlinks">
             <ul>
-                <li><a href="/">blog</a></li>
-                <li><a href="/atom/">atom</a></li>
-                <li><a href="/rss/">rss</a></li>
-                <li><a href="/articles/">articles</a></li>
+                <li><a href="{{ path + '/' }}">blog</a></li>
+                <li><a href="{{ path + '/atom/' }}">atom</a></li>
+                <li><a href="{{ path + '/rss/' }}">rss</a></li>
+                <li><a href="{{ path + '/articles/' }}">articles</a></li>
             </ul>
         </div>
     </div>
     <div id="blogbody">
-        {{ entrylist }}
-        {% if type in ['tag', 'page'] %}
-            {% if prev %}
-                <a href="{{ prev }}" class="page floatright">
-                ältere Beiträge →
-                </a>
-            {% endif %}
-            {% if next %}
-                <a href="{{ next }}" class="page floatleft">
-                ← neuere Beiträge
-                </a>
-            {% endif %}
-        {%- endif  %}
+        {% block content -%}
+        {%- endblock %}
     </div>
     <div id="blogfooter">
-        <p>
-            written by <a href="mailto:{{ email }}">{{ author }}</a>
-        </p>
-        <a href="http://creativecommons.org/licenses/by-nc-sa/2.0/de/">
+        {% block footer %}
+        <p>written by <a href="mailto:{{ email }}">{{ author }}</a></p>
+        <a href="http://creativecommons.org/licenses/by-nc-sa/2.0/de/" rel="copyright">
             <img src="/img/cc.png" alt="by-nc-sa" />
         </a>
+        {% endblock %}
     </div>
-    {% if disqus_shortname and type == 'page' %}
-    <script type="text/javascript">
-        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-        var disqus_shortname = '{{ disqus_shortname }}'; // required: replace example with your forum shortname
-
-        /* * * DON'T EDIT BELOW THIS LINE * * */
-        (function () {
-            var s = document.createElement('script'); s.async = true;
-            s.type = 'text/javascript';
-            s.src = '{{ protocol }}://' + disqus_shortname + '.disqus.com/count.js';
-            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
-        }());
-    </script>
-    {% endif %}
  </body>
-</html>'''.strip()
+</html>'''.rstrip()
+
+main = r'''
+{% extends "base.html" %}
+
+{% block title %}
+    {%- if type != 'item' -%}
+      {{ sitename }}
+    {%- else -%}
+      {{ title }}
+    {%- endif -%}
+{% endblock %}
+
+{% block head %}
+    {{- super() }}
+    {%- if type == 'item' %}
+    <meta name="description" content="{{ description }}" />
+    <meta name="keywords" content="{{ tags | join(', ') }}" />
+    {%- endif -%}
+{% endblock %}
+
+{% block content %}
+    {{ entrylist }}
+    {% if type in ['tag', 'page'] %}
+        {% if prev %}
+            <a href="{{ path + prev }}" class="page floatright">
+            ältere Beiträge →
+            </a>
+        {% endif %}
+        {% if next %}
+            <a href="{{ path + next }}" class="page floatleft">
+            ← neuere Beiträge
+            </a>
+        {% endif %}
+    {%- endif  %}
+{% endblock %}
+
+{% block footer %}
+    {{ super() }}
+    {% if disqus_shortname and type == 'page' %}
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = '{{ disqus_shortname }}'; // required: replace example with your forum shortname
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var s = document.createElement('script'); s.async = true;
+                s.type = 'text/javascript';
+                s.src = '{{ protocol }}://' + disqus_shortname + '.disqus.com/count.js';
+                (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+            }());
+        </script>
+        {% endif %}
+{% endblock %}
+'''.strip()
 
 entry = r'''
 <div class="posting">
     <div class="postheader">
         <h1 class="subject">
-            <a href="{{ permalink }}">{{ title }}</a>
+            <a href="{{ path + permalink }}">{{ title }}</a>
         </h1>
         <span class="date">{{ date.strftime("%d.%m.%Y, %H:%M") }}</span>
     </div>
@@ -457,7 +477,7 @@ entry = r'''
         {% if tags %}
             <p>verschlagwortet als
                 {% for link in tags | tagify -%}
-                    <a href="{{ link.href }}">{{ link.title }}</a>
+                    <a href="{{ path + link.href }}">{{ link.title }}</a>
                     {%- if loop.revindex > 2 -%}
                     ,
                     {%- elif loop.revindex == 2 %}
@@ -470,7 +490,7 @@ entry = r'''
         {% endif %}
     </div>
     <div class="comments">
-        {% if disqus_shortname and type == 'item' and not draft %}
+        {%- if disqus_shortname and type == 'item' and not draft %}
         <div id="disqus_thread"></div>
         <script type="text/javascript">
             var disqus_shortname = '{{ disqus_shortname }}'; // required: replace example with your forum shortname
@@ -492,80 +512,36 @@ entry = r'''
         <a href="{{ protocol }}://disqus.com" class="dsq-brlink">
             blog comments powered by <span class="logo-disqus">Disqus</span>
         </a>
-        {% endif %}
+        {% endif -%}
     </div>
 </div>'''.strip()
 
 articles = r'''
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN"
-         "http://www.w3.org/Math/DTD/mathml2/xhtml-math11-f.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <title>{{ sitename }} – Artikelübersicht</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <link rel="stylesheet" type="text/css" media="all," href="/blog.css" />
-        <link rel="shortcut icon" href="/favicon.ico" />
-        <link rel="name" href="/" />
-        <link rel="alternate" title="Atom-Feed" type="application/atom+xml" href="/atom/" />
-        <link rel="alternate" title="RSS-Feed" type="application/rss+xml" href="/rss/" />
-    </head>
-    <body>
-        <div id="blogheader">
-            <div id="blogtitle">
-                <h2>
-                    <a href="/" class="blogtitle">{{ sitename }}</a>
-                </h2>
-            </div>
-            <div id="mainlinks">
-                <ul>
-                    <li>
-                        <a href="/">blog</a>
-                    </li>
-                    <li>
-                        <a href="/atom/">atom</a>
-                    </li>
-                    <li>
-                        <a href="/rss/">rss</a>
-                    </li>
-                    <li>
-                        <a href="/articles/">articles</a>
-                    </li>
-                </ul>
-            </div>
+{% extends "base.html" %}
+
+{% block title %}{{ sitename }} – Artikelübersicht{% endblock %}
+
+{% block content %}
+    <div class="posting">
+        <div class="postheader">
+            <span class="date">{{ num_entries }} Beiträge</span>
         </div>
-        <div id="blogbody">
-            <div class="posting">
-                <div class="postheader">
-                    <span class="date">{{ num_entries }} Beiträge</span>
-                </div>
-                <div class="postbody">
-                    {% for year in articles|sort(reverse=True) %}
-                    <h2>{{ year }}</h2>
-                    <ul>
-                        {% for entry in articles[year] %}
-                            <li>
-                                <span>{{ entry[0].strftime('%d.%m.%Y: ') }}</span>
-                                <a href="{{ entry[1]}}">{{ entry[2] | e }}</a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                    {% endfor %}
-                </div>
-            </div>
+        <div class="postbody">
+            {% for year in articles|sort(reverse=True) %}
+            <h2>{{ year }}</h2>
+            <ul>
+                {% for entry in articles[year] %}
+                    <li>
+                        <span>{{ entry[0].strftime('%d.%m.%Y: ') }}</span>
+                        <a href="{{ entry[1]}}">{{ entry[2] | e }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+            {% endfor %}
         </div>
-        <div id="blogfooter">
-            <p>
-                written by
-                <a href="mailto:{{ email }}">{{ author }}</a>
-            </p>
-            <a href="http://creativecommons.org/licenses/by-nc-sa/2.0/de/">
-                <img src="/img/cc.png" alt="by-nc-sa" />
-            </a>
-        </div>
-    </body>
-</html>
-'''
+    </div>
+{% endblock %}
+'''.strip()
 
 kafka = '''
 ---
