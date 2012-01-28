@@ -30,7 +30,7 @@ import traceback
 import signal
 
 from optparse import OptionParser, make_option, OptionGroup
-from acrylamid import defaults, log, helpers, utils
+from acrylamid import defaults, log, commands, utils
 from acrylamid.errors import AcrylamidException
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -141,18 +141,18 @@ class Acryl:
         if args[0] in ('gen', 'generate', 'co', 'compile'):
             log.setLevel(options.verbosity-5)
             try:
-                helpers.compile(conf, env, **options.__dict__)
+                commands.compile(conf, env, **options.__dict__)
             except AcrylamidException as e:
                 log.fatal(e.message)
                 sys.exit(1)
 
         elif args[0] in ('new', ):
-            helpers.new(conf, env, title=' '.join(args[1:]))
+            commands.new(conf, env, title=' '.join(args[1:]))
 
         elif args[0] in ('clean', 'rm'):
             try:
                 log.setLevel(options.verbosity+5)
-                helpers.compile(conf, env, dryrun=True, force=False)
+                commands.compile(conf, env, dryrun=True, force=False)
                 log.setLevel(options.verbosity)
                 utils.clean(conf, everything=options.force, **options.__dict__)
             except AcrylamidException as e:
@@ -178,7 +178,7 @@ class Acryl:
             log.info(' * Running on http://127.0.0.1:%i/' % options.port)
 
             try:
-                helpers.autocompile(conf, env, **options.__dict__)
+                commands.autocompile(conf, env, **options.__dict__)
             except (SystemExit, KeyboardInterrupt, Exception) as e:
                 ws.kill_received = True
                 sys.exit(0)
