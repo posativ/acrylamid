@@ -146,6 +146,9 @@ class Acryl:
                 log.fatal(e.message)
                 sys.exit(1)
 
+        elif args[0] in ('new', ):
+            helpers.new(conf, env, title=' '.join(args[1:]))
+
         elif args[0] in ('clean', 'rm'):
             try:
                 log.setLevel(options.verbosity+5)

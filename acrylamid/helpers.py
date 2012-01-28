@@ -3,16 +3,20 @@
 # Copyright 2011 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid.py
 
+import sys
+import os
 import time
 import locale
 import codecs
+import tempfile
 
-from os.path import getmtime
+from os.path import join, dirname, getmtime
 from urlparse import urlsplit
+from datetime import datetime
 from jinja2 import Environment, FileSystemBytecodeCache
 
 from acrylamid import filters, views, log
-from acrylamid.utils import cache, ExtendedFileSystemLoader
+from acrylamid.utils import cache, ExtendedFileSystemLoader, FileEntry
 from acrylamid.errors import AcrylamidException
 
 from acrylamid.core import handle as prepare, filelist
@@ -130,5 +134,53 @@ def autocompile(conf, env, **options):
             files = f(filelist(conf))
         time.sleep(1)
 
+def new(conf, env, title):
+    """Subcommand: new -- create a new blog entry the easy way.  Either run
+    ``acrylamid new My fresh new Entry`` or interactively via ``acrylamid new``
+    and the file will be created using the preferred permalink format."""
 
-__all__ = ["compile", "autocompile"]
+    fd, filepath = tempfile.mkstemp(suffix='.txt', dir='.cache/')
+    editor = os.getenv('VISUAL') if os.getenv('VISUAL') else os.getenv('EDITOR')
+
+    if not title:
+        title = raw_input("Entry's title: ")
+
+    with os.fdopen(fd, 'wb') as f:
+        f.write('---\n')
+        f.write('title: %s\n' % title)
+        f.write('date: %s\n' % datetime.now().strftime(conf['date_format']))
+        f.write('---\n\n')
+
+    entry = FileEntry(filepath, conf)
+    p = join(conf['entries_dir'], dirname(entry.permalink)[1:])
+
+    try:
+        os.makedirs(p.rsplit('/', 1)[0])
+    except OSError:
+        pass
+
+    try:
+        os.rename(filepath, p + '.txt')
+        filepath = p + '.txt'
+    except OSError:
+        raise AcrylamidException('Entry already exists %r' % p)
+
+    try:
+        if editor:
+            retcode = os.system(editor + ' ' + filepath)
+        elif sys.platform == 'darwin':
+            retcode = os.system('open ' + filepath)
+        else:
+            retcode = os.system('xdg-open ' + filepath)
+    except OSError as e:
+        raise AcrylamidException('Could not launch an editor')
+
+    # XXX process detaches... m(
+    if retcode < 0:
+        raise AcrylamidException('Child was terminated by signal %i' % -retcode)
+
+    if os.stat(filepath)[6] == 0:
+        raise AcrylamidException('File is empty!')
+
+
+__all__ = ["compile", "autocompile", "new"]
