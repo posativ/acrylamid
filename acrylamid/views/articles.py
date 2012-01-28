@@ -4,7 +4,7 @@
 from acrylamid.views import View
 from acrylamid.utils import mkfile, joinurl, event
 
-from os.path import join, getmtime, exists
+from os.path import getmtime, exists
 from collections import defaultdict
 
 

@@ -104,6 +104,7 @@ def init(root='.', overwrite=False):
             log.info('create  %s', path)
         else:
             log.info('skip  %s already exists', path)
+    log.info('Created your fresh new blog at %r. Enjoy!', root)
 
 
 def check_conf(conf):
@@ -111,7 +112,6 @@ def check_conf(conf):
     `ext_dir` (it's a list of dirs) is checked wether it exists."""
 
     # directories
-
     for key, value in conf.iteritems():
         if key.endswith('_dir') and not key in ['ext_dir', ]:
             if os.path.exists(value):

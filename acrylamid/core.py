@@ -18,7 +18,6 @@ def handle(request):
     worse: mtime). return entrylist reverse sorted by date."""
 
     conf = request['conf']
-    env = request['env']
 
     request['entrylist'] = [FileEntry(e, conf) for e in filelist(request['conf'])]
     request['entrylist'] = EntryList(request['entrylist'])

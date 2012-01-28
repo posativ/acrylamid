@@ -159,7 +159,7 @@ class Acryl:
                 log.fatal(e.message)
                 sys.exit(1)
 
-        elif args[0] in ('srv', 'serve'):
+        elif args[0] in ('srv', 'serve', 'view'):
             from acrylamid.lib.httpd import Webserver
             ws = Webserver(options.port, conf['output_dir']); ws.start()
             log.info(' * Running on http://127.0.0.1:%i/' % options.port)
