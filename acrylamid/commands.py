@@ -78,6 +78,7 @@ def compile(conf, env, force=False, **options):
 
     request = initialize(conf, env)
     request = prepare(request)
+    ctime = time.time()
 
     if force:
         cache.clear()
@@ -111,6 +112,7 @@ def compile(conf, env, force=False, **options):
 
         request['entrylist'] = filter(v.condition, entrylist)
         v(request, **options)
+    log.info('Blog compiled in %.2fs' % (time.time() - ctime))
 
 
 def autocompile(conf, env, **options):

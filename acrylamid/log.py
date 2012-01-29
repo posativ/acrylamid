@@ -28,8 +28,8 @@ class ANSIFormatter(logging.Formatter):
     def format(self, record):
 
         keywords = {'skip': self.BLACK, 'create': self.GREEN, 'identical': self.BLACK,
-                    'update': self.YELLOW, 'changed': self.YELLOW,
-                    're-initialized': self.YELLOW, 'removed': self.BLACK}
+                    'update': self.YELLOW, 're-initialized': self.YELLOW,
+                    'removed': self.BLACK}
 
         if record.levelno in (SKIP, INFO):
             for item in keywords:

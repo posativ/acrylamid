@@ -2,6 +2,7 @@
 # License: BSD Style, 2 clauses. see acrylamid.py
 # -*- encoding: utf-8 -*-
 
+from time import time
 from os.path import exists
 
 from acrylamid import log
@@ -37,6 +38,7 @@ class Index(View):
 
         pages, has_changed = paginate(entrylist, ipp, lambda e: not e.draft)
         for i, mem in enumerate(pages):
+            ctime = time()
             # curr = current page, next = newer pages, prev = older pages
             if i == 0:
                 next = None
@@ -63,10 +65,9 @@ class Index(View):
                     event.skip(message, path=p)
                     continue
 
-            mem = [render(tt_entry, conf, env, entry, type="page") for entry in mem]
-
+            body = [render(tt_entry, conf, env, entry, type="page") for entry in mem]
             html = render(tt_main, conf, env, type='page', prev=prev, curr=curr, next=next,
-                        entrylist='\n'.join(mem), num_entries=len(entrylist),
+                        entrylist='\n'.join(body), num_entries=len(entrylist),
                         items_per_page=ipp)
 
-            mkfile(html, p, message, **kwargs)
+            mkfile(html, p, message, ctime=time()-ctime, **kwargs)

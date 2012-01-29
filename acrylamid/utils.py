@@ -168,6 +168,7 @@ class FileEntry:
                         remap={'tag': 'tags', 'filter': 'filters'})
         self.offset = i
         self.props.update(yaml)
+        self.ctime = 0.01  # time used to compile (cheating with 0.01 init value)
 
     def __repr__(self):
         return "<fileentry f'%s'>" % self.filename
@@ -259,11 +260,14 @@ class FileEntry:
     def content(self):
         try:
             rv = cache.get(self.hash, mtime=self.mtime)
+            self.ctime = 0.01
             if not rv:
+                ct = time.time()
                 res = self.source
                 for i, f, args in self.lazy_eval:
                     f.__dict__['__matched__'] = i
                     res = f(res, self, *args)
+                self.ctime = time.time() - ct
                 rv = cache.set(self.hash, res)
             return rv
         except (IndexError, AttributeError):
@@ -344,24 +348,26 @@ def render(tt, *dicts, **kvalue):
     return tt.render(env)
 
 
-def mkfile(content, path, message, force=False, dryrun=False, **kwargs):
+def mkfile(content, path, message, ctime=0.0, force=False, dryrun=False, **kwargs):
     """Creates entry in filesystem. Overwrite only if content differs.
 
     :param content: rendered html/xml to write
     :param path: path to write to
     :param message: message to display
-    :param force: force overwrite, even nothing has changed (defaults to `False`)"""
+    :param ctime: time needed to compile
+    :param force: force overwrite, even nothing has changed (defaults to `False`)
+    :param dryrun: don't write anything."""
 
     if exists(dirname(path)) and exists(path):
         with file(path) as f:
             old = f.read()
         if content == old and not force:
-            event.skip(message, path=path)
+            event.identical(message, path=path)
         else:
             if not dryrun:
                 with open(path, 'w') as f:
                     f.write(content)
-            event.changed(message, path=path)
+            event.changed(message, path=path, ctime=ctime)
     else:
         try:
             if not dryrun:
@@ -372,7 +378,7 @@ def mkfile(content, path, message, force=False, dryrun=False, **kwargs):
         if not dryrun:
             with open(path, 'w') as f:
                 f.write(content)
-        event.create(message, path=path)
+        event.create(message, path=path, ctime=ctime)
 
 
 def expand(url, obj):
@@ -513,10 +519,10 @@ class cache(object):
 
 def track(f):
     """decorator to track files when event.create|change|skip is called."""
-    def dec(cls, what, path):
+    def dec(cls, what, path, *args, **kwargs):
         global _tracked_files
         _tracked_files.add(path)
-        return f(cls, what, path)
+        return f(cls, what, path, *args, **kwargs)
     return dec
 
 
@@ -588,19 +594,24 @@ class event:
 
     @classmethod
     @track
-    def create(self, what, path):
-        log.info("create  '%s', written to %s", what, path)
+    def create(self, what, path, ctime):
+        log.info("create  [%.2fs] %s", ctime, path)
 
     @classmethod
     @track
-    def changed(self, what, path):
-        log.info("changed  content of '%s'", what)
+    def changed(self, what, path, ctime):
+        log.info("update  [%.2fs] %s", ctime, path)
 
     @classmethod
     @track
     def skip(self, what, path):
-        log.skip("skip  '%s' is up to date", what)
+        log.skip("skip  %s", path)
+
+    @classmethod
+    @track
+    def identical(self, what, path):
+        log.skip("identical  %s", path)
 
     @classmethod
     def removed(self, path):
-        log.info("removed  %r", path)
+        log.info("removed  %s", path)

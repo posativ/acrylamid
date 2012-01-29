@@ -2,6 +2,7 @@
 # License: BSD Style, 2 clauses. see acrylamid.py
 # -*- encoding: utf-8 -*-
 
+from time import time
 from datetime import datetime
 from os.path import exists
 
@@ -20,6 +21,7 @@ class Feed(View):
         conf = request['conf']
         env = request['env']
         entrylist = request['entrylist']
+        ctime = time()
 
         p = joinurl(conf['output_dir'], self.path)
         if not filter(lambda e: p.endswith(e), ['.xml', '.html']):
@@ -44,7 +46,8 @@ class Feed(View):
                       'updated': entrylist[0].date if entrylist else datetime.now()},
                       atom=Atom, rss=RSS)
 
-        mkfile(xml, p, p.replace(conf['output_dir'], ''), **kwargs)
+        msg = p.replace(conf['output_dir'], '')
+        mkfile(xml, p, msg, ctime=time()-ctime, **kwargs)
 
 
 class Atom(Feed):

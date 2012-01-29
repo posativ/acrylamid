@@ -76,9 +76,9 @@ class Tag(View):
                         event.skip(curr, path=p)
                         continue
 
-                mem = [render(tt_entry, conf, env, entry, type="tag") for entry in mem]
+                body = [render(tt_entry, conf, env, entry, type="tag") for entry in mem]
                 html = render(tt_main, conf, env, type='tag', prev=prev, curr=curr, next=next,
-                            entrylist='\n'.join(mem), num_entries=len(entrylist),
+                            entrylist='\n'.join(body), num_entries=len(entrylist),
                             items_per_page=ipp)
 
-                mkfile(html, p, curr, **kwargs)
+                mkfile(html, p, curr, ctime=sum((e.ctime for e in mem)), **kwargs)
