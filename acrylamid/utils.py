@@ -286,7 +286,6 @@ class FileEntry:
     @cached_property
     def has_changed(self):
         if not exists(cache._get_filename(self.hash)):
-            self.content
             return True
         if getmtime(self.filename) > cache.get_mtime(self.hash):
             return True
