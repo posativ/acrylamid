@@ -14,7 +14,7 @@ Style, 2 clauses.
    :maxdepth: 2
 
    installation
-   .. tutorial
+   tutorial
    .. usage
    conf.yaml
    filters
@@ -60,7 +60,7 @@ Get acrylamid and edit *conf.yaml* and *layouts/*. Run acrylamid with:
 ::
 
     $> acrylamid init myblog
-        create  myblog/content/
+        create  myblog/conf.py
         ...
     $> cd myblog/
     $> acrylamid gen
