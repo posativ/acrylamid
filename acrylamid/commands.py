@@ -32,7 +32,7 @@ def initialize(conf, env):
     # set up templating environment
     env['tt_env'] = Environment(loader=ExtendedFileSystemLoader(conf['layout_dir']),
                                 bytecode_cache=FileSystemBytecodeCache('.cache/'))
-    env['tt_env'].filters.update({'safeslug': False, 'tagify': False})
+    env['tt_env'].filters.update({'safeslug': lambda x: x, 'tagify': lambda x: x})
 
     # initialize the locale, will silently fail if locale is not
     # available and uses system's locale
@@ -69,6 +69,7 @@ def initialize(conf, env):
                           exclude=conf.get("filters_ignore", []),
                           include=conf.get("filters_include", []))
     views.initialize(conf.get("views_dir", []), conf, env)
+    env['views'] = [v['view'] for k, v in conf['views'].iteritems()]
 
     return {'conf': conf, 'env': env}
 
