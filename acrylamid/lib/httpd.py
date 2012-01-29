@@ -10,6 +10,12 @@ import SimpleHTTPServer
 import SocketServer
 import posixpath, urllib
 
+
+class ReuseAddressServer(SocketServer.TCPServer):
+    """avoids socket.error: [Errno 48] Address already in use"""
+    allow_reuse_address = True
+
+
 class AcrylServe(SimpleHTTPServer.SimpleHTTPRequestHandler):
     """This is a modified version of python's -m SimpleHTTPServer to
     serve on a specific sub directory of :func:`os.getcwd`."""
@@ -48,7 +54,7 @@ class Webserver(Thread):
         Handler.www_root = www_root
         Handler.log_error = lambda x, *y: None
         Handler.log_message = lambda x, *y: None
-        self.httpd = SocketServer.TCPServer(("", port), Handler)
+        self.httpd = ReuseAddressServer(("", port), Handler)
         self.kill_received = False
 
     def serve_forever(self):
