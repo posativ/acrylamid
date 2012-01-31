@@ -16,7 +16,7 @@ from datetime import datetime
 from jinja2 import Environment, FileSystemBytecodeCache
 
 from acrylamid import filters, views, log
-from acrylamid.utils import cache, ExtendedFileSystemLoader, FileEntry
+from acrylamid.utils import cache, ExtendedFileSystemLoader, FileEntry, event
 from acrylamid.errors import AcrylamidException
 
 from acrylamid.core import handle as prepare, filelist
@@ -166,6 +166,7 @@ def new(conf, env, title):
     if isfile(filepath):
         raise AcrylamidException('Entry already exists %r' % filepath)
     os.rename(tmp, filepath)
+    event.create(title, filepath)
 
     try:
         if editor:

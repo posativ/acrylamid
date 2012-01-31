@@ -593,13 +593,19 @@ class event:
 
     @classmethod
     @track
-    def create(self, what, path, ctime):
-        log.info("create  [%.2fs] %s", ctime, path)
+    def create(self, what, path, ctime=None):
+        if ctime:
+            log.info("create  [%.2fs] %s", ctime, path)
+        else:
+            log.info("create  %s", path)
 
     @classmethod
     @track
-    def changed(self, what, path, ctime):
-        log.info("update  [%.2fs] %s", ctime, path)
+    def changed(self, what, path, ctime=None):
+        if ctime:
+            log.info("create  [%.2fs] %s", ctime, path)
+        else:
+            log.info("create  %s", path)
 
     @classmethod
     @track
