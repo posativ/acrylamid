@@ -16,7 +16,7 @@ Style, 2 clauses.
    installation
    tutorial
    .. usage
-   conf.yaml
+   conf.py
    filters
    .. views
    .. deployment
