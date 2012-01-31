@@ -10,7 +10,7 @@ import locale
 import codecs
 import tempfile
 
-from os.path import join, dirname, getmtime
+from os.path import join, dirname, getmtime, isfile
 from urlparse import urlsplit
 from datetime import datetime
 from jinja2 import Environment, FileSystemBytecodeCache
@@ -142,7 +142,7 @@ def new(conf, env, title):
     ``acrylamid new My fresh new Entry`` or interactively via ``acrylamid new``
     and the file will be created using the preferred permalink format."""
 
-    fd, filepath = tempfile.mkstemp(suffix='.txt', dir='.cache/')
+    fd, tmp = tempfile.mkstemp(suffix='.txt', dir='.cache/')
     editor = os.getenv('VISUAL') if os.getenv('VISUAL') else os.getenv('EDITOR')
 
     if not title:
@@ -154,7 +154,7 @@ def new(conf, env, title):
         f.write('date: %s\n' % datetime.now().strftime(conf['date_format']))
         f.write('---\n\n')
 
-    entry = FileEntry(filepath, conf)
+    entry = FileEntry(tmp, conf)
     p = join(conf['entries_dir'], dirname(entry.permalink)[1:])
 
     try:
@@ -162,11 +162,10 @@ def new(conf, env, title):
     except OSError:
         pass
 
-    try:
-        os.rename(filepath, p + '.txt')
-        filepath = p + '.txt'
-    except OSError:
-        raise AcrylamidException('Entry already exists %r' % p)
+    filepath = p + '.txt'
+    if isfile(filepath):
+        raise AcrylamidException('Entry already exists %r' % filepath)
+    os.rename(tmp, filepath)
 
     try:
         if editor:
