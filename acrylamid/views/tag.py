@@ -3,6 +3,7 @@
 #
 # -*- encoding: utf-8 -*-
 
+from time import time
 from os.path import exists
 from collections import defaultdict
 
@@ -58,6 +59,7 @@ class Tag(View):
             entrylist = EntryList([entry for entry in tags[tag]])
             pages, has_changed = paginate(entrylist, ipp, lambda e: not e.draft)
             for i, mem in enumerate(pages):
+                ctime = time()
                 # e.g.: curr = /page/3, next = /page/2, prev = /page/4
                 if i == 0:
                     next = None
@@ -81,4 +83,4 @@ class Tag(View):
                             entrylist='\n'.join(body), num_entries=len(entrylist),
                             items_per_page=ipp)
 
-                mkfile(html, p, curr, ctime=sum((e.ctime for e in mem)), **kwargs)
+                mkfile(html, p, curr, ctime=time()-ctime, **kwargs)
