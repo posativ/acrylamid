@@ -125,6 +125,71 @@ command. You should see something like this:
 Adding a New Entry
 ------------------
 
+When you have done all steps before, especially the previous one, creating an
+article will be an ordinary step. To only thing you have to do, is to create a
+new file in your content directory (by default ``content/``) and write your
+text! Before publishing, don't forget to compile ;)
+
+::
+
+    tutorial$> cp content/sample\ entry.txt content/new\ entry.txt
+
+Now you should adapt the settings (that's the first part of the file) and the
+of course the text. Currently, the header looks like this:
+
+::
+
+    ---
+    title: Die Verwandlung
+    author: Franz Kafka
+    tags: [Franz Kafka, Die Verwandlung]
+    ---
+
+An adopted header could look like this:
+
+::
+
+    ---
+    title: hello world
+    author: anonymous
+    tags: [hello world, acrylamid]
+    date: "31.01.2012, 14:57"
+    filters: rest
+    ---
+
+Filters modify the appearance of the entry. ``rest`` defines REST as
+markup language. For available filters see the section on
+`filters </posativ/acrylamid/blob/master/docs/filters.rst>`_.
+
+Another useful option is the date-option. The required format is
+'%d.%m.%Y, %H:%M' which is used in acrylamid by default.
+(See `conf.py </posativ/acrylamid/blob/master/docs/conf.py.rst>`_.
+for informations about how to change that behavior)
+If the date is not given, the last modifcation time of the file is used
+(which could by bad when you only add updates to an entry).
+
+
+If you're done, just compile like above:
+
+::
+
+    tutorial$> acrylamid compile
+          warn  using mtime from <fileentry f'content/sample entry.txt'>
+          skip  '/tag/die-verwandlung' is up to date
+        create  '/tag/hello-world', written to output/tag/hello-world/index.html
+        create  '/tag/acrylamid', written to output/tag/acrylamid/index.html
+          skip  '/tag/franz-kafka' is up to date
+       changed  content of '/articles/index.html'
+       changed  content of '/'
+       changed  content of '/atom/index.html'
+       changed  content of '/rss/index.html'
+          skip  'Die Verwandlung' is up to date
+        create  'hello world', written to output/2012/hello-world/index.html
+
+You can see, that no additional warning is thrown, because we've set the date
+correctly.
+
+
 Customizing the Layout
 ----------------------
 
