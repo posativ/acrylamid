@@ -11,7 +11,12 @@ logger = fatal = critical = warn = warning = info = skip = debug = None
 
 
 class ANSIFormatter(logging.Formatter):
-    """Implements basic colored output using ANSI escape codes."""
+    """Implements basic colored output using ANSI escape codes.  Currently acrylamid
+    uses nanoc's color and information scheme: skip, create, identical, update,
+    re-initialized, removed.
+
+    If log level is greater than logging.WARN the level name is printed red underlined.
+    """
 
     # $color + BOLD
     BLACK = '\033[1;30m%s\033[0m'
@@ -45,7 +50,9 @@ class ANSIFormatter(logging.Formatter):
 
 
 class SkipHandler(logging.Logger):
-    """via <https://github.com/Ismael/big-brother-bot/blob/master/b3/output.py>"""
+    """Adds ``skip`` as new log item, which has a value of 15
+
+    via <https://github.com/Ismael/big-brother-bot/blob/master/b3/output.py>"""
     def __init__(self, name, level=logging.NOTSET):
         logging.Logger.__init__(self, name, level)
 
@@ -87,8 +94,9 @@ __all__ = ['fatal', 'warn', 'info', 'skip', 'debug',
 
 if __name__ == '__main__':
     init('test', 20)
-    setLevel(15)
+    setLevel(10)
     logger.warn('foo')
-    logger.info('changed dich')
+    logger.info('update dich')
     logger.info('create kekse')
     logger.skip('skip unused')
+    logger.debug('debug test')
