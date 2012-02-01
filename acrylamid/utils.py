@@ -33,7 +33,15 @@ try:
 except ImportError:
     from unicodedata import normalize
     translitcodec = None
-    log.debug("no 'translitcodec' found, using NFKD algorithm")
+    # XXX: log is not initialized
+    # log.debug("no 'translitcodec' found, using NFKD algorithm")
+
+try:
+    import yaml
+except ImportError:
+    yaml = None
+    # XXX: log is not initialized
+    # log.debug("no 'pyyaml' found, using naïve parser")
 
 
 # Borrowed from werkzeug._internal
@@ -89,54 +97,70 @@ class cached_property(object):
         return value
 
 
-def parse(filename, encoding, remap):
-        """parsing yaml header and remember where content begins."""
+def read(filename, encoding, remap={}):
+    """Open filename and read content using specified encoding.  It will try
+    to parse the YAML header with yaml.load or fallback (if not available) to
+    a naïve key-value parser. Returns offset where the real content begins and
+    YAML header.
 
-        def distinguish(value):
-            if value == '':
-                return None
-            elif value.isdigit():
-                return int(value)
-            elif value.lower() in ['true', 'false']:
-                 return True if value.capitalize() == 'True' else False
-            elif value[0] == '[' and value[-1] == ']':
-                return list([unicode(x.strip())
-                    for x in value[1:-1].split(',') if x.strip()])
-            else:
-                return unicode(value.strip('"').strip("'"))
+    :param filename: path to an existing text file
+    :param encoding: encoding of this file
+    :param remap: remap deprecated/false-written YAML keywords
+    """
 
+    def distinguish(value):
+        if value == '':
+            return None
+        elif value.isdigit():
+            return int(value)
+        elif value.lower() in ['true', 'false']:
+             return True if value.capitalize() == 'True' else False
+        elif value[0] == '[' and value[-1] == ']':
+            return list([unicode(x.strip())
+                for x in value[1:-1].split(',') if x.strip()])
+        else:
+            return unicode(value.strip('"').strip("'"))
+
+    head = []
+    i = 0
+
+    with codecs.open(filename, 'r', encoding=encoding, errors='replace') as f:
+        while True:
+            line = f.readline(); i += 1
+            if i == 1 and line.startswith('---'):
+                pass
+            elif i > 1 and not line.startswith('---'):
+                head.append(line)
+            elif i > 1 and line.startswith('---'):
+                break
+
+    if head and yaml:
+        try:
+            props = yaml.load(''.join(head))
+        except yaml.YAMLError as e:
+            raise AcrylamidException(e.message)
+        for key, to in remap.iteritems():
+            if key in props:
+                props[to] = props[key]
+                del props[key]
+    else:
         props = {}
-        i = 0
-        valid = False
+        for j, line in enumerate(head):
+            if line[0] == '#' or not line.strip():
+                continue
+            try:
+                key, value = [x.strip() for x in line.split(':', 1)]
+                if key in remap:
+                    key = remap[key]
+            except ValueError:
+                raise AcrylamidException('%s:%i ValueError: %s\n%s' %
+                    (filename, j, line.strip('\n'),
+                    ("Either your YAML is malformed or the "
+                    "naïve parser is to dumb to read it. Revalidate\n"
+                    "your YAML or install PyYAML parser: easy_install -U pyyaml")))
+            props[key] = distinguish(value)
 
-        with codecs.open(filename, 'r', encoding=encoding, errors='replace') as f:
-            while True:
-                line = f.readline()
-                if not line:
-                    break
-                i += 1
-                if i == 1 and not line.strip():
-                    break
-                elif i == 1 and line.startswith('---'):
-                    pass
-                elif i > 1 and not line.startswith('---'):
-                    if line[0] == '#' or not line.strip():
-                        continue
-                    try:
-                        key, value = [x.strip() for x in line.split(':', 1)]
-                        if key in remap:
-                            key = remap[key]
-                    except ValueError:
-                        log.warn('%r -> ValueError: %r' % (filename, line))
-                        continue
-                    props[key] = distinguish(value)
-                else:
-                    valid = True
-                    break
-
-        if not valid:
-            raise AcrylamidException("%r has no valid YAML header" % filename)
-        return i, props
+    return i, props
 
 
 class EntryList(list):
@@ -164,10 +188,10 @@ class FileEntry:
                         if k in ['author', 'lang', 'encoding', 'date_format',
                                  'permalink_format'])
 
-        i, yaml = parse(filename, self.props['encoding'],
+        i, props = read(filename, self.props['encoding'],
                         remap={'tag': 'tags', 'filter': 'filters'})
         self.offset = i
-        self.props.update(yaml)
+        self.props.update(props)
         self.ctime = 0.01  # time used to compile (cheating with 0.01 init value)
 
     def __repr__(self):
