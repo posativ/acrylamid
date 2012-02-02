@@ -8,7 +8,9 @@ Style, 2 clauses.
 `See Documentation! <http://acrylamid.readthedocs.org/en/latest/>`_
 
 *NOTE*: ACRYLAMID 0.3 IS CURRENTLY WORK IN PROGRESS AND NEEDS FUNDAMENTAL CHANGES
-      IN YOUR 0.2 CONFIG!
+IN YOUR 0.2 CONFIG!
+
+*TODO*: my personal todo list is located here: https://posativ.org/todo/
 
 Features
 ********

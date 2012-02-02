@@ -40,10 +40,10 @@ class ANSIFormatter(logging.Formatter):
             for item in keywords:
                 if record.msg.startswith(item):
                     record.msg = record.msg.replace(item, ' '*2 + \
-                                    keywords[item] % item.rjust(8))
+                                    keywords[item] % item.rjust(9))
         elif record.levelno >= logging.WARN:
             record.levelname = record.levelname.replace('WARNING', 'WARN')
-            record.msg = ''.join([' '*2, self.RED % record.levelname.lower().rjust(8),
+            record.msg = ''.join([' '*2, self.RED % record.levelname.lower().rjust(9),
                                   '  ', record.msg])
 
         return logging.Formatter.format(self, record)

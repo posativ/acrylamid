@@ -73,10 +73,10 @@ class Tag(View):
                             else expand(self.pagination, {'name': tag, 'num': str(i+2)})
                 p = joinurl(conf['output_dir'], curr, 'index.html')
 
-                if exists(p) and not has_changed:
-                    if not (tt_entry.has_changed or tt_main.has_changed):
-                        event.skip(curr, path=p)
-                        continue
+                # if exists(p) and not has_changed:
+                #     if not (tt_entry.has_changed or tt_main.has_changed):
+                #         event.skip(curr, path=p)
+                #         continue
 
                 body = [render(tt_entry, conf, env, entry, type="tag") for entry in mem]
                 html = render(tt_main, conf, env, type='tag', prev=prev, curr=curr, next=next,

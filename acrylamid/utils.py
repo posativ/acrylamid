@@ -285,7 +285,7 @@ class FileEntry:
         try:
             rv = cache.get(self.hash, mtime=self.mtime)
             self.ctime = 0.01
-            if not rv:
+            if rv is None:
                 ct = time.time()
                 res = self.source
                 for i, f, args in self.lazy_eval:
@@ -381,6 +381,7 @@ def mkfile(content, path, message, ctime=0.0, force=False, dryrun=False, **kwarg
     :param force: force overwrite, even nothing has changed (defaults to `False`)
     :param dryrun: don't write anything."""
 
+    # XXX use hashing for comparison
     if exists(dirname(path)) and exists(path):
         with file(path) as f:
             old = f.read()
@@ -627,9 +628,9 @@ class event:
     @track
     def changed(self, what, path, ctime=None):
         if ctime:
-            log.info("create  [%.2fs] %s", ctime, path)
+            log.info("update  [%.2fs] %s", ctime, path)
         else:
-            log.info("create  %s", path)
+            log.info("update  %s", path)
 
     @classmethod
     @track
