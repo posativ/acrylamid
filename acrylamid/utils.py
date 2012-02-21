@@ -18,7 +18,7 @@ from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
 import traceback
-from jinja2 import FileSystemLoader
+from jinja2 import FileSystemLoader, meta
 
 try:
     import cPickle as pickle
@@ -330,26 +330,44 @@ class FileEntry:
 class ExtendedFileSystemLoader(FileSystemLoader):
 
     def load(self, environment, name, globals=None):
-        """patched `load` to add a has_changed property"""
+        """patched `load` to add a has_changed property providing information
+        whether the template or its parents have changed."""
+
+        def resolve(parent):
+            """We check whether any dependency (extend-block) has changed and
+            update the bucket -- recursively. Returns True if the template
+            itself or any parent template has changed. Otherwise False."""
+
+            source, filename, uptodate = self.get_source(environment, parent)
+            bucket = bcc.get_bucket(environment, parent, filename, source)
+            p = bcc._get_cache_filename(bucket)
+            has_changed = getmtime(filename) > getmtime(p) if exists(p) else False
+
+            if has_changed:
+                # updating cached template if timestamp as changed
+                code = environment.compile(source, parent, filename)
+                bucket.code = code
+                bcc.set_bucket(bucket)
+                return True
+
+            ast = environment.parse(source)
+            for name in meta.find_referenced_templates(ast):
+                rv = resolve(name)
+                if rv:
+                    # XXX double-return to break this recursion?
+                    return True
+
         code = None
         if globals is None:
             globals = {}
 
         source, filename, uptodate = self.get_source(environment, name)
-
         bcc = environment.bytecode_cache
         if bcc is not None:
             bucket = bcc.get_bucket(environment, name, filename, source)
             p = bcc._get_cache_filename(bucket)
-            has_changed = getmtime(filename) > getmtime(p) if exists(p) else False
+            has_changed = bool(resolve(name))
             code = bucket.code
-
-        if code is None:
-            code = environment.compile(source, name, filename)
-
-        if bcc is not None and bucket.code is None:
-            bucket.code = code
-            bcc.set_bucket(bucket)
 
         tt = environment.template_class.from_code(environment, code, globals, uptodate)
         tt.has_changed = has_changed
