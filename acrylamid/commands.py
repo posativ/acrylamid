@@ -148,6 +148,9 @@ def new(conf, env, title):
     if not title:
         title = raw_input("Entry's title: ")
 
+    if '#' in title or ':' in title:
+        title = '\"' + title + '\"'
+
     with os.fdopen(fd, 'wb') as f:
         f.write('---\n')
         f.write('title: %s\n' % title)
@@ -156,6 +159,7 @@ def new(conf, env, title):
 
     entry = FileEntry(tmp, conf)
     p = join(conf['entries_dir'], dirname(entry.permalink)[1:])
+    print entry.permalink
 
     try:
         os.makedirs(p.rsplit('/', 1)[0])
