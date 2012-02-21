@@ -186,3 +186,6 @@ class Acryl:
             except (SystemExit, KeyboardInterrupt, Exception) as e:
                 ws.kill_received = True
                 sys.exit(0)
+        else:
+            log.critical('No such command!')
+            sys.exit(1)
