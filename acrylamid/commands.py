@@ -159,7 +159,6 @@ def new(conf, env, title):
 
     entry = FileEntry(tmp, conf)
     p = join(conf['entries_dir'], dirname(entry.permalink)[1:])
-    print entry.permalink
 
     try:
         os.makedirs(p.rsplit('/', 1)[0])
