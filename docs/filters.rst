@@ -22,7 +22,7 @@ Most inbuilt filters have aliases so you don't have to remember/write the
 exact name. As an example, *rst*, *reST* and *restructuredtext* are aliases
 for *reStructuredText*.
 
-Some filters take additional arguments to activate builtin filters like
+Some filters may take additional arguments to activate builtin filters like
 Markdown's code-hilighting. Here's a list of all Markdon `built-in extensions
 <http://freewisdom.org/projects/python-markdown/Available_Extensions>`_) and
 in addition, acrylamid features a `asciimathml extension
@@ -57,7 +57,7 @@ Markdown
 :Conflicts:
     plain, reStructuredText
 
-:optional Arguments:
+:Arguments:
 	asciimathml (mathml, math), ...
 
 Markdown uses `the official implementation by John Gruber
@@ -132,7 +132,7 @@ typography
 :Aliases:
     typography, typo, smartypants
 
-:optional Arguments:
+:Arguments:
     all, typo, typogrify, amp, widont, smartypants, caps, initial_quotes,
     number_suffix
 
