@@ -18,7 +18,7 @@ from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
 import traceback
-from jinja2 import FileSystemLoader
+from jinja2 import FileSystemLoader, meta
 
 try:
     import cPickle as pickle
@@ -33,7 +33,15 @@ try:
 except ImportError:
     from unicodedata import normalize
     translitcodec = None
-    log.debug("no 'translitcodec' found, using NFKD algorithm")
+    # XXX: log is not initialized
+    # log.debug("no 'translitcodec' found, using NFKD algorithm")
+
+try:
+    import yaml
+except ImportError:
+    yaml = None
+    # XXX: log is not initialized
+    # log.debug("no 'pyyaml' found, using naïve parser")
 
 
 # Borrowed from werkzeug._internal
@@ -89,54 +97,70 @@ class cached_property(object):
         return value
 
 
-def parse(filename, encoding, remap):
-        """parsing yaml header and remember where content begins."""
+def read(filename, encoding, remap={}):
+    """Open filename and read content using specified encoding.  It will try
+    to parse the YAML header with yaml.load or fallback (if not available) to
+    a naïve key-value parser. Returns offset where the real content begins and
+    YAML header.
 
-        def distinguish(value):
-            if value == '':
-                return None
-            elif value.isdigit():
-                return int(value)
-            elif value.lower() in ['true', 'false']:
-                 return True if value.capitalize() == 'True' else False
-            elif value[0] == '[' and value[-1] == ']':
-                return list([unicode(x.strip())
-                    for x in value[1:-1].split(',') if x.strip()])
-            else:
-                return unicode(value.strip('"').strip("'"))
+    :param filename: path to an existing text file
+    :param encoding: encoding of this file
+    :param remap: remap deprecated/false-written YAML keywords
+    """
 
+    def distinguish(value):
+        if value == '':
+            return None
+        elif value.isdigit():
+            return int(value)
+        elif value.lower() in ['true', 'false']:
+             return True if value.capitalize() == 'True' else False
+        elif value[0] == '[' and value[-1] == ']':
+            return list([unicode(x.strip())
+                for x in value[1:-1].split(',') if x.strip()])
+        else:
+            return unicode(value.strip('"').strip("'"))
+
+    head = []
+    i = 0
+
+    with codecs.open(filename, 'r', encoding=encoding, errors='replace') as f:
+        while True:
+            line = f.readline(); i += 1
+            if i == 1 and line.startswith('---'):
+                pass
+            elif i > 1 and not line.startswith('---'):
+                head.append(line)
+            elif i > 1 and line.startswith('---'):
+                break
+
+    if head and yaml:
+        try:
+            props = yaml.load(''.join(head))
+        except yaml.YAMLError as e:
+            raise AcrylamidException(e.message)
+        for key, to in remap.iteritems():
+            if key in props:
+                props[to] = props[key]
+                del props[key]
+    else:
         props = {}
-        i = 0
-        valid = False
+        for j, line in enumerate(head):
+            if line[0] == '#' or not line.strip():
+                continue
+            try:
+                key, value = [x.strip() for x in line.split(':', 1)]
+                if key in remap:
+                    key = remap[key]
+            except ValueError:
+                raise AcrylamidException('%s:%i ValueError: %s\n%s' %
+                    (filename, j, line.strip('\n'),
+                    ("Either your YAML is malformed or the "
+                    "naïve parser is to dumb to read it. Revalidate\n"
+                    "your YAML or install PyYAML parser: easy_install -U pyyaml")))
+            props[key] = distinguish(value)
 
-        with codecs.open(filename, 'r', encoding=encoding, errors='replace') as f:
-            while True:
-                line = f.readline()
-                if not line:
-                    break
-                i += 1
-                if i == 1 and not line.strip():
-                    break
-                elif i == 1 and line.startswith('---'):
-                    pass
-                elif i > 1 and not line.startswith('---'):
-                    if line[0] == '#' or not line.strip():
-                        continue
-                    try:
-                        key, value = [x.strip() for x in line.split(':', 1)]
-                        if key in remap:
-                            key = remap[key]
-                    except ValueError:
-                        log.warn('%r -> ValueError: %r' % (filename, line))
-                        continue
-                    props[key] = distinguish(value)
-                else:
-                    valid = True
-                    break
-
-        if not valid:
-            raise AcrylamidException("%r has no valid YAML header" % filename)
-        return i, props
+    return i, props
 
 
 class EntryList(list):
@@ -164,10 +188,10 @@ class FileEntry:
                         if k in ['author', 'lang', 'encoding', 'date_format',
                                  'permalink_format'])
 
-        i, yaml = parse(filename, self.props['encoding'],
+        i, props = read(filename, self.props['encoding'],
                         remap={'tag': 'tags', 'filter': 'filters'})
         self.offset = i
-        self.props.update(yaml)
+        self.props.update(props)
         self.ctime = 0.01  # time used to compile (cheating with 0.01 init value)
 
     def __repr__(self):
@@ -261,7 +285,7 @@ class FileEntry:
         try:
             rv = cache.get(self.hash, mtime=self.mtime)
             self.ctime = 0.01
-            if not rv:
+            if rv is None:
                 ct = time.time()
                 res = self.source
                 for i, f, args in self.lazy_eval:
@@ -306,26 +330,44 @@ class FileEntry:
 class ExtendedFileSystemLoader(FileSystemLoader):
 
     def load(self, environment, name, globals=None):
-        """patched `load` to add a has_changed property"""
+        """patched `load` to add a has_changed property providing information
+        whether the template or its parents have changed."""
+
+        def resolve(parent):
+            """We check whether any dependency (extend-block) has changed and
+            update the bucket -- recursively. Returns True if the template
+            itself or any parent template has changed. Otherwise False."""
+
+            source, filename, uptodate = self.get_source(environment, parent)
+            bucket = bcc.get_bucket(environment, parent, filename, source)
+            p = bcc._get_cache_filename(bucket)
+            has_changed = getmtime(filename) > getmtime(p) if exists(p) else False
+
+            if has_changed:
+                # updating cached template if timestamp as changed
+                code = environment.compile(source, parent, filename)
+                bucket.code = code
+                bcc.set_bucket(bucket)
+                return True
+
+            ast = environment.parse(source)
+            for name in meta.find_referenced_templates(ast):
+                rv = resolve(name)
+                if rv:
+                    # XXX double-return to break this recursion?
+                    return True
+
         code = None
         if globals is None:
             globals = {}
 
         source, filename, uptodate = self.get_source(environment, name)
-
         bcc = environment.bytecode_cache
         if bcc is not None:
             bucket = bcc.get_bucket(environment, name, filename, source)
             p = bcc._get_cache_filename(bucket)
-            has_changed = getmtime(filename) > getmtime(p) if exists(p) else False
+            has_changed = bool(resolve(name))
             code = bucket.code
-
-        if code is None:
-            code = environment.compile(source, name, filename)
-
-        if bcc is not None and bucket.code is None:
-            bucket.code = code
-            bcc.set_bucket(bucket)
 
         tt = environment.template_class.from_code(environment, code, globals, uptodate)
         tt.has_changed = has_changed
@@ -357,6 +399,7 @@ def mkfile(content, path, message, ctime=0.0, force=False, dryrun=False, **kwarg
     :param force: force overwrite, even nothing has changed (defaults to `False`)
     :param dryrun: don't write anything."""
 
+    # XXX use hashing for comparison
     if exists(dirname(path)) and exists(path):
         with file(path) as f:
             old = f.read()
@@ -593,13 +636,19 @@ class event:
 
     @classmethod
     @track
-    def create(self, what, path, ctime):
-        log.info("create  [%.2fs] %s", ctime, path)
+    def create(self, what, path, ctime=None):
+        if ctime:
+            log.info("create  [%.2fs] %s", ctime, path)
+        else:
+            log.info("create  %s", path)
 
     @classmethod
     @track
-    def changed(self, what, path, ctime):
-        log.info("update  [%.2fs] %s", ctime, path)
+    def changed(self, what, path, ctime=None):
+        if ctime:
+            log.info("update  [%.2fs] %s", ctime, path)
+        else:
+            log.info("update  %s", path)
 
     @classmethod
     @track

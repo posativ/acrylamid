@@ -1,42 +1,105 @@
 Configuration
 =============
 
-Acrylamid's configuration is read from `conf.yaml` inside your blog-folder. It
-is a YAML-like syntax (key: value) and don't requires every key to be set. If
-a given key is not set it will be derived from *acrylamid.defaults*.
+Acrylamid's configuration is read from ``conf.py`` inside your current working
+dir. If a given value is not set it will be derived from *acrylamid.defaults*.
 
-A basic configuration looks like this:
+A basic configuration looks like this (This file is directly executed as
+python script and therefore must be valid python code!):
 
 ::
 
-    blog_title: A descriptive blog title
+    # -*- encoding: utf-8 -*-
+    # This is your config file.  Please write in a valid python syntax!
+    # See http://acrylamid.readthedocs.org/en/latest/conf.py.html
 
-    author: anonymous
-    website: http://example.org/
-    email: info@example.org
+    SITENAME = "A descriptive blog title"
+    WWW_ROOT = "http://example.com/"
 
-    www_root: http://example.org/
-    lang: de_DE
-    strptime: %d.%m.%Y, %H:%M
+    AUTHOR = "Anonymous"
+    EMAIL = "info@example.org"
 
-    disqus_shortname: yourname
+    FILTERS = ["markdown+codehilite(css_class=highlight)", "hyphenate"]
+    VIEWS = {
+        "/": {"filters": ["summarize", "h1"],
+              "pagination": "/page/:num",
+              "view": "index"},
+        "/:year/:slug/": {"filters": ["h1"], "view": "entry"},
+        "/atom/": {"filters": ["h2"], "view": "atom"},
+        "/rss/": {"filters": ["h2"], "view": "rss"},
+        "/articles/": {"view": "articles"},
+        #"/atom/full": {"filters": ["h2"], "view": "atom", "num_entries": 1000},
+        "/tag/:name/": {"filters": ["h1", "summarize"], "view":"tag",
+                       "pagination": "/tag/:name/:num"},
+        }
 
-    views.filters: ['markdown+codehilite(css_class=highlight)', 'hyphenate']
+    PERMALINK_FORMAT = "/:year/:slug/index.html"
+    DATE_FORMAT = "%d.%m.%Y, %H:%M"
 
-    views.index.filters: ['summarize', 'h1']
-    views.entry.filters: ['h1']
-    views.feeds.filters: ['h2']
+Each key-value pair (except views[1]_) is available during templating.
+Acrylamid uses `jinja2 <http://jinja.pocoo.org/docs/>`_, see their `Template
+Designer Documentation <http://jinja.pocoo.org/docs/templates/>`_ for details.
 
-Each key-value pair is available during templating. Acrylamid uses `jinja2
-<http://jinja.pocoo.org/docs/>`_, see their `Template Designer Documentation
-<http://jinja.pocoo.org/docs/templates/>`_ for details.
+All the settings identifiers must be set in caps, otherwise they will not be
+processed.
 
-A ``views.`` or ``filters.`` statement has special meaning to acrylamid's
-internal program flow. You can set global filters and overwrite or exclude
-filters for each view individually.
+Here is a list of settings for acrylamid, regarding the different features.
 
-key-value statements
-********************
+.. [1] ``views`` is a list of all used views, e.g. [index, entry, ...]
+
+==============
+
+================================================    =====================================================
+Setting name (default value)                        what does it do?
+================================================    =====================================================
+`SITENAME` (``''``)                                 base URL of your website. This is also the way
+                                                    to tell acrylamid to use a sub-uri (all relative,
+                                                    though)
+`AUTHOR`                                            default author (put your name)
+`CLEAN_URL` (``False``)                             If set to `True`, the URLs will not be suffixed by
+                                                    `.html`, so you will have to setup URL rewriting on 
+                                                    your web server.
+`DATE_FORMATS` (``{}``)                             If you do manage multiple languages, you can
+                                                    set the date formatting here.
+`DEFAULT_CATEGORY` (``'misc'``)                     The default category to fallback on.
+`DEFAULT_DATE_FORMAT` (``'%a %d %B %Y'``)           The default date format you want to use.
+`DISPLAY_PAGES_ON_MENU` (``True``)                  Display or not the pages on the menu of the
+                                                    template. Templates can follow or not this
+                                                    settings.
+`FALLBACK_ON_FS_DATE` (``True``)                    If True, pelican will use the file system
+                                                    dates infos (mtime) if it can't get
+                                                    informations from the metadata
+`JINJA_EXTENSIONS` (``[]``)                         A list of any Jinja2 extensions you want to use.
+`DELETE_OUTPUT_DIRECTORY` (``False``)               Delete the output directory and just
+                                                    the generated files.
+`LOCALE` (''[1]_)                                   Change the locale. A list of locales can be provided 
+                                                    here or a single string representing one locale.
+                                                    When providing a list, all the locales will be tried 
+                                                    until one works.
+`MARKUP` (``('rst', 'md')``)                        A list of available markup languages you want
+                                                    to use. For the moment, only available values
+                                                    are `rst` and `md`.
+`MD_EXTENSIONS` (``('codehilite','extra')``)        A list of the extensions that the markdown processor
+                                                    will use. Refer to the extensions chapter in the
+                                                    Python-Markdown documentation for a complete list of
+                                                    supported extensions.
+`OUTPUT_PATH` (``'output/'``)                       Where to output the generated files.
+`PATH` (``None``)                                   path to look at for input files.
+`PDF_GENERATOR` (``False``)                         Set to True if you want to have PDF versions
+                                                    of your documents. You will need to install
+                                                    `rst2pdf`.
+`RELATIVE_URLS` (``True``)                          Defines if pelican should use relative urls or
+                                                    not.
+`SITENAME` (``'A Pelican Blog'``)                   Your site name
+`SITEURL`                                           
+`STATIC_PATHS` (``['images']``)                     The static paths you want to have accessible
+                                                    on the output path "static". By default,
+                                                    pelican will copy the 'images' folder to the
+                                                    output folder.
+`TIMEZONE`                                          The timezone used in the date information, to
+                                                    generate atom and rss feeds. See the "timezone"
+                                                    section below for more info.
+================================================    =====================================================
 
 This is a complete list of all configuration keys available in acrylamid.
 

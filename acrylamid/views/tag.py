@@ -3,6 +3,7 @@
 #
 # -*- encoding: utf-8 -*-
 
+from time import time
 from os.path import exists
 from collections import defaultdict
 
@@ -58,6 +59,7 @@ class Tag(View):
             entrylist = EntryList([entry for entry in tags[tag]])
             pages, has_changed = paginate(entrylist, ipp, lambda e: not e.draft)
             for i, mem in enumerate(pages):
+                ctime = time()
                 # e.g.: curr = /page/3, next = /page/2, prev = /page/4
                 if i == 0:
                     next = None
@@ -71,14 +73,14 @@ class Tag(View):
                             else expand(self.pagination, {'name': tag, 'num': str(i+2)})
                 p = joinurl(conf['output_dir'], curr, 'index.html')
 
-                if exists(p) and not has_changed:
-                    if not (tt_entry.has_changed or tt_main.has_changed):
-                        event.skip(curr, path=p)
-                        continue
+                # if exists(p) and not has_changed:
+                #     if not (tt_entry.has_changed or tt_main.has_changed):
+                #         event.skip(curr, path=p)
+                #         continue
 
                 body = [render(tt_entry, conf, env, entry, type="tag") for entry in mem]
                 html = render(tt_main, conf, env, type='tag', prev=prev, curr=curr, next=next,
                             entrylist='\n'.join(body), num_entries=len(entrylist),
                             items_per_page=ipp)
 
-                mkfile(html, p, curr, ctime=sum((e.ctime for e in mem)), **kwargs)
+                mkfile(html, p, curr, ctime=time()-ctime, **kwargs)

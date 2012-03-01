@@ -1,79 +1,91 @@
 Filters
 =======
 
-All transformations of the entries' content is done with filters. You an either
-set them for the whole blog in *conf.yaml* and/or override them in blog posts
-individually. The keyword in the YAML-header is `filters` (*filter* without "s"
-would work, though). The most basic configuration would be:
+All transformations your content is done via filters. You an either set them
+implicit in *conf.yaml* and/or overriding them in your individual blog posts.
+A filter can convert a Markdown-written text into HTML, render MathML from
+AsciiMathML or just increase HTML-headers by 1 or 2. You can specify a filter
+by setting the key `filters` to a list of your wished filters or simply omit
+the key, if you've already defined a global filter:
 
 ::
 
     ---
-    title: My Entry
-    filters: reST
+    title: Samply Entry
+    filters: [reST, hyphenate]
     ---
 
-You can specify multiple filters, too:
+If you pass conflicting filters like ``reST, Markdown`` the first one gets
+applied and every conflicing ignored. This is useful, when you define a global
+filter *Markdown* but also write single entries in e.g. *reStructuredText*.
+Most inbuilt filters have aliases so you don't have to remember/write the
+exact name. As an example, *rst*, *reST* and *restructuredtext* are aliases
+for *reStructuredText*.
+
+Some filters may take additional arguments to activate builtin filters like
+Markdown's code-hilighting. Here's a list of all Markdon `built-in extensions
+<http://freewisdom.org/projects/python-markdown/Available_Extensions>`_) and
+in addition, acrylamid features a `asciimathml extension
+<https://github.com/favalex/python-asciimathml>`_. The syntax is:
 
 ::
 
-    filters: reST, sumarize
-
-If you pass conflicting filters like ``reST, Markdown`` the first one wins. This
-is useful, when you define as overall filter *Markdown* but want to write a single
-entry in *reStructuredText*. Filters can also have aliases. Therefore, *rst*,
-*reST* and *reStructuredText* will call the *reStructuredText* filter.
-
-Some filters can also take additional arguments, e.g. *Markdown* includes an
-`asciimathml extension <https://github.com/favalex/python-asciimathml>`_ (and
-of course all `built-in extensions <http://freewisdom.org/projects/python-markdown/Available_Extensions>`_).
-The syntax for this is:
-
-::
-
-    filters: markdown+mathml, ...
+    filters: [markdown+mathml, ...]
     # or
-    filters: markdown+codehilite(css_class=highlight), ...
+    filters: [markdown+mathml+codehilite(css_class=highlight), ...]
 
-You can also disable filters applied via *conf.yaml* by simply add *no* to
-the name disables the filter for this current entry:
+You can also disable filters applied globally by prefixing them with *no*:
 
 ::
 
     filters: nosummary
 
-A short word to filter evaluation. Internally, it's simply an iterating over
-all elements of entry_filters+config_filters. If a filter conflicts with an
+A short word to filter evaluation. Internally, it is iterating over all
+items in entry_filters+config_filters. If a filter conflicts with an
 existing filter, it will overgone.
 
 Markdown
 ********
 
-aliases:
+:Requires:
+    markdown or (python-markdown) -- already a dependency
+	of acrylamid and implicitly installed
+
+:Aliases:
     md, mkdown, markdown
-conflicts:
+
+:Conflicts:
     plain, reStructuredText
-arguments:
-    asciimathml
 
-Markdown uses `the official implementation by John Gruber <http://www.freewisdom.org/projects/python-markdown/>`_
-and all it's `available extensions <http://www.freewisdom.org/projects/python-markdown/Available_Extensions>`_.
-*Note*, `pygments <http://pygments.org>`_ is required for `codehilite <http://www.freewisdom.org/projects/python-markdown/CodeHilite>`_.
+:Arguments:
+	asciimathml (mathml, math), ...
 
-Acrylamid includes an `AsciiMathML <https://github.com/favalex/python-asciimathml>`_
-extension. The aliases are: *asciimathml*, *mathml* and *math* and requires
-``python-asciimathml`` as well. Simply ``pip install asciimathml`` and you are done.
-Note, place your formula into single dollar signs like ``$a+b^2$`` intead of two!
+Markdown uses `the official implementation by John Gruber
+<http://www.freewisdom.org/projects/python-markdown/>`_ and all it's
+`available extensions
+<http://www.freewisdom.org/projects/python-markdown/Available_Extensions>`_.
+*Note*, `pygments <http://pygments.org>`_ is required for `codehilite
+<http://www.freewisdom.org/projects/python-markdown/CodeHilite>`_.
+
+Acrylamid includes a specia `AsciiMathML
+<https://github.com/favalex/python-asciimathml>`_ extension. The aliases are:
+*asciimathml*, *mathml* and *math* and requires the ``python-asciimathml``
+package. Simply ``pip install asciimathml`` and you are done. *Note*, place
+your formula into single dollar signs like ``$a+b^2$`` intead of two!
 
 reStructuredText
 ****************
 
 *needs pygments to be installed*!
 
-aliases:
+:Requires:
+	pygments, docutils (or python-docutils)
+
+:Aliases:
     rst, rest, reST, restructuredtext
-conflicts:
-    plain, mkdown
+
+:Conflicts:
+    plain, Markdown
     
 Install ``reStructuredText`` via ``pip install docutils``. Currently only a
 hard-coded `pygments <http://pygments.org>`_ extension.
@@ -87,15 +99,15 @@ trust Markdown's "don't touch html"-policy.
 head_offset
 ***********
 
-aliases:
+:Aliases:
     h1, h2, h3, h4, h5
 
-Increase headings by h(x).
+Increase HTML-headings (<h1>...</h1>) by h(x).
 
 Hyphenate
 *********
 
-aliases:
+:Aliases:
     hyphenate, hyph
 
 Hyphenate HTML based on entry's/blog's lang. Only en, de and fr dictionary are
@@ -103,7 +115,7 @@ provided by Acrylamid. Example usage:
 
 ::
 
-    filters: hyphenate
+    filters: [hyphenate, ]
     lang: en
 
 If you need an additional language, `download
@@ -114,11 +126,13 @@ both, ``hyph-*.chr.txt`` and ``hyph-*.pat.txt``, to
 typography
 **********
 
-*needs smartypants*!
+:Requires:
+	smartypants
 
-aliases:
+:Aliases:
     typography, typo, smartypants
-arguments:
+
+:Arguments:
     all, typo, typogrify, amp, widont, smartypants, caps, initial_quotes,
     number_suffix
 

@@ -147,7 +147,11 @@ class Acryl:
                 sys.exit(1)
 
         elif args[0] in ('new', ):
-            commands.new(conf, env, title=' '.join(args[1:]))
+            try:
+                commands.new(conf, env, title=' '.join(args[1:]))
+            except AcrylamidException as e:
+                log.fatal(e.message)
+                sys.exit(1)
 
         elif args[0] in ('clean', 'rm'):
             try:
@@ -182,3 +186,6 @@ class Acryl:
             except (SystemExit, KeyboardInterrupt, Exception) as e:
                 ws.kill_received = True
                 sys.exit(0)
+        else:
+            log.critical('No such command!')
+            sys.exit(1)

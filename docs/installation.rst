@@ -16,9 +16,10 @@ plain HTML generation and avoids javascript usage whenever possible.
 Linux/Debian and OS X
 *********************
 
-You'll need the python interpreter and a python package manager. If you are on
-Linux (Debian-based), just ``apt-get install python python-setuputils``. If
-you are using OS X the proper Python version is already installed (10.6 or later).
+You'll need the python interpreter (python 3.x is not supported) and a python
+package manager. If you are on Linux (Debian-based), just ``apt-get install
+python python-setuputils``. If you are using OS X the proper Python version is
+already installed (10.6 or later).
 
 ::
 

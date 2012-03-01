@@ -60,10 +60,10 @@ class Index(View):
             p = joinurl(directory, 'index.html')
             message = self.path if i==0 else expand(self.pagination, {'num': str(i+1)})
 
-            if exists(p) and not has_changed:
-                if not (tt_entry.has_changed or tt_main.has_changed):
-                    event.skip(message, path=p)
-                    continue
+            # if exists(p) and not has_changed:
+            #     if not (tt_entry.has_changed or tt_main.has_changed):
+            #         event.skip(message, path=p)
+            #         continue
 
             body = [render(tt_entry, conf, env, entry, type="page") for entry in mem]
             html = render(tt_main, conf, env, type='page', prev=prev, curr=curr, next=next,
