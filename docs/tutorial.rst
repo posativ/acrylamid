@@ -10,7 +10,7 @@ Creating a Blog
 Acrylamid is a command line application. That means you should have at least
 a clue how to open the terminal on your operation system (excluding windows).
 
-An acrylamid-powered blog is basically a configuration file and three 
+An acrylamid-powered blog is basically a configuration file and three
 directories containing the content, layout and the generated output. To create
 basic structure, type into the terminal:
 
@@ -59,7 +59,7 @@ structure. Before you can view your blog, it needs to be compiled. To compile,
 do this:
 
 ::
-    
+
     tutorial$> acrylamid compile
 
 This is what’ll appear in the terminal while acrylamid is compiling:
@@ -105,7 +105,7 @@ paragraph somewhere in the file. Something like this:
 
 ::
 
-    This is a new paragraph which I've just inserted into this file. I can 
+    This is a new paragraph which I've just inserted into this file. I can
     even write [Markdown](http://daringfireball.net/projects/markdown/)!
 
 To view the changes, you must recompile first. So, run the **compile**
@@ -113,7 +113,7 @@ command. You should see something like this:
 
 ::
 
-    tutorial$>  acrylamid co
+    tutorial$>  acrylamid compile
       identical  output/articles/index.html
         update  [0.26s] output/2011/die-verwandlung/index.html
         update  [0.25s] output/rss/index.html
@@ -156,7 +156,7 @@ Adding a New Entry
 
 Unlike other static site compiler, acrylamid does not rely on any fileystem's
 structure to route entries to urls. You can create for each item a new folder,
-sort them by year (I prefer this), by category or by year/month – the main 
+sort them by year (I do prefer this), by category or by year/month – the main
 thing is, it is a text file with a YAML-header in it.
 
 You can either create a new text file with your editor of choice or use the
@@ -171,12 +171,13 @@ builtin shortcut, which also creates a safe filename:
     title: Hello World!
     date: 31.01.2012, 19:47
     ---
+
+    tutorial$> acrylamid compile
     
-    tutorial$>
 
 
 
-    
+
 
 
 

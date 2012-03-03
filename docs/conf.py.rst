@@ -36,7 +36,7 @@ python script and therefore must be valid python code!):
     PERMALINK_FORMAT = "/:year/:slug/index.html"
     DATE_FORMAT = "%d.%m.%Y, %H:%M"
 
-Each key-value pair (except views[1]_) is available during templating.
+Each key-value pair (except views[1]_) is available during :doc:`templating`.
 Acrylamid uses `jinja2 <http://jinja.pocoo.org/docs/>`_, see their `Template
 Designer Documentation <http://jinja.pocoo.org/docs/templates/>`_ for details.
 

@@ -35,7 +35,7 @@ translitcodec are not must-have dependency).
 
 .. warning::
 
-    Avoid removing ``translitcodec`` egg after you start writing your blog. It
+    Avoid removing ``translitcodec`` egg after you started writing your blog. It
     might break all your permanent links.
 
 If you  want a full featured  installation, just do::
