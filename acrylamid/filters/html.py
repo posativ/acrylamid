@@ -6,10 +6,10 @@
 from acrylamid.filters import Filter
 
 
-class Markdown(Filter):
+class HTML(Filter):
 
     __name__ = 'Pass-Through'
-    __match__ = ['pass', 'plain', 'html', 'xhtml']
+    __match__ = ['pass', 'plain', 'html', 'xhtml', 'HTML']
     __conflicts__ = ['rst', 'md']
     __priority__ = 70.0
 
