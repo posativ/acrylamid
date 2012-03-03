@@ -78,13 +78,21 @@ class Summarizer(HTMLParser):
 
 
 class Summarize(Filter):
+    """Summarizes content up to `maxwords` (defaults to 200)."""
 
     __name__ = 'Summarize'
     __match__ = ['summarize', 'sum']
 
-    def __init__(self, conf, env):
+    def __init__(self, conf, env, *args):
         self.path = env['path']
+
+        try:
+            self.maxwords = int(args[0])
+        except (ValueError, IndexError) as e:
+            if e.__class__ == 'ValueError':
+                log.warn('invalid maxwords argument')
+            self.maxwords = 200
 
     def __call__(self, content, req):
 
-        return Summarizer(content, self.path+req.permalink, 200).summarized
+        return Summarizer(content, self.path+req.permalink, self.maxwords).summarized
