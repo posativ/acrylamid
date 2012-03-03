@@ -17,6 +17,7 @@ Style, 2 clauses.
    tutorial
    .. usage
    conf.py
+   commands
    filters
    .. views
    .. deployment
@@ -27,12 +28,13 @@ Style, 2 clauses.
 Features
 ********
 
-- blog articles, pages and rss/atom feeds
+- blog articles, pages, tags and RSS 2.0/Atom feeds
 - theming support (using jinja2_)
-- Markdown_ and reStructuredText_ as markup languages
-- MathML generation using AsciiMathML_
-- hyphenation using `&shy;`
-- modern web-typography
+- Markdown_ and reStructuredText_ as markup languages including
+  syntax-highlighting
+- MathML-integration generation using AsciiMathML_
+- modern web-typography and hyphenation using `&shy;`
+- fast re-generation
 
 .. _jinja2: http://jinja.pocoo.org/
 .. _reStructuredText: http://docutils.sourceforge.net/rst.html
@@ -63,7 +65,7 @@ Get acrylamid and edit *conf.yaml* and *layouts/*. Run acrylamid with:
         create  myblog/conf.py
         ...
     $> cd myblog/
-    $> acrylamid gen
+    $> acrylamid compile
           warn  using mtime from <fileentry f'content/sample entry.txt'>
         create  '/articles/index.html', written to output/articles/index.html
         create  'Die Verwandlung', written to output/2011/die-verwandlung/index.html
@@ -71,15 +73,8 @@ Get acrylamid and edit *conf.yaml* and *layouts/*. Run acrylamid with:
         create  '/rss/index.html', written to output/rss/index.html
         create  '/', written to output/index.html
 
-Using acrylamid
-***************
-
-- `conf.yaml </posativ/acrylamid/blob/master/docs/conf.yaml.rst>`_
-- `filters </posativ/acrylamid/blob/master/docs/filters.rst>`_
-
-
 Filters
-**********
+*******
 
 See `docs/filters.rst </posativ/acrylamid/blob/master/docs/filters.rst>`_ for
 detailed information. Currently supported by acrylamid:
@@ -108,4 +103,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

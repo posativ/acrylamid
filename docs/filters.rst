@@ -45,7 +45,7 @@ items in entry_filters+config_filters. If a filter conflicts with an
 existing filter, it will overgone.
 
 Markdown
-********
+--------
 
 :Requires:
     markdown or (python-markdown) -- already a dependency
@@ -60,23 +60,24 @@ Markdown
 :Arguments:
 	asciimathml (mathml, math), ...
 
-Markdown uses `the official implementation by John Gruber
-<http://www.freewisdom.org/projects/python-markdown/>`_ and all it's
+Lets write you using Markdown which simplifies HTML generation and is a lot
+easier to write. The Markdown filter uses `the official implementation by John
+Gruber <http://freewisdom.org/projects/python-markdown/>`_ and all it's
 `available extensions
 <http://www.freewisdom.org/projects/python-markdown/Available_Extensions>`_.
 *Note*, `pygments <http://pygments.org>`_ is required for `codehilite
-<http://www.freewisdom.org/projects/python-markdown/CodeHilite>`_.
+<http://freewisdom.org/projects/python-markdown/CodeHilite>`_.
 
-Acrylamid includes a specia `AsciiMathML
+XXX: cheat sheet
+
+Acrylamid features an `AsciiMathML
 <https://github.com/favalex/python-asciimathml>`_ extension. The aliases are:
 *asciimathml*, *mathml* and *math* and requires the ``python-asciimathml``
 package. Simply ``pip install asciimathml`` and you are done. *Note*, place
 your formula into single dollar signs like ``$a+b^2$`` intead of two!
 
 reStructuredText
-****************
-
-*needs pygments to be installed*!
+----------------
 
 :Requires:
 	pygments, docutils (or python-docutils)
@@ -86,36 +87,73 @@ reStructuredText
 
 :Conflicts:
     plain, Markdown
-    
-Install ``reStructuredText`` via ``pip install docutils``. Currently only a
-hard-coded `pygments <http://pygments.org>`_ extension.
 
-plain
-*****
+reStructuredText enables you to write in reStructuredText syntax instead of
+HTML. reStructuredText is more powerful and reliable than Markdown but is also
+slower and more difficult to write (but also easier than HTML).
 
-No transformation applied. Useful if your text is already HTML and you don't
-trust Markdown's "don't touch html"-policy.
+XXX: cheat sheet
+
+HTML
+----
+
+:Requires:
+	built-in
+
+:Conflicts:
+	reStructuredText, Markdown
+
+:Aliases:
+	pass, plain, html, xhtml
+
+No transformation will applied. Useful if your text is already written in
+HTML.
 
 head_offset
-***********
+-----------
+
+:Requires:
+	built-in
 
 :Aliases:
     h1, h2, h3, h4, h5
 
 Increase HTML-headings (<h1>...</h1>) by h(x).
 
+summarize
+---------
+
+:Requires:
+	built-in
+
+:Aliases:
+	sum
+
+:Arguments:
+	Maximum words in summarize (an Integer)
+
+:Defaults:
+	200
+
+Summarizes content to make listings of text previews (used for the default
+tag/page view).
+
 Hyphenate
-*********
+---------
+
+:Requires:
+	language patterns (comes pre-installed with `de`, `en` and `fr` patterns)
 
 :Aliases:
     hyphenate, hyph
 
-Hyphenate HTML based on entry's/blog's lang. Only en, de and fr dictionary are
-provided by Acrylamid. Example usage:
+Hyphenates words greater than 10 characters using Frank Liang's algorithm.
+Hyphenation pattern depends on the language and should therefore
+Only en, de and fr dictionary are provided by Acrylamid. Example usage:
 
 ::
 
-    filters: [hyphenate, ]
+    filters: [Markdown, hyphenate, ]
     lang: en
 
 If you need an additional language, `download
@@ -124,10 +162,10 @@ both, ``hyph-*.chr.txt`` and ``hyph-*.pat.txt``, to
 *\`sys.prefix\`/lib/python/site-packages/acrylamid/filters/hyph/*.
 
 typography
-**********
+----------
 
 :Requires:
-	smartypants
+	`smartypants <https://code.google.com/p/typogrify/>`_
 
 :Aliases:
     typography, typo, smartypants
@@ -136,11 +174,20 @@ typography
     all, typo, typogrify, amp, widont, smartypants, caps, initial_quotes,
     number_suffix
 
-Brings some typography to your content. This includes no widows, correct
-quotes and special css-classes for words written as CAPS (sophisticated
-recognition) and & (ampersand). See `original project
-<https://code.google.com/p/typogrify/>`_.
+:Defaults:
+	typography+amp+widont+smartypants+caps
+
+Enables typographical transformation to your written content. This includes no
+widows, typographical quotes and special css-classes for words written in CAPS
+and & (ampersand) to render an italic styled ampersand. See the `original
+project <https://code.google.com/p/typogrify/>`_ for more information.
 
 By default *amp*, *widont*, *smartypants*, *caps* are applied. *all*, *typo*
 and *typogrify* applying "widont, smartypants, caps, amp, initial_quotes". All
 filters are applied in the order as they are written down.
+
+Custom Filters
+**************
+
+Acrylamid can easily be extended with self-written filters inside your blog
+directory (``filters/`` per default)
