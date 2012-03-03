@@ -11,7 +11,7 @@ from acrylamid.utils import cached_property
 class Restructuredtext(Filter):
 
     __name__ = 'RestructuredText'
-    __match__ = ['restructuredtext', 'rst', 'rest', 'reST', 'RestructuredText']
+    __match__ = ['restructuredtext', 'rst', 'rest', 'reST', 'reStructuredText']
     __conflicts__ = ['markdown', 'plain']
     __priority__ = 70.00
 

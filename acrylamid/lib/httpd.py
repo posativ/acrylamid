@@ -46,7 +46,7 @@ class AcrylServe(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
 
 class Webserver(Thread):
-    """A single-threaded webserver to server while generation."""
+    """A single-threaded webserver to serve while generation."""
 
     def __init__(self, port=8000, www_root='.'):
         Thread.__init__(self)

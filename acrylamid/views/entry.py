@@ -14,7 +14,6 @@ class Entry(View):
     filters = []
 
     def __init__(self, conf, env, *args, **kwargs):
-
         View.__init__(self, *args, **kwargs)
 
     def __call__(self, request, *args, **kwargs):

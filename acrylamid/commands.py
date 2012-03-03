@@ -54,7 +54,7 @@ def initialize(conf, env):
     conf['www_root'] = conf['www_root'].rstrip('/')
     env['path'] = env['path'].rstrip('/')
 
-    # check encoding is available
+    # check if encoding is available
     try:
         codecs.lookup(conf['encoding'])
     except LookupError:
