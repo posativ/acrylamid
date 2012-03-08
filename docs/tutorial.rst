@@ -113,7 +113,7 @@ command. You should see something like this:
 
 ::
 
-    tutorial$>  acrylamid co
+    tutorial$>  acrylamid compile
       identical  output/articles/index.html
         update  [0.26s] output/2011/die-verwandlung/index.html
         update  [0.25s] output/rss/index.html
@@ -156,7 +156,7 @@ Adding a New Entry
 
 Unlike other static site compiler, acrylamid does not rely on any fileystem's
 structure to route entries to urls. You can create for each item a new folder,
-sort them by year (I prefer this), by category or by year/month – the main 
+sort them by year (I do prefer this), by category or by year/month – the main 
 thing is, it is a text file with a YAML-header in it.
 
 When you have done all steps before, especially the previous one, creating an
