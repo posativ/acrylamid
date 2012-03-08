@@ -10,7 +10,7 @@ Creating a Blog
 Acrylamid is a command line application. That means you should have at least
 a clue how to open the terminal on your operation system (excluding windows).
 
-An acrylamid-powered blog is basically a configuration file and three
+An acrylamid-powered blog is basically a configuration file and three 
 directories containing the content, layout and the generated output. To create
 basic structure, type into the terminal:
 
@@ -59,7 +59,7 @@ structure. Before you can view your blog, it needs to be compiled. To compile,
 do this:
 
 ::
-
+    
     tutorial$> acrylamid compile
 
 This is what’ll appear in the terminal while acrylamid is compiling:
@@ -105,7 +105,7 @@ paragraph somewhere in the file. Something like this:
 
 ::
 
-    This is a new paragraph which I've just inserted into this file. I can
+    This is a new paragraph which I've just inserted into this file. I can 
     even write [Markdown](http://daringfireball.net/projects/markdown/)!
 
 To view the changes, you must recompile first. So, run the **compile**
@@ -113,7 +113,7 @@ command. You should see something like this:
 
 ::
 
-    tutorial$>  acrylamid compile
+    tutorial$>  acrylamid co
       identical  output/articles/index.html
         update  [0.26s] output/2011/die-verwandlung/index.html
         update  [0.25s] output/rss/index.html
@@ -156,32 +156,75 @@ Adding a New Entry
 
 Unlike other static site compiler, acrylamid does not rely on any fileystem's
 structure to route entries to urls. You can create for each item a new folder,
-sort them by year (I do prefer this), by category or by year/month – the main
+sort them by year (I prefer this), by category or by year/month – the main 
 thing is, it is a text file with a YAML-header in it.
 
-You can either create a new text file with your editor of choice or use the
+When you have done all steps before, especially the previous one, creating an
+article will be an ordinary step.
+You can either create a new text file in your content directory (by default ``content/``)
+with your editor of choice or use the
 builtin shortcut, which also creates a safe filename:
 
 ::
 
-    tutorial$> acrylamid new Hello World!
-        create  content/2012/hello-world.txt
+    tutorial$> cp acrylamid new New Entry!
+
+
+That the YAML-header (that's the first part of the file) is created
+by acrylamid automatically, this should simplify the start.
+But it's of course possible and recommended to adapt these settings and the
+body (the text of your entry). Currently, the header looks like this:
+
+::
     tutorial$> cat content/2012/hello-world.txt
     ---
-    title: Hello World!
+    title: New Entry!
     date: 31.01.2012, 19:47
     ---
 
+An adopted header could look like this:
+
+::
+
+    ---
+    title: My New Entry!
+    author: anonymous
+    tags: [hello world, acrylamid]
+    date: "31.01.2012, 14:57"
+    filters: rest
+    ---
+
+Filters modify the appearance of the entry. ``rest`` defines REST as
+markup language. For available filters see the section on
+`filters </posativ/acrylamid/blob/master/docs/filters.rst>`_.
+
+Another useful option is the date-option. The required format is
+'%d.%m.%Y, %H:%M' which is used in acrylamid by default.
+(See `conf.py </posativ/acrylamid/blob/master/docs/conf.py.rst>`_.
+for informations about how to change that behavior)
+If the date is not given, the last modifcation time of the file is used
+(which could by bad when you only add updates to an entry).
+
+
+If you're done, just compile like above:
+
+::
+
     tutorial$> acrylamid compile
-    
+          warn  using mtime from <fileentry f'content/sample entry.txt'>
+          skip  '/tag/die-verwandlung' is up to date
+        create  '/tag/hello-world', written to output/tag/hello-world/index.html
+        create  '/tag/acrylamid', written to output/tag/acrylamid/index.html
+          skip  '/tag/franz-kafka' is up to date
+       changed  content of '/articles/index.html'
+       changed  content of '/'
+       changed  content of '/atom/index.html'
+       changed  content of '/rss/index.html'
+          skip  'Die Verwandlung' is up to date
+        create  'hello world', written to output/2012/hello-world/index.html
 
-
-
-
-
-
-
-
+You can see, that no additional warning is thrown, because we've set the date
+correctly.
 
 Customizing the Layout
 ----------------------

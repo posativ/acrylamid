@@ -1,3 +1,4 @@
+#!/usr/bin/python2.6
 from distutils.core import setup
 
 """acrylamid documentation
