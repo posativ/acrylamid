@@ -16,6 +16,7 @@ from datetime import datetime
 from jinja2 import Environment, FileSystemBytecodeCache
 
 from acrylamid import filters, views, log
+from acrylamid.lib.importer import fetch, parse, build
 from acrylamid.utils import cache, ExtendedFileSystemLoader, FileEntry, event
 from acrylamid.errors import AcrylamidException
 
@@ -137,6 +138,7 @@ def autocompile(conf, env, **options):
             files = f(filelist(conf))
         time.sleep(1)
 
+
 def new(conf, env, title):
     """Subcommand: new -- create a new blog entry the easy way.  Either run
     ``acrylamid new My fresh new Entry`` or interactively via ``acrylamid new``
@@ -187,6 +189,27 @@ def new(conf, env, title):
 
     if os.stat(filepath)[6] == 0:
         raise AcrylamidException('File is empty!')
+
+
+def importer(conf, env, url, **options):
+    """Subcommand: import -- import entries and settings from an existing RSS/Atom
+    feed.  ``acrylamid import http://example.com/feed/`` should do the job.
+
+    If ``pandoc`` or ``html2text`` are available, first pandoc and second html2text
+    are used to convert HTML back to Markdown-compatible text.  If you like reST more
+    than Markdown, specify ``--format=rst`` and be sure you have either ``pandoc`` or
+    ``html2rest`` installed on your system.
+
+    If you don't like any reconversion, simply use ``--format=html``."""
+
+    try:
+        content = fetch(url, auth=options.get('auth', None))
+        defaults, items = parse(content)
+        # print items[0]['content']
+        build(conf, env, defaults, items, fmt=options['import_fmt'], keep=options['keep_links'])
+    except AcrylamidException as e:
+        log.fatal(e.message)
+        sys.exit(1)
 
 
 __all__ = ["compile", "autocompile", "new"]

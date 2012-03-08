@@ -51,7 +51,8 @@ class Acryl:
                 + "compile      - render blog\n" \
                 + "autocompile  - serving on port -p (8000) with auto-compile\n" \
                 + "clean        - remove orphans or all from output_dir\n" \
-                + "serve        - builtin webserver on port -p (8000)\n"
+                + "serve        - builtin webserver on port -p (8000)\n" \
+                + "import URL   - import from feed\n"
 
         options = [
             make_option("-v", "--verbose", action="store_const", dest="verbosity",
@@ -71,6 +72,13 @@ class Acryl:
             # --- webserver params --- #
             make_option("-p", "--port", dest="port", type=int, default=8000,
                         help="webserver port"),
+
+            # --- import params --- #
+            make_option("--auth", dest="auth", help="login credentials"),
+            make_option("--format", dest="import_fmt", default="Markdown",
+                        help="convert HTML to FORMAT"),
+            make_option("--keep-links", dest="keep_links", action="store_true",
+                        help="keep permanent links"),
 
             make_option("--version", action="store_true", dest="version",
                                help="print version details", default=False),
@@ -186,6 +194,16 @@ class Acryl:
             except (SystemExit, KeyboardInterrupt, Exception) as e:
                 ws.kill_received = True
                 sys.exit(0)
+
+        elif args[0] in ('import', ):
+            if len(args) <= 1:
+                log.fatal('import requires a valid URL')
+                sys.exit(1)
+            try:
+                commands.importer(conf, env, args[1], **options.__dict__)
+            except AcrylamidException as e:
+                log.critical(e.message)
+                sys.exit(1)
         else:
             log.critical('No such command!')
             sys.exit(1)
