@@ -8,7 +8,7 @@ from acrylamid.utils import cached_property
 import re
 import os
 import codecs
-from HTMLParser import HTMLParser
+from HTMLParser import HTMLParser, HTMLParseError
 from cgi import escape
 from os.path import join, dirname, basename
 
@@ -208,4 +208,8 @@ class Hyphenate(Filter):
         else:
             hyphenate_word = self.default
 
-        return ''.join(Separator(content, hyphenate_word).result)
+        try:
+            return ''.join(Separator(content, hyphenate_word).result)
+        except HTMLParseError as e:
+            log.warn('%s: %s in %s' % (e.__class__.__name__, e.msg, req.filename))
+            return content

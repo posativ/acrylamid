@@ -1,9 +1,10 @@
 # Copyright 2011 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid.py
 
+from acrylamid import log
 from acrylamid.filters import Filter
 
-from HTMLParser import HTMLParser
+from HTMLParser import HTMLParser, HTMLParseError
 from cgi import escape
 
 
@@ -95,4 +96,8 @@ class Summarize(Filter):
 
     def __call__(self, content, req):
 
-        return Summarizer(content, self.path+req.permalink, self.maxwords).summarized
+        try:
+            return Summarizer(content, self.path+req.permalink, self.maxwords).summarized
+        except HTMLParseError as e:
+            log.warn('%s: %s in %s' % (e.__class__.__name__, e.msg, req.filename))
+            return content
