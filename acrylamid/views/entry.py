@@ -37,7 +37,8 @@ class Entry(View):
                 p = joinurl(p, 'index.html')
 
             if p in pathes:
-                raise AcrylamidException("title collision %r" % entry.filename)
+                raise AcrylamidException("title collision %r in %r" % (entry.permalink,
+                                                                       entry.filename))
             pathes[p] = entry
 
         for p, entry in pathes.iteritems():
