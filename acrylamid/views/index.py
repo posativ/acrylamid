@@ -21,11 +21,6 @@ class Index(View):
         """Creates nicely paged listing of your posts.  First page is the
         index.hml used to have this nice url: http://yourblog.com/ with a recent
         list of your (e.g. summarized) Posts. Other pages are enumerated to /page/n+1
-
-        required:
-        items_per_page -- posts displayed per page (defaults to 6)
-        entry.html -- layout of Post's entry
-        main.html -- layout of the website
         """
 
         conf = request['conf']
@@ -39,6 +34,7 @@ class Index(View):
         pages, has_changed = paginate(entrylist, ipp, lambda e: not e.draft)
         for i, mem in enumerate(pages):
             ctime = time()
+
             # curr = current page, next = newer pages, prev = older pages
             if i == 0:
                 next = None
@@ -46,11 +42,10 @@ class Index(View):
             else:
                 curr = expand(self.pagination, {'num': str(i+1)})
                 next = self.path if i == 1 else expand(self.pagination, {'num': str(i)})
-
-            prev = None if i == (len(entrylist)/ipp + 1) - 1 \
+            prev = None if i >= len(list(pages))-1 \
                         else expand(self.pagination, {'num': str(i+2)})
-            directory = conf['output_dir']
 
+            directory = conf['output_dir']
             if i == 0:
                 directory = joinurl(conf['output_dir'], self.path)
             else:

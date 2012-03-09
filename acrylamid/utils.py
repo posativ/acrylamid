@@ -467,7 +467,8 @@ def paginate(list, ipp, func=lambda x: x):
     else:
         has_changed = res.has_changed
 
-    return (res[x*ipp:(x+1)*ipp] for x in range(len(res)/ipp+1)), has_changed
+    return [res[x*ipp:(x+1)*ipp] for x in range(len(res)/ipp+1)
+           if res[x*ipp:(x+1)*ipp]], has_changed
 
 
 def escapes(string):
