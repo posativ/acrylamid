@@ -17,7 +17,7 @@ from jinja2 import Environment, FileSystemBytecodeCache
 
 from acrylamid import filters, views, log
 from acrylamid.lib.importer import fetch, parse, build
-from acrylamid.utils import cache, ExtendedFileSystemLoader, FileEntry, event
+from acrylamid.utils import cache, ExtendedFileSystemLoader, FileEntry, event, escapes
 from acrylamid.errors import AcrylamidException
 
 from acrylamid.core import handle as prepare, filelist
@@ -149,9 +149,7 @@ def new(conf, env, title):
 
     if not title:
         title = raw_input("Entry's title: ")
-
-    if '#' in title or ':' in title:
-        title = '\"' + title + '\"'
+    title = escapes(title)
 
     with os.fdopen(fd, 'wb') as f:
         f.write('---\n')
@@ -202,14 +200,9 @@ def importer(conf, env, url, **options):
 
     If you don't like any reconversion, simply use ``--format=html``."""
 
-    try:
-        content = fetch(url, auth=options.get('auth', None))
-        defaults, items = parse(content)
-        # print items[0]['content']
-        build(conf, env, defaults, items, fmt=options['import_fmt'], keep=options['keep_links'])
-    except AcrylamidException as e:
-        log.fatal(e.message)
-        sys.exit(1)
+    content = fetch(url, auth=options.get('auth', None))
+    defaults, items = parse(content)
+    build(conf, env, defaults, items, fmt=options['import_fmt'], keep=options['keep_links'])
 
 
 __all__ = ["compile", "autocompile", "new"]

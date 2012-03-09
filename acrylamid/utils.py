@@ -470,6 +470,18 @@ def paginate(list, ipp, func=lambda x: x):
     return (res[x*ipp:(x+1)*ipp] for x in range(len(res)/ipp+1)), has_changed
 
 
+def escapes(string):
+    """Escapes string to fit to the YAML standard.  I did not read the
+    specs, though."""
+
+    if filter(lambda c: c in string, '\'\"#:'):
+        if '"' in string:
+            return '\'' + string + '\''
+        else:
+            return '\"' + string + '\"'
+    return string
+
+
 class cache(object):
     """A cache that stores the entries on the file system.  Borrowed from
     werkzeug.contrib.cache, see their AUTHORS and LICENSE for additional

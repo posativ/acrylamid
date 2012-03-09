@@ -21,7 +21,7 @@ from email.utils import parsedate_tz, mktime_tz
 from os.path import join, dirname, getmtime, isfile
 
 from acrylamid import log
-from acrylamid.utils import FileEntry, event
+from acrylamid.utils import FileEntry, event, escapes
 from acrylamid.errors import AcrylamidException
 
 
@@ -62,13 +62,11 @@ def _convert(data, fmt='markdown'):
         try:
             p = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE,
                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            # XXX something strange happens here, in some cases links are not correctly
-            # converted as if they would in a real shell.
-            result, err = p.communicate(data)
+            result, err = p.communicate(str(data.decode('utf-8')))
             if not err:
                 return result, fmt.lower()
             log.warn(err.strip())
-        except OSError as e:
+        except OSError:
             pass
     else:
         return data, 'html'
@@ -173,9 +171,7 @@ def build(conf, env, defaults, items, fmt, keep=False):
 
     def create(title, date, content, permalink=None):
         fd, tmp = tempfile.mkstemp(suffix='.txt', dir='.cache/')
-
-        if '#' in title or ':' in title:
-            title = '\"' + title + '\"'
+        title = escapes(title)
 
         with os.fdopen(fd, 'wb') as f:
             f.write('---\n')
