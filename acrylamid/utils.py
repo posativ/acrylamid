@@ -341,10 +341,10 @@ class ExtendedFileSystemLoader(FileSystemLoader):
             source, filename, uptodate = self.get_source(environment, parent)
             bucket = bcc.get_bucket(environment, parent, filename, source)
             p = bcc._get_cache_filename(bucket)
-            has_changed = getmtime(filename) > getmtime(p) if exists(p) else False
+            has_changed = getmtime(filename) > getmtime(p) if exists(p) else True
 
             if has_changed:
-                # updating cached template if timestamp as changed
+                # updating cached template if timestamp has changed
                 code = environment.compile(source, parent, filename)
                 bucket.code = code
                 bcc.set_bucket(bucket)
@@ -357,17 +357,18 @@ class ExtendedFileSystemLoader(FileSystemLoader):
                     # XXX double-return to break this recursion?
                     return True
 
-        code = None
         if globals is None:
             globals = {}
 
         source, filename, uptodate = self.get_source(environment, name)
+
         bcc = environment.bytecode_cache
-        if bcc is not None:
-            bucket = bcc.get_bucket(environment, name, filename, source)
-            p = bcc._get_cache_filename(bucket)
-            has_changed = bool(resolve(name))
-            code = bucket.code
+        bucket = bcc.get_bucket(environment, name, filename, source)
+        has_changed = bool(resolve(name))
+
+        code = bucket.code
+        if code is None:
+            code = environment.compile(source, name, filename)
 
         tt = environment.template_class.from_code(environment, code, globals, uptodate)
         tt.has_changed = has_changed
