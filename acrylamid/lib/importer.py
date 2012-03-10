@@ -8,6 +8,7 @@ import os
 import re
 import tempfile
 import subprocess
+import getpass
 
 from base64 import b64encode
 from datetime import datetime
@@ -51,9 +52,6 @@ def _convert(data, fmt='markdown'):
     else:
         cmds = []
 
-    # XXX: cleaner, but does not work within my virtualenv setup.
-    #('pandoc', '-f html', '-t', fmt, '--strict')
-    #cmds.insert(0, 'pandoc -f html -t %s --strict' % fmt,)
     cmds.insert(0, ['pandoc', '-f', 'html', '-t', fmt, '--strict'])
 
     if fmt == 'html':
@@ -145,15 +143,21 @@ def fetch(url, auth=None):
 
     req = Request(url)
     if auth:
-        request.add_header('Authorization', 'Basic ' + b64encode(auth))
+        req.add_header('Authorization', 'Basic ' + b64encode(auth))
 
     try:
         r = urlopen(req)
     except HTTPError as e:
         raise AcrylamidException(e.msg)
-    if r.getcode() != 200:
-        raise AcrylamidException('invalid status code %i, aborting.' % r.getcode())
-    return r.read()
+
+    if r.getcode() == 401:
+        user = raw_input('Username: ')
+        passwd = getpass.getpass()
+        fetch(url, user + ':' + passwd)
+    elif r.getcode() == 200:
+        return r.read()
+
+    raise AcrylamidException('invalid status code %i, aborting.' % r.getcode())
 
 
 def parse(content):

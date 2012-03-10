@@ -75,7 +75,6 @@ class Acryl:
                         help="webserver port"),
 
             # --- import params --- #
-            make_option("--auth", dest="auth", help="login credentials"),
             make_option("--format", dest="import_fmt", default="Markdown",
                         help="convert HTML to FORMAT"),
             make_option("--keep-links", dest="keep_links", action="store_true",
