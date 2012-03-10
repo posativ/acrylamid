@@ -176,6 +176,7 @@ But it's of course possible and recommended to adapt these settings and the
 body (the text of your entry). Currently, the header looks like this:
 
 ::
+
     tutorial$> cat content/2012/hello-world.txt
     ---
     title: New Entry!
