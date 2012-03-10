@@ -207,7 +207,7 @@ def importer(conf, env, url, **options):
     build(conf, env, defaults, items, fmt=options['import_fmt'], keep=options['keep_links'])
 
 
-def deploy(conf, env, task):
+def deploy(conf, env, task, *args):
     """Subcommand: deploy -- run the shell command specified in DEPLOYMENT[task] using
     Popen. Use ``%s`` inside your command to let acrylamid substitute ``%s`` with the
     output path, if no ``%s`` is set, the path is appended  as first argument. XXX: Every
@@ -221,6 +221,10 @@ def deploy(conf, env, task):
         cmd[cmd.index('%s')] = conf['output_dir']
     except ValueError:
         cmd.append(conf['output_dir'])
+
+    # apply ARG1 ARG2 ... and -v --long-args to the command, e.g.:
+    # $> acrylamid deploy task arg1 -- -b --foo
+    cmd.extend(args)
 
     try:
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)

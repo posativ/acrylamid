@@ -209,7 +209,7 @@ class Acryl:
                 log.fatal('deploy requires a build TASK')
                 sys.exit(1)
             try:
-                commands.deploy(conf, env, args[1])
+                commands.deploy(conf, env, args[1], *args[2:])
             except AcrylamidException as e:
                 log.critical(e.message)
                 sys.exit(1)
