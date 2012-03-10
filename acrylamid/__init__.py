@@ -75,8 +75,8 @@ class Acryl:
                         help="webserver port"),
 
             # --- import params --- #
-            make_option("--format", dest="import_fmt", default="Markdown",
-                        help="convert HTML to FORMAT"),
+            make_option("--markup", dest="import_fmt", default="Markdown",
+                        help="reconvert HTML to MARKUP"),
             make_option("--keep-links", dest="keep_links", action="store_true",
                         help="keep permanent links"),
 

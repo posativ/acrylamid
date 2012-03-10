@@ -19,6 +19,39 @@ view
 import
 ------
 
+Acrylamid features a basic RSS and Atom feed importer (WordPress dump is
+planned) to make it more easy to move to Acrylamid. To import a feed, point to
+the URL or the local FILE. By default, all HTML is reconversed to Markdown
+using, first pandoc_ if found, then `html2text
+<http://www.aaronsw.com/2002/html2text/>`_ if found, else the plain HTML is
+stored into plaintext files. reStructuredText is also supported by pandoc_ and
+optional by `html2rest <http://pypi.python.org/pypi/html2rest>`.
+
+.. _pandoc: http://johnmacfarlane.net/pandoc/
+
+::
+
+    $> acrylamid import http://example.com/rss/
+         create  content/2012/entry.txt
+         create  content/2012/another-entry.txt
+         ...
+
+.. note::
+
+    If you get a *critical  Entry already exists u'content/2012/update.txt'*,
+    you may change your ``PERMALINK_FORMAT`` to a more fine-grained
+    ``"/:year/:month/:day/:slug/index.html"`` import strategy. If you don't
+    which a re-layout of your entries, you can use ``--keep-links`` to use the
+    permalink as path.
+
+--markup=LANG       reconversion of HTML to LANG, supports every language that
+                    pandoc supports (if you have pandoc installed). Use "HTML"
+                    if you don't whish any reconversion.
+--keep-links        keep original permanent-links and also create content
+                    structure in that way. This does *not* work, if you links
+                    are like this: ``/?p=23``.
+
+
 deploy
 ------
 
