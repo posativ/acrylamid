@@ -53,17 +53,19 @@ def _convert(data, fmt='markdown'):
 
     # XXX: cleaner, but does not work within my virtualenv setup.
     #('pandoc', '-f html', '-t', fmt, '--strict')
-    cmds.insert(0, 'pandoc -f html -t %s --strict' % fmt,)
+    #cmds.insert(0, 'pandoc -f html -t %s --strict' % fmt,)
+    cmds.insert(0, ['pandoc', '-f', 'html', '-t', fmt, '--strict'])
 
     if fmt == 'html':
         return data, 'html'
 
     for cmd in cmds:
         try:
-            p = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE,
+            p = subprocess.Popen(cmd, stdin=subprocess.PIPE,
                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             result, err = p.communicate(str(data.decode('utf-8')))
-            if not err:
+            retcode = p.wait()
+            if retcode == 0 and not err:
                 return result, fmt.lower()
             log.warn(err.strip())
         except OSError:
@@ -198,7 +200,6 @@ def build(conf, env, defaults, items, fmt, keep=False):
         event.create(title, filepath)
 
     for item in items:
-        # XXX: permalinks!
 
         if keep:
             m = urlsplit(item['link'])
