@@ -52,7 +52,8 @@ class Acryl:
                 + "autocompile  - serving on port -p (8000) with auto-compile\n" \
                 + "clean        - remove orphans or all from output_dir\n" \
                 + "serve        - builtin webserver on port -p (8000)\n" \
-                + "import URL   - import from feed\n"
+                + "import URL   - import from feed\n" \
+                + "deploy TASK  - run TASK specified in conf.py"
 
         options = [
             make_option("-v", "--verbose", action="store_const", dest="verbosity",
@@ -201,6 +202,15 @@ class Acryl:
                 sys.exit(1)
             try:
                 commands.importer(conf, env, args[1], **options.__dict__)
+            except AcrylamidException as e:
+                log.critical(e.message)
+                sys.exit(1)
+        elif args[0] in ('deploy', 'dp', 'task'):
+            if len(args) <= 1:
+                log.fatal('deploy requires a build TASK')
+                sys.exit(1)
+            try:
+                commands.deploy(conf, env, args[1])
             except AcrylamidException as e:
                 log.critical(e.message)
                 sys.exit(1)

@@ -9,6 +9,8 @@ import time
 import locale
 import codecs
 import tempfile
+import shlex
+import subprocess
 
 from os.path import join, dirname, getmtime, isfile
 from urlparse import urlsplit
@@ -203,6 +205,32 @@ def importer(conf, env, url, **options):
     content = fetch(url, auth=options.get('auth', None))
     defaults, items = parse(content)
     build(conf, env, defaults, items, fmt=options['import_fmt'], keep=options['keep_links'])
+
+
+def deploy(conf, env, task):
+    """Subcommand: deploy -- run the shell command specified in DEPLOYMENT[task] using
+    Popen. Use ``%s`` inside your command to let acrylamid substitute ``%s`` with the
+    output path, if no ``%s`` is set, the path is appended  as first argument. XXX: Every
+    argument after ``acrylamid deploy task ARG1 ARG2``.""" #  XXX: support for -a, --long-args.
+
+    cmd = shlex.split(conf.get('deployment', {}).get(task, None))
+    if not cmd:
+        raise AcrylamidException('no tasks named %r in conf.py' % task)
+
+    try:
+        cmd[cmd.index('%s')] = conf['output_dir']
+    except ValueError:
+        cmd.append(conf['output_dir'])
+
+    try:
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        result, err = p.communicate()
+        retcode = p.poll()
+        if err or retcode != 0:
+            raise AcrylamidException(err)
+        print '\n'.join('    '+line for line in result.strip().split('\n'))
+    except OSError as e:
+        raise AcrylamidException(e.message)
 
 
 __all__ = ["compile", "autocompile", "new"]
