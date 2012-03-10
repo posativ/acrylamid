@@ -33,7 +33,7 @@ def init(root='.', overwrite=False):
     default['entries_dir'] = default.get('entries_dir', 'content').rstrip('/')
     default['layout_dir'] = default.get('layout_dir', 'layouts').rstrip('/')
 
-    dirs = ['%(entries_dir)s/', '%(layout_dir)s/', '%(output_dir)s/']
+    dirs = ['%(entries_dir)s/', '%(layout_dir)s/', '%(output_dir)s/', '.cache/']
     files = {'conf.py': confstring,
              '%(output_dir)s/blog.css' % default: css,
              '%(layout_dir)s/base.html' % default: base,
