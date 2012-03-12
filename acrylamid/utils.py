@@ -9,6 +9,7 @@ import re
 import codecs
 import tempfile
 import time
+import subprocess
 from fnmatch import fnmatch
 from datetime import datetime
 from os.path import join, exists, dirname, getmtime
@@ -482,6 +483,35 @@ def escapes(string):
         else:
             return '\"' + string + '\"'
     return string
+
+
+def system(cmd, stdin=None):
+    """A simple front-end to python's horrible Popen-interface which lets you
+    run a single shell command (only one, semicolon and && is not supported by
+    os.execvp(). Does not catch OSError!
+
+    :param cmd: command to run (a single string or a list of strings).
+    :param stdin: optional string to pass to stdin.
+    """
+
+    try:
+        if stdin:
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                 stdin=subprocess.PIPE)
+            result, err = p.communicate(stdin)
+        else:
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            result, err = p.communicate()
+
+    except OSError as e:
+        raise OSError(e.strerror)
+
+    retcode = p.poll()
+    if err or retcode != 0:
+        if not err.strip():
+            err = 'process exited with %i.' % retcode
+        raise AcrylamidException(err.strip())
+    return result.strip()
 
 
 class cache(object):

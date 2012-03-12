@@ -19,7 +19,7 @@ from jinja2 import Environment, FileSystemBytecodeCache
 
 from acrylamid import filters, views, log
 from acrylamid.lib.importer import fetch, parse, build
-from acrylamid.utils import cache, ExtendedFileSystemLoader, FileEntry, event, escapes
+from acrylamid.utils import cache, ExtendedFileSystemLoader, FileEntry, event, escapes, system
 from acrylamid.errors import AcrylamidException
 
 from acrylamid.core import handle as prepare, filelist
@@ -210,8 +210,8 @@ def importer(conf, env, url, **options):
 def deploy(conf, env, task, *args):
     """Subcommand: deploy -- run the shell command specified in DEPLOYMENT[task] using
     Popen. Use ``%s`` inside your command to let acrylamid substitute ``%s`` with the
-    output path, if no ``%s`` is set, the path is appended  as first argument. XXX: Every
-    argument after ``acrylamid deploy task ARG1 ARG2``.""" #  XXX: support for -a, --long-args.
+    output path, if no ``%s`` is set, the path is appended  as first argument. Every
+    argument after ``acrylamid deploy task ARG1 ARG2``."""
 
     cmd = shlex.split(conf.get('deployment', {}).get(task, None))
     if not cmd:
@@ -227,11 +227,7 @@ def deploy(conf, env, task, *args):
     cmd.extend(args)
 
     try:
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        result, err = p.communicate()
-        retcode = p.poll()
-        if err or retcode != 0:
-            raise AcrylamidException(err)
+        result = system(cmd)
         print '\n'.join('    '+line for line in result.strip().split('\n'))
     except OSError as e:
         raise AcrylamidException(e.message)

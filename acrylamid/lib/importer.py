@@ -22,7 +22,7 @@ from email.utils import parsedate_tz, mktime_tz
 from os.path import join, dirname, getmtime, isfile
 
 from acrylamid import log
-from acrylamid.utils import FileEntry, event, escapes
+from acrylamid.utils import FileEntry, event, escapes, system
 from acrylamid.errors import AcrylamidException
 
 
@@ -59,13 +59,9 @@ def _convert(data, fmt='markdown'):
 
     for cmd in cmds:
         try:
-            p = subprocess.Popen(cmd, stdin=subprocess.PIPE,
-                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            result, err = p.communicate(str(data.decode('utf-8')))
-            retcode = p.wait()
-            if retcode == 0 and not err:
-                return result, fmt.lower()
-            log.warn(err.strip())
+            return system(cmd, stdin=str(data.decode('utf-8'))), fmt.lower()
+        except AcrylamidException as e:
+            log.warn(e.message)
         except OSError:
             pass
     else:
