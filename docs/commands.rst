@@ -21,11 +21,11 @@ import
 
 Acrylamid features a basic RSS and Atom feed importer (WordPress dump is
 planned) to make it more easy to move to Acrylamid. To import a feed, point to
-the URL or the local FILE. By default, all HTML is reconversed to Markdown
-using, first pandoc_ if found, then `html2text
+an URL or local FILE. By default, all HTML is reconversed to Markdown using,
+first pandoc_ if found, then `html2text
 <http://www.aaronsw.com/2002/html2text/>`_ if found, else the plain HTML is
 stored into plaintext files. reStructuredText is also supported by pandoc_ and
-optional by `html2rest <http://pypi.python.org/pypi/html2rest>`.
+optional by `html2rest <http://pypi.python.org/pypi/html2rest>`_.
 
 .. _pandoc: http://johnmacfarlane.net/pandoc/
 

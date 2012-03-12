@@ -2,11 +2,11 @@ Filters
 =======
 
 All transformations your content is done via filters. You an either set them
-implicit in *conf.yaml* and/or overriding them in your individual blog posts.
-A filter can convert a Markdown-written text into HTML, render MathML from
-AsciiMathML or just increase HTML-headers by one or two. You can specify a
-filter by setting the key `filters` to a list of your wished filters or
-simply omit the key, if you've already defined a global filter:
+implicit in *conf.yaml* and/or overriding them in your individual blog posts.  A
+filter can convert a Markdown-written text into HTML, render MathML from
+AsciiMathML or just increase HTML-headers by one or two. You can specify a filter
+by setting the key `filters` to a list of your wished filters, a string with only
+one filter, or simply omit the key, if you've already defined a global filter:
 
 ::
 
@@ -17,15 +17,15 @@ simply omit the key, if you've already defined a global filter:
 
 If you pass conflicting filters like ``reST, Markdown`` the first one gets
 applied and every conflicing ignored. This is useful, when you define a global
-filter *Markdown* but also write single entries in e.g. *reStructuredText*.
-Most inbuilt filters have aliases so you don't have to remember/write the
-exact name. As an example, *rst*, *reST* and *restructuredtext* are aliases
-for *reStructuredText*.
+filter *Markdown* but also write single entries in e.g. *reStructuredText*.  Most
+inbuilt filters have aliases so you don't have to remember/write the exact name.
+As an example, *rst*, *reST* and *restructuredtext* are aliases for
+*reStructuredText*.
 
 Some filters may take additional arguments to activate builtin filters like
 Markdown's code-hilighting. Here's a list of all Markdon `built-in extensions
-<http://freewisdom.org/projects/python-markdown/Available_Extensions>`_) and
-in addition, acrylamid features a `asciimathml extension
+<http://freewisdom.org/projects/python-markdown/Available_Extensions>`_) and in
+addition, acrylamid features a `asciimathml extension
 <https://github.com/favalex/python-asciimathml>`_. The syntax is:
 
 ::
