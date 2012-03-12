@@ -20,6 +20,7 @@ Style, 2 clauses.
    commands
    filters
    views
+   templating
    .. deployment
    extending
    howtos

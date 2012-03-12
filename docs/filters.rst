@@ -214,6 +214,8 @@ rebuilt this content, the output might differ).
 
     my ip address: {{ 'curl -s http://ifconfig.me/ip' | system }}.
 
+Environment variables are the same as in :doc:`templating`.
+
 
 Custom Filters
 **************
