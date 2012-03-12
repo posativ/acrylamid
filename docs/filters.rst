@@ -188,6 +188,33 @@ By default *amp*, *widont*, *smartypants*, *caps* are applied. *all*, *typo*
 and *typogrify* applying "widont, smartypants, caps, amp, initial_quotes". All
 filters are applied in the order as they are written down.
 
+jinja2
+------
+
+:Requires:
+    <built-in>
+
+:Aliases:
+    Jinja2, jinja2
+
+In addition to HTML templating you can also use `Jinja2
+<http://jinja.pocoo.org/docs/>`_ in your postings, which may be useful when
+implementing a image gallery or other repeative tasks.
+
+Within jinja you have a custom ``system``-filter which allows you to call
+something like ``ls`` directly in your content (use it with care, when you
+rebuilt this content, the output might differ).
+
+::
+
+    ---
+    title: "Jinja2's system filter"
+    filters: jinja2
+    ---
+
+    my ip address: {{ 'curl -s http://ifconfig.me/ip' | system }}.
+
+
 Custom Filters
 **************
 
