@@ -34,15 +34,11 @@ try:
 except ImportError:
     from unicodedata import normalize
     translitcodec = None
-    # XXX: log is not initialized
-    # log.debug("no 'translitcodec' found, using NFKD algorithm")
 
 try:
     import yaml
 except ImportError:
     yaml = None
-    # XXX: log is not initialized
-    # log.debug("no 'pyyaml' found, using naïve parser")
 
 
 # Borrowed from werkzeug._internal
@@ -156,7 +152,7 @@ def read(filename, encoding, remap={}):
             except ValueError:
                 raise AcrylamidException('%s:%i ValueError: %s\n%s' %
                     (filename, j, line.strip('\n'),
-                    ("Either your YAML is malformed or the "
+                    ("Either your YAML is malformed or our "
                     "naïve parser is to dumb to read it. Revalidate\n"
                     "your YAML or install PyYAML parser: easy_install -U pyyaml")))
             props[key] = distinguish(value)
@@ -455,6 +451,7 @@ def safeslug(slug):
     for word in _slug_re.split(slug.lower()):
         if not translitcodec:
             word = normalize('NFKD', word).encode('ascii', 'ignore').strip()
+            log.once(warn="no 'translitcodec' found, using NFKD algorithm")
         if word and not word[0] in '-:':
             result.append(word)
     return unicode('-'.join(result))
