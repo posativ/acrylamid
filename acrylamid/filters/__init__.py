@@ -9,10 +9,8 @@ import os
 import glob
 import fnmatch
 import copy
-import logging
 
-sys.path.insert(0, os.path.dirname(__file__))
-log = logging.getLogger('acrylamid.filters')
+from acrylamid import log
 
 
 def get_filters():
@@ -90,7 +88,7 @@ def initialize(ext_dir, conf, env, include=[], exclude=[]):
             sys.path.insert(0, mem)
         else:
             ext_dir.remove(mem)
-            log.error("Extension directory '%s' does not exist. -- skipping" % mem)
+            log.error("Filter directory '%s' does not exist. -- skipping" % mem)
 
     ext_list = get_extension_list(ext_dir, include, exclude)
     for mem in ext_list:

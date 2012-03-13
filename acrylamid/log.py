@@ -11,7 +11,7 @@ from acrylamid.errors import AcrylamidException
 
 SKIP = 15
 STORE = []
-logger = fatal = critical = warn = warning = info = skip = debug = None
+logger = fatal = critical = warn = warning = info = skip = debug = error = None
 
 
 # next bit filched from 1.5.2's inspect.py
@@ -78,7 +78,7 @@ class SkipHandler(logging.Logger):
 
 def init(name, level, handler=logging.StreamHandler()):
 
-    global logger, critical, fatal, warn, warning, info, skip, debug
+    global logger, critical, fatal, warn, warning, info, skip, debug, error
 
     logging.setLoggerClass(SkipHandler)
     logger = logging.getLogger(name)
@@ -91,8 +91,9 @@ def init(name, level, handler=logging.StreamHandler()):
     logger.addHandler(handler)
     logger.setLevel(level)
 
-    critical = logger.critical
+    error = logger.error
     fatal = logger.fatal
+    critical = logger.critical
     warn = logger.warn
     warning = logger.warning
     info = logger.info
@@ -154,7 +155,7 @@ def once(args=[], **kwargs):
         STORE.append(key)
 
 
-__all__ = ['fatal', 'warn', 'info', 'skip', 'debug',
+__all__ = ['fatal', 'warn', 'info', 'skip', 'debug', 'error'
            'WARN', 'INFO', 'SKIP', 'DEBUG', 'setLevel']
 
 if __name__ == '__main__':

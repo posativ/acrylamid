@@ -7,12 +7,9 @@
 import sys
 import os
 import glob
-import logging
-
 import traceback
 
-sys.path.insert(0, os.path.dirname(__file__))
-log = logging.getLogger('acrylamid.views')
+from acrylamid import log
 
 # module-wide callbacks variable contaning views
 __views_list = []
@@ -68,16 +65,16 @@ def initialize(ext_dir, conf, env):
     # view -> path
     urlmap = [(conf['views'][k]['view'], k) for k in conf['views']]
 
+    ext_dir.extend([os.path.dirname(__file__)])
+    ext_list = []
+
     # handle ext_dir
     for mem in ext_dir[:]:
         if os.path.isdir(mem):
             sys.path.insert(0, mem)
         else:
             ext_dir.remove(mem)
-            log.error("Extension directory %r does not exist. -- skipping" % mem)
-
-    ext_dir.extend([os.path.dirname(__file__)])
-    ext_list = []
+            log.error("View directory %r does not exist. -- skipping" % mem)
 
     for mem in ext_dir:
         files = glob.glob(os.path.join(mem, "*.py"))
