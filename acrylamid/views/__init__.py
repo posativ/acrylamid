@@ -11,7 +11,7 @@ import traceback
 
 from acrylamid import log
 
-# module-wide callbacks variable contaning views
+# module-wide callbacks variable contaning views, reset this on initialize!
 __views_list = []
 
 
@@ -61,6 +61,9 @@ def index_views(module, urlmap, conf, env):
 
 
 def initialize(ext_dir, conf, env):
+
+    global __views_list
+    __views_list = []
 
     # view -> path
     urlmap = [(conf['views'][k]['view'], k) for k in conf['views']]
