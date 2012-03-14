@@ -193,6 +193,7 @@ class Acryl:
                 commands.autocompile(conf, env, **options.__dict__)
             except (SystemExit, KeyboardInterrupt, Exception) as e:
                 ws.kill_received = True
+                log.error(e.message)
                 sys.exit(0)
 
         elif args[0] in ('import', ):
