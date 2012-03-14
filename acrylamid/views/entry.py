@@ -4,7 +4,7 @@
 from os.path import exists
 
 from acrylamid.views import View
-from acrylamid.utils import expand, render, mkfile, joinurl, event
+from acrylamid.utils import expand, union, mkfile, joinurl, event
 from acrylamid.errors import AcrylamidException
 
 class Entry(View):
@@ -41,14 +41,12 @@ class Entry(View):
             pathes[p] = entry
 
         for p, entry in pathes.iteritems():
-
             if exists(p) and not entry.has_changed:
                 if not (tt_entry.has_changed or tt_main.has_changed):
                     event.skip(entry.title, path=p)
                     continue
 
-            html = render(tt_main, conf, env, type='item',
-                          entrylist=render(tt_entry, conf, env, entry, type='item'),
-                          title=entry.title, description=entry.description, tags=entry.tags)
+            html = tt_main.render(env=union(env, entrylist=[entry], type='entry'),
+                                  conf=conf, entry=entry)
 
             mkfile(html, p, entry.title, ctime=entry.ctime, **kwargs)

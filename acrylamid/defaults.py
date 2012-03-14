@@ -369,24 +369,24 @@ base = r'''
     <title>{% block title %}{% endblock %}</title>
     <meta http-equiv="Content-Type" content="text/xhtml; charset=utf-8" />
     <meta http-equiv="content-language" content="de, en" />
-    <link media="all" href="{{ path + '/blog.css' }}" type="text/css" rel="stylesheet" />
+    <link media="all" href="{{ env.path + '/blog.css' }}" type="text/css" rel="stylesheet" />
     <link href="/favicon.ico" rel="shortcut icon" />
-    <link href="{{ path + '/' }}" rel="home" />
-    <link href="{{ path + '/atom/' }}" type="application/atom+xml" rel="alternate" title="Atom-Feed" />
-    <link href="{{ path + '/rss/' }}" type="application/rss+xml" rel="alternate" title="RSS-Feed" />
+    <link href="{{ env.path + '/' }}" rel="home" />
+    <link href="{{ env.path + '/atom/' }}" type="application/atom+xml" rel="alternate" title="Atom-Feed" />
+    <link href="{{ env.path + '/rss/' }}" type="application/rss+xml" rel="alternate" title="RSS-Feed" />
     {%- endblock %}
 </head>
 <body>
     <div id="blogheader">
         <div id="blogtitle">
-            <h2><a href="{{ path + '/' }}" class="blogtitle">{{ sitename }}</a></h2>
+            <h2><a href="{{ env.path + '/' }}" class="blogtitle">{{ conf.sitename }}</a></h2>
         </div>
         <div id="mainlinks">
             <ul>
-                <li><a href="{{ path + '/' }}">blog</a></li>
-                <li><a href="{{ path + '/atom/' }}">atom</a></li>
-                <li><a href="{{ path + '/rss/' }}">rss</a></li>
-                <li><a href="{{ path + '/articles/' }}">articles</a></li>
+                <li><a href="{{ env.path + '/' }}">blog</a></li>
+                <li><a href="{{ env.path + '/atom/' }}">atom</a></li>
+                <li><a href="{{ env.path + '/rss/' }}">rss</a></li>
+                <li><a href="{{ env.path + '/articles/' }}">articles</a></li>
             </ul>
         </div>
     </div>
@@ -396,44 +396,47 @@ base = r'''
     </div>
     <div id="blogfooter">
         {% block footer %}
-        <p>written by <a href="mailto:{{ email }}">{{ author }}</a></p>
+        <p>written by <a href="mailto:{{ conf.email }}">{{ conf.author }}</a></p>
         <a href="http://creativecommons.org/licenses/by-nc-sa/2.0/de/" rel="copyright">
             <img src="/img/cc.png" alt="by-nc-sa" />
         </a>
         {% endblock %}
     </div>
  </body>
-</html>'''.rstrip()
+</html>
+'''.rstrip()
 
 main = r'''
 {% extends "base.html" %}
 
 {% block title %}
-    {%- if type != 'item' -%}
-      {{ sitename }}
+    {%- if env.type != 'entry' -%}
+      {{ conf.sitename }}
     {%- else -%}
-      {{ title }}
+      {{ entry.title }}
     {%- endif -%}
 {% endblock %}
 
 {% block head %}
     {{- super() }}
-    {%- if type == 'item' %}
-    <meta name="description" content="{{ description }}" />
-    <meta name="keywords" content="{{ tags | join(', ') }}" />
+    {%- if env.type == 'entry' %}
+    <meta name="description" content="{{ entry.description }}" />
+    <meta name="keywords" content="{{ entry.tags | join(', ') }}" />
     {%- endif -%}
 {% endblock %}
 
 {% block content %}
-    {{ entrylist }}
-    {% if type in ['tag', 'page'] %}
-        {% if prev %}
-            <a href="{{ path + prev }}" class="page floatright">
+    {% for entry in env.entrylist %}
+        {% include 'entry.html' %}
+    {% endfor %}
+    {% if env.type in ['tag', 'index'] %}
+        {% if env.prev %}
+            <a href="{{ env.path + env.prev + '/' }}" class="page floatright">
             ältere Beiträge →
             </a>
         {% endif %}
-        {% if next %}
-            <a href="{{ path + next }}" class="page floatleft">
+        {% if env.next %}
+            <a href="{{ env.path + env.next + '/' }}" class="page floatleft">
             ← neuere Beiträge
             </a>
         {% endif %}
@@ -442,16 +445,16 @@ main = r'''
 
 {% block footer %}
     {{ super() }}
-    {% if disqus_shortname and type == 'page' %}
+    {% if conf.disqus_shortname and type == 'index' %}
         <script type="text/javascript">
             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-            var disqus_shortname = '{{ disqus_shortname }}'; // required: replace example with your forum shortname
+            var disqus_shortname = '{{ conf.disqus_shortname }}'; // required: replace example with your forum shortname
 
             /* * * DON'T EDIT BELOW THIS LINE * * */
             (function () {
                 var s = document.createElement('script'); s.async = true;
                 s.type = 'text/javascript';
-                s.src = '{{ protocol }}://' + disqus_shortname + '.disqus.com/count.js';
+                s.src = '{{ conf.protocol }}://' + disqus_shortname + '.disqus.com/count.js';
                 (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
             }());
         </script>
@@ -463,21 +466,21 @@ entry = r'''
 <div class="posting">
     <div class="postheader">
         <h1 class="subject">
-            <a href="{{ path + permalink }}">{{ title }}</a>
+            <a href="{{ env.path + entry.permalink }}">{{ entry.title }}</a>
         </h1>
-        <span class="date">{{ date.strftime("%d.%m.%Y, %H:%M") }}</span>
+        <span class="date">{{ entry.date.strftime("%d.%m.%Y, %H:%M") }}</span>
     </div>
     <div class="postbody">
-        {{ content }}
+        {{ entry.content }}
     </div>
     <div class="postfooter">
-        {% if disqus_shortname and type == 'page' %}
-            <a class="floatright" href="{{ www_root + permalink }}#disqus_thread">Kommentieren</a>
+        {% if conf.disqus_shortname and env.type == 'index' %}
+            <a class="floatright" href="{{ conf.www_root + entry.permalink }}#disqus_thread">Kommentieren</a>
         {% endif %}
-        {% if 'tag' in views and tags %}
+        {% if 'tag' in env.views and entry.tags %}
             <p>verschlagwortet als
-                {% for link in tags | tagify -%}
-                    <a href="{{ path + link.href }}">{{ link.title }}</a>
+                {% for link in entry.tags | tagify -%}
+                    <a href="{{ env.path + link.href }}">{{ link.title }}</a>
                     {%- if loop.revindex > 2 -%}
                     ,
                     {%- elif loop.revindex == 2 %}
@@ -485,19 +488,19 @@ entry = r'''
                     {% endif %}
                 {% endfor %}
             </p>
-        {% elif not draft %}
+        {% elif not entry.draft %}
             <p>nicht verschlagwortet</p>
         {% endif %}
     </div>
     <div class="comments">
-        {%- if disqus_shortname and type == 'item' and not draft %}
+        {%- if conf.disqus_shortname and env.type == 'entry' and not entry.draft %}
         <div id="disqus_thread"></div>
         <script type="text/javascript">
-            var disqus_shortname = '{{ disqus_shortname }}'; // required: replace example with your forum shortname
+            var disqus_shortname = '{{ conf.disqus_shortname }}'; // required: replace example with your forum shortname
 
             // The following are highly recommended additional parameters. Remove the slashes in front to use.
-            var disqus_identifier = "{{ www_root + permalink }}";
-            var disqus_url = "{{ www_root + permalink }}";
+            var disqus_identifier = "{{ conf.www_root + entry.permalink }}";
+            var disqus_url = "{{ conf.www_root + entry.permalink }}";
 
             /* * * DON'T EDIT BELOW THIS LINE * * */
             (function() {
@@ -507,24 +510,25 @@ entry = r'''
             })();
         </script>
         <noscript>
-            <p>Please enable JavaScript to view the <a href="{{ protocol }}://disqus.com/?ref_noscript">comments powered by Disqus.</a></p>
+            <p>Please enable JavaScript to view the <a href="{{ env.protocol }}://disqus.com/?ref_noscript">comments powered by Disqus.</a></p>
         </noscript>
-        <a href="{{ protocol }}://disqus.com" class="dsq-brlink">
+        <a href="{{ env.protocol }}://disqus.com" class="dsq-brlink">
             blog comments powered by <span class="logo-disqus">Disqus</span>
         </a>
         {% endif -%}
     </div>
-</div>'''.strip()
+</div>
+'''.strip()
 
 articles = r'''
 {% extends "base.html" %}
 
-{% block title %}{{ sitename }} – Artikelübersicht{% endblock %}
+{% block title %}{{ conf.sitename }} – Artikelübersicht{% endblock %}
 
 {% block content %}
     <div class="posting">
         <div class="postheader">
-            <span class="date">{{ num_entries }} Beiträge</span>
+            <span class="date">{{ env.num_entries }} Beiträge</span>
         </div>
         <div class="postbody">
             {% for year in articles|sort(reverse=True) %}

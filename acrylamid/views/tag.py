@@ -9,7 +9,7 @@ from collections import defaultdict
 
 from acrylamid import log
 from acrylamid.views import View
-from acrylamid.utils import render, mkfile, joinurl, safeslug, event, \
+from acrylamid.utils import union, mkfile, joinurl, safeslug, event, \
                             paginate, EntryList, expand
 
 
@@ -58,7 +58,7 @@ class Tag(View):
         for tag in tags:
             entrylist = EntryList([entry for entry in tags[tag]])
             pages, has_changed = paginate(entrylist, ipp, lambda e: not e.draft)
-            for i, mem in enumerate(pages):
+            for i, entries in enumerate(pages):
                 ctime = time()
                 # e.g.: curr = /page/3, next = /page/2, prev = /page/4
                 if i == 0:
@@ -78,9 +78,8 @@ class Tag(View):
                 #         event.skip(curr, path=p)
                 #         continue
 
-                body = [render(tt_entry, conf, env, entry, type="tag") for entry in mem]
-                html = render(tt_main, conf, env, type='tag', prev=prev, curr=curr, next=next,
-                            entrylist='\n'.join(body), num_entries=len(entrylist),
-                            items_per_page=ipp)
+                html = tt_main.render(conf=conf, env=union(env, entrylist=entries, type='tag',
+                                        prev=prev, curr=curr, next=next,  items_per_page=ipp,
+                                        num_entries=len(entrylist)))
 
                 mkfile(html, p, curr, ctime=time()-ctime, **kwargs)

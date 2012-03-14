@@ -7,7 +7,7 @@ from os.path import exists
 
 from acrylamid import log
 from acrylamid.views import View
-from acrylamid.utils import render, mkfile, joinurl, event, paginate, expand
+from acrylamid.utils import union, mkfile, joinurl, event, paginate, expand
 
 
 class Index(View):
@@ -32,7 +32,7 @@ class Index(View):
         tt_main = env['tt_env'].get_template('main.html')
 
         pages, has_changed = paginate(entrylist, ipp, lambda e: not e.draft)
-        for i, mem in enumerate(pages):
+        for i, entries in enumerate(pages):
             ctime = time()
 
             # curr = current page, next = newer pages, prev = older pages
@@ -60,9 +60,8 @@ class Index(View):
             #         event.skip(message, path=p)
             #         continue
 
-            body = [render(tt_entry, conf, env, entry, type="page") for entry in mem]
-            html = render(tt_main, conf, env, type='page', prev=prev, curr=curr, next=next,
-                        entrylist='\n'.join(body), num_entries=len(entrylist),
-                        items_per_page=ipp)
+            html = tt_main.render(conf=conf, env=union(env, entrylist=entries, type='index',
+                                    prev=prev, curr=curr, next=next,  items_per_page=ipp,
+                                    num_entries=len(entrylist)))
 
             mkfile(html, p, message, ctime=time()-ctime, **kwargs)

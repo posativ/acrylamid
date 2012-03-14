@@ -1,10 +1,6 @@
 Templating
 ==========
 
-Within ``layout/base.html``, ``layout/main.html`` and ``layout/entry.html``
-the conf, env and entry dictionary have directly accessible attributes.
-Instead of writing ``entry.permalink`` you just need to write ``permalink``.
-
 Variables
 ---------
 
@@ -44,13 +40,17 @@ Global configuration, ``conf.py``.
     Global list of filters.
 
 :views:
-    Dictionary of set views.
+    Dictionary of views set in conf.py.
+
+:www_root:
+    Your actual website link, defaults to ``http://localhost:8000``.
 
 
 env
 ***
 
-Environment which contains some useful informations like version info.
+Environment which contains some useful informations like version info, current
+protocol and count of entries.
 
 :protocol:
     Internet protocol determined from ``sitename``, should be http or https.
@@ -63,6 +63,24 @@ Environment which contains some useful informations like version info.
 
 :views:
     A list of executed views, only used to explicitely activate certain features like Disqus-integration or tagging in templates.
+
+:type:
+    Current view type to distuingish between single entry, tag or page view. Can be one of this list: ['entry', 'tag', 'index'].
+
+:entrylist:
+    A list of all processed FileEntry-objects.
+
+:num_entries:
+    Count of all entries, only available in page/articles/index-view.
+
+:prev:
+    Number of the previous pagination index if available, e.g. ``'3'`` or ``None``.
+
+:curr:
+    Number of the current pagination index, e.g. ``2``.
+
+:next:
+    Number of the next pagination index if available, e.g. ``1`` or ``None``
 
 :VERSION:
     Acrylamid's version

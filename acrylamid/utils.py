@@ -387,6 +387,18 @@ def render(tt, *dicts, **kvalue):
     return tt.render(env)
 
 
+def union(*args, **kwargs):
+    """Takes a list of dictionaries and performs union of each.  Can take additional
+    key=values as parameters which may overwrite or add a key/value-pair."""
+
+    d = args[0]
+    for dikt in args[1:]:
+        d.update(dict)
+
+    d.update(kwargs)
+    return d
+
+
 def mkfile(content, path, message, ctime=0.0, force=False, dryrun=False, **kwargs):
     """Creates entry in filesystem. Overwrite only if content differs.
 

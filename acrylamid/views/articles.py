@@ -42,10 +42,6 @@ class Articles(View):
             url, title, year = entry.permalink, entry.title, entry.date.year
             articles[year].append((entry.date, url, title))
 
-        articlesdict = conf.copy()
-        articlesdict.update({'articles': articles,
-                     'num_entries': len(entrylist)})
-        articlesdict.update(request['env'])
-
-        html = tt_articles.render(articlesdict)
+        html = tt_articles.render(conf=conf, articles=articles, env=env,
+                                  num_entries=len(entrylist))
         mkfile(html, p, p.replace(conf['output_dir'], ''), **kwargs)
