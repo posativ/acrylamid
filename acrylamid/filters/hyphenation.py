@@ -203,7 +203,7 @@ class Hyphenate(Filter):
         self.conf = conf
 
     def __call__(self, content, req):
-        if req.lang:
+        if req.lang != self.conf['lang']:
             hyphenate_word = build(req.lang[0].replace('_', '-'))
         else:
             hyphenate_word = self.default
