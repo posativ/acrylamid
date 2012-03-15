@@ -28,8 +28,8 @@ class Articles(View):
         p = joinurl(conf['output_dir'], self.path)
         if not filter(lambda e: p.endswith(e), ['.xml', '.html']):
             p = joinurl(p, 'index.html')
-        last_modified = max([getmtime(e.filename) for e in entrylist])
 
+        last_modified = max([getmtime(e.filename) for e in entrylist]) if entrylist else 2**32
         if exists(p) and last_modified < getmtime(p):
             if not tt_articles.has_changed:
                 event.skip(p.replace(conf['output_dir'], ''), path=p)

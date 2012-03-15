@@ -50,16 +50,14 @@ def init(root='.', overwrite=False):
                 old = md5(fp)
             content = files[root.replace('./', '')]
             if hashlib.md5(content).digest() != old:
-                q = raw_input('re-initialize %r? [yn]: ' % root)
-                if q == 'y':
+                if overwrite or raw_input('re-initialize %r? [yn]: ' % root) == 'y':
                     with open(root, 'w') as fp:
                         fp.write(content)
                     log.info('re-initialized %s' % root)
             else:
                 log.info('skip  %s is identical', root)
         else:
-            q = raw_input('re-create %r? [yn]: ' % root)
-            if q == 'y':
+            if overwrite or raw_input('re-create %r? [yn]: ' % root) == 'y':
                 if not isdir(dirname(root)):
                     try:
                         os.makedirs(dirname(root))
@@ -72,12 +70,12 @@ def init(root='.', overwrite=False):
         sys.exit(0)
 
     # YO DAWG I HERD U LIEK BLOGS SO WE PUT A BLOG IN UR BLOG -- ask user before
-    if isfile('conf.py'):
+    if isfile('conf.py') and not overwrite:
         q = raw_input("Create blog inside a blog? [yn]: ")
         if q != 'y':
             sys.exit(1)
 
-    if exists(root) and len(os.listdir(root)) > 0:
+    if exists(root) and len(os.listdir(root)) > 0 and not overwrite:
         q = raw_input("Destination directory not empty! Continue? [yn]: ")
         if q != 'y':
             sys.exit(1)

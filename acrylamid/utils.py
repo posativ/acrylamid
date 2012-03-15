@@ -216,15 +216,15 @@ class FileEntry:
 
     @property
     def year(self):
-        return str(self.date.year)
+        return self.date.year
 
     @property
     def month(self):
-        return str(self.date.month)
+        return self.date.month
 
     @property
     def day(self):
-        return str(self.date.day)
+        return self.date.day
 
     @property
     def filters(self):
@@ -438,7 +438,7 @@ def expand(url, obj):
 
     for k in obj:
         if not k.endswith('/') and (':' + k) in url:
-            url = url.replace(':'+k, obj[k])
+            url = url.replace(':'+k, str(obj[k]))
     return url
 
 
@@ -471,15 +471,9 @@ def safeslug(slug):
 
 def paginate(list, ipp, func=lambda x: x):
 
-    res = EntryList(filter(func, list))
-
-    if len(res) != len(list):
-        has_changed = True
-    else:
-        has_changed = res.has_changed
-
+    res = filter(func, list)
     return [res[x*ipp:(x+1)*ipp] for x in range(len(res)/ipp+1)
-           if res[x*ipp:(x+1)*ipp]], has_changed
+           if res[x*ipp:(x+1)*ipp]], True
 
 
 def escapes(string):
