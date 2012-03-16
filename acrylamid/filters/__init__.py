@@ -11,6 +11,7 @@ import fnmatch
 import copy
 
 from acrylamid import log
+from acrylamid.errors import AcrylamidException
 
 
 def get_filters():
@@ -95,7 +96,7 @@ def initialize(ext_dir, conf, env, include=[], exclude=[]):
         try:
             _module = __import__(mem)
         except (ImportError, Exception), e:
-            print repr(mem), 'ImportError:', e
+            log.warn('%r %s: %s', mem, e.__class__.__name__, e)
             continue
 
         index_filters(_module, conf, env)
@@ -161,7 +162,10 @@ class FilterStorage(dict):
     def __getitem__(self, key):
 
         q = key[2:] if key.startswith('no') else key
-        f = dict.__getitem__(self, self.map[q])
+        try:
+            f = dict.__getitem__(self, self.map[q])
+        except KeyError:
+            raise AcrylamidException('no such filter: %s' % key)
         if key.startswith('no'):
             f = copy.copy(f)
             f.__call__ = lambda x, y, *z: x

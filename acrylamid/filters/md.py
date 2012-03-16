@@ -38,7 +38,7 @@ class Markdown(Filter):
                         for name in mod.__match__:
                             self.__ext__[name] = mdx
                 except (ImportError, Exception), e:
-                    print repr(mem), 'ImportError:', e
+                    log.warn('%r %s: %s', mem, e.__class__.__name__, e)
 
     def __contains__(self, key):
         return True if key in self.__ext__ else False
