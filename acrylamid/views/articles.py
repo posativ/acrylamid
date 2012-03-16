@@ -2,7 +2,7 @@
 # License: BSD Style, 2 clauses. see acrylamid.py
 
 from acrylamid.views import View
-from acrylamid.utils import mkfile, joinurl, event
+from acrylamid.utils import union, mkfile, joinurl, event
 
 from os.path import getmtime, exists
 from collections import defaultdict
@@ -42,6 +42,6 @@ class Articles(View):
             url, title, year = entry.permalink, entry.title, entry.date.year
             articles[year].append((entry.date, url, title))
 
-        html = tt_articles.render(conf=conf, articles=articles, env=env,
-                                  num_entries=len(entrylist))
+        html = tt_articles.render(conf=conf, articles=articles,
+                                  env=union(env, num_entries=len(entrylist)))
         mkfile(html, p, p.replace(conf['output_dir'], ''), **kwargs)
