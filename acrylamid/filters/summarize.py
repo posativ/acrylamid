@@ -84,20 +84,20 @@ class Summarize(Filter):
     __name__ = 'Summarize'
     __match__ = ['summarize', 'sum']
 
-    def __init__(self, conf, env, *args):
+    def __init__(self, conf, env):
         self.path = env['path']
 
+    def __call__(self, content, req, *args):
+
         try:
-            self.maxwords = int(args[0])
+            maxwords = int(args[0])
         except (ValueError, IndexError) as e:
-            if e.__class__ == 'ValueError':
-                log.warn('invalid maxwords argument')
-            self.maxwords = 200
-
-    def __call__(self, content, req):
+            if e.__class__.__name__ == 'ValueError':
+                log.warn('invalid maxwords argument %r', args[0])
+            maxwords = 200
 
         try:
-            return Summarizer(content, self.path+req.permalink, self.maxwords).summarized
+            return Summarizer(content, self.path+req.permalink, maxwords).summarized
         except HTMLParseError as e:
             log.warn('%s: %s in %s' % (e.__class__.__name__, e.msg, req.filename))
             return content
