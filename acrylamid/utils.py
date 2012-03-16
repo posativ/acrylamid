@@ -135,7 +135,7 @@ def read(filename, encoding, remap={}):
         try:
             props = yaml.load(''.join(head))
         except yaml.YAMLError as e:
-            raise AcrylamidException(e.message)
+            raise AcrylamidException('YAMLError: %s' % str(e))
         for key, to in remap.iteritems():
             if key in props:
                 props[to] = props[key]
