@@ -46,7 +46,7 @@ def _convert(data, fmt='markdown'):
     if fmt in ('Markdown', 'markdown', 'mkdown', 'md', 'mkd'):
         cmds = ['html2text']
         fmt = 'markdown'
-    elif fmt in ('rst', 'restructuredtext', 'rest'):
+    elif fmt in ('rst', 'restructuredtext', 'rest', 'reStructuredText'):
         cmds = ['html2rest']
         fmt = 'rst'
     else:
@@ -56,6 +56,11 @@ def _convert(data, fmt='markdown'):
 
     if fmt == 'html':
         return data, 'html'
+
+    #  - item.find(foo).text returns None if no CDATA
+    #  - pandoc waits for input if a zero-length string is given
+    if data is None or data is '':
+        return '', fmt
 
     for cmd in cmds:
         try:
@@ -79,7 +84,7 @@ def _rss20(content):
         tree = ElementTree.fromstring(content)
     except ElementTree.ParseError:
         raise AcrylamidException('no well-formed XML')
-    if tree.tag != 'rss':
+    if tree.tag != 'rss' and tree.attrib.get('version') == '2.0':
         raise ParseException('no RSS 2.0 feed')
 
     # --- site settings --- #
@@ -104,7 +109,7 @@ def _rss20(content):
             try:
                 entry[k] = item.find(v).text if k != 'content' \
                                              else _unescape(item.find(v).text)
-            except AttributeError:
+            except (AttributeError, TypeError):
                 pass
 
         try:
@@ -205,5 +210,5 @@ def build(conf, env, defaults, items, fmt, keep=False):
             m = urlsplit(item['link'])
             permalink = m.path if m.path != '/' else None
 
-        create(item['title'], item['date'], _convert(item['content'], fmt),
+        create(item['title'], item['date'], _convert(item.get('content', ''), fmt),
                permalink=permalink if keep else None)
