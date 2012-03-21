@@ -525,11 +525,7 @@ class cache(object):
     cache is designed as singleton and should not constructed using __init__ .
     >>> cache.init('.mycache/')
     >>> cache.get(key, default=None, mtime=0.0)
-    >>> cache.set(key, value)
-
-    :param cache_dir: the directory where cache files are stored.
-    :param mode: the file mode wanted for the cache files, default 0600
-    """
+    >>> cache.set(key, value)"""
 
     _fs_transaction_suffix = '.__ac_cache'
     cache_dir = '.cache/'
@@ -549,6 +545,10 @@ class cache(object):
 
     @classmethod
     def init(self, cache_dir=None, mode=0600):
+        """
+        :param cache_dir: the directory where cache files are stored.
+        :param mode: the file mode wanted for the cache files, default 0600
+        """
         if cache_dir:
             self.cache_dir = cache_dir
         if mode:
@@ -604,6 +604,37 @@ class cache(object):
         except (OSError, IOError):
             return default
         return mtime
+
+    @classmethod
+    def memoize(self, key, value=None):
+        """Memoize (stores) key/value pairs into a single file in
+        `cache_dir`/info."""
+
+        filename = join(self.cache_dir, 'info')
+
+        if not exists(filename):
+            try:
+                fd, tmp = tempfile.mkstemp(suffix=self._fs_transaction_suffix,
+                                           dir=self.cache_dir)
+                with os.fdopen(fd, 'wb') as fp:
+                    pickle.dump({}, fp, pickle.HIGHEST_PROTOCOL)
+                os.rename(tmp, filename)
+                os.chmod(filename, self.mode)
+            except (IOError, OSError) as e:
+                raise AcrylamidException(e.message)
+
+        if not isinstance(key, str):
+            raise TypeError('key must be a string')
+
+        if value is not None:
+            with open(filename, 'rb') as fp:
+                values = pickle.load(fp)
+            values[key] = value
+            with open(filename, 'wb') as fp:
+                pickle.dump(values, fp, pickle.HIGHEST_PROTOCOL)
+        else:
+            with open(filename, 'rb') as fp:
+                return pickle.load(fp)[key]
 
 
 def track(f):
