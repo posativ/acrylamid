@@ -7,7 +7,7 @@ from os.path import exists
 
 from acrylamid import log
 from acrylamid.views import View
-from acrylamid.utils import union, mkfile, joinurl, event, paginate, expand
+from acrylamid.utils import union, mkfile, joinurl, event, paginate, expand, cache
 
 
 class Index(View):
@@ -32,6 +32,16 @@ class Index(View):
         tt_main = env['tt_env'].get_template('main.html')
 
         pages, has_changed = paginate(entrylist, ipp, lambda e: not e.draft)
+
+        try:
+            rv = cache.memoize('index-hash')
+            has_changed = False
+            if rv != [repr(e) for e in entrylist if not e.draft]:
+                raise KeyError
+        except KeyError:
+            cache.memoize('index-hash', [repr(e) for e in entrylist if not e.draft])
+            has_changed = True
+
         for i, entries in enumerate(pages):
             ctime = time()
 
@@ -55,10 +65,10 @@ class Index(View):
             p = joinurl(directory, 'index.html')
             message = self.path if i==0 else expand(self.pagination, {'num': str(i+1)})
 
-            # if exists(p) and not has_changed:
-            #     if not (tt_entry.has_changed or tt_main.has_changed):
-            #         event.skip(message, path=p)
-            #         continue
+            if exists(p) and not has_changed and not entrylist.has_changed:
+                if not (tt_entry.has_changed or tt_main.has_changed):
+                    event.skip(message, path=p)
+                    continue
 
             html = tt_main.render(conf=conf, env=union(env, entrylist=entries, type='index',
                                     prev=prev, curr=curr, next=next,  items_per_page=ipp,
