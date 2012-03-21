@@ -3,6 +3,9 @@
 #
 # -*- encoding: utf-8 -*-
 
+import math
+import random
+
 from time import time
 from os.path import exists
 from collections import defaultdict
@@ -11,6 +14,36 @@ from acrylamid import log
 from acrylamid.views import View
 from acrylamid.utils import union, mkfile, joinurl, safeslug, event, \
                             paginate, EntryList, expand
+
+
+class Tagcloud:
+    """Tagcloud helper class similar (almost identical) to pelican's tagcloud helper object.
+    Takes a bunch of tags and produces a logarithm-based partition and returns a iterable
+    object yielding a Tag-object with two attributes: name and step where step is the
+    calculated step size (== font size) and reaches from 0 to steps-1.
+
+    :param tags: a dictionary of tags, e.g. {'name', [list of entries]}
+    :param steps: maximum steps
+    :param max_items: maximum items shown in tagcloud
+    :param start: start index of steps resulting in start to steps+start-1 steps."""
+
+    def __init__(self, tags, steps=4, max_items=100, start=0):
+
+        lst = sorted([(k, len(v)) for k, v in tags.iteritems()], key=lambda k: k[1],
+                  reverse=True)[:max_items]
+        # stolen from pelican/generators.py:286
+        max_count = max(lst, key=lambda k: k[1])[1]
+        self.lst = [(tag,
+                        int(math.floor(steps - (steps - 1) * math.log(count)
+                            / (math.log(max_count) or 1)))+start-1)
+                    for tag, count in lst]
+        random.shuffle(self.lst)
+
+
+    def __iter__(self):
+
+        for tag, step in self.lst:
+            yield type('Tag', (), {'name': tag, 'step': step})
 
 
 class Tag(View):
