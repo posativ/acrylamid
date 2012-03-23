@@ -56,7 +56,11 @@ def index_views(module, urlmap, conf, env):
             except KeyError:
                 pass
             kwargs.pop('if', None)
-            __views_list.append(mem(conf, env, **kwargs))
+
+            m = mem(conf, env, **kwargs)
+            m.init(**m._getkwargs())
+
+            __views_list.append(m)
             urlmap.remove((view, rule))
 
 
@@ -99,14 +103,16 @@ def initialize(ext_dir, conf, env):
 
 class View(object):
 
-    __view__ = True
-
     filters = None
     condition = lambda v, e: True
     view = 'View'
     path = '/'
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, conf, env, **kwargs):
+
+        self.conf = conf
+        self.env = env
+
         for k in ('condition', 'view', 'path', 'filters'):
             try:
                 setattr(self, k, kwargs[k])
@@ -114,3 +120,14 @@ class View(object):
                 pass
         for k in ('condition', 'view', 'path', 'filters'):
             kwargs.pop(k, None)
+
+        self._getkwargs = lambda : kwargs
+
+    def init(self, **kwargs):
+        pass
+
+    def context(self, env, request):
+        return env
+
+    def generate(self, request):
+        raise NotImplemented

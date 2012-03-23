@@ -17,7 +17,7 @@ from urlparse import urlsplit
 from datetime import datetime
 from jinja2 import Environment, FileSystemBytecodeCache
 
-from acrylamid import filters, views, log
+from acrylamid import filters, views, log, utils
 from acrylamid.lib.importer import fetch, parse, build
 from acrylamid.utils import cache, ExtendedFileSystemLoader, FileEntry, event, escapes, system
 from acrylamid.errors import AcrylamidException
@@ -87,9 +87,13 @@ def compile(conf, env, force=False, **options):
         cache.clear()
 
     entrylist = request.pop('entrylist')
-    filtersdict = get_filters()
+    filtersdict = get_filters()  # dict = {'fname' : function}
     _views = get_views()
 
+    for v in _views:
+        env = v.context(env, {'entrylist': entrylist})
+
+    # don't touch this! It works, but it's a pain without explicit references.
     for v in _views:
         log.debug(v)
         request['entrylist'] = []
@@ -106,15 +110,25 @@ def compile(conf, env, force=False, **options):
 
             _filters = FilterList()
             for f in entryfilters + viewsfilters:
-                x, y = f.split('+')[:1][0], f.split('+')[1:]
-                if filtersdict[x] not in _filters:
-                    _filters.append((x, filtersdict[x], y))
+                fname, fargs = f.split('+')[:1][0], f.split('+')[1:]
+                if filtersdict[fname] not in _filters:
+                    _filters.append((fname, filtersdict[fname], fargs))
 
             entry.lazy_eval = _filters
             request['entrylist'].append(entry)
 
         request['entrylist'] = filter(v.condition, entrylist)
-        v(request, **options)
+
+        tt = time.time()
+        for res in v.generate(request):
+            try:
+                html, path, message = res
+            except ValueError:
+                # allow two items yielding for simplicity
+                html, path = res
+                message = path.replace(conf['output_dir'], '')
+            utils.mkfile(html, path, message, time.time()-tt, **options)
+
     log.info('Blog compiled in %.2fs' % (time.time() - ctime))
 
 

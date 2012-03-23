@@ -135,6 +135,10 @@ conf = default = {
     'permalink_format': '/:year/:slug/',
     'output_ignore': ['blog.css', 'img/*', 'images/*'],
 
+    'tag_cloud_max_items': 100,
+    'tag_cloud_steps': 4,
+    'tag_cloud_start_index': 0,
+
     'filters': ['markdown+codehilite(css_class=highlight)', 'hyphenate'],
     'views': {
         '/': {

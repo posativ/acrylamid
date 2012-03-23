@@ -4,7 +4,7 @@
 from os.path import exists
 
 from acrylamid.views import View
-from acrylamid.utils import expand, union, mkfile, joinurl, event
+from acrylamid.utils import expand, union, joinurl, event
 from acrylamid.errors import AcrylamidException
 
 class Entry(View):
@@ -13,24 +13,19 @@ class Entry(View):
     path = '/:year/:slug/'
     filters = []
 
-    def __init__(self, conf, env, *args, **kwargs):
-        View.__init__(self, *args, **kwargs)
+    def generate(self, request):
 
-    def __call__(self, request, *args, **kwargs):
-
-        conf = request['conf']
-        env = request['env']
         entrylist = request['entrylist']
 
-        tt_entry = env['tt_env'].get_template('entry.html')
-        tt_main = env['tt_env'].get_template('main.html')
+        tt_entry = self.env['tt_env'].get_template('entry.html')
+        tt_main = self.env['tt_env'].get_template('main.html')
         pathes = dict()
 
         for entry in entrylist:
             if entry.permalink != expand(self.path, entry):
-                p = joinurl(conf['output_dir'], entry.permalink)
+                p = joinurl(self.conf['output_dir'], entry.permalink)
             else:
-                p = joinurl(conf['output_dir'], expand(self.path, entry))
+                p = joinurl(self.conf['output_dir'], expand(self.path, entry))
 
             if not filter(lambda e: p.endswith(e), ['.xml', '.html']):
                 p = joinurl(p, 'index.html')
@@ -46,7 +41,7 @@ class Entry(View):
                     event.skip(entry.title, path=p)
                     continue
 
-            html = tt_main.render(env=union(env, entrylist=[entry], type='entry'),
-                                  conf=conf, entry=entry)
+            html = tt_main.render(env=union(self.env, entrylist=[entry], type='entry'),
+                                  conf=self.conf, entry=entry)
 
-            mkfile(html, p, entry.title, ctime=entry.ctime, **kwargs)
+            yield html, p, entry.title

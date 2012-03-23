@@ -6,14 +6,11 @@
 import math
 import random
 
-from time import time
 from os.path import exists
 from collections import defaultdict
 
-from acrylamid import log
 from acrylamid.views import View
-from acrylamid.utils import union, mkfile, joinurl, safeslug, event, \
-                            paginate, EntryList, expand
+from acrylamid.utils import union, joinurl, safeslug, event, paginate, EntryList, expand
 
 
 class Tagcloud:
@@ -27,7 +24,7 @@ class Tagcloud:
     :param max_items: maximum items shown in tagcloud
     :param start: start index of steps resulting in start to steps+start-1 steps."""
 
-    def __init__(self, tags, steps=4, max_items=100, start=0):
+    def __init__(self, tags, steps=4, max_items=100, start=0, shuffle=False):
 
         lst = sorted([(k, len(v)) for k, v in tags.iteritems()], key=lambda k: k[1],
                   reverse=True)[:max_items]
@@ -37,8 +34,9 @@ class Tagcloud:
                         int(math.floor(steps - (steps - 1) * math.log(count)
                             / (math.log(max_count) or 1)))+start-1)
                     for tag, count in lst]
-        random.shuffle(self.lst)
 
+        if shuffle:
+            random.shuffle(self.lst)
 
     def __iter__(self):
 
@@ -48,11 +46,11 @@ class Tagcloud:
 
 class Tag(View):
 
-    def __init__(self, conf, env, items_per_page=25,
-                 pagination='/tag/:name/:num/', *args, **kwargs):
-        View.__init__(self, *args, **kwargs)
+    def init(self, items_per_page=25, pagination='/tag/:name/:num/'):
         self.items_per_page = items_per_page
         self.pagination = pagination
+
+    def context(self, env, request):
 
         class Link:
 
@@ -64,35 +62,36 @@ class Tag(View):
             href = lambda t: expand(self.path, {'name': safeslug(t)})
             return [Link(t, href(t)) for t in tags]
 
-        env['tt_env'].filters['safeslug'] = safeslug
-        env['tt_env'].filters['tagify'] = tagify
+        tags = defaultdict(list)
+        for e in request['entrylist']:
+            for tag in e.tags:
+                tags[tag].append(e)
 
-    def __call__(self, request, *args, **kwargs):
-        """Creates paged listing by tag.
+        env['tag_cloud'] = Tagcloud(tags, self.conf['tag_cloud_steps'],
+                                          self.conf['tag_cloud_max_items'],
+                                          self.conf['tag_cloud_start_index'],
+                                          self.conf.get('tag_cloud_shuffle', False))
+        self.env['tt_env'].filters['safeslug'] = safeslug
+        self.env['tt_env'].filters['tagify'] = tagify
 
-        required:
-        items_per_page -- posts displayed per page (defaults to 10)
-        entry.html -- layout of Post's entry
-        main.html -- layout of the website
-        """
-        conf = request['conf']
-        env = request['env']
+        self.tags = {}
+        for k, v in tags.iteritems():
+            self.tags[safeslug(k)] = v
+
+        return env
+
+    def generate(self, request):
+        """Creates paged listing by tag."""
+
         entrylist = request['entrylist']
         ipp = self.items_per_page
 
-        tt_entry = env['tt_env'].get_template('entry.html')
-        tt_main = env['tt_env'].get_template('main.html')
+        tt_entry = self.env['tt_env'].get_template('entry.html')
+        tt_main = self.env['tt_env'].get_template('main.html')
 
-        tags = defaultdict(list)
-        for e in entrylist:
-            for tag in e.tags:
-                tags[safeslug(tag)].append(e)
-
-        for tag in tags:
-            entrylist = EntryList([entry for entry in tags[tag]])
-            pages, has_changed = paginate(entrylist, ipp, lambda e: not e.draft)
-            for i, entries in enumerate(pages):
-                ctime = time()
+        for tag in self.tags:
+            entrylist = EntryList([entry for entry in self.tags[tag]])
+            for i, entries, has_changed in paginate(entrylist, ipp, lambda e: not e.draft):
                 # e.g.: curr = /page/3, next = /page/2, prev = /page/4
                 if i == 0:
                     next = None
@@ -102,17 +101,17 @@ class Tag(View):
                     next = expand(self.path, {'name': tag}) if i==1 \
                              else expand(self.pagination, {'name': tag, 'num': str(i)})
 
-                prev = None if i >= len(list(pages))-1 \
+                prev = None if i >= len(list(entries))-1 \
                             else expand(self.pagination, {'name': tag, 'num': str(i+2)})
-                p = joinurl(conf['output_dir'], curr, 'index.html')
+                p = joinurl(self.conf['output_dir'], curr, 'index.html')
 
-                # if exists(p) and not has_changed:
-                #     if not (tt_entry.has_changed or tt_main.has_changed):
-                #         event.skip(curr, path=p)
-                #         continue
+                if exists(p) and not has_changed:
+                    if not (tt_entry.has_changed or tt_main.has_changed):
+                        event.skip(curr, path=p)
+                        continue
 
-                html = tt_main.render(conf=conf, env=union(env, entrylist=entries, type='tag',
-                                        prev=prev, curr=curr, next=next,  items_per_page=ipp,
-                                        num_entries=len(entrylist)))
+                html = tt_main.render(conf=self.conf, env=union(self.env, entrylist=entries,
+                                      type='tag', prev=prev, curr=curr, next=next,
+                                      items_per_page=ipp, num_entries=len(entrylist)))
 
-                mkfile(html, p, curr, ctime=time()-ctime, **kwargs)
+                yield html, p, curr

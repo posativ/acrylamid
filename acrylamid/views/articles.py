@@ -2,9 +2,9 @@
 # License: BSD Style, 2 clauses. see acrylamid.py
 
 from acrylamid.views import View
-from acrylamid.utils import union, mkfile, joinurl, event
+from acrylamid.utils import union, joinurl, event, cache, md5
 
-from os.path import getmtime, exists
+from os.path import exists
 from collections import defaultdict
 
 
@@ -13,35 +13,41 @@ class Articles(View):
 
     path = '/articles/'
 
-    def __init__(self, conf, env, *args, **kwargs):
-        View.__init__(self, *args, **kwargs)
+    def generate(self, request):
 
-    def __call__(self, request, *args, **kwargs):
-
-        conf = request['conf']
-        env = request['env']
-        entrylist = request['entrylist']
+        entrylist = sorted((e for e in request['entrylist'] if not e.draft),
+                        key=lambda k: k.date, reverse=True)
 
         articles = defaultdict(list)
-        tt_articles = env['tt_env'].get_template('articles.html')
+        tt_articles = self.env['tt_env'].get_template('articles.html')
 
-        p = joinurl(conf['output_dir'], self.path)
+        p = joinurl(self.conf['output_dir'], self.path)
         if not filter(lambda e: p.endswith(e), ['.xml', '.html']):
             p = joinurl(p, 'index.html')
 
-        last_modified = max([getmtime(e.filename) for e in entrylist]) if entrylist else 2**32
-        if exists(p) and last_modified < getmtime(p):
-            if not tt_articles.has_changed:
-                event.skip(p.replace(conf['output_dir'], ''), path=p)
-                return
+        hv = md5(*entrylist, attr=lambda o: o.md5)
+        rv = cache.memoize('articles-hash')
 
-        for entry in sorted(entrylist, key=lambda k: k.date, reverse=True):
-            if entry.draft:
-                continue
+        if rv == hv:
+            # check if a FileEntry-instance has changed
+            if bool(filter(lambda e: e.has_changed, entrylist)):
+                has_changed = True
+            else:
+                has_changed = False
+        else:
+            # save new value for next run
+            cache.memoize('articles-hash', hv)
+            has_changed = True
 
+        if exists(p) and not has_changed and not tt_articles.has_changed:
+                event.skip(p.replace(self.conf['output_dir'], ''), path=p)
+                raise StopIteration
+
+        for entry in entrylist:
             url, title, year = entry.permalink, entry.title, entry.date.year
             articles[year].append((entry.date, url, title))
 
-        html = tt_articles.render(conf=conf, articles=articles,
-                                  env=union(env, num_entries=len(entrylist)))
-        mkfile(html, p, p.replace(conf['output_dir'], ''), **kwargs)
+        html = tt_articles.render(conf=self.conf, articles=articles,
+                                  env=union(self.env, num_entries=len(entrylist)))
+
+        yield html, p
