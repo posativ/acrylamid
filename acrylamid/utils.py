@@ -13,8 +13,7 @@ import subprocess
 import hashlib
 from fnmatch import fnmatch
 from datetime import datetime
-from os.path import join, exists, dirname, getmtime
-from hashlib import md5
+from os.path import join, exists, dirname, getmtime, basename
 
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
@@ -433,6 +432,18 @@ def mkfile(content, path, message, ctime=0.0, force=False, dryrun=False, **kwarg
         event.create(message, path=path, ctime=ctime)
 
 
+def md5(*objs,  **kw):
+    """A multifunctional hash function which can take one or multiple objects
+    and you can specify which character-sequences you want calculate to a MD5."""
+
+    attr = kw.get('attr', lambda o: o.__str__())  # positional arguments before *args issue
+    h = hashlib.md5()
+    for obj in objs:
+        h.update(attr(obj))
+
+    return h.hexdigest()
+
+
 def expand(url, obj):
     """expanding '/:year/:slug/' scheme into e.g. '/2011/awesome-title/"""
 
@@ -470,10 +481,42 @@ def safeslug(slug):
 
 
 def paginate(list, ipp, func=lambda x: x):
+    """Yields a triple (index, list of entries, has changed) of a paginated
+    entrylist.  It will first filter by the specified function, then split the
+    ist into several sublists and check wether the list or an entry has changed.
 
+    :param list: the entrylist containing FileEntry instances.
+    :param ipp: items per page
+    :param func: filter list of entries by this function
+    """
+
+    # apply filter function and prepare pagination with ipp
     res = filter(func, list)
-    return [res[x*ipp:(x+1)*ipp] for x in range(len(res)/ipp+1)
-           if res[x*ipp:(x+1)*ipp]], True
+    res = [res[x*ipp:(x+1)*ipp] for x in range(len(res)/ipp+1)
+           if res[x*ipp:(x+1)*ipp]]
+
+    for i, entries in enumerate(res):
+
+        # get caller, so we can set a unique and meaningful hash-key
+        frame = log.findCaller()
+        hkey = '%s:%s-hash-%i' % (basename(frame[0]), frame[2], i)
+
+        # calculating hash value and retrieve memoized value
+        hv = md5(*entries, attr=lambda o: o.md5)
+        rv = cache.memoize(hkey)
+
+        if rv == hv:
+            # check if a FileEntry-instance has changed
+            if bool(filter(lambda e: e.has_changed, entries)):
+                has_changed = True
+            else:
+                has_changed = False
+        else:
+            # save new value for next run
+            cache.memoize(hkey, hv)
+            has_changed = True
+
+        yield i, entries, has_changed
 
 
 def escapes(string):
@@ -633,7 +676,7 @@ class cache(object):
                 pickle.dump(values, fp, pickle.HIGHEST_PROTOCOL)
         else:
             with open(filename, 'rb') as fp:
-                return pickle.load(fp)[key]
+                return pickle.load(fp).get(key, None)
 
 
 def track(f):
