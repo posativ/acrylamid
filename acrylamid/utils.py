@@ -10,6 +10,7 @@ import codecs
 import tempfile
 import time
 import subprocess
+import hashlib
 from fnmatch import fnmatch
 from datetime import datetime
 from os.path import join, exists, dirname, getmtime
@@ -194,6 +195,16 @@ class FileEntry:
     def __repr__(self):
         return "<fileentry f'%s'>" % self.filename
 
+    @property
+    def md5(self):
+        # this is *no* valid python hash, see
+        # http://stackoverflow.com/questions/5424213/length-of-sha1-hash-to-identify-an-object
+        h = hashlib.md5(self.filename)
+        for t in sorted(self.lazy_eval, key=lambda k: k[1].__priority__):
+            h.update(t[0])
+            h.update(repr(t[2]))
+        return h.hexdigest()
+
     @cached_property
     def permalink(self):
         try:
@@ -257,17 +268,6 @@ class FileEntry:
         return self.props['lang']
 
     @property
-    def hash(self):
-        # XXX: __hash__
-        if len(self.lazy_eval) == 0:
-            return ''
-
-        to_hash = []
-        for t in sorted(self.lazy_eval):
-            to_hash.append('%s:%.2f:%s' % (t[0], t[1].__priority__, t[2]))
-        return '-'.join(to_hash) + self.filename
-
-    @property
     def extension(self):
         return os.path.splitext(self.filename)[1][1:]
 
@@ -280,7 +280,7 @@ class FileEntry:
     @property
     def content(self):
         try:
-            rv = cache.get(self.hash, mtime=self.mtime)
+            rv = cache.get(self.md5, mtime=self.mtime)
             self.ctime = 0.01
             if rv is None:
                 ct = time.time()
@@ -289,7 +289,7 @@ class FileEntry:
                     f.__dict__['__matched__'] = i
                     res = f(res, self, *args)
                 self.ctime = time.time() - ct
-                rv = cache.set(self.hash, res)
+                rv = cache.set(self.md5, res)
             return rv
         except (IndexError, AttributeError):
             # jinja2 will ignore these Exceptions, better to catch them before
@@ -306,9 +306,9 @@ class FileEntry:
 
     @cached_property
     def has_changed(self):
-        if not exists(cache._get_filename(self.hash)):
+        if not exists(cache._get_filename(self.md5)):
             return True
-        if getmtime(self.filename) > cache.get_mtime(self.hash):
+        if getmtime(self.filename) > cache.get_mtime(self.md5):
             return True
         else:
             return False
@@ -532,8 +532,7 @@ class cache(object):
     mode = 0600
 
     @classmethod
-    def _get_filename(self, key):
-        hash = md5(key).hexdigest()
+    def _get_filename(self, hash):
         return os.path.join(self.cache_dir, hash)
 
     @classmethod
