@@ -6,7 +6,7 @@
 import sys
 import os
 import logging
-from logging import WARN, INFO, DEBUG
+from logging import INFO, WARN, DEBUG
 from acrylamid.errors import AcrylamidException
 
 SKIP = 15
@@ -147,7 +147,7 @@ def once(args=[], **kwargs):
     except ValueError:
         key = None
 
-    if not key:
+    if key is None:
         # unable to determine call frame
         globals()[log](msg, *args)
     elif key not in STORE:
@@ -155,7 +155,7 @@ def once(args=[], **kwargs):
         STORE.append(key)
 
 
-__all__ = ['fatal', 'warn', 'info', 'skip', 'debug', 'error'
+__all__ = ['fatal', 'warn', 'info', 'skip', 'debug', 'error',
            'WARN', 'INFO', 'SKIP', 'DEBUG', 'setLevel']
 
 if __name__ == '__main__':

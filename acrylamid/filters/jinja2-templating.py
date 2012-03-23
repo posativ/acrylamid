@@ -8,7 +8,7 @@ from acrylamid.filters import Filter
 from acrylamid.utils import render
 from acrylamid.errors import AcrylamidException
 
-from jinja2 import Environment, TemplateError, environmentfunction
+from jinja2 import Environment, TemplateError
 from subprocess import check_output, CalledProcessError, STDOUT
 
 

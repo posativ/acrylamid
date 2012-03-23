@@ -7,7 +7,6 @@
 import os
 import re
 import tempfile
-import subprocess
 import getpass
 
 from base64 import b64encode
@@ -19,7 +18,7 @@ from xml.etree import ElementTree
 from htmlentitydefs import name2codepoint
 
 from email.utils import parsedate_tz, mktime_tz
-from os.path import join, dirname, getmtime, isfile
+from os.path import join, dirname, isfile
 
 from acrylamid import log
 from acrylamid.utils import FileEntry, event, escapes, system
@@ -114,7 +113,7 @@ def _rss20(content):
 
         try:
             entry['content'] = [_.text for _ in item.getchildren() if _.tag.endswith('encoded')][0]
-        except (AttributeError, IndexError) as e:
+        except (AttributeError, IndexError):
             pass
 
         if filter(lambda k: not k in entry, ['title', 'date', 'link', 'content']):

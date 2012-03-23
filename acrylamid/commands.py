@@ -10,7 +10,6 @@ import locale
 import codecs
 import tempfile
 import shlex
-import subprocess
 
 from os.path import join, dirname, getmtime, isfile
 from urlparse import urlsplit
@@ -194,7 +193,7 @@ def new(conf, env, title):
             retcode = os.system('open ' + filepath)
         else:
             retcode = os.system('xdg-open ' + filepath)
-    except OSError as e:
+    except OSError:
         raise AcrylamidException('Could not launch an editor')
 
     # XXX process detaches... m(
