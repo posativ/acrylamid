@@ -18,8 +18,9 @@ from jinja2 import Environment, FileSystemBytecodeCache
 
 from acrylamid import filters, views, log, utils
 from acrylamid.lib.importer import fetch, parse, build
-from acrylamid.utils import cache, ExtendedFileSystemLoader, FileEntry, event, escapes, system
 from acrylamid.errors import AcrylamidException
+from acrylamid.utils import cache, ExtendedFileSystemLoader, FileEntry, event, escapes, \
+                            system, filelist
 
 from acrylamid.core import handle as prepare, filelist
 from acrylamid.filters import get_filters, FilterList
@@ -78,11 +79,14 @@ def initialize(conf, env):
 
 def compile(conf, env, force=False, **options):
 
-    request = initialize(conf, env)
-    request = prepare(request)
+    # time measurement
     ctime = time.time()
 
+    # populate env and corrects some conf things
+    request = initialize(conf, env)
+
     if force:
+        # acrylamid compile -f
         cache.clear()
 
     entrylist = request.pop('entrylist')
