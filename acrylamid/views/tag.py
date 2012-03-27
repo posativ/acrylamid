@@ -91,7 +91,7 @@ class Tag(View):
 
         for tag in self.tags:
             entrylist = [entry for entry in self.tags[tag]]
-            for i, entries, has_changed in paginate(entrylist, ipp, lambda e: not e.draft):
+            for i, entries, has_changed in paginate(entrylist, ipp, lambda e: not e.draft, salt=tag):
                 # e.g.: curr = /page/3, next = /page/2, prev = /page/4
                 if i == 0:
                     next = None
@@ -105,7 +105,7 @@ class Tag(View):
                             else expand(self.pagination, {'name': tag, 'num': str(i+2)})
                 p = joinurl(self.conf['output_dir'], curr, 'index.html')
 
-                if exists(p) and not has_changed:
+                if exists(p) and not  bool(filter(lambda e: e.has_changed, entries)):
                     if not (tt_entry.has_changed or tt_main.has_changed):
                         event.skip(curr, path=p)
                         continue
