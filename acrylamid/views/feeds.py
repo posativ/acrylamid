@@ -13,7 +13,7 @@ class Feed(View):
 
     def generate(self, request):
 
-        entrylist = request['entrylist'][:self.num_entries]
+        entrylist = filter(lambda e: not e.draft, request['entrylist'])[:self.num_entries]
         tt = self.env['tt_env'].get_template('%s.xml' % self.__class__.__name__)
 
         p = joinurl(self.conf['output_dir'], self.path)
