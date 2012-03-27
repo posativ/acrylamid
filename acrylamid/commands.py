@@ -175,25 +175,20 @@ def compile(conf, env, force=False, **options):
 
 
 def autocompile(conf, env, **options):
+    """Subcommand: autocompile -- automatically re-compiles when something in
+    content-dir has changed and parallel serving files."""
 
-    f = lambda l: dict([(p, getmtime(p)) for p in l])
-
-    # first run to have everything up-to-date
-    files = f(filelist(conf))
-    try:
-        compile(conf, env, **options)
-    except AcrylamidException as e:
-        log.fatal(e.message)
+    mtime = -1
 
     while True:
-        if files != f(filelist(conf)):
-            # something changed
+        ntime = max(getmtime(e) for e in filelist(conf['entries_dir']))
+        if mtime != ntime:
             try:
                 compile(conf, env, **options)
             except AcrylamidException as e:
                 log.fatal(e.message)
                 pass
-            files = f(filelist(conf))
+            mtime = ntime
         time.sleep(1)
 
 

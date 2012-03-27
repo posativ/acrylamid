@@ -361,7 +361,7 @@ class FileEntry:
                         res = f.transform(res, self, *f.args)
                     pv = cache.set(hv, res)
                     # XXX
-                    # self.has_changed = True
+                    self.has_changed = True
                 else:
                     pv = rv
             except (IndexError, AttributeError):
