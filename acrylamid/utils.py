@@ -284,16 +284,31 @@ class FileEntry:
 
     @cached_property
     def date(self):
-        """return datetime.datetime obj.  Either converted from given key and fmt
-        or fallback to mtime."""
-        if 'date' in self.props:
+        """return datetime.datetime obj.  Either converted from given key and
+        date_format or fallback to mtime."""
+
+        # alternate formats from pelican.utils, thank you!
+        # https://github.com/ametaireau/pelican/blob/master/pelican/utils.py
+        formats = ['%Y-%m-%d %H:%M', '%Y/%m/%d %H:%M',
+                   '%Y-%m-%d', '%Y/%m/%d',
+                   '%d-%m-%Y', '%Y-%d-%m', # Weird ones
+                   '%d/%m/%Y', '%d.%m.%Y',
+                   '%d.%m.%Y %H:%M', '%Y-%m-%d %H:%M:%S']
+
+        if 'date' not in self.props:
+            log.warn("using mtime from %r" % self.filename)
+            return datetime.fromtimestamp(self.mtime)
+
+        string = re.sub(' +', ' ', self.props['date'])
+        formats.insert(0, self.props['date_format'])
+
+        for date_format in formats:
             try:
-                ts = time.mktime(time.strptime(self.props['date'], self.props['date_format']))
-                return datetime.fromtimestamp(ts)
+                return datetime.strptime(string, date_format)
             except ValueError:
                 pass
-        log.warn("using mtime from %r" % self.filename)
-        return datetime.fromtimestamp(self.mtime)
+        else:
+            raise AcrylamidException("%r is not a valid date" % string)
 
     @property
     def year(self):
