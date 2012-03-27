@@ -8,7 +8,6 @@ import os
 import re
 import codecs
 import tempfile
-import time
 import subprocess
 import hashlib
 from fnmatch import fnmatch
@@ -593,7 +592,7 @@ def safeslug(slug):
     return unicode('-'.join(result))
 
 
-def paginate(list, ipp, func=lambda x: x, salt=None):
+def paginate(list, ipp, func=lambda x: x, salt=None, orphans=0):
     """Yields a triple (index, list of entries, has changed) of a paginated
     entrylist.  It will first filter by the specified function, then split the
     ist into several sublists and check wether the list or an entry has changed.
@@ -602,12 +601,17 @@ def paginate(list, ipp, func=lambda x: x, salt=None):
     :param ipp: items per page
     :param func: filter list of entries by this function
     :param salt: uses as additional identifier in memoize
+    :param orphans: avoid N orphans on last page.
     """
 
     # apply filter function and prepare pagination with ipp
     res = filter(func, list)
     res = [res[x*ipp:(x+1)*ipp] for x in range(len(res)/ipp+1)
            if res[x*ipp:(x+1)*ipp]]
+
+    if len(res) >= 2 and len(res[-1]) <= orphans:
+        res[-2].extend(res[-1])
+        res.pop(-1)
 
     for i, entries in enumerate(res):
 
@@ -780,7 +784,7 @@ class cache(object):
                 os.rename(tmp, filename)
                 os.chmod(filename, self.mode)
             except (IOError, OSError) as e:
-                raise AcrylamidException(e.message)
+                raise AcrylamidException(str(e.message))
 
         if not isinstance(key, basestring):
             raise TypeError('key must be a string')

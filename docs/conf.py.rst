@@ -119,6 +119,9 @@ Variable name (default value)                       Description
 ================================================    =====================================================
 `DISQUS_SHORTNAME` (*not set*)                      Enables `Disqus <https://disqus.com/>`_ integration
                                                     with your site identifier [#]_.
+`DEFAULT_ORPHANS` (``0``)                           The minimum number of articles allowed on the last
+                                                    page. Use this when you don’t want to have a last
+                                                    page with very few articles.
 ================================================    =====================================================
 
 .. [#] Note, disqus only knows a given URL. If you change the title of an entry

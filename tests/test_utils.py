@@ -3,6 +3,8 @@
 import sys; reload(sys)
 sys.setdefaultencoding('utf-8')
 
+import shutil
+
 try:
     import unittest2 as unittest
 except ImportError:
@@ -16,6 +18,10 @@ class TestUtils(unittest.TestCase):
 
     def setUp(self):
         log.init('acrylamid', level=40)
+        utils.cache.init()
+
+    def tearDown(self):
+        shutil.rmtree(utils.cache.cache_dir)
 
     def test_safeslug(self):
 
@@ -59,18 +65,38 @@ class TestUtils(unittest.TestCase):
 
     def test_paginate(self):
 
-        res = ['1', 'asd', 'asd123', 'egg', 'spam', 'ham', '3.14', '42']
-        examples = ((4, lambda x: x, ([res[:4], res[4:]], True)),
-                    (4, lambda x: x.isdigit(), ([['1', '42'], ], True)),
-                    (3, lambda x: x.isalpha(), ([['asd', 'egg', 'spam'], ['ham']], True)),
-            )
+        class X(str):
+            # dummy class
+            has_changed = True
+            md5 = property(lambda x: str(hash(x)))
 
-        for ipp, func, expected in examples:
-            self.assertEqual(utils.paginate(res, ipp, func), expected)
+        res = ['1', 'asd', 'asd123', 'egg', 'spam', 'ham', '3.14', '42']
+        res = [X(val) for val in res]
+
+        # default stuff
+        self.assertEqual(list(utils.paginate(res, 4)),
+            [(0, res[:4], True), (1, res[4:], True)])
+        self.assertEqual(list(utils.paginate(res, 4, lambda x: x.isdigit())),
+            [(0, [X('1'), X('42')], True), ])
+        self.assertEqual(list(utils.paginate(res, 7)),
+            [(0, res[:7], True), (1, res[7:], True)])
+
+        # with orphans
+        self.assertEqual(list(utils.paginate(res, 7, orphans=1)),
+            [(0, res, True)])
+        self.assertEqual(list(utils.paginate(res, 6, orphans=1)),
+            [(0, res[:6], True), (1, res[6:], True)])
 
         # a real world example which has previously failed
-        x, foo = utils.paginate(range(20), 10, lambda x: True)
-        self.assertEqual(x, [range(20)[:10], range(20)[10:]])
+        res = [X(_) for _ in range(20)]
+        self.assertEqual(list(utils.paginate(res, 10)),
+            [(0, res[:10], True), (1, res[10:], True)])
+
+        # edge cases
+        self.assertEqual(list(utils.paginate([], 2)), [])
+        self.assertEqual(list(utils.paginate([], 2, orphans=7)), [])
+        self.assertEqual(list(utils.paginate([X('1'), X('2'), X('3')], 3, orphans=1)),
+            [(0, [X('1'), X('2'), X('3')], True)])
 
     def test_system(self):
 

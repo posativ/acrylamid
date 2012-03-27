@@ -26,7 +26,8 @@ class Index(View):
         tt_entry = self.env['tt_env'].get_template('entry.html')
         tt_main = self.env['tt_env'].get_template('main.html')
 
-        for i, entries, has_changed in paginate(entrylist, ipp, lambda e: not e.draft):
+        for i, entries, has_changed in paginate(entrylist, ipp, lambda e: not e.draft,
+                                                orphans=self.conf['default_orphans']):
 
             # curr = current page, next = newer pages, prev = older pages
             if i == 0:

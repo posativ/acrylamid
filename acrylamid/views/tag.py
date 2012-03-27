@@ -91,7 +91,9 @@ class Tag(View):
 
         for tag in self.tags:
             entrylist = [entry for entry in self.tags[tag]]
-            for i, entries, has_changed in paginate(entrylist, ipp, lambda e: not e.draft, salt=tag):
+            for i, entries, has_changed in paginate(entrylist, ipp, lambda e: not e.draft, salt=tag,
+                                                    orphans=self.conf['default_orphans']):
+
                 # e.g.: curr = /page/3, next = /page/2, prev = /page/4
                 if i == 0:
                     next = None

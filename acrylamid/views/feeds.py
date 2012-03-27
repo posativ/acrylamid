@@ -30,19 +30,6 @@ class Feed(View):
         html = tt.render(conf=self.conf, env=union(self.env,
                          updated=updated, entrylist=entrylist))
 
-        # result = []
-        # for entry in entrylist[:self.num_entries]:
-        #     _id = 'tag:' + self.conf.get('www_root', '').replace(env['protocol'] + '://', '') \
-        #                  + ',' + entry.date.strftime('%Y-%m-%d') + ':' \
-        #                  + entry.permalink
-
-        #     result.append(render(self.tt_entry, env, self.conf, entry, id=_id))
-
-        # XXX let user modify the path
-        # xml = render(self.tt_body, env, self.conf, {'entrylist': '\n'.join(result),
-        #               'updated': },
-        #               atom=Atom, rss=RSS)
-
         yield html, p
 
 
