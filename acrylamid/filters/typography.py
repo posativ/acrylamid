@@ -25,12 +25,13 @@ class Typography(Filter):
     __name__ = 'typography'
     __match__ = ['typography', 'typo', 'smartypants']
 
-    def __init__(self, conf, env):
+    @classmethod
+    def init(self, conf, env):
         self.filters = {'amp': amp, 'widont': widont, 'smartypants': smartypants.smartyPants,
                    'caps': caps, 'initial_quotes': initial_quotes, 'number_suffix': number_suffix,
                    'typo': typogrify, 'typogrify': typogrify, 'all': typogrify}
 
-    def __call__(self, content, request, *args):
+    def transform(self, content, request, *args):
 
         if filter(lambda k: k in args, ['all', 'typo', 'typogrify']):
             return typogrify(content)

@@ -199,10 +199,11 @@ class Hyphenate(Filter):
         # build default hyphenate_word using conf's lang (if available)
         return build(self.conf['lang'][0].replace('_', '-'))
 
-    def __init__(self, conf, env):
+    @classmethod
+    def init(self, conf, env):
         self.conf = conf
 
-    def __call__(self, content, req):
+    def transform(self, content, req):
         if req.lang != self.conf['lang']:
             hyphenate_word = build(req.lang[0].replace('_', '-'))
         else:

@@ -20,7 +20,8 @@ class Jinja2(Filter):
     __match__ = ['Jinja2', 'jinja2']
     __priority__ = 90.0
 
-    def __init__(self, conf, env, *args):
+    @classmethod
+    def init(self, conf, env, *args):
 
         def system(cmd):
             try:
@@ -34,7 +35,7 @@ class Jinja2(Filter):
         self.jinja2_env = Environment(cache_size=0)
         self.jinja2_env.filters['system'] = system
 
-    def __call__(self, content, req):
+    def transform(self, content, req):
 
         try:
             return render(self.jinja2_env.from_string(content), conf=self.conf,

@@ -10,10 +10,7 @@ class Headoffset(Filter):
     __name__ = 'head_offset'
     __match__ = ['h' + str(i + 1) for i in range(5)]
 
-    def __init__(self, conf, env):
-        pass
-
-    def __call__(self, content, request, *args):
+    def transform(self, text, request, *args):
 
         def f(m):
             '''will return html with all headers increased by 1'''
@@ -21,9 +18,9 @@ class Headoffset(Filter):
                             else str(int(i) + 1) if int(i) < 5 else '6'
             return ''.join([l(i) for i in m.groups()])
 
-        offset = int(self.__matched__[1])
+        offset = int(self.name[1])
 
         for i in range(offset):
-            content = sub('(<h)(\d)(>)(.+)(</h)(\d)(>)', f, content)
+            text = sub('(<h)(\d)(>)(.+)(</h)(\d)(>)', f, text)
 
-        return content
+        return text

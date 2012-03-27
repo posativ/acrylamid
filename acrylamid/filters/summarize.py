@@ -84,10 +84,11 @@ class Summarize(Filter):
     __name__ = 'Summarize'
     __match__ = ['summarize', 'sum']
 
-    def __init__(self, conf, env):
+    @classmethod
+    def init(self, conf, env):
         self.path = env['path']
 
-    def __call__(self, content, req, *args):
+    def transform(self, content, req, *args):
 
         try:
             maxwords = int(args[0])

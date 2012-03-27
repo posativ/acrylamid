@@ -22,9 +22,7 @@ from acrylamid.errors import AcrylamidException
 from acrylamid.utils import cache, ExtendedFileSystemLoader, FileEntry, event, escapes, \
                             system, filelist
 
-from acrylamid.core import handle as prepare, filelist
-from acrylamid.filters import get_filters, FilterList
-from acrylamid.views import get_views
+from acrylamid.filters import FilterList
 
 
 def initialize(conf, env):
@@ -89,48 +87,89 @@ def compile(conf, env, force=False, **options):
         # acrylamid compile -f
         cache.clear()
 
-    entrylist = request.pop('entrylist')
-    filtersdict = get_filters()  # dict = {'fname' : function}
-    _views = get_views()
+    # list of FileEntry-objects reverse sorted by date.
+    entrylist = sorted([FileEntry(e, conf) for e in filelist(conf['entries_dir'],
+                                                             conf.get('entries_ignore', []))],
+                       key=lambda k: k.date, reverse=True)
 
-    for v in _views:
-        env = v.context(env, {'entrylist': entrylist})
+    # here we store all possible filter configurations
+    ns = set()
 
-    # don't touch this! It works, but it's a pain without explicit references.
+    # get available filter list, something like with obj.get-function
+    # list = [<class head_offset.Headoffset at 0x1014882c0>, <class html.HTML at 0x101488328>,...]
+    aflist = filters.get_filters()
+
+
+    # ... and get all configured views
+    _views = views.get_views()
+
+    # filters found in all entries, views and conf.py
+    found = sum((x.filters for x in entrylist+_views), []) + request['conf']['filters']
+
+    for val in found:
+        # first we for `no` and get the function name and arguments
+        f = val[2:] if val.startswith('no') else val
+        fname, fargs = f.split('+')[:1][0], f.split('+')[1:]
+
+        try:
+            # initialize the filter with its function name and arguments
+            fx = aflist[fname](val, *fargs)
+            if val.startswith('no'):
+                fx.transform = lambda x, y, *z: x
+                fx.__hash__ = lambda : 0
+        except ValueError:
+            try:
+                fx = aflist[val.split('+')[:1][0]](val, *fargs)
+            except ValueError:
+                raise AcrylamidException('no such filter: %s' % val)
+
+        ns.add(fx)
+
+    for entry in entrylist:
+        for v in _views:
+
+            # a list that sorts out conflicting and duplicated filters
+            flst = FilterList()
+
+            # filters found in this specific entry plus views and conf.py
+            found = entry.filters + v.filters + request['conf']['filters']
+
+            for fn in found:
+                fx = filter(lambda k: fn == k.name, ns)[0]
+                if fx not in flst:
+                    flst.append(fx)
+
+            # sort them ascending because we will pop within filters.add
+            entry.filters.add(sorted(flst, key=lambda k: (-k.__priority__, k.name)),
+                              context=v.__class__.__name__)
+
+    # lets offer a last break to populate tags or so
+    # XXX this API component needs a review
     for v in _views:
-        log.debug(v)
-        request['entrylist'] = []
+        env = v.context(env, {'entrylist': filter(v.condition, entrylist)})
+
+    # now teh real thing!
+    for v in _views:
+
+        # XXX the entry should automatically determine its caller (using
+        # some sys magic to recursively check wether the calling class is
+        # derieved from `View`.)
         for entry in entrylist:
-            if not v.filters:
-                request['entrylist'] = entrylist
-                break
-
-            log.debug(entry.filename)
-            entryfilters = entry.filters
-            if isinstance(entryfilters, basestring):
-                entryfilters = [entryfilters]
-            viewsfilters = request['conf']['filters'] + v.filters
-
-            _filters = FilterList()
-            for f in entryfilters + viewsfilters:
-                fname, fargs = f.split('+')[:1][0], f.split('+')[1:]
-                if filtersdict[fname] not in _filters:
-                    _filters.append((fname, filtersdict[fname], fargs))
-
-            entry.lazy_eval = _filters
-            request['entrylist'].append(entry)
+            entry.context = v.__class__.__name__
 
         request['entrylist'] = filter(v.condition, entrylist)
-
         tt = time.time()
+
         for res in v.generate(request):
             try:
                 html, path, message = res
             except ValueError:
-                # allow two items yielding for simplicity
+                # also allow two items yielding for simplicity
                 html, path = res
                 message = path.replace(conf['output_dir'], '')
+
             utils.mkfile(html, path, message, time.time()-tt, **options)
+            tt = time.time()
 
     log.info('Blog compiled in %.2fs' % (time.time() - ctime))
 

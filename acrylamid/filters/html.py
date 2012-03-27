@@ -13,8 +13,5 @@ class HTML(Filter):
     __conflicts__ = ['rst', 'md']
     __priority__ = 70.0
 
-    def __init__(self, conf, env):
-        pass
-
-    def __call__(self, content, request, *filters):
+    def transform(self, content, request, *filters):
         return content

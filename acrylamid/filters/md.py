@@ -21,7 +21,8 @@ class Markdown(Filter):
     __ext__ = dict((x, x) for x in ['abbr', 'fenced_code', 'footnotes',
                                     'headerid', 'tables', 'codehilite'])
 
-    def __init__(self, conf, env):
+    @classmethod
+    def init(self, conf, env):
 
         self.env = env
         # -- discover markdown extensions --
@@ -43,7 +44,7 @@ class Markdown(Filter):
     def __contains__(self, key):
         return True if key in self.__ext__ else False
 
-    def __call__(self, content, request, *filters):
+    def transform(self, text, request, *filters):
 
         val = []
         for f in filters:
@@ -58,4 +59,4 @@ class Markdown(Filter):
                     self.__ext__[x] = f
 
         md = markdown.Markdown(extensions=[self.__ext__[m] for m in val])
-        return md.convert(content)
+        return md.convert(text)

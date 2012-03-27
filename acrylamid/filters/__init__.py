@@ -33,8 +33,9 @@ def index_filters(module, conf, env):
 
     cs = [getattr(module, c) for c in dir(module) if not c.startswith('_')]
     for mem in cs:
-        if callable(mem) and hasattr(mem, '__match__'):
-            callbacks[getattr(mem, '__match__')] = mem(conf, env)
+        if hasattr(mem, '__match__'):
+            mem.init(conf, env)
+            callbacks.append(mem)
 
 
 def initialize(ext_dir, conf, env, include=[], exclude=[]):
@@ -44,8 +45,8 @@ def initialize(ext_dir, conf, env, include=[], exclude=[]):
     used for fnmatch. If empty, this filter is not applied.
 
     :param ext_dir: list of directories
-    :conf: user config
-    :env: environment
+    :param conf: user config
+    :param env: environment
     :param include: a list of filename patterns to include
     :param exclude: a list of filename patterns to exclude
     """
@@ -107,16 +108,35 @@ class Filter:
     __priority__ = 50.0
     __conflicts__ = []
 
+    def __init__(self, fname, *args):
+
+        self.name = fname
+        self.args = args
+
+    def __repr__(self):
+        return "<%s [%2.f] ~%s>" % (self.__class__.__name__,
+                                    self.__priority__, self.name)
+
+    def __hash__(self):
+        return hash(self.name + repr(self.args))
+
+    def __eq__(self, other):
+        return True if hash(other) == hash(self) else False
+
+    @classmethod
+    def init(self, conf, env):
+        pass
+
+    def transform(self, text, request, *args):
+        raise NotImplemented
+
 
 class FilterList(list):
     """a list containing tuples of (filtername, filterfunc, arguments).
 
     >>> x = FilterList()
-    >>> x.append((x,y,z))
-
-    :param x: the filter's name, type: str
-    :param y: function (Filter with __call__)
-    :param z: additional arguments, a tuple of strings e.g. ('mathml', 'pygments')
+    >>> x.append(MyFilter)
+    >>> f = x[MyFilter]
     """
 
     def __contains__(self, y):
@@ -125,17 +145,22 @@ class FilterList(list):
         Otherwise y is not in FilterList.
         """
         for x in self:
-            if x[1].__name__ == y.__name__:
+            if x.__name__ == y.__name__:
                 return True
         for f in y.__conflicts__:
             for x in self:
-                if f in x[1].__match__:
+                if f in x.__match__:
                     return True
         return False
 
-    def __iter__(self):
-        for item in sorted(list.__iter__(self), key=lambda k: k[1].__priority__, reverse=True):
-            yield item
+    def __getitem__(self, item):
+
+        try:
+            f = filter(lambda x: item in x.__match__, self)[0]
+        except IndexError:
+            raise ValueError('%s is not in list' % item)
+
+        return f
 
 
 class FilterStorage(dict):
@@ -171,4 +196,4 @@ class FilterStorage(dict):
             f.__call__ = lambda x, y, *z: x
         return f
 
-callbacks = FilterStorage()
+callbacks = FilterList() # FilterStorage()

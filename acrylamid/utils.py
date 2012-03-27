@@ -160,21 +160,96 @@ def read(filename, encoding, remap={}):
     return i, props
 
 
-class EntryList(list):
+class Node(dict):
+    """This is a root, an edge and a leaf. Stores predecessor and
+    count of views using this leaf."""
 
-    @cached_property
-    def has_changed(self):
-        return filter(lambda e: e.has_changed, self)
+    def __init__(self, *args, **kwargs):
+        dict.__init__(self, *args, **kwargs)
+        self.refs = 1
+        self.prev = None
+
+
+class FilterTree(list):
+
+    def __init__(self, *args, **kwargs):
+
+        # its a list after all ;-)
+        super(FilterTree, self).__init__(*args, **kwargs)
+
+        self.root = Node()
+        self.views = {None: self}
+        self.paths = {None: []}
+
+    def __iter__(self):
+        """Iterating over list of filters of given context."""
+
+        raise NotImplemented('XXX get context with some magic')
+        res = []
+        context = None
+        node = self.views[context]
+
+        while node.prev is not None:
+            res.append(node.obj)
+            node = node.prev
+
+        return reversed(res)
+
+    def add(self, lst, context):
+        """This adds a list of filters and stores the context and the
+        reference to that path in self.views."""
+
+        node = self.root
+        for key in lst:
+            if key not in node:
+                node[key] = Node()
+                node[key].prev = node
+                node = node[key]
+            else:
+                node = node[key]
+                node.refs += 1
+
+        self.views[context] = node
+        self.paths[context] = lst
+
+    def path(self, context):
+        """Return the actual 'path' a view would use."""
+
+        return self.paths[context]
+
+    def iter(self, context):
+        """This returns a generator which yields a tuple containing the count
+        of views using this filter list and the filter list itself."""
+
+        path, node = self.path(context)[:], self.root
+        i, j = 0, self.root[path[0]].refs
+
+        while True:
+
+            ls = []
+            for key in path[:]:
+                if node[key].refs != j:
+                    j = node[key].refs
+                    break
+
+                ls.append(key)
+                node = node[key]
+                path.pop(0)
+
+            if not ls:
+                raise StopIteration
+
+            i += 1
+            yield i, ls
 
 
 class FileEntry:
     """This class gets it's data and metadata from the file specified
-    by the filename argument"""
+    by the filename argument."""
 
     __keys__ = ['permalink', 'date', 'year', 'month', 'day', 'filters', 'tags',
                 'title', 'author', 'content', 'description', 'lang', 'draft',
                 'extension', 'slug']
-    lazy_eval = []
 
     def __init__(self, filename, conf):
         """parsing FileEntry's YAML header."""
@@ -191,25 +266,21 @@ class FileEntry:
         self.props.update(props)
         self.ctime = 0.01  # time used to compile (cheating with 0.01 init value)
 
+        fx = self.props.get('filters', [])
+        if isinstance(fx, basestring):
+            fx = [fx]
+
+        self.filters = FilterTree(fx)
+
     def __repr__(self):
         return "<fileentry f'%s'>" % self.filename
-
-    @property
-    def md5(self):
-        # this is *no* valid python hash, see
-        # http://stackoverflow.com/questions/5424213/length-of-sha1-hash-to-identify-an-object
-        h = hashlib.md5(self.filename)
-        for t in sorted(self.lazy_eval, key=lambda k: k[1].__priority__):
-            h.update(t[0])
-            h.update(repr(t[2]))
-        return h.hexdigest()
 
     @cached_property
     def permalink(self):
         try:
             return self.props['permalink']
         except KeyError:
-            return expand(self.props['permalink_format'], self)
+            return expand(self.props['permalink_format'].rstrip('index.html'), self)
 
     @cached_property
     def date(self):
@@ -235,13 +306,6 @@ class FileEntry:
     @property
     def day(self):
         return self.date.day
-
-    @property
-    def filters(self):
-        fx = self.props.get('filters', [])
-        if isinstance(fx, basestring):
-            return [fx]
-        return fx
 
     @property
     def tags(self):
@@ -278,21 +342,28 @@ class FileEntry:
 
     @property
     def content(self):
-        try:
-            rv = cache.get(self.md5, mtime=self.mtime)
-            self.ctime = 0.01
-            if rv is None:
-                ct = time.time()
-                res = self.source
-                for i, f, args in self.lazy_eval:
-                    f.__dict__['__matched__'] = i
-                    res = f(res, self, *args)
-                self.ctime = time.time() - ct
-                rv = cache.set(self.md5, res)
-            return rv
-        except (IndexError, AttributeError):
-            # jinja2 will ignore these Exceptions, better to catch them before
-            traceback.print_exc(file=sys.stdout)
+
+        # previous value
+        pv = None
+
+        for i, fxs in self.filters.iter(context=self.context):
+            hv = md5(self.filename, i, fxs)
+
+            try:
+                rv = cache.get(hv, mtime=self.mtime)
+                if rv is None:
+                    res = self.source if pv is None else pv
+                    for f in fxs:
+                        res = f.transform(res, self, *f.args)
+                    pv = cache.set(hv, res)
+                    # self.has_changed = True, XXX: ?
+                else:
+                    pv = rv
+            except (IndexError, AttributeError):
+                # jinja2 will ignore these Exceptions, better to catch them before
+                traceback.print_exc(file=sys.stdout)
+
+        return pv
 
     @property
     def slug(self):
@@ -303,11 +374,19 @@ class FileEntry:
         # TODO: this is really poor
         return self.source[:50].strip() + '...'
 
+    @property
+    def md5(self):
+        return md5(self.filename, self.title, self.date)
+
     @cached_property
     def has_changed(self):
-        if not exists(cache._get_filename(self.md5)):
+
+        i, fxs = list(self.filters.iter(self.context))[-1]
+        path = md5(self.filename, i, fxs)
+
+        if not exists(cache._get_filename(path)):
             return True
-        if getmtime(self.filename) > cache.get_mtime(self.md5):
+        if getmtime(self.filename) > cache.get_mtime(path):
             return True
         else:
             return False
