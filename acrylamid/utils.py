@@ -805,57 +805,9 @@ def track(f):
     return dec
 
 
-def clean(conf, everything=False, dryrun=False, **kwargs):
-    """Attention: this function may eat your data!  Every create, changed
-    or skip event call tracks automatically files. After generation,
-    ``acrylamid clean`` will call this function and remove untracked files.
-
-    - with OUTPUT_IGNORE you can specify a list of patterns which are ignored.
-    - you can use --dry-run to see what would have been removed
-    - by default acrylamid does NOT call this function
-    - it removes silently every empty directory
-
-    :param conf: user configuration
-    :param every: remove all tracked files, too
-    :param dryrun: don't delete, just show what would have been done
-    """
-
-    def excluded(path, excl_files):
-        """test if path should be ignored"""
-        if filter(lambda p: fnmatch(path, p), excl_files):
-            return True
-        return False
-
+def get_tracked_files():
     global _tracked_files
-    ignored = [join(conf['output_dir'], p) for p in conf['output_ignore']]
-
-    for root, dirs, files in os.walk(conf['output_dir'], topdown=True):
-        found = set([join(root, p) for p in files
-                     if not excluded(join(root, p), ignored)])
-        for i, p in enumerate(found.difference(_tracked_files)):
-            if not dryrun:
-                os.remove(p)
-            event.removed(p)
-
-        if everything:
-            for i, p in enumerate(found):
-                if not dryrun:
-                    os.remove(p)
-                event.removed(p)
-
-        # don't visit excluded dirs
-        for dir in dirs[:]:
-            p = join(root, dir)
-            if excluded(p, ignored) or excluded(p+'/', ignored):
-                dirs.remove(dir)
-
-    # remove empty directories
-    for root, dirs, files in os.walk(conf['output_dir'], topdown=True):
-        for p in (join(root, k) for k in dirs):
-            try:
-                os.rmdir(p)
-            except OSError:
-                pass
+    return _tracked_files
 
 
 class event:

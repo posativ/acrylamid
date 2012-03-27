@@ -164,7 +164,7 @@ class Acryl:
                 log.setLevel(options.verbosity+5)
                 commands.compile(conf, env, dryrun=True, force=False)
                 log.setLevel(options.verbosity)
-                utils.clean(conf, everything=options.force, **options.__dict__)
+                commands.clean(conf, everything=options.force, **options.__dict__)
             except AcrylamidException as e:
                 log.fatal(e.message)
                 sys.exit(1)
