@@ -29,11 +29,7 @@ class Articles(View):
         rv = cache.memoize('articles-hash')
 
         if rv == hv:
-            # check if a FileEntry-instance has changed
-            if bool(filter(lambda e: e.has_changed, entrylist)):
-                has_changed = True
-            else:
-                has_changed = False
+            has_changed = False
         else:
             # save new value for next run
             cache.memoize('articles-hash', hv)
