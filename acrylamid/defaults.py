@@ -40,6 +40,8 @@ def init(root='.', overwrite=False):
              '%(layout_dir)s/main.html' % default: main,
              '%(layout_dir)s/entry.html' % default: entry,
              '%(layout_dir)s/articles.html' % default: articles,
+             '%(layout_dir)s/rss.xml' % default: rss,
+             '%(layout_dir)s/atom.xml' % default: atom,
              '%(entries_dir)s/sample entry.txt' % default: kafka}
 
     # restore a given file from defaults
@@ -547,6 +549,69 @@ articles = r'''
         </div>
     </div>
 {% endblock %}
+'''.strip()
+
+rss = r'''
+{%- macro render_item(env, conf, entry) -%}
+    <item>
+        <title>{{ entry.title | escape }}</title>
+        <link>{{ conf.www_root + entry.permalink }}</link>
+        <description>{{ entry.content | escape }}</description>
+        <pubDate>{{ entry.date | rfc822 }}</pubDate>
+        <guid isPermaLink="false">tag:{{ env.netloc + env.path }},{{ entry.date.strftime('%Y-%m-%d') }}:{{ entry.permalink.rstrip('/') }}</guid>
+    </item>
+{%- endmacro -%}
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>{{ conf.sitename | escape }}</title>
+        <link>{{ conf.www_root + '/' }}</link>
+        <description>{{ conf.description }}</description>
+        <language>{{ conf.lang[0].replace('_', '-').lower() }}</language>
+        <pubDate>{{ env.updated | rfc822 }}</pubDate>
+        <docs>{{ conf.www_root+env.views.rss.path }}</docs>
+        <generator>{{ env.acrylamid_name }} {{ env.acrylamid_version }}</generator>
+        {% if atom in env.views %}
+            <atom:link href="{{ conf.www_root + conf.views.atom.path }}" rel="self" type="application/rss+xml" />
+        {% endif %}
+        {%- for entry in env.entrylist %}
+            {{ render_item(env, conf, entry) | indent(8)}}
+        {% endfor -%}
+    </channel>
+</rss>
+'''.strip()
+
+atom = r'''
+{%- macro render_item(env, conf, entry) -%}
+    <entry>
+        <title>{{ entry.title | escape }}</title>
+        <link rel="alternate" type="text/html" href="{{ conf.www_root + entry.permalink }}" />
+        <id>tag:{{ env.netloc + env.path }},{{ entry.date.strftime('%Y-%m-%d') }}:{{ entry.permalink.rstrip('/') }}</id>
+        <updated>{{ entry.date.strftime('%Y-%m-%dT%H:%M:%SZ') }}</updated>
+        <author>
+            <name>{{ entry.author }}</name>
+            <uri>{{ conf.www_root + '/' }}</uri>
+            <email>{{ entry.email }}</email>
+        </author>
+        <content type="html">{{ entry.content | escape }}</content>
+    </entry>
+{%- endmacro -%}
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="{{ conf.lang[0].replace('_', '-') }}">
+    <author>
+        <name>{{ conf.author }}</name>
+        <uri>{{ conf.www_root + '/' }}</uri>
+        <email>{{ conf.email }}</email>
+    </author>
+    <title>{{ conf.sitename | escape }}</title>
+    <id>{{ conf.www_root + '/' }}</id>
+    <link rel="alternate" type="text/html" href="{{ conf.www_root + '/' }}" />
+    <link rel="self" type="application/atom+xml" href="{{ conf.www_root+env.views.atom.path }}" />
+    <updated>{{ env.updated.strftime('%Y-%m-%dT%H:%M:%SZ') }}</updated>
+    <generator uri="{{ env.url }}" version="{{ env.version }}">acrylamid</generator>
+    {%- for entry in env.entrylist %}
+        {{ render_item(env, conf, entry) | indent(8) }}
+    {% endfor -%}
+</feed>
 '''.strip()
 
 kafka = '''

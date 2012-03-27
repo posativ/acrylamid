@@ -17,8 +17,9 @@
 # those of the authors and should not be interpreted as representing official
 # policies, either expressed or implied, of posativ <info@posativ.org>.
 
-VERSION = "0.3.0-dev"
-VERSION_SPLIT = tuple(VERSION.split('-')[0].split('.'))
+__version__ = "0.3.0-dev"
+__author__ = 'posativ <info@posativ.org>'
+__url__ = 'https://github.com/posativ/acrylamid/'
 
 import sys
 reload(sys)
@@ -100,9 +101,9 @@ class Acryl:
         # initialize colored logger
         log.init('acrylamid', level=options.verbosity)
 
-        env = {'VERSION': VERSION, 'VERSION_SPLIT': VERSION_SPLIT}
+        env = {'version': __version__, 'author': __author__, 'url': __url__}
         if options.version:
-            print "acrylamid" + ' ' + env['VERSION']
+            print "acrylamid" + ' ' + env['version']
             sys.exit(0)
 
         if len(args) < 1:
@@ -133,9 +134,6 @@ class Acryl:
             log.critical("%s in `conf.py`" % e.__class__.__name__)
             traceback.print_exc(file=sys.stdout)
             sys.exit(1)
-
-        conf['acrylamid_name'] = "acrylamid"
-        conf['acrylamid_version'] = env['VERSION']
 
         conf['output_dir'] = conf.get('output_dir', 'output/')
         conf['entries_dir'] = conf.get('entries_dir', 'content/')

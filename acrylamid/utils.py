@@ -258,7 +258,7 @@ class FileEntry:
         self.mtime = os.path.getmtime(filename)
         self.props = dict((k, v) for k, v in conf.iteritems()
                         if k in ['author', 'lang', 'encoding', 'date_format',
-                                 'permalink_format'])
+                                 'permalink_format', 'email'])
 
         i, props = read(filename, self.props['encoding'],
                         remap={'tag': 'tags', 'filter': 'filters'})
@@ -321,6 +321,10 @@ class FileEntry:
     @property
     def author(self):
         return self.props['author']
+
+    @property
+    def email(self):
+        return self.props['email']
 
     @property
     def draft(self):

@@ -103,7 +103,7 @@ def initialize(ext_dir, conf, env):
 
 class View(object):
 
-    filters = None
+    filters = []
     condition = lambda v, e: True
     view = 'View'
     path = '/'

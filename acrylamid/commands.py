@@ -70,7 +70,7 @@ def initialize(conf, env):
                           exclude=conf.get("filters_ignore", []),
                           include=conf.get("filters_include", []))
     views.initialize(conf.get("views_dir", []), conf, env)
-    env['views'] = [v['view'] for k, v in conf['views'].iteritems()]
+    env['views'] = dict([(v.view, v) for v in views.get_views()])
 
     return {'conf': conf, 'env': env}
 
