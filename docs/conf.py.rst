@@ -36,7 +36,7 @@ python script and therefore must be valid python code!):
     PERMALINK_FORMAT = "/:year/:slug/index.html"
     DATE_FORMAT = "%d.%m.%Y, %H:%M"
 
-Each key-value pair (except views[1]_) is available during :doc:`templating`.
+Each key-value pair (except views [#]_) is available during :doc:`templating`.
 Acrylamid uses `jinja2 <http://jinja.pocoo.org/docs/>`_, see their `Template
 Designer Documentation <http://jinja.pocoo.org/docs/templates/>`_ for details.
 
@@ -45,103 +45,130 @@ processed.
 
 Here is a list of settings for acrylamid, regarding the different features.
 
-.. [1] ``views`` is a list of all used views, e.g. [index, entry, ...]
+.. [#] views is a list of all used views, e.g. [index, entry, ...]
 
-==============
+Basic settings
+--------------
 
 ================================================    =====================================================
-Setting name (default value)                        what does it do?
+Variable name (default value)                       Description
 ================================================    =====================================================
-`SITENAME` (``''``)                                 base URL of your website. This is also the way
-                                                    to tell acrylamid to use a sub-uri (all relative,
-                                                    though)
-`AUTHOR`                                            default author (put your name)
-`CLEAN_URL` (``False``)                             If set to `True`, the URLs will not be suffixed by
-                                                    `.html`, so you will have to setup URL rewriting on 
-                                                    your web server.
-`DATE_FORMATS` (``{}``)                             If you do manage multiple languages, you can
-                                                    set the date formatting here.
-`DEFAULT_CATEGORY` (``'misc'``)                     The default category to fallback on.
-`DEFAULT_DATE_FORMAT` (``'%a %d %B %Y'``)           The default date format you want to use.
-`DISPLAY_PAGES_ON_MENU` (``True``)                  Display or not the pages on the menu of the
-                                                    template. Templates can follow or not this
-                                                    settings.
-`FALLBACK_ON_FS_DATE` (``True``)                    If True, pelican will use the file system
-                                                    dates infos (mtime) if it can't get
-                                                    informations from the metadata
-`JINJA_EXTENSIONS` (``[]``)                         A list of any Jinja2 extensions you want to use.
-`DELETE_OUTPUT_DIRECTORY` (``False``)               Delete the output directory and just
-                                                    the generated files.
-`LOCALE` (''[1]_)                                   Change the locale. A list of locales can be provided 
-                                                    here or a single string representing one locale.
-                                                    When providing a list, all the locales will be tried 
-                                                    until one works.
-`MARKUP` (``('rst', 'md')``)                        A list of available markup languages you want
-                                                    to use. For the moment, only available values
-                                                    are `rst` and `md`.
-`MD_EXTENSIONS` (``('codehilite','extra')``)        A list of the extensions that the markdown processor
-                                                    will use. Refer to the extensions chapter in the
-                                                    Python-Markdown documentation for a complete list of
-                                                    supported extensions.
-`OUTPUT_PATH` (``'output/'``)                       Where to output the generated files.
-`PATH` (``None``)                                   path to look at for input files.
-`PDF_GENERATOR` (``False``)                         Set to True if you want to have PDF versions
-                                                    of your documents. You will need to install
-                                                    `rst2pdf`.
-`RELATIVE_URLS` (``True``)                          Defines if pelican should use relative urls or
-                                                    not.
-`SITENAME` (``'A Pelican Blog'``)                   Your site name
-`SITEURL`                                           
-`STATIC_PATHS` (``['images']``)                     The static paths you want to have accessible
-                                                    on the output path "static". By default,
-                                                    pelican will copy the 'images' folder to the
-                                                    output folder.
-`TIMEZONE`                                          The timezone used in the date information, to
-                                                    generate atom and rss feeds. See the "timezone"
-                                                    section below for more info.
+`SITENAME` (``'A descriptive blog title'``)         The name of your blog. It's displayed in the
+                                                    <title>-block.
+`AUTHOR` (``'Anonymous'``)                          First author of this blog, can be overwritten in
+                                                    the entry YAML-header.
+`EMAIL` (``'info@example.com'``)                    Your email address -- used in Atom/RSS feeds and as
+                                                    contact ability at the bottom in the default layout.
+`ENCODING` (``'utf-8'``)                            Default encoding of your text files, only global.
+`OUTPUT_IGNORE` (``['blog.css', 'img/*']``)         A list of filename/directory-patterns which
+                                                    Acrylamid should ignore.
+`FILTERS` ( |filter_example|)                       Global list of filters.
+`VIEWS` (see example conf.py)                       Dictionary of views set in conf.py.
+`WWW_ROOT` (``'http://localhost:8000'``)            Your actual website link where you host this blog.
+                                                    It's used to build absolute urls (required for disqus
+                                                    and feeds)
 ================================================    =====================================================
 
-This is a complete list of all configuration keys available in acrylamid.
+.. |filter_example| replace::
 
-blog_title
-    The blog's title
-author
-    the author's name. Can be overwritten in a given entry's YAML header and
-    is then available in this ``entry.html`` template.
-website
-    defaults to www_root but may changed to link to a different website in
-    feeds.
-www_root
-    the root-url where you host this blog. It's used to build absolute urls
-    (required for disqus and feeds)
-lang
-    your language code, see
-    `ISO_639 <https://en.wikipedia.org/wiki/ISO_639>`_, if not set the
-    system's will be used. If not available, fallback to ``'C'``.
-strptime
-    the parsing format of your ``date:`` key-value pair. Defaults to
-    ``%d.%m.%Y, %H:%M`` and matches 23.12.2012, 09:00, see
-    python's reference `strftime <http://strftime.org/>`_
-disqus_shortname
-    username for `Disqus <http://disqus.com/>`_ integration. Note, disqus only
-    knows a given URL. If you change a entry-title and you don't setup
-    recirect codes or leave the original url by setting ``permalink:
-    /2011/a-title/``, you'll lose your disqus comments for this thread.
+    ``["markdown+codehilite(css_class=highlight)", "hyphenate"]``
 
-control-flow statements
-***********************
 
-A key beginning with ``views.`` or ``filters.`` (including the dot) is removed
-from YAML parsing and directly injected into the given namespace. Therefore
-you can add global filters, per-view filters, disable views and/or customize
-settings for views or filters.
+URL Settings
+------------
 
-views.filters
-    a pythonic list of globally applied filters. See
-    `filters.rst </posativ/acrylamid/blob/master/docs/filters.rst>`_
-    for syntax specifications.
-views.$myview.filters
-    a list of per-view applied filters. You may also disable global filters by
-    *no*-prefixing filters e.g. ``nosummarize``.
-views.$myview.property
-    change given property from view
+
+
+================================================    =====================================================
+Variable name (default value)                       Description
+================================================    =====================================================
+`PERMALINK_FORMAT` (``'/:year/:slug/'``)            A substitution string as described here (XXX).
+================================================    =====================================================
+
+Date format and locale
+----------------------
+
+
+
+================================================    =====================================================
+Variable name (default value)                       Description
+================================================    =====================================================
+`LANG`  (``''`` [#]_)                               Default language [#]_ to use -- is important for
+                                                    hyphenation patterns XXX: and
+                                                    ``meta http-equiv="content-language"``.
+`DATE_FORMAT` (``'%d.%m.%Y, %H:%M'``)               This python date-format string is used in
+                                                    ``layout/entry.html`` to render the date nicely.
+                                                    See `Python's strftime directives
+                                                    <http://strftime.org/>`_ for detailed explanation of
+                                                    these variables.
+`strptime` (``'%d.%m.%Y, %H:%M'``)                  Format to parse the ``date:`` value using
+                                                    :func:`time.strptime`. The default matches
+                                                    ``23.12.2012, 09:00``, see python's reference
+                                                    `strftime <http://strftime.org/>`_
+================================================    =====================================================
+
+.. [#] default is the system locale.
+.. [#] see `ISO_639 <https://en.wikipedia.org/wiki/ISO_639>`_, if not set the
+   system's will be used. If not available, fallback to ``'C'``.
+
+Miscellaneous
+-------------
+
+================================================    =====================================================
+Variable name (default value)                       Description
+================================================    =====================================================
+`DISQUS_SHORTNAME` (*not set*)                      Enables `Disqus <https://disqus.com/>`_ integration
+                                                    with your site identifier [#]_.
+================================================    =====================================================
+
+.. [#] Note, disqus only knows a given URL. If you change the title of an entry
+   and you don't setup recirect codes or leave the original url by setting
+   ``permalink: /2011/a-title/``, you'll lose your disqus comments for this thread.
+
+
+Tag cloud
+---------
+
+If you want to generate a tag cloud with all your tags, you can do so using the following settings.
+
+================================================    =====================================================
+Variable name (default value)                       Description
+================================================    =====================================================
+`TAG_CLOUD_STEPS` (``4``)                           Count of different font sizes in the tag cloud.
+`TAG_CLOUD_MAX_ITEMS` (``100``)                     Maximum number of tags in the cloud.
+`TAG_CLOUD_START_INDEX` (``0``)                     Start index of font sizes in the tag cloud.
+`TAG_CLOUD_SHUFFLE` (``False``)                     Shuffle tag list.
+================================================    =====================================================
+
+The default theme does not support tag clouds, but it is fairly easy to add:
+
+.. code-block:: jinja2
+
+    <ul>
+    {% for tag in tag_cloud %}
+        <li class="tag-{{ tag.step }}"><a href="/tag/{{ tag.name | safeslug }}/">{{ tag.name }}</a></li>
+    {% endfor %}
+    </ul>
+
+
+You should then also define a CSS style with the appropriate classes (tag-0 to tag-N, where N matches TAG_CLOUD_STEPS -1).
+
+::
+
+    control-flow statements
+    ***********************
+
+    A key beginning with ``views.`` or ``filters.`` (including the dot) is removed
+    from YAML parsing and directly injected into the given namespace. Therefore
+    you can add global filters, per-view filters, disable views and/or customize
+    settings for views or filters.
+
+    views.filters
+        a pythonic list of globally applied filters. See
+        `filters.rst </posativ/acrylamid/blob/master/docs/filters.rst>`_
+        for syntax specifications.
+    views.$myview.filters
+        a list of per-view applied filters. You may also disable global filters by
+        *no*-prefixing filters e.g. ``nosummarize``.
+    views.$myview.property
+        change given property from view

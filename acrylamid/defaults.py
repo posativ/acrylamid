@@ -131,7 +131,7 @@ conf = default = {
     'sitename': 'A descriptive blog title',
     'author': 'Anonymous',
     'email': 'info@example.com',
-    'lang': 'de_DE',
+    # 'lang': 'de_DE',
     'date_format': '%d.%m.%Y, %H:%M',
     'encoding': 'utf-8',
     'permalink_format': '/:year/:slug/',
