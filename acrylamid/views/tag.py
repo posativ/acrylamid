@@ -10,7 +10,7 @@ from os.path import exists
 from collections import defaultdict
 
 from acrylamid.views import View
-from acrylamid.utils import union, joinurl, safeslug, event, paginate, EntryList, expand
+from acrylamid.utils import union, joinurl, safeslug, event, paginate, expand
 
 
 class Tagcloud:
@@ -29,7 +29,7 @@ class Tagcloud:
         lst = sorted([(k, len(v)) for k, v in tags.iteritems()], key=lambda k: k[1],
                   reverse=True)[:max_items]
         # stolen from pelican/generators.py:286
-        max_count = max(lst, key=lambda k: k[1])[1]
+        max_count = max(lst, key=lambda k: k[1])[1] if lst else None
         self.lst = [(tag,
                         int(math.floor(steps - (steps - 1) * math.log(count)
                             / (math.log(max_count) or 1)))+start-1)
@@ -90,7 +90,7 @@ class Tag(View):
         tt_main = self.env['tt_env'].get_template('main.html')
 
         for tag in self.tags:
-            entrylist = EntryList([entry for entry in self.tags[tag]])
+            entrylist = [entry for entry in self.tags[tag]]
             for i, entries, has_changed in paginate(entrylist, ipp, lambda e: not e.draft):
                 # e.g.: curr = /page/3, next = /page/2, prev = /page/4
                 if i == 0:
