@@ -192,6 +192,7 @@ class Acryl:
             except (SystemExit, KeyboardInterrupt, Exception) as e:
                 ws.kill_received = True
                 log.error(e.message)
+                traceback.print_exc(file=sys.stdout)
                 sys.exit(0)
 
         elif args[0] in ('import', ):

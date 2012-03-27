@@ -103,7 +103,7 @@ def initialize(ext_dir, conf, env):
 
 class View(object):
 
-    filters = []
+    _filters = []
     condition = lambda v, e: True
     view = 'View'
     path = '/'
@@ -122,6 +122,14 @@ class View(object):
             kwargs.pop(k, None)
 
         self._getkwargs = lambda : kwargs
+
+    def _fset(self, value):
+        if isinstance(value, basestring):
+            value = [value]
+        self._filters = value
+
+    # single string --> [string, ]
+    filters = property(lambda v: v._filters, _fset)
 
     def init(self, **kwargs):
         pass
