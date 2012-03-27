@@ -360,7 +360,8 @@ class FileEntry:
                     for f in fxs:
                         res = f.transform(res, self, *f.args)
                     pv = cache.set(hv, res)
-                    # self.has_changed = True, XXX: ?
+                    # XXX
+                    # self.has_changed = True
                 else:
                     pv = rv
             except (IndexError, AttributeError):
@@ -375,16 +376,15 @@ class FileEntry:
 
     @property
     def description(self):
-        # TODO: this is really poor
+        # XXX this is really poor
         return self.source[:50].strip() + '...'
 
     @property
     def md5(self):
         return md5(self.filename, self.title, self.date)
 
-    @cached_property
+    @property
     def has_changed(self):
-
         i, fxs = list(self.filters.iter(self.context))[-1]
         path = md5(self.filename, i, fxs)
 
@@ -578,7 +578,7 @@ def safeslug(slug):
     return unicode('-'.join(result))
 
 
-def paginate(list, ipp, func=lambda x: x):
+def paginate(list, ipp, func=lambda x: x, salt=None):
     """Yields a triple (index, list of entries, has changed) of a paginated
     entrylist.  It will first filter by the specified function, then split the
     ist into several sublists and check wether the list or an entry has changed.
@@ -586,6 +586,7 @@ def paginate(list, ipp, func=lambda x: x):
     :param list: the entrylist containing FileEntry instances.
     :param ipp: items per page
     :param func: filter list of entries by this function
+    :param salt: uses as additional identifier in memoize
     """
 
     # apply filter function and prepare pagination with ipp
@@ -597,7 +598,10 @@ def paginate(list, ipp, func=lambda x: x):
 
         # get caller, so we can set a unique and meaningful hash-key
         frame = log.findCaller()
-        hkey = '%s:%s-hash-%i' % (basename(frame[0]), frame[2], i)
+        if salt is None:
+            hkey = '%s:%s-hash-%i' % (basename(frame[0]), frame[2], i)
+        else:
+            hkey = '%s:%s-hash-%s-%i' % (basename(frame[0]), frame[2], salt, i)
 
         # calculating hash value and retrieve memoized value
         hv = md5(*entries, attr=lambda o: o.md5)
@@ -763,7 +767,7 @@ class cache(object):
             except (IOError, OSError) as e:
                 raise AcrylamidException(e.message)
 
-        if not isinstance(key, str):
+        if not isinstance(key, basestring):
             raise TypeError('key must be a string')
 
         if value is not None:

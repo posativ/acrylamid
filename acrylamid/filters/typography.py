@@ -24,6 +24,7 @@ class Typography(Filter):
 
     __name__ = 'typography'
     __match__ = ['typography', 'typo', 'smartypants']
+    __priority__ = 25.0
 
     @classmethod
     def init(self, conf, env):
