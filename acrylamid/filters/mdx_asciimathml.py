@@ -17,7 +17,7 @@ import re
 import markdown
 import asciimathml
 
-__match__ = ['mathml', 'math', 'asciimathml', 'MathML', 'Math', 'AsciiMathML']
+match = ['mathml', 'math', 'asciimathml', 'MathML', 'Math', 'AsciiMathML']
 __author__ = 'Gabriele Favalessa'
 
 RE = re.compile(r'^(.*)\$([^\$]*)\$(.*)$', re.M)  # $ a $

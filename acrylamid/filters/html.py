@@ -8,10 +8,9 @@ from acrylamid.filters import Filter
 
 class HTML(Filter):
 
-    __name__ = 'Pass-Through'
-    __match__ = ['pass', 'plain', 'html', 'xhtml', 'HTML']
-    __conflicts__ = ['rst', 'md']
-    __priority__ = 70.0
+    match = ['pass', 'plain', 'html', 'xhtml', 'HTML']
+    conflicts = ['rst', 'md']
+    priority = 70.0
 
     def transform(self, content, request, *filters):
         return content

@@ -7,8 +7,7 @@ from re import sub
 
 class Headoffset(Filter):
 
-    __name__ = 'head_offset'
-    __match__ = ['h' + str(i + 1) for i in range(5)]
+    match = ['h' + str(i + 1) for i in range(5)]
 
     def transform(self, text, request, *args):
 

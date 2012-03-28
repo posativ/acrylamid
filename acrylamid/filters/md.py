@@ -13,10 +13,9 @@ from acrylamid.filters import log
 
 class Markdown(Filter):
 
-    __name__ = 'Markdown'
-    __match__ = ['md', 'mkdown', 'markdown', 'Markdown']
-    __conflicts__ = ['rst', 'plain']
-    __priority__ = 70.0
+    match = ['md', 'mkdown', 'markdown', 'Markdown']
+    conflicts = ['rst', 'plain']
+    priority = 70.0
 
     __ext__ = dict((x, x) for x in ['abbr', 'fenced_code', 'footnotes',
                                     'headerid', 'tables', 'codehilite'])
@@ -31,11 +30,11 @@ class Markdown(Filter):
                 try:
                     mod = __import__(mem.replace('.py', ''))
                     mdx = mod.makeExtension()
-                    if isinstance(mod.__match__, basestring):
-                        self.__match__.append(mod.__match__)
+                    if isinstance(mod.match, basestring):
+                        self.match.append(mod.match)
                         self.__ext__[mod.__name__] = mdx
                     else:
-                        for name in mod.__match__:
+                        for name in mod.match:
                             self.__ext__[name] = mdx
                 except (ImportError, Exception), e:
                     log.warn('%r %s: %s', mem, e.__class__.__name__, e)

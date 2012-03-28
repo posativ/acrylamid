@@ -16,9 +16,8 @@ from acrylamid.filters import Filter
 
 class Acronyms(Filter):
 
-    __name__ = 'Acronyms'
-    __match__ = ['acronyms', 'Acronyms', 'acronym', 'Acronym', 'abbr', 'Abbr']  # XXX regex
-    __priority__ = 20.0  # after Typography, so CAPS is around ABBR
+    match = ['acronyms', 'Acronyms', 'acronym', 'Acronym', 'abbr', 'Abbr']  # XXX regex
+    priority = 20.0  # after Typography, so CAPS is around ABBR
 
     def init(self, conf, env):
 

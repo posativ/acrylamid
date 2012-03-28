@@ -141,7 +141,7 @@ def compile(conf, env, force=False, **options):
                     flst.append(fx)
 
             # sort them ascending because we will pop within filters.add
-            entry.filters.add(sorted(flst, key=lambda k: (-k.__priority__, k.name)),
+            entry.filters.add(sorted(flst, key=lambda k: (-k.priority, k.name)),
                               context=v.__class__.__name__)
 
     # lets offer a last break to populate tags or so

@@ -191,8 +191,7 @@ def build(lang):
 
 class Hyphenate(Filter):
 
-    __name__ = 'Hyphenate'
-    __match__ = ['hyphenate', 'hyph']
+    match = ['hyphenate', 'hyph']
 
     @cached_property
     def default(self):

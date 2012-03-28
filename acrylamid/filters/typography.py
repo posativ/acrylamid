@@ -6,7 +6,7 @@
 #
 # The typography.py filter comes with two options: `mode` and `default`.
 # ``mode`` sets the `smartypants_attributes` as documented in [2]. `default`
-# is a list of filters that will be always applied if __match__ is invoked +
+# is a list of filters that will be always applied if `match` is invoked +
 # everything you specify as additional arguments.
 #
 # [1]: https://github.com/mintchaos/typogrify
@@ -22,9 +22,8 @@ default = ['amp', 'widont', 'smartypants', 'caps']
 
 class Typography(Filter):
 
-    __name__ = 'typography'
-    __match__ = ['typography', 'typo', 'smartypants']
-    __priority__ = 25.0
+    match = ['typography', 'typo', 'smartypants']
+    priority = 25.0
 
     def init(self, conf, env):
         self.filters = {'amp': amp, 'widont': widont, 'smartypants': smartypants.smartyPants,

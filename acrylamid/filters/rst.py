@@ -10,10 +10,9 @@ from acrylamid.utils import cached_property
 
 class Restructuredtext(Filter):
 
-    __name__ = 'RestructuredText'
-    __match__ = ['restructuredtext', 'rst', 'rest', 'reST', 'reStructuredText']
-    __conflicts__ = ['markdown', 'plain']
-    __priority__ = 70.00
+    match = ['restructuredtext', 'rst', 'rest', 'reST', 'reStructuredText']
+    conflicts = ['markdown', 'plain']
+    priority = 70.00
 
     __ext__ = dict((x, x) for x in [])
 

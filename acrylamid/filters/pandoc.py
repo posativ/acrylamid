@@ -8,9 +8,8 @@ from acrylamid.errors import AcrylamidException
 
 class Pandoc(Filter):
 
-    __name__ = 'pandoc'
-    __match__ = ['Pandoc', 'pandoc']
-    __conflicts__ = ['Markdown', 'reStructuredText', 'HTML']
+    match = ['Pandoc', 'pandoc']
+    conflicts = ['Markdown', 'reStructuredText', 'HTML']
 
     def init(self, conf, env):
 
