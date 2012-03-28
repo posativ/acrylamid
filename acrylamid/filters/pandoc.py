@@ -12,12 +12,11 @@ class Pandoc(Filter):
     __match__ = ['Pandoc', 'pandoc']
     __conflicts__ = ['Markdown', 'reStructuredText', 'HTML']
 
-    @classmethod
     def init(self, conf, env):
 
         try:
             system('pandoc', '--help')
-        except OSError as e:
+        except OSError:
             raise AcrylamidException('no pandoc available')
 
     def transform(self, text, request, *args):

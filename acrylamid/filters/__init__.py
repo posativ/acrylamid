@@ -103,8 +103,15 @@ def initialize(ext_dir, conf, env, include=[], exclude=[]):
         index_filters(_module, conf, env)
 
 
+class meta(type):
+    def __init__(cls, name, bases, dct):
+        super(meta, cls).__init__(name, bases, dct)
+        setattr(cls, 'init', classmethod(dct.get('init', lambda s, x, y: None)))
+
+
 class Filter:
 
+    __metaclass__ = meta
     __priority__ = 50.0
     __conflicts__ = []
 
@@ -123,7 +130,6 @@ class Filter:
     def __eq__(self, other):
         return True if hash(other) == hash(self) else False
 
-    @classmethod
     def init(self, conf, env):
         pass
 

@@ -84,7 +84,6 @@ class Summarize(Filter):
     __name__ = 'Summarize'
     __match__ = ['summarize', 'sum']
 
-    @classmethod
     def init(self, conf, env):
         self.path = env['path']
 

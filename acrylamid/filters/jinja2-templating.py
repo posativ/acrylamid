@@ -20,7 +20,6 @@ class Jinja2(Filter):
     __match__ = ['Jinja2', 'jinja2']
     __priority__ = 90.0
 
-    @classmethod
     def init(self, conf, env, *args):
 
         def system(cmd):
