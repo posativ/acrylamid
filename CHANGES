@@ -1,7 +1,54 @@
-v0.1.10-dev, 16. Nov 2011 -- Initial release.
-v0.1.11-dev, 22. Nov 2011 -- Tag-View, pass-through filter, removed pyyaml dependency
-v0.2.0, 16. Dec 2011 -- introduced caching and lazy evaluation of expensive operations, docs
-v0.2.1, 18. Dec 2011 -- init sets wrong strptime string, render index correctly, draft ability
-v0.2.2, 30. Dec 2011 -- pages support (see docs/howtows.txt), fix update when entry moved/drafted
-v0.3.0, 14. Jan 2012 -- internal webserver, autocompile, remove orphans, refactoring,
-						per-tag feeds, sub-uri support, many bugfixes
+# Acrylamid Changelog
+
+Version 0.3
+-----------
+
+Released on ..., Nth 2012
+
+- new command `acrylamid new` to create a new post with some defaults
+- new command `acrylamid view` an internal webserver to view your output
+- new command `acrylamid autocompile` automatically compile if something as
+  has changed and a parallel running webserver on port -p 8000.
+- new command `acrylamid clean` to clean untracked files (orphans)
+- new condition property in Filter so you can e.g. make a per-tag feed or
+  get multilanguage support in your blog.
+- new jinja2, acronyms and pandoc filters.
+- major refactoring
+- API overhaul
+- many bugfixes
+- sub-uri support
+- first unit tests
+- speed improvements
+
+Version 0.2
+-----------
+
+### 0.2.2
+
+- add static page support (see docs/howtows.rst)
+- fix update when entry moved/drafted
+
+### 0.2.1
+
+- new draft feature that excludes entries from everything except entry view
+- minor bugfixes
+
+### 0.2.0
+
+Released on 16th December 2011
+
+- introduced caching
+- lazy evaluation for expensive operations
+- first docs
+
+Version 0.1.11
+--------------
+
+- Tag-View
+- pass-through filter
+- removed pyyaml dependency
+
+Version 0.1.10
+--------------
+
+Initial release, released on November 16th 2011
