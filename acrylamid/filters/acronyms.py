@@ -16,7 +16,7 @@ from acrylamid.filters import Filter
 
 class Acronyms(Filter):
 
-    match = ['acronyms', 'Acronyms', 'acronym', 'Acronym', 'abbr', 'Abbr']  # XXX regex
+    match = [re.compile('^Acronyms?$', re.I), 'abbr', 'Abbr']
     priority = 20.0  # after Typography, so CAPS is around ABBR
 
     def init(self, conf, env):

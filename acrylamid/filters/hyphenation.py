@@ -191,7 +191,7 @@ def build(lang):
 
 class Hyphenate(Filter):
 
-    match = ['hyphenate', 'hyph']
+    match = [re.compile('^(H|h)yph')]
 
     @cached_property
     def default(self):

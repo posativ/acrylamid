@@ -22,7 +22,7 @@ default = ['amp', 'widont', 'smartypants', 'caps']
 
 class Typography(Filter):
 
-    match = ['typography', 'typo', 'smartypants']
+    match = [re.compile('^(T|t)ypo(graphy)?$'), 'smartypants']
     priority = 25.0
 
     def init(self, conf, env):

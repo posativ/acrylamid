@@ -103,11 +103,29 @@ def initialize(ext_dir, conf, env, include=[], exclude=[]):
         index_filters(_module, conf, env)
 
 
+class RegexList(list):
+
+    def __contains__(self, other):
+        for value in self:
+            if isinstance(value, basestring):
+                if value == other:
+                    return True
+            else:
+                if value.match(other):
+                    return True
+        else:
+            return False
+
+
 class meta(type):
+
     def __init__(cls, name, bases, dct):
 
         super(meta, cls).__init__(name, bases, dct)
         setattr(cls, 'init', classmethod(dct.get('init', lambda s, x, y: None)))
+
+        if 'match' in dct:
+            setattr(cls, 'match', RegexList(dct['match']))
 
 
 class Filter(object):
@@ -130,9 +148,6 @@ class Filter(object):
 
     def __eq__(self, other):
         return True if hash(other) == hash(self) else False
-
-    # def init(self, conf, env):
-    #     pass
 
     def transform(self, text, request, *args):
         raise NotImplemented
