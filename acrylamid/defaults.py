@@ -111,18 +111,25 @@ def check_conf(conf):
     """Rudimentary conf checking.  Currently every *_dir except
     `ext_dir` (it's a list of dirs) is checked wether it exists."""
 
+    def check(value):
+        if os.path.exists(value):
+            if os.path.isdir(value):
+                pass
+            else:
+                log.error("'%s' must be a directory" % value)
+                sys.exit(1)
+        else:
+            os.mkdir(value)
+            log.warning('%s created...' % value)
+
     # directories
     for key, value in conf.iteritems():
-        if key.endswith('_dir') and not key in ['ext_dir', ]:
-            if os.path.exists(value):
-                if os.path.isdir(value):
-                    pass
-                else:
-                    log.error("'%s' must be a directory" % value)
-                    sys.exit(1)
+        if key.endswith('_dir'):
+            if isinstance(value, list) or isinstance(value, tuple):
+                for subkey in value:
+                    check(subkey)
             else:
-                os.mkdir(value)
-                log.warning('%s created...' % value)
+                check(value)
 
     return True
 
