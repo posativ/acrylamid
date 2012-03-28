@@ -426,7 +426,7 @@ base = r'''
         {% block footer %}
         <p>written by <a href="mailto:{{ conf.email }}">{{ conf.author }}</a></p>
         <a href="http://creativecommons.org/licenses/by-nc-sa/2.0/de/" rel="copyright">
-            <img src="/img/cc.png" alt="by-nc-sa" />
+            <img src="https://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png" alt="by-nc-sa" />
         </a>
         {% endblock %}
     </div>

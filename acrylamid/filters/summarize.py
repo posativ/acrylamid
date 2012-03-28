@@ -92,7 +92,7 @@ class Summarize(Filter):
             maxwords = int(args[0])
         except (ValueError, IndexError) as e:
             if e.__class__.__name__ == 'ValueError':
-                log.warn('invalid maxwords argument %r', args[0])
+                log.warn('Summarize: invalid maxwords argument %r', args[0])
             maxwords = 200
 
         try:
