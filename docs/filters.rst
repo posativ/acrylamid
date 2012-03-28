@@ -57,7 +57,7 @@ Markdown
     md, mkdown, markdown
 
 :Conflicts:
-    plain, reStructuredText
+    HTML, reStructuredText, Pandoc
 
 :Arguments:
 	asciimathml (mathml, math), ...
@@ -88,13 +88,35 @@ reStructuredText
     rst, rest, reST, restructuredtext
 
 :Conflicts:
-    plain, Markdown
+    HTML, Markdown, Pandoc
 
 reStructuredText enables you to write in reStructuredText syntax instead of
 HTML. reStructuredText is more powerful and reliable than Markdown but is also
 slower and more difficult to write (but also easier than HTML).
 
 XXX: cheat sheet
+
+pandoc
+------
+
+:Requires:
+    `Pandoc – a universal document converter <http://johnmacfarlane.net/pandoc/>`_ in PATH
+
+:Conflicts:
+    reStructuredText, HTML, Markdown
+
+:Aliases:
+    Pandoc, pandoc
+
+:Arguments:
+    First argument is the FORMAT like Markdown, textitle and so on. All arguments after that are applied as additional long-opts to pandoc.
+
+This is filter is a universal converter for various markup language such as
+Markdown, reStructuredText, Textile and LaTeX (including special extensions by
+pandoc) to HTML. A typical call would look like ``filters:
+[pandoc+Markdown+mathml+...]``. You can find a complete list of pandocs improved
+(and bugixed) Markdown in the `Pandoc User's Guide
+<http://johnmacfarlane.net/pandoc/README.html#pandocs-markdown>`_.
 
 HTML
 ----
@@ -103,7 +125,7 @@ HTML
 	<built-in>
 
 :Conflicts:
-	reStructuredText, Markdown
+	reStructuredText, Markdown, Pandoc
 
 :Aliases:
 	pass, plain, html, xhtml
