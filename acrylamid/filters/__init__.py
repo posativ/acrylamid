@@ -21,8 +21,8 @@ def get_filters():
 
 
 def index_filters(module, conf, env):
-    """Goes through the modules' contents and indexes all the funtions/classes
-    having a __call__ and __match__ attribute.
+    """Goes through the modules' contents and indexes all classes derieved
+    from Filter and have a `match` attribute.
 
     :param module: the module to index
     :param conf: user config
@@ -33,7 +33,7 @@ def index_filters(module, conf, env):
 
     cs = [getattr(module, c) for c in dir(module) if not c.startswith('_')]
     for mem in cs:
-        if hasattr(mem, '__match__'):
+        if isinstance(mem, meta) and hasattr(mem, 'match'):
             mem.init(conf, env)
             callbacks.append(mem)
 
@@ -103,10 +103,36 @@ def initialize(ext_dir, conf, env, include=[], exclude=[]):
         index_filters(_module, conf, env)
 
 
-class Filter:
+class RegexList(list):
 
-    __priority__ = 50.0
-    __conflicts__ = []
+    def __contains__(self, other):
+        for value in self:
+            if isinstance(value, basestring):
+                if value == other:
+                    return True
+            else:
+                if value.match(other):
+                    return True
+        else:
+            return False
+
+
+class meta(type):
+
+    def __init__(cls, name, bases, dct):
+
+        super(meta, cls).__init__(name, bases, dct)
+        setattr(cls, 'init', classmethod(dct.get('init', lambda s, x, y: None)))
+
+        if 'match' in dct:
+            setattr(cls, 'match', RegexList(dct['match']))
+
+
+class Filter(object):
+
+    __metaclass__ = meta
+    priority = 50.0
+    conflicts = []
 
     def __init__(self, fname, *args):
 
@@ -114,18 +140,14 @@ class Filter:
         self.args = args
 
     def __repr__(self):
-        return "<%s [%2.f] ~%s>" % (self.__class__.__name__,
-                                    self.__priority__, self.name)
+        return "<%s %2.f:%s>" % (self.__class__.__name__,
+                                 self.priority, self.name)
 
     def __hash__(self):
         return hash(self.name + repr(self.args))
 
     def __eq__(self, other):
         return True if hash(other) == hash(self) else False
-
-    @classmethod
-    def init(self, conf, env):
-        pass
 
     def transform(self, text, request, *args):
         raise NotImplemented
@@ -141,22 +163,22 @@ class FilterList(list):
 
     def __contains__(self, y):
         """first checks, wether the item itself is in the list. Next, all Filters
-        providing __conflicts__ are checked wether y conflicts with a filter.
+        providing `conflicts` are checked wether y conflicts with a filter.
         Otherwise y is not in FilterList.
         """
         for x in self:
-            if x.__name__ == y.__name__:
+            if x is y:
                 return True
-        for f in y.__conflicts__:
+        for f in y.conflicts:
             for x in self:
-                if f in x.__match__:
+                if f in x.match:
                     return True
         return False
 
     def __getitem__(self, item):
 
         try:
-            f = filter(lambda x: item in x.__match__, self)[0]
+            f = filter(lambda x: item in x.match, self)[0]
         except IndexError:
             raise ValueError('%s is not in list' % item)
 

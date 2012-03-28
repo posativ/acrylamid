@@ -8,16 +8,15 @@ from acrylamid.errors import AcrylamidException
 
 class Pandoc(Filter):
 
-    __name__ = 'pandoc'
-    __match__ = ['Pandoc', 'pandoc']
-    __conflicts__ = ['Markdown', 'reStructuredText', 'HTML']
+    match = ['Pandoc', 'pandoc']
+    conflicts = ['Markdown', 'reStructuredText', 'HTML']
+    priority = 70.0
 
-    @classmethod
     def init(self, conf, env):
 
         try:
             system('pandoc', '--help')
-        except OSError as e:
+        except OSError:
             raise AcrylamidException('no pandoc available')
 
     def transform(self, text, request, *args):

@@ -8,7 +8,6 @@
 # This is a port of PyBlosxom's acronyms plugin as acrylamid
 # filter. All credits go to Pyblosxom's and blosxom's authors.
 
-import os
 import re
 
 from acrylamid import log
@@ -17,11 +16,9 @@ from acrylamid.filters import Filter
 
 class Acronyms(Filter):
 
-    __name__ = 'Acronyms'
-    __match__ = ['acronyms', 'Acronyms', 'acronym', 'Acronym', 'abbr', 'Abbr']  # XXX regex
-    __priority__ = 20.0  # after Typography, so CAPS is around ABBR
+    match = [re.compile('^Acronyms?$', re.I), 'abbr', 'Abbr']
+    priority = 20.0  # after Typography, so CAPS is around ABBR
 
-    @classmethod
     def init(self, conf, env):
 
         if conf.get('acronyms_file', None):

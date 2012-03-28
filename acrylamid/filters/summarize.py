@@ -81,10 +81,8 @@ class Summarizer(HTMLParser):
 class Summarize(Filter):
     """Summarizes content up to `maxwords` (defaults to 200)."""
 
-    __name__ = 'Summarize'
-    __match__ = ['summarize', 'sum']
+    match = ['summarize', 'sum']
 
-    @classmethod
     def init(self, conf, env):
         self.path = env['path']
 

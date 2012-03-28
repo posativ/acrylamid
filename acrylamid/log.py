@@ -50,7 +50,7 @@ class ANSIFormatter(logging.Formatter):
 
         keywords = {'skip': self.BLACK, 'create': self.GREEN, 'identical': self.BLACK,
                     'update': self.YELLOW, 're-initialized': self.YELLOW,
-                    'removed': self.BLACK}
+                    'removed': self.BLACK, 'notice': self.GREEN}
 
         if record.levelno in (SKIP, INFO):
             for item in keywords:

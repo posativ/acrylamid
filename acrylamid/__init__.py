@@ -30,8 +30,9 @@ import time
 import traceback
 import signal
 
-from optparse import OptionParser, make_option, OptionGroup
-from acrylamid import defaults, log, commands, utils
+from optparse import OptionParser, make_option, SUPPRESS_HELP
+from textwrap import fill
+from acrylamid import defaults, log, commands
 from acrylamid.errors import AcrylamidException
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -47,56 +48,119 @@ class Acryl:
         """Sets configuration and environment and creates the Request
         object"""
 
-        usage = "usage: %prog [options] init\n" + '\n' \
-                + "init         - initializes base structure\n" \
-                + "compile      - render blog\n" \
-                + "autocompile  - serving on port -p (8000) with auto-compile\n" \
-                + "clean        - remove orphans or all from output_dir\n" \
-                + "serve        - builtin webserver on port -p (8000)\n" \
-                + "import URL   - import from feed\n" \
-                + "deploy TASK  - run TASK specified in conf.py"
+        global sys
 
-        options = [
+        usage = "usage: %prog <subcommand> [options] [args]"
+        epilog = None
+
+        options, constants = [], [
+            make_option("-h", "--help", action="store_true", help=SUPPRESS_HELP),
             make_option("-v", "--verbose", action="store_const", dest="verbosity",
-                              help="more verbose", const=log.SKIP),
+                        help=SUPPRESS_HELP, const=log.SKIP),
             make_option("-q", "--quit", action="store_const", dest="verbosity",
-                              help="be silent", const=log.WARN,
-                              default=log.INFO),
-            make_option("-c", "--conf", dest="cfile", help="alternate conf.py",
-                              default="conf.py"),
-
-            # --- gen params --- #
-            make_option("-f", "--force", action="store_true", dest="force",
-                              help="force re-render", default=False),
-            make_option("-n", "--dry-run", dest="dryrun", action='store_true',
-                               default=False, help="show what would have been deleted"),
-
-            # --- webserver params --- #
-            make_option("-p", "--port", dest="port", type=int, default=8000,
-                        help="webserver port"),
-
-            # --- import params --- #
-            make_option("--markup", dest="import_fmt", default="Markdown",
-                        help="reconvert HTML to MARKUP"),
-            make_option("--keep-links", dest="keep_links", action="store_true",
-                        help="keep permanent links"),
-
+                        help=SUPPRESS_HELP, const=log.WARN, default=log.INFO),
             make_option("--version", action="store_true", dest="version",
-                               help="print version details", default=False),
+                            help=SUPPRESS_HELP, default=False)
             ]
 
-        parser = OptionParser(option_list=options, usage=usage)
-        ext_group = OptionGroup(parser, "conf.py override")
+        # reorder `prog help foo` and `prog --help foo`
+        if len(sys.argv) > 2 and sys.argv[1] in ('--help', 'help'):
+            sys.argv[1], sys.argv[2] = sys.argv[2], '--help'
 
-        # update --help with default values, XXX: show full help only when --help or --help -v
-        for key, value in defaults.conf.iteritems():
-            if key in ['views', 'filters']:
-                continue
-            ext_group.add_option('--' + key.replace('_', '-'), action="store",
-                            dest=key, metavar=value, type=type(value) if type(value) != list else str)
+        if len(sys.argv) <= 1 or sys.argv[1] in ('-h', '--help'):
+            options, constants = [], [
+                make_option("-q", "--quit", action="store_const", dest="verbosity",
+                        help="less verbose", const=log.WARN, default=log.INFO),
+                make_option("-v", "--verbose", action="store_const", dest="verbosity",
+                            help="more verbose", const=log.SKIP),
+                make_option("-h", "--help", action="store_true",
+                            help="show this help message and exit"),
+                make_option("--version", action="store_true", dest="version",
+                            help="print version details", default=False)
+            ]
+            epilog = ("Commands:\n"
+                      "  init           initializes base structure in DIR\n"
+                      "  create  (new)  creates a new entry\n"
+                      "  compile (co)   compile blog\n"
+                      "  view           fire up built-in webserver\n"
+                      "  autocompile    automatic compilation and serving (short aco)\n"
+                      "  clean   (rm)   remove abandoned files\n"
+                      "  import         import content from URL\n"
+                      "  deploy         run a given TASK\n"
+                      "\nAll subcommand except `init` require a conf.py file.\n")
 
-        parser.add_option_group(ext_group)
+        # --- init params --- #
+        elif sys.argv[1] in ('init', 'initialize'):
+            usage = "%prog " + sys.argv[1] + " [DEST|FILE] [-p]"
+            options = [
+                make_option("-f", "--force", action="store_true", dest="force",
+                        help="don't ask, just overwrite it", default=False)
+                ]
+        # --- init params --- #
+        elif sys.argv[1] in ('new',):
+            usage = "%prog " + sys.argv[1] + " [args]"
+            epilog = ("Takes all leading [args] as title or prompt if none given. creates "
+                      "a new entry based on your PERMALINK_FORMAT and opens it with your "
+                      "favourite EDITOR.")
+            epilog = fill(epilog)+'\n'
+        # --- gen params --- #
+        elif sys.argv[1] in ('compile', 'co', 'generate', 'gen'):
+            usage = "%prog " + sys.argv[1] + " [-fn]"
+            options = [
+                make_option("-f", "--force", action="store_true", dest="force",
+                            help="clears cache before compilation", default=False),
+                make_option("-n", "--dry-run", dest="dryrun", action='store_true',
+                               default=False, help="show what would have been compiled")
+            ]
+        # --- webserver params --- #
+        elif sys.argv[1] in ('view', 'serve', 'srv'):
+            usage = "%prog " + sys.argv[1] + " [-p]"
+            options = [
+                make_option("-p", "--port", dest="port", type=int, default=8000,
+                            help="webserver port"),
+            ]
+        # --- autocompile params --- #
+        elif sys.argv[1] in ('autocompile', 'aco'):
+            usage = "%prog " + sys.argv[1] + " [-pf]"
+            options = [
+                make_option("-f", "--force", action="store_true", dest="force",
+                            help="clears cache before compilation", default=False),
+                make_option("-p", "--port", dest="port", type=int, default=8000,
+                            help="webserver port"),
+            ]
+        # --- clean params --- #
+        elif sys.argv[1] in ('clean', 'rm'):
+            usage = "%prog " + sys.argv[1] + " [-fn]"
+            options = [
+                make_option("-f", "--force", action="store_true", dest="force",
+                            help="remove all files generated by Acrylamid", default=False),
+                make_option("-n", "--dry-run", dest="dryrun", action='store_true',
+                               default=False, help="show what would have been deleted"),
+            ]
+        # --- import params --- #
+        elif sys.argv[1] in ('import', ):
+            usage = "%prog " + sys.argv[1] + " [-mk]"
+            options = [
+                make_option("-m", dest="import_fmt", default="Markdown",
+                            help="reconvert HTML to MARKUP"),
+                make_option("-k", "--keep-links", dest="keep_links", action="store_true",
+                            help="keep permanent links"),
+            ]
+
+        class AcrylParser(OptionParser):
+            # -- http://stackoverflow.com/q/1857346
+            def format_epilog(self, formatter):
+                if epilog is None:
+                    return ''
+                return '\n' + self.epilog
+
+        parser = AcrylParser(option_list=options+constants, usage=usage,
+                              add_help_option=False, epilog=epilog)
         (options, args) = parser.parse_args()
+
+        if len(sys.argv) <= 1 or sys.argv[1] == 'help' or options.help:
+            parser.print_help()
+            sys.exit(0)
 
         # initialize colored logger
         log.init('acrylamid', level=options.verbosity)
@@ -105,10 +169,6 @@ class Acryl:
         if options.version:
             print "acrylamid" + ' ' + env['version']
             sys.exit(0)
-
-        if len(args) < 1:
-            parser.print_usage()
-            sys.exit(1)
 
         # -- init -- #
         # TODO: acrylamid init --layout_dir=somedir to overwrite defaults
@@ -125,7 +185,7 @@ class Acryl:
 
         try:
             ns = {}
-            execfile(options.cfile, ns)
+            execfile('conf.py', ns)
             conf.update(dict([(k.lower(), ns[k]) for k in ns if k.upper() == k]))
         except OSError:
             log.critical('no config file found: %s. Try "acrylamid init".', options.conf)
@@ -152,7 +212,7 @@ class Acryl:
                 log.fatal(e.message)
                 sys.exit(1)
 
-        elif args[0] in ('new', ):
+        elif args[0] in ('new', 'create'):
             try:
                 commands.new(conf, env, title=' '.join(args[1:]))
             except AcrylamidException as e:
@@ -215,4 +275,4 @@ class Acryl:
                 sys.exit(1)
         else:
             log.critical('No such command!')
-            sys.exit(1)
+            sys.exit(2)

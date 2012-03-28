@@ -16,11 +16,9 @@ class Jinja2(Filter):
     """Jinja2 filter that pre-processes in Markdown/reStructuredText
     written posts. XXX: and offers some extensions."""
 
-    __name__ = 'Jinja2'
-    __match__ = ['Jinja2', 'jinja2']
-    __priority__ = 90.0
+    match = ['Jinja2', 'jinja2']
+    priority = 90.0
 
-    @classmethod
     def init(self, conf, env, *args):
 
         def system(cmd):

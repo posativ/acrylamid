@@ -191,15 +191,13 @@ def build(lang):
 
 class Hyphenate(Filter):
 
-    __name__ = 'Hyphenate'
-    __match__ = ['hyphenate', 'hyph']
+    match = [re.compile('^(H|h)yph')]
 
     @cached_property
     def default(self):
         # build default hyphenate_word using conf's lang (if available)
         return build(self.conf['lang'][0].replace('_', '-'))
 
-    @classmethod
     def init(self, conf, env):
         self.conf = conf
 

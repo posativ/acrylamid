@@ -141,7 +141,7 @@ def compile(conf, env, force=False, **options):
                     flst.append(fx)
 
             # sort them ascending because we will pop within filters.add
-            entry.filters.add(sorted(flst, key=lambda k: (-k.__priority__, k.name)),
+            entry.filters.add(sorted(flst, key=lambda k: (-k.priority, k.name)),
                               context=v.__class__.__name__)
 
     # lets offer a last break to populate tags or so
@@ -277,6 +277,9 @@ def new(conf, env, title):
         raise AcrylamidException('Entry already exists %r' % filepath)
     os.rename(tmp, filepath)
     event.create(title, filepath)
+
+    if datetime.now().hour == 23 and datetime.now().minute > 45:
+        log.info("notice  consider editing entry.date-day after you passed mignight!")
 
     try:
         if editor:
