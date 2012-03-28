@@ -102,9 +102,10 @@ class Separator(HTMLParser):
     """helper class to apply Hyphenator to each word except in pre, code,
     math and em tags."""
 
-    def __init__(self, html, hyphenationfunc):
+    def __init__(self, html, hyphenationfunc, length=10):
         HTMLParser.__init__(self)
         self.hyphenate = hyphenationfunc
+        self.length = length
         self.result = []
         self.stack = []
 
@@ -130,7 +131,8 @@ class Separator(HTMLParser):
         if filter(lambda i: i in self.stack, ['pre', 'code', 'math', 'em']):
             pass
         else:
-            split = [word for word in re.split(r"[.:,\s!?+=\(\)/-]+", data) if len(word) > 10]
+            split = [word for word in re.split(r"[.:,\s!?+=\(\)/-]+", data)
+                     if len(word) > self.length]
             for word in split:
                 hyphenated = '&shy;'.join(self.hyphenate(word))
                 data = data.replace(word, hyphenated)
@@ -201,14 +203,21 @@ class Hyphenate(Filter):
     def init(self, conf, env):
         self.conf = conf
 
-    def transform(self, content, req):
+    def transform(self, content, req, *args):
         if req.lang != self.conf['lang']:
             hyphenate_word = build(req.lang[0].replace('_', '-'))
         else:
             hyphenate_word = self.default
 
         try:
-            return ''.join(Separator(content, hyphenate_word).result)
+            length = int(args[0])
+        except (ValueError, IndexError) as e:
+            if e.__class__.__name__ == 'ValueError':
+                log.warn('Hyphenate: invalid length argument %r', args[0])
+            length = 10
+
+        try:
+            return ''.join(Separator(content, hyphenate_word, length=length).result)
         except HTMLParseError as e:
             log.warn('%s: %s in %s' % (e.__class__.__name__, e.msg, req.filename))
             return content

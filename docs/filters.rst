@@ -133,8 +133,8 @@ HTML
 No transformation will applied. Useful if your text is already written in
 HTML.
 
-head_offset
------------
+h, head_offset
+--------------
 
 :Requires:
 	<built-in>
@@ -170,6 +170,12 @@ hyphenate
 
 :Aliases:
     hyphenate, hyph
+
+:Arguments:
+    Minimum length before this filter hyphenates the word (smallest possible value is four).
+
+:Defaults:
+    hyphenate+10
 
 Hyphenates words greater than 10 characters using Frank Liang's algorithm.
 Hyphenation pattern depends on the language and should therefore
