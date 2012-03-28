@@ -278,6 +278,9 @@ def new(conf, env, title):
     os.rename(tmp, filepath)
     event.create(title, filepath)
 
+    if datetime.now().hour == 23 and datetime.now().minute > 45:
+        log.info("notice  consider editing entry.date-day after you passed mignight!")
+
     try:
         if editor:
             retcode = os.system(editor + ' ' + filepath)
