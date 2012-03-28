@@ -69,7 +69,7 @@ class Acryl:
 
         if len(sys.argv) <= 1 or sys.argv[1] in ('-h', '--help'):
             options, constants = [], [
-                make_option("-q", "--quit", action="store_const", dest="verbosity",
+                make_option("-q", "--quiet", action="store_const", dest="verbosity",
                         help="less verbose", const=log.WARN, default=log.INFO),
                 make_option("-v", "--verbose", action="store_const", dest="verbosity",
                             help="more verbose", const=log.SKIP),
@@ -87,7 +87,7 @@ class Acryl:
                       "  clean   (rm)   remove abandoned files\n"
                       "  import         import content from URL\n"
                       "  deploy         run a given TASK\n"
-                      "\nAll subcommand except `init` require a conf.py file.\n")
+                      "\nAll subcommands except `init` require a conf.py file.\n")
 
         # --- init params --- #
         elif sys.argv[1] in ('init', 'initialize'):

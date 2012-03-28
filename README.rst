@@ -97,7 +97,7 @@ a detailed overview.
     Usage: acrylamid <subcommand> [options] [args]
 
     Options:
-      -q, --quit     less verbose
+      -q, --quiet    less verbose
       -v, --verbose  more verbose
       -h, --help     show this help message and exit
       --version      print version details
@@ -112,4 +112,4 @@ a detailed overview.
       import         import content from URL
       deploy         run a given TASK
 
-    All subcommand except `init` require a conf.py file.
+    All subcommands except `init` require a conf.py file.

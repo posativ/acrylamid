@@ -84,7 +84,7 @@ Real World Example?
 *******************
 
 I have released all sources from my personal blog:
-`posativ/blog.posativ.org/ <https://github.com/posativ/blog.posativ.org>`_. Take a
+`posativ/blog.posativ.org <https://github.com/posativ/blog.posativ.org>`_. Take a
 look at my *conf.py* for some inspiration.
 
 
@@ -118,7 +118,7 @@ See :doc:`commands` for a detailed overview.
     Usage: acrylamid <subcommand> [options] [args]
 
     Options:
-      -q, --quit     less verbose
+      -q, --quiet    less verbose
       -v, --verbose  more verbose
       -h, --help     show this help message and exit
       --version      print version details
@@ -133,4 +133,4 @@ See :doc:`commands` for a detailed overview.
       import         import content from URL
       deploy         run a given TASK
 
-    All subcommand except `init` require a conf.py file.
+    All subcommands except `init` require a conf.py file.

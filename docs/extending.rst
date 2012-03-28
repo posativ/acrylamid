@@ -23,8 +23,8 @@ accidential syntax errors, initialize it and call it if required.
 
     class MyFilter(Filter):
 
-        __name__ = 'My Custom Filter'
-        __match__ = ['keyword', 'another']
+        match = ['keyword', 'another']
+        # conflicts = ['Markdown']
 
         def init(self, conf, env):
             pass
