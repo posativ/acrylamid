@@ -31,7 +31,6 @@ class TestUtils(unittest.TestCase):
         self.assertEquals(importer._convert(html, fmt='Markdown'), (md, 'markdown'))
         self.assertEquals(importer._convert(html, fmt='reStructuredText'), (rst, 'rst'))
         self.assertEquals(importer._convert(html, fmt='HTML'), (html, 'html'))
-        self.assertEquals(importer._convert(html, fmt='foo'), (html, 'html'))
 
         self.assertEquals(importer._convert('', fmt='Markdown'), ('', 'markdown'))
         self.assertEquals(importer._convert(None, fmt='Markdown'), ('', 'markdown'))
