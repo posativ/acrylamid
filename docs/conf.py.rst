@@ -155,23 +155,3 @@ The default theme does not support tag clouds, but it is fairly easy to add:
 
 
 You should then also define a CSS style with the appropriate classes (tag-0 to tag-N, where N matches TAG_CLOUD_STEPS -1).
-
-::
-
-    control-flow statements
-    ***********************
-
-    A key beginning with ``views.`` or ``filters.`` (including the dot) is removed
-    from YAML parsing and directly injected into the given namespace. Therefore
-    you can add global filters, per-view filters, disable views and/or customize
-    settings for views or filters.
-
-    views.filters
-        a pythonic list of globally applied filters. See
-        `filters.rst </posativ/acrylamid/blob/master/docs/filters.rst>`_
-        for syntax specifications.
-    views.$myview.filters
-        a list of per-view applied filters. You may also disable global filters by
-        *no*-prefixing filters e.g. ``nosummarize``.
-    views.$myview.property
-        change given property from view
