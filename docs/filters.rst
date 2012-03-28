@@ -109,7 +109,7 @@ pandoc
     Pandoc, pandoc
 
 :Arguments:
-    First argument is the FORMAT like Markdown, textitle and so on. All arguments after that are applied as additional long-opts to pandoc.
+    First argument is the FORMAT like Markdown, textile and so on. All arguments after that are applied as additional long-opts to pandoc.
 
 This is filter is a universal converter for various markup language such as
 Markdown, reStructuredText, Textile and LaTeX (including special extensions by
