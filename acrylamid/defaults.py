@@ -131,11 +131,13 @@ conf = default = {
     'sitename': 'A descriptive blog title',
     'author': 'Anonymous',
     'email': 'info@example.com',
-    'lang': 'de_DE',
+
     'date_format': '%d.%m.%Y, %H:%M',
     'encoding': 'utf-8',
     'permalink_format': '/:year/:slug/',
     'output_ignore': ['blog.css', 'img/*', 'images/*'],
+
+    'default_orphans': 0,
 
     'tag_cloud_max_items': 100,
     'tag_cloud_steps': 4,
@@ -167,28 +169,43 @@ confstring = """
 # This is your config file.  Please write in a valid python syntax!
 # See http://acrylamid.readthedocs.org/en/latest/conf.py.html
 
-SITENAME = "A descriptive blog title"
-WWW_ROOT = "http://example.com/"
+SITENAME = 'A descriptive blog title'
+WWW_ROOT = 'http://example.com/'
 
-AUTHOR = "Anonymous"
-EMAIL = "info@example.org"
+AUTHOR = 'Anonymous'
+EMAIL = 'info@example.org'
 
-FILTERS = ["markdown+codehilite(css_class=highlight)", "hyphenate"]
+FILTERS = ['markdown+codehilite(css_class=highlight)', 'hyphenate', 'h1']
 VIEWS = {
-    "/": {"filters": ["summarize", "h1"],
-          "pagination": "/page/:num",
-          "view": "index"},
-    "/:year/:slug/": {"filters": ["h1"], "view": "entry"},
-    "/atom/": {"filters": ["h2"], "view": "atom"},
-    "/rss/": {"filters": ["h2"], "view": "rss"},
-    "/articles/": {"view": "articles"},
-    #"/atom/full": {"filters": ["h2"], "view": "atom", "num_entries": 1000},
-    "/tag/:name/": {"filters": ["h1", "summarize"], "view":"tag",
-                   "pagination": "/tag/:name/:num"},
-    }
+    '/': {'filters': 'summarize', 'view': 'index',
+          'pagination': '/page/:num'},
 
-PERMALINK_FORMAT = "/:year/:slug/index.html"
-DATE_FORMAT = "%d.%m.%Y, %H:%M"
+    '/:year/:slug/': {'view': 'entry'},
+
+    '/tag/:name/': {'filters': 'summarize', 'view':'tag',
+                    'pagination': '/tag/:name/:num'},
+
+    '/atom/': {'filters': 'h2', 'view': 'atom'},
+    '/rss/': {'filters': 'h2', 'view': 'rss'},
+
+    '/articles/': {'view': 'articles'},
+
+    # Here are some more examples
+
+    # # '/atom/full/' will give you a _complete_ feed of all your entries
+    # '/atom/full/': {'filters': 'h2', 'view': 'atom', 'num_entries': 1000},
+
+    # # a feed containing all entries tagges with 'python'
+    # '/rss/python/': {'filters': 'h2', 'view': 'rss',
+    #                  'if': lambda e: 'python' in e.tags}
+
+    # # a full typography features entry including MathML and Footnotes
+    # '/:year/:slug': {'filters': ['typography', 'Markdown+Footnotes+MathML'],
+    #                  'view': 'entry'}
+}
+
+PERMALINK_FORMAT = '/:year/:slug/index.html'
+DATE_FORMAT = '%d.%m.%Y, %H:%M'
 """.strip()
 
 

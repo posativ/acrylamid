@@ -12,40 +12,6 @@ conf
 
 Global configuration, ``conf.py``.
 
-:sitename:
-    The name of your blog. It's displayed in the <title>-block.
-
-:author:
-    Blog's primary author. To set individual authors per entry, see entry.author.
-
-:email:
-    Your email address -- used in Atom/RSS feeds and as contact ability at the bottom in the default layout.
-
-:lang:
-    Default language, defaults to ``de_DE`` and is important for the hyphenation patterns XXX: and also in ``meta http-equiv="content-language"``.
-
-:date_format:
-    This python date-format string is used in ``layout/entry.html`` to render the date nicely. Defaults to ``%d.%m.%Y, %H:%M``, see `Python's strftime directives <http://strftime.org/>`_ for detailed explanation of these variables.
-
-:encoding:
-    Default encoding of your text files, defaults to utf-8 and can only globally set.
-
-:permalink_format:
-    A substitution string as described here (XXX), defaults to ``/:year/:slug/``.
-
-:output_ignore:
-    A list of filename/directory-patterns which acrylamid should ignore.
-
-:filters:
-    Global list of filters.
-
-:views:
-    Dictionary of views set in conf.py.
-
-:www_root:
-    Your actual website link, defaults to ``http://localhost:8000``.
-
-
 env
 ***
 
@@ -98,13 +64,13 @@ entry
     entry's :class:`datetime.datetime` object
 
 :year:
-    entry's year as string
+    entry's year (Integer)
 
 :month:
-    entry's month as string
+    entry's month (Integer)
 
 :day:
-    entry's day as string
+    entry's day (Integer)
 
 :filters:
     a per-post applied filters as list

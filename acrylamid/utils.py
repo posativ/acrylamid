@@ -8,7 +8,6 @@ import os
 import re
 import codecs
 import tempfile
-import time
 import subprocess
 import hashlib
 from fnmatch import fnmatch
@@ -284,16 +283,31 @@ class FileEntry:
 
     @cached_property
     def date(self):
-        """return datetime.datetime obj.  Either converted from given key and fmt
-        or fallback to mtime."""
-        if 'date' in self.props:
+        """return datetime.datetime obj.  Either converted from given key and
+        date_format or fallback to mtime."""
+
+        # alternate formats from pelican.utils, thank you!
+        # https://github.com/ametaireau/pelican/blob/master/pelican/utils.py
+        formats = ['%Y-%m-%d %H:%M', '%Y/%m/%d %H:%M',
+                   '%Y-%m-%d', '%Y/%m/%d',
+                   '%d-%m-%Y', '%Y-%d-%m', # Weird ones
+                   '%d/%m/%Y', '%d.%m.%Y',
+                   '%d.%m.%Y %H:%M', '%Y-%m-%d %H:%M:%S']
+
+        if 'date' not in self.props:
+            log.warn("using mtime from %r" % self.filename)
+            return datetime.fromtimestamp(self.mtime)
+
+        string = re.sub(' +', ' ', self.props['date'])
+        formats.insert(0, self.props['date_format'])
+
+        for date_format in formats:
             try:
-                ts = time.mktime(time.strptime(self.props['date'], self.props['date_format']))
-                return datetime.fromtimestamp(ts)
+                return datetime.strptime(string, date_format)
             except ValueError:
                 pass
-        log.warn("using mtime from %r" % self.filename)
-        return datetime.fromtimestamp(self.mtime)
+        else:
+            raise AcrylamidException("%r is not a valid date" % string)
 
     @property
     def year(self):
@@ -580,7 +594,7 @@ def safeslug(slug):
     return unicode('-'.join(result))
 
 
-def paginate(list, ipp, func=lambda x: x, salt=None):
+def paginate(list, ipp, func=lambda x: x, salt=None, orphans=0):
     """Yields a triple (index, list of entries, has changed) of a paginated
     entrylist.  It will first filter by the specified function, then split the
     ist into several sublists and check wether the list or an entry has changed.
@@ -589,12 +603,17 @@ def paginate(list, ipp, func=lambda x: x, salt=None):
     :param ipp: items per page
     :param func: filter list of entries by this function
     :param salt: uses as additional identifier in memoize
+    :param orphans: avoid N orphans on last page.
     """
 
     # apply filter function and prepare pagination with ipp
     res = filter(func, list)
     res = [res[x*ipp:(x+1)*ipp] for x in range(len(res)/ipp+1)
            if res[x*ipp:(x+1)*ipp]]
+
+    if len(res) >= 2 and len(res[-1]) <= orphans:
+        res[-2].extend(res[-1])
+        res.pop(-1)
 
     for i, entries in enumerate(res):
 
@@ -767,7 +786,7 @@ class cache(object):
                 os.rename(tmp, filename)
                 os.chmod(filename, self.mode)
             except (IOError, OSError) as e:
-                raise AcrylamidException(e.message)
+                raise AcrylamidException(str(e.message))
 
         if not isinstance(key, basestring):
             raise TypeError('key must be a string')
@@ -792,57 +811,9 @@ def track(f):
     return dec
 
 
-def clean(conf, everything=False, dryrun=False, **kwargs):
-    """Attention: this function may eat your data!  Every create, changed
-    or skip event call tracks automatically files. After generation,
-    ``acrylamid clean`` will call this function and remove untracked files.
-
-    - with OUTPUT_IGNORE you can specify a list of patterns which are ignored.
-    - you can use --dry-run to see what would have been removed
-    - by default acrylamid does NOT call this function
-    - it removes silently every empty directory
-
-    :param conf: user configuration
-    :param every: remove all tracked files, too
-    :param dryrun: don't delete, just show what would have been done
-    """
-
-    def excluded(path, excl_files):
-        """test if path should be ignored"""
-        if filter(lambda p: fnmatch(path, p), excl_files):
-            return True
-        return False
-
+def get_tracked_files():
     global _tracked_files
-    ignored = [join(conf['output_dir'], p) for p in conf['output_ignore']]
-
-    for root, dirs, files in os.walk(conf['output_dir'], topdown=True):
-        found = set([join(root, p) for p in files
-                     if not excluded(join(root, p), ignored)])
-        for i, p in enumerate(found.difference(_tracked_files)):
-            if not dryrun:
-                os.remove(p)
-            event.removed(p)
-
-        if everything:
-            for i, p in enumerate(found):
-                if not dryrun:
-                    os.remove(p)
-                event.removed(p)
-
-        # don't visit excluded dirs
-        for dir in dirs[:]:
-            p = join(root, dir)
-            if excluded(p, ignored) or excluded(p+'/', ignored):
-                dirs.remove(dir)
-
-    # remove empty directories
-    for root, dirs, files in os.walk(conf['output_dir'], topdown=True):
-        for p in (join(root, k) for k in dirs):
-            try:
-                os.rmdir(p)
-            except OSError:
-                pass
+    return _tracked_files
 
 
 class event:

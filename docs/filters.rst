@@ -57,7 +57,7 @@ Markdown
     md, mkdown, markdown
 
 :Conflicts:
-    plain, reStructuredText
+    HTML, reStructuredText, Pandoc
 
 :Arguments:
 	asciimathml (mathml, math), ...
@@ -88,13 +88,35 @@ reStructuredText
     rst, rest, reST, restructuredtext
 
 :Conflicts:
-    plain, Markdown
+    HTML, Markdown, Pandoc
 
 reStructuredText enables you to write in reStructuredText syntax instead of
 HTML. reStructuredText is more powerful and reliable than Markdown but is also
 slower and more difficult to write (but also easier than HTML).
 
 XXX: cheat sheet
+
+pandoc
+------
+
+:Requires:
+    `Pandoc – a universal document converter <http://johnmacfarlane.net/pandoc/>`_ in PATH
+
+:Conflicts:
+    reStructuredText, HTML, Markdown
+
+:Aliases:
+    Pandoc, pandoc
+
+:Arguments:
+    First argument is the FORMAT like Markdown, textitle and so on. All arguments after that are applied as additional long-opts to pandoc.
+
+This is filter is a universal converter for various markup language such as
+Markdown, reStructuredText, Textile and LaTeX (including special extensions by
+pandoc) to HTML. A typical call would look like ``filters:
+[pandoc+Markdown+mathml+...]``. You can find a complete list of pandocs improved
+(and bugixed) Markdown in the `Pandoc User's Guide
+<http://johnmacfarlane.net/pandoc/README.html#pandocs-markdown>`_.
 
 HTML
 ----
@@ -103,7 +125,7 @@ HTML
 	<built-in>
 
 :Conflicts:
-	reStructuredText, Markdown
+	reStructuredText, Markdown, Pandoc
 
 :Aliases:
 	pass, plain, html, xhtml
@@ -187,6 +209,38 @@ project <https://code.google.com/p/typogrify/>`_ for more information.
 By default *amp*, *widont*, *smartypants*, *caps* are applied. *all*, *typo*
 and *typogrify* applying "widont, smartypants, caps, amp, initial_quotes". All
 filters are applied in the order as they are written down.
+
+acronyms
+--------
+
+:Requires:
+    `<built-in>`
+
+:Aliases:
+    Acronyms, Acronym, acronyms, acronym
+
+:Arguments:
+    zero to N strings
+
+:Defaults:
+    no arguments
+
+This filter is a direct port of `Pyblosxom's acrynoms plugin
+<http://pyblosxom.bluesock.org/1.5/plugins/acronyms.html>`_, that marks acronyms
+and abbreviations in your text based on either a built-in acronyms list or a
+user-specified. To use a custom list just add the FILE to your conf.py like
+this:
+
+.. code-block:: python
+
+    ACRONYMS_FILE = '/path/to/my/acronyms.txt'
+
+
+The built-in list of acronyms differs from Pyblosxom's (see
+`filters/acronyms.py <https://github.com/posativ/acrylamid/blob/master/acrylam
+id/filters/acronyms.py>`_ on GitHub). See the `original description
+<http://pyblosxom.bluesock.org/1.5/plugins/acronyms.html#building-the-
+acronyms-file>`_ of how to make an acronyms file!
 
 jinja2
 ------
