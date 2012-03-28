@@ -10,6 +10,7 @@ class Pandoc(Filter):
 
     match = ['Pandoc', 'pandoc']
     conflicts = ['Markdown', 'reStructuredText', 'HTML']
+    priority = 70.0
 
     def init(self, conf, env):
 
