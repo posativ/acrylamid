@@ -13,7 +13,7 @@ Filters
 -------
 
 Filters are used to transform your input and used to perform Markdown-conversion
-of your posts. Per default customs filters are stored in ``filters/`` directory
+of your posts. Per default custom filters are stored in ``filters/`` directory
 inside your blog. On startup, Acrylamid will parse this plugin, report
 accidential syntax errors, initialize it and call it if required.
 
@@ -26,10 +26,10 @@ accidential syntax errors, initialize it and call it if required.
         __name__ = 'My Custom Filter'
         __match__ = ['keyword', 'another']
 
-        def __init__(self, conf, env):
+        def init(self, conf, env):
             pass
 
-        def __call__(self, content, request, *filters):
+        def transform(self, content, request, *args):
             return content
 
 
@@ -42,12 +42,13 @@ Views
 
     class Articles(View):
 
-        path = '/my/path/'
+        def init(self, key=value):
+            pass
 
-        def __init__(self, conf, env, *args, **kwargs):
-            View.__init__(self, *args, **kwargs)
+        def context(self, env, request):
+            return env
 
-        def __call__(self, request, *args, **kwargs):
+        def generate(self, request):
             pass
 
 

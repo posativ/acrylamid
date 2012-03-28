@@ -60,7 +60,7 @@ Currently acrylamid has no support for an integrated search based on the
 `Google Custom Search <https://www.google.com/cse/>`_, `Tapir
 <http://tapirgo.com/>`_ or an independend listed here. This work is completely
 stolen from `Joe Vennix on Forrst
-<http://forrst.com/posts/Static_site_e_g_Jekyll_search_with_JQuery-zL9>`_) and
+<http://forrst.com/posts/Static_site_e_g_Jekyll_search_with_JQuery-zL9>`_ and
 only modified to match acrylamid's default layout (and fixing some issues).
 
 .. code-block:: console
