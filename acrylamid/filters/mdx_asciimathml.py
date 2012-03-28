@@ -29,7 +29,6 @@ class ASCIIMathMLExtension(markdown.Extension):
 
     def extendMarkdown(self, md, md_globals):
         self.md = md
-
         md.inlinePatterns.add('', ASCIIMathMLPattern(RE), '_begin')
 
     def reset(self):

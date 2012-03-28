@@ -51,7 +51,7 @@ class Markdown(Filter):
             else:
                 x = f.split('(', 1)[:1][0]
                 if not x in self:
-                    log.warn('%s is not available' % x)
+                    log.warn('Markdown: %s is not available' % x)
                 else:
                     val.append(x)
                     self.__ext__[x] = f
