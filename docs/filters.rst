@@ -188,6 +188,38 @@ By default *amp*, *widont*, *smartypants*, *caps* are applied. *all*, *typo*
 and *typogrify* applying "widont, smartypants, caps, amp, initial_quotes". All
 filters are applied in the order as they are written down.
 
+acronyms
+--------
+
+:Requires:
+    `<built-in>`
+
+:Aliases:
+    Acronyms, Acronym, acronyms, acronym
+
+:Arguments:
+    zero to N strings
+
+:Defaults:
+    no arguments
+
+This filter is a direct port of `Pyblosxom's acrynoms plugin
+<http://pyblosxom.bluesock.org/1.5/plugins/acronyms.html>`_, that marks acronyms
+and abbreviations in your text based on either a built-in acronyms list or a
+user-specified. To use a custom list just add the FILE to your conf.py like
+this:
+
+.. code-block:: python
+
+    ACRONYMS_FILE = '/path/to/my/acronyms.txt'
+
+
+The built-in list of acronyms differs from Pyblosxom's (see
+`filters/acronyms.py <https://github.com/posativ/acrylamid/blob/master/acrylam
+id/filters/acronyms.py>`_ on GitHub). See the `original description
+<http://pyblosxom.bluesock.org/1.5/plugins/acronyms.html#building-the-
+acronyms-file>`_ of how to make an acronyms file!
+
 jinja2
 ------
 
