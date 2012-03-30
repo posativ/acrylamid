@@ -422,6 +422,10 @@ class FileEntry:
 
 class ExtendedFileSystemLoader(FileSystemLoader):
 
+    # Acrylamid views (should) process templates on the fly thus we
+    # don't have a 1. "select template", 2. "render template" stage
+    resolved = {}
+
     def load(self, environment, name, globals=None):
         """patched `load` to add a has_changed property providing information
         whether the template or its parents have changed."""
@@ -430,6 +434,9 @@ class ExtendedFileSystemLoader(FileSystemLoader):
             """We check whether any dependency (extend-block) has changed and
             update the bucket -- recursively. Returns True if the template
             itself or any parent template has changed. Otherwise False."""
+
+            if parent in self.resolved:
+                return self.resolved[parent]
 
             source, filename, uptodate = self.get_source(environment, parent)
             bucket = bcc.get_bucket(environment, parent, filename, source)
@@ -441,6 +448,8 @@ class ExtendedFileSystemLoader(FileSystemLoader):
                 code = environment.compile(source, parent, filename)
                 bucket.code = code
                 bcc.set_bucket(bucket)
+
+                self.resolved[parent] = True
                 return True
 
             ast = environment.parse(source)
