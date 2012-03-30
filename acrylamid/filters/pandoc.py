@@ -19,7 +19,7 @@ class Pandoc(Filter):
         except OSError:
             raise AcrylamidException('no pandoc available')
 
-    def transform(self, text, request, *args):
+    def transform(self, text, entry, *args):
 
         if len(args) == 0:
             raise AcrylamidException("pandoc filter takes one or more arguments")

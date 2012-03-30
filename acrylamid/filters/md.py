@@ -42,7 +42,7 @@ class Markdown(Filter):
     def __contains__(self, key):
         return True if key in self.__ext__ else False
 
-    def transform(self, text, request, *filters):
+    def transform(self, text, entry, *filters):
 
         val = []
         for f in filters:

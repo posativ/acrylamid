@@ -203,9 +203,9 @@ class Hyphenate(Filter):
     def init(self, conf, env):
         self.conf = conf
 
-    def transform(self, content, req, *args):
-        if req.lang != self.conf['lang']:
-            hyphenate_word = build(req.lang[0].replace('_', '-'))
+    def transform(self, content, entry, *args):
+        if entry.lang != self.conf['lang']:
+            hyphenate_word = build(entry.lang[0].replace('_', '-'))
         else:
             hyphenate_word = self.default
 
@@ -219,5 +219,5 @@ class Hyphenate(Filter):
         try:
             return ''.join(Separator(content, hyphenate_word, length=length).result)
         except HTMLParseError as e:
-            log.warn('%s: %s in %s' % (e.__class__.__name__, e.msg, req.filename))
+            log.warn('%s: %s in %s' % (e.__class__.__name__, e.msg, entry.filename))
             return content

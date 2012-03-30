@@ -149,7 +149,7 @@ class Filter(object):
     def __eq__(self, other):
         return True if hash(other) == hash(self) else False
 
-    def transform(self, text, request, *args):
+    def transform(self, text, entry, *args):
         raise NotImplemented
 
 

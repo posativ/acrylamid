@@ -13,5 +13,5 @@ class HTML(Filter):
     conflicts = ['rst', 'md']
     priority = 70.0
 
-    def transform(self, content, request, *filters):
+    def transform(self, content, entry, *filters):
         return content

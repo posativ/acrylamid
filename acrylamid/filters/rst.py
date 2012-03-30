@@ -16,7 +16,7 @@ class Restructuredtext(Filter):
 
     __ext__ = dict((x, x) for x in [])
 
-    def transform(self, content, request, *filters):
+    def transform(self, content, entry, *filters):
         initial_header_level = 1
         transform_doctitle = 0
         settings = {

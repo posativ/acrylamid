@@ -30,7 +30,7 @@ class Typography(Filter):
                    'caps': caps, 'initial_quotes': initial_quotes, 'number_suffix': number_suffix,
                    'typo': typogrify, 'typogrify': typogrify, 'all': typogrify}
 
-    def transform(self, content, request, *args):
+    def transform(self, content, entry, *args):
 
         if filter(lambda k: k in args, ['all', 'typo', 'typogrify']):
             return typogrify(content)

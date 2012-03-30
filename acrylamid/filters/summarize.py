@@ -86,7 +86,7 @@ class Summarize(Filter):
     def init(self, conf, env):
         self.path = env.path
 
-    def transform(self, content, req, *args):
+    def transform(self, content, entry, *args):
 
         try:
             maxwords = int(args[0])
@@ -96,7 +96,7 @@ class Summarize(Filter):
             maxwords = 200
 
         try:
-            return Summarizer(content, self.path+req.permalink, maxwords).summarized
+            return Summarizer(content, self.path+entry.permalink, maxwords).summarized
         except HTMLParseError as e:
-            log.warn('%s: %s in %s' % (e.__class__.__name__, e.msg, req.filename))
+            log.warn('%s: %s in %s' % (e.__class__.__name__, e.msg, entry.filename))
             return content
