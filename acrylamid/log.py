@@ -26,6 +26,25 @@ if hasattr(sys, '_getframe'): currentframe = lambda: sys._getframe(3)
 # done filching
 
 
+class TerminalHandler(logging.StreamHandler):
+    """A handler that logs everything >= logging.WARN to stderr and everything
+    below to stdout."""
+
+    def __init__(self):
+        logging.StreamHandler.__init__(self)
+        self.stream = None # reset it; we are not going to use it anyway
+
+    def emit(self, record):
+        if record.levelno >= logging.WARN:
+            self.__emit(record, sys.stderr)
+        else:
+            self.__emit(record, sys.stdout)
+
+    def __emit(self, record, strm):
+        self.stream = strm
+        logging.StreamHandler.emit(self, record)
+
+
 class ANSIFormatter(logging.Formatter):
     """Implements basic colored output using ANSI escape codes.  Currently acrylamid
     uses nanoc's color and information scheme: skip, create, identical, update,
@@ -76,7 +95,7 @@ class SkipHandler(logging.Logger):
         self.log(15, msg, *args, **kwargs)
 
 
-def init(name, level, handler=logging.StreamHandler()):
+def init(name, level, handler=TerminalHandler()):
 
     global logger, critical, fatal, warn, warning, info, skip, debug, error
 
