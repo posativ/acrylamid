@@ -593,7 +593,7 @@ rss = r'''
         <language>{{ conf.lang[0].replace('_', '-').lower() }}</language>
         <pubDate>{{ env.updated | rfc822 }}</pubDate>
         <docs>{{ conf.www_root+env.views.rss.path }}</docs>
-        <generator>{{ env.acrylamid_name }} {{ env.acrylamid_version }}</generator>
+        <generator>acrylamid {{ env.version }}</generator>
         {% if atom in env.views %}
             <atom:link href="{{ conf.www_root + conf.views.atom.path }}" rel="self" type="application/rss+xml" />
         {% endif %}
