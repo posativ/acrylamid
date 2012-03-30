@@ -14,7 +14,7 @@ class Feed(View):
     def generate(self, request):
 
         entrylist = filter(lambda e: not e.draft, request['entrylist'])[:self.num_entries]
-        tt = self.env['tt_env'].get_template('%s.xml' % self.__class__.__name__)
+        tt = self.env.jinja2.get_template('%s.xml' % self.__class__.__name__)
 
         p = joinurl(self.conf['output_dir'], self.path)
         if not filter(lambda e: p.endswith(e), ['.xml', '.html']):
@@ -51,4 +51,4 @@ class RSS(Feed):
         from time import mktime
 
         self.num_entries = num_entries
-        self.env['tt_env'].filters['rfc822'] = lambda x: format_date_time(mktime(x.timetuple()))
+        self.env.jinja2.filters['rfc822'] = lambda x: format_date_time(mktime(x.timetuple()))

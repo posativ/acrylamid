@@ -32,9 +32,9 @@ def initialize(conf, env):
     a request dict is returned.
     """
     # set up templating environment
-    env['tt_env'] = Environment(loader=ExtendedFileSystemLoader(conf['layout_dir']),
+    env['jinja2'] = Environment(loader=ExtendedFileSystemLoader(conf['layout_dir']),
                                 bytecode_cache=FileSystemBytecodeCache('.cache/'))
-    env['tt_env'].filters.update({'safeslug': lambda x: x, 'tagify': lambda x: x})
+    env['jinja2'].filters.update({'safeslug': utils.safeslug})
 
     # initialize the locale, will silently fail if locale is not
     # available and uses system's locale

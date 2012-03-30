@@ -17,8 +17,8 @@ class Entry(View):
 
         entrylist = request['entrylist']
 
-        tt_entry = self.env['tt_env'].get_template('entry.html')
-        tt_main = self.env['tt_env'].get_template('main.html')
+        tt_entry = self.env.jinja2.get_template('entry.html')
+        tt_main = self.env.jinja2.get_template('main.html')
         pathes = dict()
 
         for entry in entrylist:

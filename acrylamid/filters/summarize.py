@@ -84,7 +84,7 @@ class Summarize(Filter):
     match = ['summarize', 'sum']
 
     def init(self, conf, env):
-        self.path = env['path']
+        self.path = env.path
 
     def transform(self, content, req, *args):
 

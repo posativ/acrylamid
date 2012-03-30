@@ -67,12 +67,11 @@ class Tag(View):
             for tag in e.tags:
                 tags[tag].append(e)
 
-        env['tag_cloud'] = Tagcloud(tags, self.conf['tag_cloud_steps'],
-                                          self.conf['tag_cloud_max_items'],
-                                          self.conf['tag_cloud_start_index'],
-                                          self.conf.get('tag_cloud_shuffle', False))
-        self.env['tt_env'].filters['safeslug'] = safeslug
-        self.env['tt_env'].filters['tagify'] = tagify
+        env.jinja2.filters['tagify'] = tagify
+        env.tag_cloud = Tagcloud(tags, self.conf['tag_cloud_steps'],
+                                       self.conf['tag_cloud_max_items'],
+                                       self.conf['tag_cloud_start_index'],
+                                       self.conf.get('tag_cloud_shuffle', False))
 
         self.tags = {}
         for k, v in tags.iteritems():
@@ -86,8 +85,8 @@ class Tag(View):
         entrylist = request['entrylist']
         ipp = self.items_per_page
 
-        tt_entry = self.env['tt_env'].get_template('entry.html')
-        tt_main = self.env['tt_env'].get_template('main.html')
+        tt_entry = self.env.jinja2.get_template('entry.html')
+        tt_main = self.env.jinja2.get_template('main.html')
 
         for tag in self.tags:
             entrylist = [entry for entry in self.tags[tag]]

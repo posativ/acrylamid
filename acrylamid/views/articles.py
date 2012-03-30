@@ -19,7 +19,7 @@ class Articles(View):
                         key=lambda k: k.date, reverse=True)
 
         articles = defaultdict(list)
-        tt_articles = self.env['tt_env'].get_template('articles.html')
+        tt_articles = self.env.jinja2.get_template('articles.html')
 
         p = joinurl(self.conf['output_dir'], self.path)
         if not filter(lambda e: p.endswith(e), ['.xml', '.html']):

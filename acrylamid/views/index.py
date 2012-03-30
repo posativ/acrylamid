@@ -23,8 +23,8 @@ class Index(View):
         entrylist = request['entrylist']
         ipp = self.items_per_page
 
-        tt_entry = self.env['tt_env'].get_template('entry.html')
-        tt_main = self.env['tt_env'].get_template('main.html')
+        tt_entry = self.env.jinja2.get_template('entry.html')
+        tt_main = self.env.jinja2.get_template('main.html')
 
         for i, entries, has_changed in paginate(entrylist, ipp, lambda e: not e.draft,
                                                 orphans=self.conf['default_orphans']):

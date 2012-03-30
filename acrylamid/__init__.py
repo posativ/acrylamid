@@ -39,6 +39,21 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 sys.path.insert(0, os.path.dirname(__package__))
 
 
+class Environment(dict):
+
+    def __getattribute__(self, attr):
+        try:
+            return getattr(super(Environment, self), attr)
+        except AttributeError:
+            try:
+                return self[attr]
+            except KeyError:
+                raise AttributeError
+
+    def __setattribute__(self, attr, value):
+        self[attr] = value
+
+
 class Acryl:
     """Main class for acrylamid functionality.  It handles initialization,
     defines default behavior, and also pushes the request through all
@@ -169,9 +184,9 @@ class Acryl:
         # initialize colored logger
         log.init('acrylamid', level=options.verbosity, colors=options.colors)
 
-        env = {'version': __version__, 'author': __author__, 'url': __url__}
+        env = Environment({'version': __version__, 'author': __author__, 'url': __url__})
         if options.version:
-            print "acrylamid" + ' ' + env['version']
+            print 'acrylamid ' + env.version
             sys.exit(0)
 
         # -- init -- #
