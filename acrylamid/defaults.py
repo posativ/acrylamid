@@ -42,7 +42,7 @@ def init(root='.', overwrite=False):
              '%(layout_dir)s/articles.html' % default: articles,
              '%(layout_dir)s/rss.xml' % default: rss,
              '%(layout_dir)s/atom.xml' % default: atom,
-             '%(entries_dir)s/sample entry.txt' % default: kafka}
+             '%(entries_dir)s/sample-entry.txt' % default: kafka}
 
     # restore a given file from defaults
     # XXX works only for default sub-folders

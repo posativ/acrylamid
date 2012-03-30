@@ -113,7 +113,7 @@ class Acryl:
             usage = "%prog " + sys.argv[1] + " [DEST|FILE] [-p]"
             options = [
                 make_option("-f", "--force", action="store_true", dest="force",
-                        help="don't ask, just overwrite it", default=False)
+                        help="don't ask, just overwrite", default=False)
                 ]
         # --- init params --- #
         elif sys.argv[1] in ('new',):
@@ -127,7 +127,7 @@ class Acryl:
             usage = "%prog " + sys.argv[1] + " [-fn]"
             options = [
                 make_option("-f", "--force", action="store_true", dest="force",
-                            help="clears cache before compilation", default=False),
+                            help="clear cache before compilation", default=False),
                 make_option("-n", "--dry-run", dest="dryrun", action='store_true',
                                default=False, help="show what would have been compiled")
             ]
@@ -143,7 +143,7 @@ class Acryl:
             usage = "%prog " + sys.argv[1] + " [-pf]"
             options = [
                 make_option("-f", "--force", action="store_true", dest="force",
-                            help="clears cache before compilation", default=False),
+                            help="clear cache before compilation", default=False),
                 make_option("-p", "--port", dest="port", type=int, default=8000,
                             help="webserver port"),
             ]
