@@ -61,9 +61,8 @@ class ANSIFormatter(logging.Formatter):
     GREY = '\033[1;37m%s\033[0m'
     RED_UNDERLINE = '\033[4;31m%s\033[0m'
 
-    def __init__(self, fmt='[%(levelname)s] %(name)s: %(message)s', debug=False):
+    def __init__(self, fmt='[%(levelname)s] %(name)s: %(message)s'):
         logging.Formatter.__init__(self, fmt)
-        self.debug = debug
 
     def format(self, record):
 
@@ -95,18 +94,17 @@ class SkipHandler(logging.Logger):
         self.log(15, msg, *args, **kwargs)
 
 
-def init(name, level, handler=TerminalHandler()):
+def init(name, level, colors=True):
 
     global logger, critical, fatal, warn, warning, info, skip, debug, error
 
     logging.setLoggerClass(SkipHandler)
     logger = logging.getLogger(name)
 
-    fmt = ANSIFormatter('%(message)s')
-    if level == logging.DEBUG:
-        fmt = '%(msecs)d [%(levelname)s] %(name)s.py:%(lineno)s:%(funcName)s %(message)s'
+    handler = TerminalHandler()
+    if colors:
+        handler.setFormatter(ANSIFormatter('%(message)s'))
 
-    handler.setFormatter(fmt)
     logger.addHandler(handler)
     logger.setLevel(level)
 

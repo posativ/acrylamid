@@ -59,6 +59,8 @@ class Acryl:
                         help=SUPPRESS_HELP, const=log.SKIP),
             make_option("-q", "--quit", action="store_const", dest="verbosity",
                         help=SUPPRESS_HELP, const=log.WARN, default=log.INFO),
+            make_option("-C", "--no-color", action="store_false", dest="colors",
+                        default=True, help=SUPPRESS_HELP),
             make_option("--version", action="store_true", dest="version",
                             help=SUPPRESS_HELP, default=False)
             ]
@@ -73,6 +75,8 @@ class Acryl:
                         help="less verbose", const=log.WARN, default=log.INFO),
                 make_option("-v", "--verbose", action="store_const", dest="verbosity",
                             help="more verbose", const=log.SKIP),
+                make_option("-C", "--no-color", action="store_false", dest="colors",
+                            default=True, help="disable color"),
                 make_option("-h", "--help", action="store_true",
                             help="show this help message and exit"),
                 make_option("--version", action="store_true", dest="version",
@@ -163,7 +167,7 @@ class Acryl:
             sys.exit(0)
 
         # initialize colored logger
-        log.init('acrylamid', level=options.verbosity)
+        log.init('acrylamid', level=options.verbosity, colors=options.colors)
 
         env = {'version': __version__, 'author': __author__, 'url': __url__}
         if options.version:
