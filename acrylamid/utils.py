@@ -492,21 +492,6 @@ def filelist(entries_dir, entries_ignore=[]):
     return flist
 
 
-def render(tt, *dicts, **kvalue):
-    """helper function to merge multiple dicts and additional key=val params
-    to a single environment dict used by jinja2 templating. Note, merging will
-    first update dicts in given order, then (possible) overwrite single keys
-    in kvalue."""
-
-    env = {}
-    for d in dicts:
-        env.update(d)
-    for key in kvalue:
-        env[key] = kvalue[key]
-
-    return tt.render(env)
-
-
 def union(*args, **kwargs):
     """Takes a list of dictionaries and performs union of each.  Can take additional
     key=values as parameters which may overwrite or add a key/value-pair."""
@@ -661,22 +646,23 @@ def escape(string):
     return string
 
 
-def system(cmd, stdin=None):
+def system(cmd, stdin=None, **kw):
     """A simple front-end to python's horrible Popen-interface which lets you
     run a single shell command (only one, semicolon and && is not supported by
     os.execvp(). Does not catch OSError!
 
     :param cmd: command to run (a single string or a list of strings).
     :param stdin: optional string to pass to stdin.
+    :param kw: everything there is passed to Popen.
     """
 
     try:
         if stdin:
             p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                 stdin=subprocess.PIPE)
+                                 stdin=subprocess.PIPE, **kw)
             result, err = p.communicate(stdin)
         else:
-            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kw)
             result, err = p.communicate()
 
     except OSError as e:

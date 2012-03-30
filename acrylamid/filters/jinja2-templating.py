@@ -5,16 +5,15 @@
 
 from acrylamid import log
 from acrylamid.filters import Filter
-from acrylamid.utils import render
+from acrylamid.utils import system as defaultsystem
 from acrylamid.errors import AcrylamidException
 
 from jinja2 import Environment, TemplateError
-from subprocess import check_output, CalledProcessError, STDOUT
 
 
 class Jinja2(Filter):
     """Jinja2 filter that pre-processes in Markdown/reStructuredText
-    written posts. XXX: and offers some extensions."""
+    written posts. XXX: and offers some jinja2 extensions."""
 
     match = ['Jinja2', 'jinja2']
     priority = 90.0
@@ -23,21 +22,22 @@ class Jinja2(Filter):
 
         def system(cmd):
             try:
-                return check_output(cmd, shell=True, stderr=STDOUT).strip()
-            except (CalledProcessError, OSError) as e:
+                return defaultsystem(cmd, shell=True).strip()
+            except (OSError, AcrylamidException) as e:
                 log.warn('%s: %s' % (e.__class__.__name__, str(e)))
                 return str(e)
 
-        self.env = env
         self.conf = conf
+        self.env = env
+
         self.jinja2_env = Environment(cache_size=0)
         self.jinja2_env.filters['system'] = system
 
-    def transform(self, content, req):
+    def transform(self, content, entry):
 
         try:
-            return render(self.jinja2_env.from_string(content), conf=self.conf,
-                          env=self.env, entry=req)
+            tt = self.jinja2_env.from_string(content)
+            return tt.render(conf=self.conf, env=self.env, entry=entry)
         except (TemplateError, AcrylamidException, OSError, TypeError) as e:
-            log.warn('%s: %s in %s' % (e.__class__.__name__, e.message, req.filename))
+            log.warn('%s: %s in %s' % (e.__class__.__name__, e.message, entry.filename))
             return content

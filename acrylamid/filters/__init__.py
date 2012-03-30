@@ -185,37 +185,4 @@ class FilterList(list):
         return f
 
 
-class FilterStorage(dict):
-    """store multiple keys per value and make __call__ do nothing, when
-    filter is prefixed by *no*."""
-
-    def __init__(self, *args):
-        dict.__init__(self, args)
-        self.map = {}
-
-    def __contains__(self, key):
-        return True if key in self.map else False
-
-    def __setitem__(self, key, value):
-
-        if isinstance(key, basestring):
-            self.map[key] = key
-            dict.__setitem__(self, key, value)
-        else:
-            for k in key:
-                self.map[k] = key[0]
-            dict.__setitem__(self, key[0], value)
-
-    def __getitem__(self, key):
-
-        q = key[2:] if key.startswith('no') else key
-        try:
-            f = dict.__getitem__(self, self.map[q])
-        except KeyError:
-            raise AcrylamidException('no such filter: %s' % key)
-        if key.startswith('no'):
-            f = copy.copy(f)
-            f.__call__ = lambda x, y, *z: x
-        return f
-
-callbacks = FilterList() # FilterStorage()
+callbacks = FilterList()

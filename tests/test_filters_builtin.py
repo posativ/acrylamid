@@ -13,7 +13,8 @@ from acrylamid.filters import initialize, get_filters
 
 log.init('foo', 15)
 initialize([], {'lang': 'en'}, Environment({'path': '/'}))
-# now we have hyphenation in path
+
+# now we have filters in path
 from acrylamid.filters.hyphenation import build
 
 
@@ -25,14 +26,6 @@ class Entry(object):
 
 class TestHyphenation(unittest.TestCase):
 
-    def test_build(self):
-
-        # short term
-        build('en')
-
-        hyphenate = build('en_US')
-        self.assertEqual(hyphenate('Airplane'), ['Air', 'plane'])
-
     def test_hyphenation(self):
 
         hyph = get_filters()['Hyphenate']('Hyphenate')
@@ -42,7 +35,6 @@ class TestHyphenation(unittest.TestCase):
                          '&shy;'.join(['su', 'per', 'cal', 'ifrag', 'ilis', 'tic', 'ex',
                                        'pi', 'ali', 'do', 'cious']))
 
-
         hyph = get_filters()['Hyphenate']('Hyphenate')
 
         self.assertEqual(hyph.transform('Flugzeug', Entry('de'), '8'), 'Flugzeug')
@@ -50,3 +42,18 @@ class TestHyphenation(unittest.TestCase):
 
         # test unsupported
         self.assertEqual(hyph.transform('Flugzeug', Entry('foo'), '8'), 'Flugzeug')
+
+    def test_hyphenation_build(self):
+
+        # short term
+        build('en')
+
+        hyphenate = build('en_US')
+        self.assertEqual(hyphenate('Airplane'), ['Air', 'plane'])
+
+    def test_jinja2(self):
+
+        jinja2 = get_filters()['Jinja2']('Jinja2')
+
+        self.assertEqual(jinja2.transform('{{ entry.lang }}', Entry('de')), 'de')
+        self.assertEqual(jinja2.transform("{{ 'which which' | system }}", None), '/usr/bin/which')

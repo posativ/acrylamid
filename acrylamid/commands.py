@@ -67,6 +67,7 @@ def initialize(conf, env):
     cache.init()
 
     # import and initialize plugins
+    # XXX put them into defaults
     filters.initialize(conf.get("filters_dir", []), conf, env,
                           exclude=conf.get("filters_ignore", []),
                           include=conf.get("filters_include", []))
