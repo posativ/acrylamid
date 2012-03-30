@@ -15,10 +15,9 @@ class Entry(View):
 
     def generate(self, request):
 
-        entrylist = request['entrylist']
+        tt = self.env.jinja2.get_template('main.html')
 
-        tt_entry = self.env.jinja2.get_template('entry.html')
-        tt_main = self.env.jinja2.get_template('main.html')
+        entrylist = request['entrylist']
         pathes = dict()
 
         for entry in entrylist:
@@ -36,12 +35,11 @@ class Entry(View):
             pathes[p] = entry
 
         for p, entry in pathes.iteritems():
-            if exists(p) and not entry.has_changed:
-                if not (tt_entry.has_changed or tt_main.has_changed):
-                    event.skip(entry.title, path=p)
-                    continue
+            if exists(p) and not entry.has_changed and not tt.has_changed:
+                event.skip(entry.title, path=p)
+                continue
 
-            html = tt_main.render(env=union(self.env, entrylist=[entry], type='entry'),
-                                  conf=self.conf, entry=entry)
+            html = tt.render(env=union(self.env, entrylist=[entry], type='entry'),
+                             conf=self.conf, entry=entry)
 
             yield html, p, entry.title

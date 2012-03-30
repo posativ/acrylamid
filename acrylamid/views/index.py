@@ -20,12 +20,10 @@ class Index(View):
         list of your (e.g. summarized) Posts. Other pages are enumerated to /page/n+1
         """
 
-        entrylist = request['entrylist']
         ipp = self.items_per_page
+        tt = self.env.jinja2.get_template('main.html')
 
-        tt_entry = self.env.jinja2.get_template('entry.html')
-        tt_main = self.env.jinja2.get_template('main.html')
-
+        entrylist = request['entrylist']
         for i, entries, has_changed in paginate(entrylist, ipp, lambda e: not e.draft,
                                                 orphans=self.conf['default_orphans']):
 
@@ -49,12 +47,11 @@ class Index(View):
             p = joinurl(directory, 'index.html')
             message = self.path if i==0 else expand(self.pagination, {'num': str(i+1)})
 
-            if exists(p) and not has_changed:
-                if not (tt_entry.has_changed or tt_main.has_changed):
-                    event.skip(message, path=p)
-                    continue
+            if exists(p) and not has_changed and not tt.has_changed:
+                event.skip(message, path=p)
+                continue
 
-            html = tt_main.render(conf=self.conf, env=union(self.env, entrylist=entries,
+            html = tt.render(conf=self.conf, env=union(self.env, entrylist=entries,
                                   type='index', prev=prev, curr=curr, next=next,
                                   items_per_page=ipp, num_entries=len(entrylist)))
 

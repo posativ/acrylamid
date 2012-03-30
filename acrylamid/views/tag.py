@@ -82,11 +82,10 @@ class Tag(View):
     def generate(self, request):
         """Creates paged listing by tag."""
 
-        entrylist = request['entrylist']
         ipp = self.items_per_page
+        tt = self.env.jinja2.get_template('main.html')
 
-        tt_entry = self.env.jinja2.get_template('entry.html')
-        tt_main = self.env.jinja2.get_template('main.html')
+        entrylist = request['entrylist']
 
         for tag in self.tags:
             entrylist = [entry for entry in self.tags[tag]]
@@ -106,13 +105,12 @@ class Tag(View):
                             else expand(self.pagination, {'name': tag, 'num': str(i+2)})
                 p = joinurl(self.conf['output_dir'], curr, 'index.html')
 
-                if exists(p) and not  bool(filter(lambda e: e.has_changed, entries)):
-                    if not (tt_entry.has_changed or tt_main.has_changed):
-                        event.skip(curr, path=p)
-                        continue
+                if exists(p) and not has_changed and not tt.has_changed:
+                    event.skip(curr, path=p)
+                    continue
 
-                html = tt_main.render(conf=self.conf, env=union(self.env, entrylist=entries,
-                                      type='tag', prev=prev, curr=curr, next=next,
-                                      items_per_page=ipp, num_entries=len(entrylist)))
+                html = tt.render(conf=self.conf, env=union(self.env, entrylist=entries,
+                                type='tag', prev=prev, curr=curr, next=next,
+                                items_per_page=ipp, num_entries=len(entrylist)))
 
                 yield html, p, curr
