@@ -20,7 +20,7 @@ from jinja2 import Environment, FileSystemBytecodeCache
 from acrylamid import filters, views, log, utils
 from acrylamid.lib.importer import fetch, parse, build
 from acrylamid.errors import AcrylamidException
-from acrylamid.utils import cache, ExtendedFileSystemLoader, FileEntry, event, escapes, \
+from acrylamid.utils import cache, ExtendedFileSystemLoader, FileEntry, event, escape, \
                             system, filelist
 
 from acrylamid.filters import FilterList
@@ -256,7 +256,7 @@ def new(conf, env, title):
 
     if not title:
         title = raw_input("Entry's title: ")
-    title = escapes(title)
+    title = escape(title)
 
     with os.fdopen(fd, 'wb') as f:
         f.write('---\n')

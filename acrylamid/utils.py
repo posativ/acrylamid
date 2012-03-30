@@ -640,8 +640,8 @@ def paginate(list, ipp, func=lambda x: x, salt=None, orphans=0):
         yield i, entries, has_changed
 
 
-def escapes(string):
-    """Escapes string to fit to the YAML standard.  I did not read the
+def escape(string):
+    """Escape string to fit to the YAML standard.  I did not read the
     specs, though."""
 
     if filter(lambda c: c in string, '\'\"#:'):

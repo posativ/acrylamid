@@ -21,7 +21,7 @@ from email.utils import parsedate_tz, mktime_tz
 from os.path import join, dirname, isfile
 
 from acrylamid import log
-from acrylamid.utils import FileEntry, event, escapes, system
+from acrylamid.utils import FileEntry, event, escape, system
 from acrylamid.errors import AcrylamidException
 
 
@@ -177,7 +177,7 @@ def build(conf, env, defaults, items, fmt, keep=False):
 
     def create(title, date, content, permalink=None):
         fd, tmp = tempfile.mkstemp(suffix='.txt', dir='.cache/')
-        title = escapes(title)
+        title = escape(title)
 
         with os.fdopen(fd, 'wb') as f:
             f.write('---\n')

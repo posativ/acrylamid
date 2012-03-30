@@ -53,7 +53,8 @@ class TestUtils(unittest.TestCase):
         examples = ((['hello', 'world'], 'hello/world'),
                     (['/hello', 'world'], '/hello/world'),
                     (['hello', '/world'], 'hello/world'),
-                    (['/hello', '/world'], '/hello/world'))
+                    (['/hello', '/world'], '/hello/world'),
+                    (['/hello/', '/world/'], '/hello/world/'))
 
         for value, expected in examples:
             self.assertEqual(utils.joinurl(*value), expected)
@@ -97,6 +98,13 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(list(utils.paginate([], 2, orphans=7)), [])
         self.assertEqual(list(utils.paginate([X('1'), X('2'), X('3')], 3, orphans=1)),
             [(0, [X('1'), X('2'), X('3')], True)])
+
+    def test_escape(self):
+
+        self.assertEqual(utils.escape('Hello World'), 'Hello World')
+        self.assertEqual(utils.escape('Hello: World'), '"Hello: World"')
+        self.assertEqual(utils.escape('Hello\'s World'), '"Hello\'s World"')
+        self.assertEqual(utils.escape('Hello "World"'), "'Hello \"World\"'")
 
     def test_system(self):
 
