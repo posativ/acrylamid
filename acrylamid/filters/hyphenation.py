@@ -50,7 +50,7 @@ class Hyphenator:
         # Convert the a pattern like 'a1bc3d4' into a string of chars 'abcd'
         # and a list of points [ 1, 0, 3, 4 ].
         chars = re.sub('[0-9]', '', pattern)
-        points = [int(d or 0) for d in re.split(self.chars, pattern, flags=re.U)]
+        points = [int(d or 0) for d in re.split(self.chars, pattern)]
 
         # Insert the pattern into the tree.  Each character finds a dict
         # another level down in the tree, and leaf nodes have the list of
@@ -166,29 +166,24 @@ def build(lang):
                 f = os.path.basename(p)
                 if f.startswith(la):
                     return join(directory, p)
+        else:
+            raise HyphenPatternNotFound("no hyph-definition found for '%s'" % lang)
 
-        raise HyphenPatternNotFound("no hyph-definition found for '%s'" % lang)
-
+    dir = os.path.join(dirname(__file__), 'hyph/')
+    fpath = gethyph(lang, dir).rsplit('.', 2)[0]
     try:
-        dir = os.path.join(dirname(__file__), 'hyph/')
-        fpath = gethyph(lang, dir).rsplit('.', 2)[0]
-        try:
-            with codecs.open(fpath + '.chr.txt', encoding='utf-8') as f:
-                chars = ''.join([line[0] for line in f.readlines()])
-            with codecs.open(fpath + '.pat.txt', encoding='utf-8') as f:
-                patterns = f.read()
-        except IOError:
-            raise HyphenPatternNotFound('hyph/%s.chr.txt or hyph/%s.pat.txt missing' % (lang, lang))
+        with codecs.open(fpath + '.chr.txt', encoding='utf-8') as f:
+            chars = ''.join([line[0] for line in f.readlines()])
+        with codecs.open(fpath + '.pat.txt', encoding='utf-8') as f:
+            patterns = f.read()
+    except IOError:
+        raise HyphenPatternNotFound('hyph/%s.chr.txt or hyph/%s.pat.txt missing' % (lang, lang))
 
-        hyphenator = Hyphenator(chars, patterns, exceptions='')
-        del patterns
-        del chars
-        log.debug("built Hyphenator from <%s>" % basename(fpath))
-        return hyphenator.hyphenate_word
-
-    except HyphenPatternNotFound, e:
-        log.warn(e.message)
-        return lambda x: [x]
+    hyphenator = Hyphenator(chars, patterns, exceptions='')
+    del patterns
+    del chars
+    log.debug("built Hyphenator from <%s>" % basename(fpath))
+    return hyphenator.hyphenate_word
 
 
 class Hyphenate(Filter):
@@ -197,15 +192,23 @@ class Hyphenate(Filter):
 
     @cached_property
     def default(self):
-        # build default hyphenate_word using conf's lang (if available)
-        return build(self.conf['lang'][0].replace('_', '-'))
+        try:
+            # build default hyphenate_word using conf's lang (if available)
+            return build(self.conf['lang'][0].replace('_', '-'))
+        except HyphenPatternNotFound as e:
+            log.warn(e.message)
+            return lambda x: [x]
 
     def init(self, conf, env):
         self.conf = conf
 
     def transform(self, content, entry, *args):
         if entry.lang != self.conf['lang']:
-            hyphenate_word = build(entry.lang[0].replace('_', '-'))
+            try:
+                hyphenate_word = build(entry.lang[0].replace('_', '-'))
+            except HyphenPatternNotFound as e:
+                log.once(warn=e.message)
+                hyphenate_word = lambda x: [x]
         else:
             hyphenate_word = self.default
 
