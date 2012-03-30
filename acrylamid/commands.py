@@ -34,7 +34,7 @@ def initialize(conf, env):
     # set up templating environment
     env['jinja2'] = Environment(loader=ExtendedFileSystemLoader(conf['layout_dir']),
                                 bytecode_cache=FileSystemBytecodeCache('.cache/'))
-    env['jinja2'].filters.update({'safeslug': utils.safeslug})
+    env['jinja2'].filters.update({'safeslug': utils.safeslug, 'tagify': lambda x: x})
 
     # initialize the locale, will silently fail if locale is not
     # available and uses system's locale
