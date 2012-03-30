@@ -218,7 +218,7 @@ class Acryl:
 
         elif args[0] in ('new', 'create'):
             try:
-                commands.new(conf, env, title=' '.join(args[1:]))
+                commands.new(conf, env, title=' '.join(args[1:]), prompt=log.level()<log.WARN)
             except AcrylamidException as e:
                 log.fatal(e.message)
                 sys.exit(1)

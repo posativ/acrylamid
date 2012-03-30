@@ -123,6 +123,11 @@ def setLevel(level):
     logger.setLevel(level)
 
 
+def level():
+    global logger
+    return logger.level
+
+
 def findCaller():
     """See python2.x/logging/__init__.py for details."""
     if __file__[-4:].lower() in ['.pyc', '.pyo']:
@@ -173,11 +178,12 @@ def once(args=[], **kwargs):
 
 
 __all__ = ['fatal', 'warn', 'info', 'skip', 'debug', 'error',
-           'WARN', 'INFO', 'SKIP', 'DEBUG', 'setLevel']
+           'WARN', 'INFO', 'SKIP', 'DEBUG', 'setLevel', 'level']
 
 if __name__ == '__main__':
     init('test', 20)
     setLevel(10)
+    level()
     logger.warn('foo')
     logger.info('update dich')
     logger.info('create kekse')

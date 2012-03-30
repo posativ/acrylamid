@@ -246,7 +246,7 @@ def clean(conf, everything=False, dryrun=False, **kwargs):
                 pass
 
 
-def new(conf, env, title):
+def new(conf, env, title, prompt=True):
     """Subcommand: new -- create a new blog entry the easy way.  Either run
     ``acrylamid new My fresh new Entry`` or interactively via ``acrylamid new``
     and the file will be created using the preferred permalink format."""
@@ -280,6 +280,9 @@ def new(conf, env, title):
 
     if datetime.now().hour == 23 and datetime.now().minute > 45:
         log.info("notice  consider editing entry.date-day after you passed mignight!")
+
+    if not prompt:
+        return
 
     try:
         if editor:
