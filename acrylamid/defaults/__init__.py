@@ -50,7 +50,7 @@ def init(root, theme='html5', overwrite=False):
 
     files = [p % theme for p in [
         '%s/style.css', '%s/base.html', '%s/main.html', '%s/entry.html',
-        '%s/articles.html']] + ['rss.xml', 'atom.xml', 'sample-entry.txt']
+        '%s/articles.html']] + ['misc/rss.xml', 'misc/atom.xml', 'misc/sample-entry.txt']
     files = [join(dirname(__file__), path) for path in files]
 
     # restore a given file from defaults
