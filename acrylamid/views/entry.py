@@ -10,9 +10,6 @@ from acrylamid.errors import AcrylamidException
 class Entry(View):
     """Creates single full-length entry."""
 
-    path = '/:year/:slug/'
-    filters = []
-
     def generate(self, request):
 
         tt = self.env.jinja2.get_template('main.html')

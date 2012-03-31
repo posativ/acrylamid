@@ -11,8 +11,6 @@ from collections import defaultdict
 class Articles(View):
     """Generates a overview of all articles."""
 
-    path = '/articles/'
-
     def generate(self, request):
 
         entrylist = sorted((e for e in request['entrylist'] if not e.draft),

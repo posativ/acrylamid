@@ -35,15 +35,11 @@ class Feed(View):
 
 class Atom(Feed):
 
-    path = '/atom/'
-
     def init(self, num_entries=25):
         self.num_entries = num_entries
 
 
 class RSS(Feed):
-
-    path = '/rss/'
 
     def init(self, num_entries=25):
 
