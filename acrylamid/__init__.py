@@ -114,8 +114,10 @@ class Acryl:
             options = [
                 make_option("-f", "--force", action="store_true", dest="force",
                         help="don't ask, just overwrite", default=False),
-                make_option("--xhtml", action="store_const", dest="theme",
-                            help="use XHTML layout", default="xhtml")
+                make_option("--xhtml", action="store_const", dest="theme", const="xhtml",
+                            help="use XHTML theme", default="html5"),
+                make_option("--html5", action="store_const", dest="theme", const="html5",
+                            help="use HTML5 theme")
                 ]
         # --- init params --- #
         elif sys.argv[1] in ('new',):

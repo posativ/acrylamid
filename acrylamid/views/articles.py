@@ -16,7 +16,6 @@ class Articles(View):
         entrylist = sorted((e for e in request['entrylist'] if not e.draft),
                         key=lambda k: k.date, reverse=True)
 
-        articles = defaultdict(list)
         tt = self.env.jinja2.get_template('articles.html')
 
         p = joinurl(self.conf['output_dir'], self.path)
@@ -37,11 +36,11 @@ class Articles(View):
                 event.skip(p.replace(self.conf['output_dir'], ''), path=p)
                 raise StopIteration
 
+        articles = {}
         for entry in entrylist:
-            url, title, year = entry.permalink, entry.title, entry.date.year
-            articles[year].append((entry.date, url, title))
+            articles.setdefault((entry.year, entry.month), []).append(entry)
 
         html = tt.render(conf=self.conf, articles=articles,
-                                  env=union(self.env, num_entries=len(entrylist)))
+                         env=union(self.env, num_entries=len(entrylist)))
 
         yield html, p

@@ -49,7 +49,7 @@ def init(root, theme='html5', overwrite=False):
     dirs = ['%(entries_dir)s/', '%(layout_dir)s/', '%(output_dir)s/', '.cache/']
 
     files = [p % theme for p in [
-        '%s/blog.css', '%s/base.html', '%s/main.html', '%s/entry.html',
+        '%s/style.css', '%s/base.html', '%s/main.html', '%s/entry.html',
         '%s/articles.html']] + ['rss.xml', 'atom.xml', 'sample-entry.txt']
     files = [join(dirname(__file__), path) for path in files]
 
@@ -150,7 +150,7 @@ conf = default = {
     'date_format': '%d.%m.%Y, %H:%M',
     'encoding': 'utf-8',
     'permalink_format': '/:year/:slug/',
-    'output_ignore': ['blog.css', 'img/*', 'images/*'],
+    'output_ignore': ['style.css', 'img/*', 'images/*'],
 
     'default_orphans': 0,
 
