@@ -91,11 +91,11 @@ class TestUtils(unittest.TestCase):
         self.shortcut(['acrylamid', 'compile', '-C'], 'skip', all) # should be all
 
         # change mtime should result result in at least one identical
-        touch('content/sample entry.txt', '+5s')
+        touch('content/sample-entry.txt', '+5s')
         self.shortcut(['acrylamid', 'compile', '-C'], 'identical', any)
 
         # change content should result in at least on change
-        subprocess.check_call(['sed', '-i', '-e', 's/i/u/g', 'content/sample entry.txt'])
+        subprocess.check_call(['sed', '-i', '-e', 's/i/u/g', 'content/sample-entry.txt'])
         self.shortcut(['acrylamid', 'compile', '-C'], 'create', any)
 
         # create

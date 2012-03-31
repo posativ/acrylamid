@@ -52,7 +52,7 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(count('output/'), x)
 
         # --dry-run shoul NOT touch anything
-        os.remove('content/sample entry.txt')
+        os.remove('content/sample-entry.txt')
         subprocess.check_call(['acrylamid', 'compile', '-q'])
         subprocess.check_call(['acrylamid', 'clean', '-nq'])
         self.assertEqual(count('output/'), x)
