@@ -193,16 +193,14 @@ An adopted header could look like this:
     filters: rest
     ---
 
-Filters modify the appearance of the entry. ``rest`` defines REST as
-markup language. For available filters see the section on
-`filters </posativ/acrylamid/blob/master/docs/filters.rst>`_.
+Filters modify the appearance of the entry. ``rest`` defines REST as markup
+language. For available filters see the section on :doc:`filters`.
 
-Another useful option is the date-option. The required format is
-'%d.%m.%Y, %H:%M' which is used in acrylamid by default.
-(See `conf.py </posativ/acrylamid/blob/master/docs/conf.py.rst>`_.
-for informations about how to change that behavior)
-If the date is not given, the last modifcation time of the file is used
-(which could by bad when you only add updates to an entry).
+Another useful option is the date-option. The required format is '%d.%m.%Y,
+%H:%M' which is used in acrylamid by default. (See :doc:`conf.py. for
+informations about how to change that behavior) If the date is not given, the
+last modifcation time of the file is used (which could by bad when you only
+add updates to an entry).
 
 
 If you're done, just compile like above:

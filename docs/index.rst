@@ -1,14 +1,9 @@
-.. acrylamid documentation master file, created by
-   sphinx-quickstart on Thu Jan  5 20:59:59 2012.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Welcome to Acrylamid's Documentation!
 =====================================
 
-Acrylamid is yet another lightweight static blogging software written in
-python and designed to get a high quality output. Its licensed under BSD
-Style, 2 clauses.
+Acrylamid is yet another static blog compiler written in python that aims to
+be lightweight, fast and producing high quality output. It is licensed under
+BSD Style, 2 clauses.
 
 .. toctree::
    :maxdepth: 1
@@ -34,12 +29,12 @@ Acrylamid is a mixture of `nanoc <http://nanoc.stoneship.org/>`_, `Pyblosxom
 <http://pyblosxom.bluesock.org/>`_ and `Pelican <http://pelican.notmyidea.org/>`_. It
 features mainly:
 
-- blog articles, simple pages, tags RSS/Atom feeds and an article overview
+- blog articles, static pages, tags RSS/Atom feeds and an article overview
 - theming support (using jinja2_) and support for jinja2 directly in postings
 - Markdown_, reStructuredText_ and pandoc_
 - MathML, modern web-typography and hyphenation using `&shy;`
-- RSS/Atom import, deployment and a very handy CLI
-- it's very flexible and fast
+- RSS/Atom import, deployment and a handy CLI
+- it's very flexible/configurable and fast
 
 .. _jinja2: http://jinja.pocoo.org/
 .. _reStructuredText: http://docutils.sourceforge.net/rst.html
@@ -54,16 +49,16 @@ Quickstart
 
     easy_install -U acrylamid
 
-You'll need ``python``, ``jinja2`` and either ``markdown`` (default) or
-``docutils``. ``pygments`` and ``asciimathml`` for colored code listings
-respectively MathML. Typography requires ``smartypants``. To get a
-full-featured installation do:
+It has actually only one dependency, ``jinja2`` but for convenience it also
+installs ``markdown`` and ``translitcodec``. In addition it has support for
+PyYAML, reStructuredText, syntax highlighting using pygments, asciimathml
+to render MathML and finally smartypants for nicer typography.
 
 ::
 
-    pip install docutils pygments asciimathml smartypants
+    easy_install -U docutils pygments asciimathml smartypants
 
-Get acrylamid, edit *conf.py* and *layouts/* and run acrylamid with:
+Get acrylamid, edit *conf.py* and *layouts/* and compile with:
 
 ::
 
@@ -84,15 +79,19 @@ Real World Example?
 *******************
 
 I have released all sources from my personal blog:
-`posativ/blog.posativ.org <https://github.com/posativ/blog.posativ.org>`_. Take a
+`/posativ/blog.posativ.org/ <https://github.com/posativ/blog.posativ.org/>`_. Take a
 look at my *conf.py* for some inspiration.
 
 
 Filters
 -------
 
-See `docs/filters.rst <http://acrylamid.readthedocs.org/en/latest/filters.html>`_ for
-detailed information. Currently supported by acrylamid:
+You can apply various filter to a single entry, to a specific view or globally
+and Acrylamid resolve it automatically (some filters conflict with others so
+you can for example apply *Markdown* as global filter but render some entries
+with reStructuredText). Currently supported by acrylamid, see
+`docs/filters.rst <http://acrylamid.readthedocs.org/en/latest/filters.html>`_
+for detailed information:
 
 - **Markdown**: rendering Markdown (+asciimathml,pygments,built-in extensions)
 - **reST**: reStructuredText (+pygments)
@@ -106,6 +105,7 @@ detailed information. Currently supported by acrylamid:
 - **head_offset**: decrease headings by offset
 - **jinja2**: write jinja2 in your entries (you can also execute system calls therewith)
 - **acronyms**: automatically replace acronyms and abbreviations to help unexperienced users
+
 
 Commands
 --------
