@@ -12,7 +12,8 @@ from acrylamid import log, defaults, Environment
 from acrylamid.filters import initialize, get_filters
 
 log.init('foo', 15)
-initialize([], {'lang': 'en'}, Environment({'path': '/'}))
+initialize([], {'lang': 'en'}, Environment({'path': '/',
+           'options': type('X', (), {'ignore': False})}))
 
 # now we have filters in path
 from acrylamid.filters.hyphenation import build
