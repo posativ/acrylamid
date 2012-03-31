@@ -113,7 +113,9 @@ class Acryl:
             usage = "%prog " + sys.argv[1] + " [DEST|FILE] [-p]"
             options = [
                 make_option("-f", "--force", action="store_true", dest="force",
-                        help="don't ask, just overwrite", default=False)
+                        help="don't ask, just overwrite", default=False),
+                make_option("--xhtml", action="store_const", dest="theme",
+                            help="use XHTML layout", default="xhtml")
                 ]
         # --- init params --- #
         elif sys.argv[1] in ('new',):
@@ -200,9 +202,9 @@ class Acryl:
 
         if 'init' in args:
             if len(args) == 2:
-                defaults.init(args[1], options.force)
+                defaults.init(args[1], options.theme, options.force)
             else:
-                defaults.init(overwrite=options.force)
+                defaults.init('.', options.theme, options.force)
             sys.exit(0)
 
         # -- teh real thing -- #
