@@ -40,11 +40,13 @@ def initialize(conf, env):
     # available and uses system's locale
     try:
         locale.setlocale(locale.LC_ALL, conf.get('lang', ''))
-    except (locale.Error, TypeError):
-        # invalid locale
-        locale.setlocale(locale.LC_ALL, '')
-        log.warn("unsupported locale '%s', set to '%s'", conf['lang'], locale.getlocale()[0])
-    conf['lang'] = locale.getlocale()
+    except (locale.Error, TypeError, KeyError):
+        if conf['lang'] in locale.locale_alias:
+            locale.setlocale(locale.LC_ALL, locale.locale_alias[conf['lang']])
+        else:
+            locale.setlocale(locale.LC_ALL, '')
+            log.debug("locale set to '%s'", locale.getlocale()[0])
+    conf['lang'] = locale.getlocale()[0]
 
     if 'www_root' not in conf:
         log.warn('no `www_root` specified, using localhost:8000')
