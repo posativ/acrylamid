@@ -35,7 +35,7 @@ just for generating the pattern. To just import *reStructuredText* from
 
 If acrylamid is too slow, first thing you can do is to **turn off
 hyphenation**. If a single entry changes (must not be a reStructuredText post)
-it loads at least the default language pattern and adds a huge constant in
+it loads at least the default language pattern which adds a huge constant in
 `*O*-notation <https://en.wikipedia.org/wiki/Big_O_notation>`_. Below a short
 profiling of generation using hyphenate and reST filters.
 
@@ -49,8 +49,12 @@ profiling of generation using hyphenate and reST filters.
          1    0.003    0.003    0.191    0.191 rst.py:7(<module>)
        174    0.001    0.000    0.161    0.001 sre_compile.py:495(compile)
 
-**Use Markdown instead of reST**, but this may optional. Acrylamid only
-imports docutils if needed (= when an entry using reST has changed).
+
+Thus, Markdown instead of reStructuredText as markup language might be faster.
+Another important factor is the typography-filter (disabled by default) which
+consumes about 40% of the whole compilation process. If you don't care about
+web typography, disable this feature gives you a huge performance boost when
+you compile your whole site.
 
 static site search
 ******************
