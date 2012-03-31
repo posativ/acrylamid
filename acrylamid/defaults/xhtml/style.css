@@ -146,6 +146,18 @@ body {
       text-shadow: #ee6688 0px 0px 1px;
       color: #ff190d; }
 
+/* article listing */
+#arc {
+  border-collapse: collapse; }
+  #arc th, #arc td {
+    padding-top: 0.4em;
+    list-style: none;
+    margin: 0; }
+  #arc th {
+    text-align: right;
+    padding: 0.4em 1.75em 0 0;
+    vertical-align: baseline; }
+
 #disqus_thread {
   padding-top: 24px; }
 

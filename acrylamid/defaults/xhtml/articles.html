@@ -3,22 +3,30 @@
 {% block title %}{{ conf.sitename }} – Artikelübersicht{% endblock %}
 
 {% block content %}
-    <div class="posting">
-        <div class="postheader">
-            <span class="date">{{ env.num_entries }} Beiträge</span>
-        </div>
-        <div class="postbody">
-            {% for year in articles|sort(reverse=True) %}
-            <h2>{{ year }}</h2>
-            <ul>
-                {% for entry in articles[year] %}
-                    <li>
-                        <span>{{ entry[0].strftime('%d.%m.%Y: ') }}</span>
-                        <a href="{{ entry[1]}}">{{ entry[2] | e }}</a>
-                    </li>
-                {% endfor %}
-            </ul>
-            {% endfor %}
-        </div>
-    </div>
+<div class="posting">
+  <div class="postheader">
+    <span class="date">{{ env.num_entries }} Beiträge</span>
+  </div>
+  <div class="postbody">
+    <table id="arc">
+    {% set year = -1 %}
+    {% for key, months in articles.iteritems() | sort(reverse=True) %}
+      <tr>
+          {% if year != key[0] %}
+            {% set year = key[0] %}
+            <th>{{ key[0] ~ ' ' ~ months[0].date.strftime('%B') }}</th>
+          {% else %}
+            <th>{{ months[0].date.strftime('%B')}}</th>
+          {% endif %}
+          <td></td>
+      </tr>
+      {% for entry in months %}
+        <tr><th>{{ entry.date.day }}</th>
+            <td><a href="{{ entry.permalink }}">{{ entry.title | e }}</a></td>
+        </tr>
+      {% endfor %}
+    {% endfor %}
+    </table>
+  </div>
+</div>
 {% endblock %}
