@@ -194,7 +194,7 @@ class Hyphenate(Filter):
     def default(self):
         try:
             # build default hyphenate_word using conf's lang (if available)
-            return build(self.conf['lang'][0].replace('_', '-'))
+            return build(self.conf['lang'].replace('_', '-'))
         except HyphenPatternNotFound as e:
             log.warn(e.message)
             return lambda x: [x]
@@ -205,7 +205,7 @@ class Hyphenate(Filter):
     def transform(self, content, entry, *args):
         if entry.lang != self.conf['lang']:
             try:
-                hyphenate_word = build(entry.lang[0].replace('_', '-'))
+                hyphenate_word = build(entry.lang.replace('_', '-'))
             except HyphenPatternNotFound as e:
                 log.once(warn=e.message)
                 hyphenate_word = lambda x: [x]
