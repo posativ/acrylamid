@@ -8,6 +8,7 @@ from re import sub
 class Headoffset(Filter):
 
     match = ['h' + str(i + 1) for i in range(5)]
+    conflicts = ['h' + str(i + 1) for i in range(5)]
 
     def transform(self, text, entry, *args):
 
