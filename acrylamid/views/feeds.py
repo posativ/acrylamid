@@ -16,21 +16,21 @@ class Feed(View):
         entrylist = filter(lambda e: not e.draft, request['entrylist'])[:self.num_entries]
         tt = self.env.jinja2.get_template('%s.xml' % self.__class__.__name__)
 
-        p = joinurl(self.conf['output_dir'], self.path)
-        if not filter(lambda e: p.endswith(e), ['.xml', '.html']):
-            p = joinurl(p, 'index.html')
+        path = joinurl(self.conf['output_dir'], self.path)
+        if not filter(lambda e: path.endswith(e), ['.xml', '.html']):
+            path = joinurl(path, 'index.html')
 
 
-        if exists(p) and not filter(lambda e: e.has_changed, entrylist):
+        if exists(path) and not filter(lambda e: e.has_changed, entrylist):
             if not tt.has_changed:
-                event.skip(p.replace(self.conf['output_dir'], ''), path=p)
+                event.skip(path)
                 raise StopIteration
 
         updated=entrylist[0].date if entrylist else datetime.now()
         html = tt.render(conf=self.conf, env=union(self.env,
                          updated=updated, entrylist=entrylist))
 
-        yield html, p
+        yield html, path
 
 
 class Atom(Feed):

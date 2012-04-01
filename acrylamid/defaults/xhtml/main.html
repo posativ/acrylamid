@@ -22,12 +22,12 @@
     {% endfor %}
     {% if env.type in ['tag', 'index'] %}
         {% if env.prev %}
-            <a href="{{ env.path + env.prev + '/' }}" class="page floatright">
+            <a href="{{ env.path ~ env.prev ~ '/' }}" class="page floatright">
             ältere Beiträge →
             </a>
         {% endif %}
-        {% if env.next %}
-            <a href="{{ env.path + env.next + '/' }}" class="page floatleft">
+        {% if env.next is not none %}
+            <a href="{{ env.path ~ env.next ~ '/' }}" class="page floatleft">
             ← neuere Beiträge
             </a>
         {% endif %}

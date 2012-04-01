@@ -76,28 +76,28 @@ class TestUtils(unittest.TestCase):
 
         # default stuff
         self.assertEqual(list(utils.paginate(res, 4)),
-            [(0, res[:4], True), (1, res[4:], True)])
+            [((None, 1, 2), res[:4], True), ((1, 2, None), res[4:], True)])
         self.assertEqual(list(utils.paginate(res, 4, lambda x: x.isdigit())),
-            [(0, [X('1'), X('42')], True), ])
+            [((None, 1, None), [X('1'), X('42')], True), ])
         self.assertEqual(list(utils.paginate(res, 7)),
-            [(0, res[:7], True), (1, res[7:], True)])
+            [((None, 1, 2), res[:7], True), ((1, 2, None), res[7:], True)])
 
         # with orphans
         self.assertEqual(list(utils.paginate(res, 7, orphans=1)),
-            [(0, res, True)])
+            [((None, 1, None), res, True)])
         self.assertEqual(list(utils.paginate(res, 6, orphans=1)),
-            [(0, res[:6], True), (1, res[6:], True)])
+            [((None, 1, 2), res[:6], True), ((1, 2, None), res[6:], True)])
 
         # a real world example which has previously failed
         res = [X(_) for _ in range(20)]
         self.assertEqual(list(utils.paginate(res, 10)),
-            [(0, res[:10], True), (1, res[10:], True)])
+            [((None, 1, 2), res[:10], True), ((1, 2, None), res[10:], True)])
 
         # edge cases
         self.assertEqual(list(utils.paginate([], 2)), [])
         self.assertEqual(list(utils.paginate([], 2, orphans=7)), [])
         self.assertEqual(list(utils.paginate([X('1'), X('2'), X('3')], 3, orphans=1)),
-            [(0, [X('1'), X('2'), X('3')], True)])
+            [((None, 1, None), [X('1'), X('2'), X('3')], True)])
 
     def test_escape(self):
 

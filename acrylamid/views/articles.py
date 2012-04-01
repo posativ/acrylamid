@@ -17,10 +17,7 @@ class Articles(View):
                         key=lambda k: k.date, reverse=True)
 
         tt = self.env.jinja2.get_template('articles.html')
-
-        p = joinurl(self.conf['output_dir'], self.path)
-        if not filter(lambda e: p.endswith(e), ['.xml', '.html']):
-            p = joinurl(p, 'index.html')
+        path = joinurl(self.conf['output_dir'], self.path, 'index.html')
 
         hv = md5(*entrylist, attr=lambda o: o.md5)
         rv = cache.memoize('articles-hash')
@@ -32,8 +29,8 @@ class Articles(View):
             cache.memoize('articles-hash', hv)
             has_changed = True
 
-        if exists(p) and not has_changed and not tt.has_changed:
-                event.skip(p.replace(self.conf['output_dir'], ''), path=p)
+        if exists(path) and not has_changed and not tt.has_changed:
+                event.skip(path)
                 raise StopIteration
 
         articles = {}
@@ -43,4 +40,4 @@ class Articles(View):
         html = tt.render(conf=self.conf, articles=articles,
                          env=union(self.env, num_entries=len(entrylist)))
 
-        yield html, p
+        yield html, path

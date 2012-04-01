@@ -23,36 +23,26 @@ class Index(View):
         ipp = self.items_per_page
         tt = self.env.jinja2.get_template('main.html')
 
-        entrylist = request['entrylist']
-        for i, entries, has_changed in paginate(entrylist, ipp, lambda e: not e.draft,
-                                                orphans=self.conf['default_orphans']):
+        entrylist = [entry for entry in request['entrylist'] if not entry.draft]
+        paginator = paginate(entrylist, ipp, orphans=self.conf['default_orphans'])
 
+        for (next, curr, prev), entries, has_changed in paginator:
             # curr = current page, next = newer pages, prev = older pages
-            if i == 0:
-                next = None
-                curr = self.path
-            else:
-                curr = expand(self.pagination, {'num': str(i+1)})
-                next = self.path if i == 1 else expand(self.pagination, {'num': str(i)})
-            prev = None if i >= len(list(entries))-1 \
-                        else expand(self.pagination, {'num': str(i+2)})
 
-            directory = self.conf['output_dir']
-            if i == 0:
-                directory = joinurl(self.conf['output_dir'], self.path)
-            else:
-                directory = joinurl(self.conf['output_dir'],
-                                expand(self.pagination, {'num': str(i+1)}))
+            if next is not None:
+                next = self.path.rstrip('/') if next == 1 \
+                           else expand(self.pagination, {'num': next})
 
-            p = joinurl(directory, 'index.html')
-            message = self.path if i==0 else expand(self.pagination, {'num': str(i+1)})
+            curr = self.path if curr == 1 else expand(self.pagination, {'num': curr})
+            prev = None if prev is None else expand(self.pagination, {'num': prev})
+            path = joinurl(self.conf['output_dir'], curr, 'index.html')
 
-            if exists(p) and not has_changed and not tt.has_changed:
-                event.skip(message, path=p)
+            if exists(path) and not has_changed and not tt.has_changed:
+                event.skip(path)
                 continue
 
             html = tt.render(conf=self.conf, env=union(self.env, entrylist=entries,
                                   type='index', prev=prev, curr=curr, next=next,
                                   items_per_page=ipp, num_entries=len(entrylist)))
 
-            yield html, p, message
+            yield html, path

@@ -504,12 +504,11 @@ def union(*args, **kwargs):
     return d
 
 
-def mkfile(content, path, message, ctime=0.0, force=False, dryrun=False, **kwargs):
+def mkfile(content, path, ctime=0.0, force=False, dryrun=False, **kwargs):
     """Creates entry in filesystem. Overwrite only if content differs.
 
     :param content: rendered html/xml to write
     :param path: path to write to
-    :param message: message to display
     :param ctime: time needed to compile
     :param force: force overwrite, even nothing has changed (defaults to `False`)
     :param dryrun: don't write anything."""
@@ -519,12 +518,12 @@ def mkfile(content, path, message, ctime=0.0, force=False, dryrun=False, **kwarg
         with file(path) as f:
             old = f.read()
         if content == old and not force:
-            event.identical(message, path=path)
+            event.identical(path=path)
         else:
             if not dryrun:
                 with open(path, 'w') as f:
                     f.write(content)
-            event.changed(message, path=path, ctime=ctime)
+            event.changed(path=path, ctime=ctime)
     else:
         try:
             if not dryrun:
@@ -535,7 +534,7 @@ def mkfile(content, path, message, ctime=0.0, force=False, dryrun=False, **kwarg
         if not dryrun:
             with open(path, 'w') as f:
                 f.write(content)
-        event.create(message, path=path, ctime=ctime)
+        event.create(path=path, ctime=ctime)
 
 
 def md5(*objs,  **kw):
@@ -607,7 +606,13 @@ def paginate(list, ipp, func=lambda x: x, salt=None, orphans=0):
         res[-2].extend(res[-1])
         res.pop(-1)
 
+    j = len(res)
     for i, entries in enumerate(res):
+
+        i += 1
+        next = None if i == 1 else i-1
+        curr = i
+        prev = None if i >= j else i+1
 
         # get caller, so we can set a unique and meaningful hash-key
         frame = log.findCaller()
@@ -631,7 +636,7 @@ def paginate(list, ipp, func=lambda x: x, salt=None, orphans=0):
             cache.memoize(hkey, hv)
             has_changed = True
 
-        yield i, entries, has_changed
+        yield (next, curr, prev), entries, has_changed
 
 
 def escape(string):
@@ -797,10 +802,10 @@ class cache(object):
 
 def track(f):
     """decorator to track files when event.create|change|skip is called."""
-    def dec(cls, what, path, *args, **kwargs):
+    def dec(cls, path, *args, **kwargs):
         global _tracked_files
         _tracked_files.add(path)
-        return f(cls, what, path, *args, **kwargs)
+        return f(cls, path, *args, **kwargs)
     return dec
 
 
@@ -824,7 +829,7 @@ class event:
 
     @classmethod
     @track
-    def create(self, what, path, ctime=None):
+    def create(self, path, ctime=None):
         if ctime:
             log.info("create  [%.2fs] %s", ctime, path)
         else:
@@ -832,7 +837,7 @@ class event:
 
     @classmethod
     @track
-    def changed(self, what, path, ctime=None):
+    def changed(self, path, ctime=None):
         if ctime:
             log.info("update  [%.2fs] %s", ctime, path)
         else:
@@ -840,12 +845,12 @@ class event:
 
     @classmethod
     @track
-    def skip(self, what, path):
+    def skip(self, path):
         log.skip("skip  %s", path)
 
     @classmethod
     @track
-    def identical(self, what, path):
+    def identical(self, path):
         log.skip("identical  %s", path)
 
     @classmethod

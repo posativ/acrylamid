@@ -46,7 +46,7 @@ def initialize(conf, env):
         else:
             locale.setlocale(locale.LC_ALL, '')
             log.debug("locale set to '%s'", locale.getlocale()[0])
-    conf['lang'] = locale.getlocale()[0]
+    conf['lang'] = locale.getlocale()[0][:2]
 
     if 'www_root' not in conf:
         log.warn('no `www_root` specified, using localhost:8000')
@@ -164,15 +164,8 @@ def compile(conf, env, force=False, **options):
         request['entrylist'] = filter(v.condition, entrylist)
         tt = time.time()
 
-        for res in v.generate(request):
-            try:
-                html, path, message = res
-            except ValueError:
-                # also allow two items yielding for simplicity
-                html, path = res
-                message = path.replace(conf['output_dir'], '')
-
-            utils.mkfile(html, path, message, time.time()-tt, **options)
+        for html, path in v.generate(request):
+            utils.mkfile(html, path, time.time()-tt, **options)
             tt = time.time()
 
     log.info('Blog compiled in %.2fs' % (time.time() - ctime))

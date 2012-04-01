@@ -31,12 +31,12 @@ class Entry(View):
                                                                        entry.filename))
             pathes[p] = entry
 
-        for p, entry in pathes.iteritems():
-            if exists(p) and not entry.has_changed and not tt.has_changed:
-                event.skip(entry.title, path=p)
+        for path, entry in pathes.iteritems():
+            if exists(path) and not entry.has_changed and not tt.has_changed:
+                event.skip(path)
                 continue
 
             html = tt.render(env=union(self.env, entrylist=[entry], type='entry'),
                              conf=self.conf, entry=entry)
 
-            yield html, p, entry.title
+            yield html, path
