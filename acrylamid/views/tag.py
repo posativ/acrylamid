@@ -65,7 +65,7 @@ class Tag(View):
         tags = defaultdict(list)
         for e in request['entrylist']:
             for tag in e.tags:
-                tags[tag].append(e)
+                tags[tag.lower()].append(e)
 
         env.jinja2.filters['tagify'] = tagify
         env.tag_cloud = Tagcloud(tags, self.conf['tag_cloud_steps'],
