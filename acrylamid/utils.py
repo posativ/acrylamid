@@ -518,7 +518,7 @@ def mkfile(content, path, ctime=0.0, force=False, dryrun=False, **kwargs):
         with file(path) as f:
             old = f.read()
         if content == old and not force:
-            event.identical(path=path)
+            event.identical(path)
         else:
             if not dryrun:
                 with open(path, 'w') as f:

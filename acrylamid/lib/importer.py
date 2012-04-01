@@ -201,7 +201,7 @@ def build(conf, env, defaults, items, fmt, keep=False):
         if isfile(filepath):
             raise AcrylamidException('Entry already exists %r' % filepath)
         os.rename(tmp, filepath)
-        event.create(title, filepath)
+        event.create(filepath)
 
     for item in items:
 
