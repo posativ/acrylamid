@@ -103,7 +103,6 @@ def compile(conf, env, force=False, **options):
     # list = [<class head_offset.Headoffset at 0x1014882c0>, <class html.HTML at 0x101488328>,...]
     aflist = filters.get_filters()
 
-
     # ... and get all configured views
     _views = views.get_views()
 

@@ -167,7 +167,7 @@ class FilterList(list):
         Otherwise y is not in FilterList.
         """
         for x in self:
-            if x is y:
+            if x.__class__.__name__ == y.__class__.__name__:
                 return True
         for f in y.conflicts:
             for x in self:
