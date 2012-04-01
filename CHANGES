@@ -3,22 +3,30 @@
 Version 0.3
 -----------
 
-Released on ..., Nth 2012
+Released on April, 1th 2012 [Aprilscherz]
 
 - new command `acrylamid new` to create a new post with some defaults
 - new command `acrylamid view` an internal webserver to view your output
 - new command `acrylamid autocompile` automatically compile if something as
-  has changed and a parallel running webserver on port -p 8000.
+  has changed and a parallel running webserver on port -p 8000
 - new command `acrylamid clean` to clean untracked files (orphans)
+- new command `acrylamid deploy` to run your own commands with acrylamid
+- new command `acrylamid import` to import content from an existing RSS feed
 - new condition property in Filter so you can e.g. make a per-tag feed or
-  get multilanguage support in your blog.
-- new jinja2, acronyms and pandoc filters.
+  get multilanguage support in your blog
+- new jinja2, acronyms and pandoc filters
+- new HTML5 layout (and it even validates)
+- inspired pelican configuration
+- optional PyYAML support
+- documentation
 - major refactoring
 - API overhaul
-- many bugfixes
+- tons of bugfixes
 - sub-uri support
-- first unit tests
+- some unit tests
 - speed improvements
+
+.. 176 commits, 66 files changed, 5384 insertions(+), 1870 deletions(-)
 
 Version 0.2
 -----------
