@@ -41,6 +41,13 @@ full-featured installation do:
 
     pip install docutils pygments asciimathml smartypants
 
+
+If you are interested in recent changes, try the master version:
+
+::
+
+    pip install -e git+git://github.com/posativ/acrylamid.git#egg=acrylamid
+
 Get acrylamid, edit *conf.py* and *layouts/* and run acrylamid with:
 
 ::
