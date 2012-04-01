@@ -1,4 +1,4 @@
-Configuration
+    Configuration
 =============
 
 Acrylamid's configuration is read from ``conf.py`` inside your current working
@@ -122,6 +122,12 @@ Variable name (default value)                       Description
 `DEFAULT_ORPHANS` (``0``)                           The minimum number of articles allowed on the last
                                                     page. Use this when you don’t want to have a last
                                                     page with very few articles.
+`SUMMARIZE_MODE` (``1``)                            Mode *0* this injects the link to the end of the
+                                                    current tag, *1* after some black-listed tags and
+                                                    *2* after all tags as standalone tag.
+`SUMMARIZE_ELLIPSIS` (``&#8230;``)                  Ellipsis (defaults to three typographical dots, …)
+`SUMMARIZE_IDENTIFIER` (``weiterlesen``)            The text inside the continue reading link.
+`SUMMARIZE_class` (``continue``)                    CSS-class used in ``<a>``-Tag.
 ================================================    =====================================================
 
 .. [#] Note, disqus only knows a given URL. If you change the title of an entry

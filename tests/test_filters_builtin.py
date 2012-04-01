@@ -11,8 +11,8 @@ except ImportError:
 from acrylamid import log, defaults, Environment
 from acrylamid.filters import initialize, get_filters
 
-log.init('foo', 15)
-initialize([], {'lang': 'en'}, Environment({'path': '/',
+log.init('foo', 35)
+initialize([], {'lang': 'en'}, Environment({'path': '',
            'options': type('X', (), {'ignore': False})}))
 
 # now we have filters in path
@@ -21,7 +21,9 @@ from acrylamid.filters.hyphenation import build
 
 class Entry(object):
 
-    def __init__(self, lang):
+    permalink = '/foo/'
+
+    def __init__(self, lang='en'):
         self.lang = lang
 
 
@@ -58,3 +60,20 @@ class TestHyphenation(unittest.TestCase):
 
         self.assertEqual(jinja2.transform('{{ entry.lang }}', Entry('de')), 'de')
         self.assertEqual(jinja2.transform("{{ 'which which' | system }}", None), '/usr/bin/which')
+
+    def test_summarize(self):
+
+        summarize = get_filters()['summarize']('summarize')
+        examples = [('Hello World', 'Hello World'),
+                    # a real world example
+                    ('<p>Hello World, you have to click this link because</p>',
+                     '<p>Hello World, you have to <span>&#8230;<a href="/foo/" '+ \
+                     'class="continue">weiterlesen</a>.</span></p>'),
+                    ('<p>Hel&shy;lo Wor&shy;ld, you have to click this link because</p>',
+                    # now with HTML entities
+                     '<p>Hel&shy;lo Wor&shy;ld, you have to <span>&#8230;<a href="/foo/" '+ \
+                     'class="continue">weiterlesen</a>.</span></p>'),
+                    ('Hello<br />', 'Hello<br />')]
+
+        for text, result in examples:
+            self.assertEqual(summarize.transform(text, Entry(), '5'), result)

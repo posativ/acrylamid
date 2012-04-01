@@ -159,8 +159,9 @@ summarize
 :Defaults:
 	summarize+200
 
-Summarizes content to make listings of text previews (used for the default
-tag/page view).
+Summarizes content to make listings of text previews (used in tag/page by default).
+You can customize the ellipsis, CSS-class, link-text and the behaviour how the link
+appears in your :doc:`conf.py`.
 
 hyphenate
 ---------
