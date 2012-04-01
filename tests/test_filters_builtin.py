@@ -68,11 +68,11 @@ class TestHyphenation(unittest.TestCase):
                     # a real world example
                     ('<p>Hello World, you have to click this link because</p>',
                      '<p>Hello World, you have to <span>&#8230;<a href="/foo/" '+ \
-                     'class="continue">weiterlesen</a>.</span></p>'),
+                     'class="continue">continue</a>.</span></p>'),
                     ('<p>Hel&shy;lo Wor&shy;ld, you have to click this link because</p>',
                     # now with HTML entities
                      '<p>Hel&shy;lo Wor&shy;ld, you have to <span>&#8230;<a href="/foo/" '+ \
-                     'class="continue">weiterlesen</a>.</span></p>'),
+                     'class="continue">continue</a>.</span></p>'),
                     ('Hello<br />', 'Hello<br />')]
 
         for text, result in examples:

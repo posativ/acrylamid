@@ -1,5 +1,5 @@
-# Copyright 2011 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid.py
+# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
 from acrylamid import log
 from acrylamid.filters import Filter
@@ -103,7 +103,7 @@ class Summarize(Filter):
         self.mode = conf.get('summarize_mode', 1)
 
         ellipsis = conf.get('summarize_ellipsis', '&#8230;')
-        identifier = conf.get('summarize_identifier', 'weiterlesen')
+        identifier = conf.get('summarize_identifier', 'continue')
         klass = conf.get('summarize_class', 'continue')
 
         self.link = '<span>'+ellipsis+'<a href="%s" class="'+klass+'">'+identifier+'</a>.</span>'

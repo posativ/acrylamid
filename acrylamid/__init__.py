@@ -84,7 +84,7 @@ class Acryl:
         if len(sys.argv) > 2 and sys.argv[1] in ('--help', 'help'):
             sys.argv[1], sys.argv[2] = sys.argv[2], '--help'
 
-        if len(sys.argv) <= 1 or sys.argv[1] in ('-h', '--help'):
+        if len(sys.argv) <= 1 or sys.argv[1] in ('-h', '--help', 'help'):
             options, constants = [], [
                 make_option("-q", "--quiet", action="store_const", dest="verbosity",
                         help="less verbose", const=log.WARN, default=log.INFO),

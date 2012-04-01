@@ -8,21 +8,21 @@
     {{ entry.content }}
     <footer>
         {% if conf.disqus_shortname and env.type == 'index' %}
-            <a class="floatright" href="{{ conf.www_root + entry.permalink }}#disqus_thread">Kommentieren</a>
+            <a class="floatright" href="{{ conf.www_root + entry.permalink }}#disqus_thread">Comment</a>
         {% endif %}
         {% if 'tag' in env.views and entry.tags %}
-            <p>verschlagwortet als
+            <p>tagged as
                 {% for link in entry.tags | tagify -%}
                     <a href="{{ env.path + link.href }}">{{ link.title }}</a>
                     {%- if loop.revindex > 2 -%}
                     ,
                     {%- elif loop.revindex == 2 %}
-                    und
+                    and
                     {% endif %}
                 {% endfor %}
             </p>
         {% elif not entry.draft %}
-            <p>nicht verschlagwortet</p>
+            <p>untagged</p>
         {% endif %}
     </footer>
     <div class="comments">

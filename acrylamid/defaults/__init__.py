@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 #
-# Copyright 2011 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid.py
+# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
 import sys
 import os
@@ -188,7 +188,7 @@ SITENAME = 'A descriptive blog title'
 WWW_ROOT = 'http://example.com/'
 
 AUTHOR = 'Anonymous'
-EMAIL = 'info@example.org'
+EMAIL = 'mail@example.com'
 
 FILTERS = ['markdown+codehilite(css_class=highlight)', 'hyphenate', 'h1']
 VIEWS = {
@@ -200,8 +200,8 @@ VIEWS = {
     '/tag/:name/': {'filters': 'summarize', 'view':'tag',
                     'pagination': '/tag/:name/:num'},
 
-    '/atom/': {'filters': 'h2', 'view': 'atom'},
-    '/rss/': {'filters': 'h2', 'view': 'rss'},
+    '/atom/': {'filters': ['h2', 'nohyphenate'], 'view': 'atom'},
+    '/rss/': {'filters': ['h2', 'nohyphenate'], 'view': 'rss'},
 
     '/articles/': {'view': 'articles'},
 
