@@ -14,7 +14,7 @@ class Feed(View):
     def generate(self, request):
 
         entrylist = filter(lambda e: not e.draft, request['entrylist'])[:self.num_entries]
-        tt = self.env.jinja2.get_template('%s.xml' % self.__class__.__name__)
+        tt = self.env.jinja2.get_template('%s.xml' % self.__class__.__name__.lower())
 
         path = joinurl(self.conf['output_dir'], self.path)
         if not filter(lambda e: path.endswith(e), ['.xml', '.html']):
