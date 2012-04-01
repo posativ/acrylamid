@@ -13,13 +13,16 @@ class Pandoc(Filter):
     priority = 70.0
 
     def init(self, conf, env):
-
-        try:
-            system('pandoc', '--help')
-        except OSError:
-            raise AcrylamidException('no pandoc available')
+        self.ignore = env.options.ignore
 
     def transform(self, text, entry, *args):
+
+        try:
+            system(['which', 'pandoc'])
+        except AcrylamidException:
+            if self.ignore:
+                return text
+            raise AcrylamidException('Pandoc: pandoc not available')
 
         if len(args) == 0:
             raise AcrylamidException("pandoc filter takes one or more arguments")
