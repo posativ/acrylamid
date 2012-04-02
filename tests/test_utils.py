@@ -93,6 +93,11 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(list(utils.paginate(res, 10)),
             [((None, 1, 2), res[:10], True), ((1, 2, None), res[10:], True)])
 
+        res = [X(_) for _ in range(21)]
+        self.assertEqual(list(utils.paginate(res, 10)),
+            [((None, 1, 2), res[:10], True), ((1, 2, 3), res[10:20], True),
+             ((2, 3, None), res[20:], True)])
+
         # edge cases
         self.assertEqual(list(utils.paginate([], 2)), [])
         self.assertEqual(list(utils.paginate([], 2, orphans=7)), [])
