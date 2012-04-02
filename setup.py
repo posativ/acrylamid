@@ -149,7 +149,7 @@ setup(
     ],
     install_requires=[
         'Jinja2>=2.4',
-        'Markdown>=2.0.1',
+        'Markdown<=2.0.3',
         'translitcodec>=0.2'
     ],
 )
