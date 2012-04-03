@@ -1,4 +1,4 @@
-# License: BSD Style, 2 clauses. see acrylamid.py
+# License: BSD Style, 2 clauses. see acrylamid/__init__.py
 # -*- encoding: utf-8 -*-
 
 from acrylamid.filters import Filter
@@ -50,7 +50,7 @@ class Hyphenator:
         # Convert the a pattern like 'a1bc3d4' into a string of chars 'abcd'
         # and a list of points [ 1, 0, 3, 4 ].
         chars = re.sub('[0-9]', '', pattern)
-        points = [int(d or 0) for d in re.split(self.chars, pattern, flags=re.U)]
+        points = [int(d or 0) for d in re.split(self.chars, pattern)]
 
         # Insert the pattern into the tree.  Each character finds a dict
         # another level down in the tree, and leaf nodes have the list of
@@ -102,9 +102,10 @@ class Separator(HTMLParser):
     """helper class to apply Hyphenator to each word except in pre, code,
     math and em tags."""
 
-    def __init__(self, html, hyphenationfunc):
+    def __init__(self, html, hyphenationfunc, length=10):
         HTMLParser.__init__(self)
         self.hyphenate = hyphenationfunc
+        self.length = length
         self.result = []
         self.stack = []
 
@@ -130,7 +131,8 @@ class Separator(HTMLParser):
         if filter(lambda i: i in self.stack, ['pre', 'code', 'math', 'em']):
             pass
         else:
-            split = [word for word in re.split(r"[.:,\s!?+=\(\)/-]+", data) if len(word) > 10]
+            split = [word for word in re.split(r"[.:,\s!?+=\(\)/-]+", data)
+                     if len(word) > self.length]
             for word in split:
                 hyphenated = '&shy;'.join(self.hyphenate(word))
                 data = data.replace(word, hyphenated)
@@ -164,29 +166,24 @@ def build(lang):
                 f = os.path.basename(p)
                 if f.startswith(la):
                     return join(directory, p)
+        else:
+            raise HyphenPatternNotFound("no hyph-definition found for '%s'" % lang)
 
-        raise HyphenPatternNotFound("no hyph-definition found for '%s'" % lang)
-
+    dir = os.path.join(dirname(__file__), 'hyph/')
+    fpath = gethyph(lang, dir).rsplit('.', 2)[0]
     try:
-        dir = os.path.join(dirname(__file__), 'hyph/')
-        fpath = gethyph(lang, dir).rsplit('.', 2)[0]
-        try:
-            with codecs.open(fpath + '.chr.txt', encoding='utf-8') as f:
-                chars = ''.join([line[0] for line in f.readlines()])
-            with codecs.open(fpath + '.pat.txt', encoding='utf-8') as f:
-                patterns = f.read()
-        except IOError:
-            raise HyphenPatternNotFound('hyph/%s.chr.txt or hyph/%s.pat.txt missing' % (lang, lang))
+        with codecs.open(fpath + '.chr.txt', encoding='utf-8') as f:
+            chars = ''.join([line[0] for line in f.readlines()])
+        with codecs.open(fpath + '.pat.txt', encoding='utf-8') as f:
+            patterns = f.read()
+    except IOError:
+        raise HyphenPatternNotFound('hyph/%s.chr.txt or hyph/%s.pat.txt missing' % (lang, lang))
 
-        hyphenator = Hyphenator(chars, patterns, exceptions='')
-        del patterns
-        del chars
-        log.debug("built Hyphenator from <%s>" % basename(fpath))
-        return hyphenator.hyphenate_word
-
-    except HyphenPatternNotFound, e:
-        log.warn(e.message)
-        return lambda x: [x]
+    hyphenator = Hyphenator(chars, patterns, exceptions='')
+    del patterns
+    del chars
+    log.debug("built Hyphenator from <%s>" % basename(fpath))
+    return hyphenator.hyphenate_word
 
 
 class Hyphenate(Filter):
@@ -195,20 +192,35 @@ class Hyphenate(Filter):
 
     @cached_property
     def default(self):
-        # build default hyphenate_word using conf's lang (if available)
-        return build(self.conf['lang'][0].replace('_', '-'))
+        try:
+            # build default hyphenate_word using conf's lang (if available)
+            return build(self.conf['lang'].replace('_', '-'))
+        except HyphenPatternNotFound as e:
+            log.warn(e.message)
+            return lambda x: [x]
 
     def init(self, conf, env):
         self.conf = conf
 
-    def transform(self, content, req):
-        if req.lang != self.conf['lang']:
-            hyphenate_word = build(req.lang[0].replace('_', '-'))
+    def transform(self, content, entry, *args):
+        if entry.lang != self.conf['lang']:
+            try:
+                hyphenate_word = build(entry.lang.replace('_', '-'))
+            except HyphenPatternNotFound as e:
+                log.once(warn=e.message)
+                hyphenate_word = lambda x: [x]
         else:
             hyphenate_word = self.default
 
         try:
-            return ''.join(Separator(content, hyphenate_word).result)
+            length = int(args[0])
+        except (ValueError, IndexError) as e:
+            if e.__class__.__name__ == 'ValueError':
+                log.warn('Hyphenate: invalid length argument %r', args[0])
+            length = 10
+
+        try:
+            return ''.join(Separator(content, hyphenate_word, length=length).result)
         except HTMLParseError as e:
-            log.warn('%s: %s in %s' % (e.__class__.__name__, e.msg, req.filename))
+            log.warn('%s: %s in %s' % (e.__class__.__name__, e.msg, entry.filename))
             return content

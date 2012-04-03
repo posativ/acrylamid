@@ -16,10 +16,10 @@ plain HTML generation and avoids javascript usage whenever possible.
 Linux/Debian and OS X
 *********************
 
-You'll need the python interpreter (python 3.x is not supported) and a python
-package manager. If you are on Linux (Debian-based), just ``apt-get install
-python python-setuputils``. If you are using OS X the proper Python version is
-already installed (10.6 or later).
+You'll need the python interpreter with version >= 2.6 (python 3.x is not yet
+supported) and a python package manager. If you are on Linux (Debian-based),
+just ``apt-get install python python-setuputils``. If you are using OS X the
+proper Python version is already installed (10.6 or later).
 
 ::
 
@@ -30,14 +30,9 @@ translitcodec are not must-have dependency).
 
 .. note::
 
-    You'll need ``easy_install -U simplejson`` if you're using python in
-    version 2.5
-
-.. warning::
-
     Avoid removing ``translitcodec`` egg after you started writing your blog. It
     might break all your permanent links.
 
-If you  want a full featured  installation, just do::
+If you  want a full featured installation::
 
     $> easy_install -U docutils pygments asciimathml smartypants

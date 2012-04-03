@@ -24,11 +24,11 @@ class TestUtils(unittest.TestCase):
         os.chdir(self.path)
 
     def test_init(self):
-        os.remove('output/blog.css')
-        subprocess.check_call(['acrylamid', 'init', '-fq', 'output/blog.css'])
+        os.remove('output/style.css')
+        subprocess.check_call(['acrylamid', 'init', '-fq', 'output/style.css'])
 
         self.assertTrue(isfile('conf.py'))
-        self.assertTrue(isfile(join('output/', 'blog.css')))
+        self.assertTrue(isfile(join('output/', 'style.css')))
 
     def test_compile(self):
         subprocess.check_call(['acrylamid', 'compile', '-q'])
@@ -52,7 +52,7 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(count('output/'), x)
 
         # --dry-run shoul NOT touch anything
-        os.remove('content/sample entry.txt')
+        os.remove('content/sample-entry.txt')
         subprocess.check_call(['acrylamid', 'compile', '-q'])
         subprocess.check_call(['acrylamid', 'clean', '-nq'])
         self.assertEqual(count('output/'), x)

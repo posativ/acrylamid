@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 #
-# Copyright 2011 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid.py
+# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
 import sys
 import os
@@ -424,6 +424,10 @@ class FileEntry:
 
 class ExtendedFileSystemLoader(FileSystemLoader):
 
+    # Acrylamid views (should) process templates on the fly thus we
+    # don't have a 1. "select template", 2. "render template" stage
+    resolved = {}
+
     def load(self, environment, name, globals=None):
         """patched `load` to add a has_changed property providing information
         whether the template or its parents have changed."""
@@ -432,6 +436,9 @@ class ExtendedFileSystemLoader(FileSystemLoader):
             """We check whether any dependency (extend-block) has changed and
             update the bucket -- recursively. Returns True if the template
             itself or any parent template has changed. Otherwise False."""
+
+            if parent in self.resolved:
+                return self.resolved[parent]
 
             source, filename, uptodate = self.get_source(environment, parent)
             bucket = bcc.get_bucket(environment, parent, filename, source)
@@ -443,6 +450,8 @@ class ExtendedFileSystemLoader(FileSystemLoader):
                 code = environment.compile(source, parent, filename)
                 bucket.code = code
                 bcc.set_bucket(bucket)
+
+                self.resolved[parent] = True
                 return True
 
             ast = environment.parse(source)
@@ -485,21 +494,6 @@ def filelist(entries_dir, entries_ignore=[]):
     return flist
 
 
-def render(tt, *dicts, **kvalue):
-    """helper function to merge multiple dicts and additional key=val params
-    to a single environment dict used by jinja2 templating. Note, merging will
-    first update dicts in given order, then (possible) overwrite single keys
-    in kvalue."""
-
-    env = {}
-    for d in dicts:
-        env.update(d)
-    for key in kvalue:
-        env[key] = kvalue[key]
-
-    return tt.render(env)
-
-
 def union(*args, **kwargs):
     """Takes a list of dictionaries and performs union of each.  Can take additional
     key=values as parameters which may overwrite or add a key/value-pair."""
@@ -512,12 +506,11 @@ def union(*args, **kwargs):
     return d
 
 
-def mkfile(content, path, message, ctime=0.0, force=False, dryrun=False, **kwargs):
+def mkfile(content, path, ctime=0.0, force=False, dryrun=False, **kwargs):
     """Creates entry in filesystem. Overwrite only if content differs.
 
     :param content: rendered html/xml to write
     :param path: path to write to
-    :param message: message to display
     :param ctime: time needed to compile
     :param force: force overwrite, even nothing has changed (defaults to `False`)
     :param dryrun: don't write anything."""
@@ -527,12 +520,12 @@ def mkfile(content, path, message, ctime=0.0, force=False, dryrun=False, **kwarg
         with file(path) as f:
             old = f.read()
         if content == old and not force:
-            event.identical(message, path=path)
+            event.identical(path)
         else:
             if not dryrun:
                 with open(path, 'w') as f:
                     f.write(content)
-            event.changed(message, path=path, ctime=ctime)
+            event.changed(path=path, ctime=ctime)
     else:
         try:
             if not dryrun:
@@ -543,7 +536,7 @@ def mkfile(content, path, message, ctime=0.0, force=False, dryrun=False, **kwarg
         if not dryrun:
             with open(path, 'w') as f:
                 f.write(content)
-        event.create(message, path=path, ctime=ctime)
+        event.create(path=path, ctime=ctime)
 
 
 def md5(*objs,  **kw):
@@ -615,7 +608,13 @@ def paginate(list, ipp, func=lambda x: x, salt=None, orphans=0):
         res[-2].extend(res[-1])
         res.pop(-1)
 
+    j = len(res)
     for i, entries in enumerate(res):
+
+        i += 1
+        next = None if i == 1 else i-1
+        curr = i
+        prev = None if i >= j else i+1
 
         # get caller, so we can set a unique and meaningful hash-key
         frame = log.findCaller()
@@ -639,11 +638,11 @@ def paginate(list, ipp, func=lambda x: x, salt=None, orphans=0):
             cache.memoize(hkey, hv)
             has_changed = True
 
-        yield i, entries, has_changed
+        yield (next, curr, prev), entries, has_changed
 
 
-def escapes(string):
-    """Escapes string to fit to the YAML standard.  I did not read the
+def escape(string):
+    """Escape string to fit to the YAML standard.  I did not read the
     specs, though."""
 
     if filter(lambda c: c in string, '\'\"#:'):
@@ -654,22 +653,23 @@ def escapes(string):
     return string
 
 
-def system(cmd, stdin=None):
+def system(cmd, stdin=None, **kw):
     """A simple front-end to python's horrible Popen-interface which lets you
     run a single shell command (only one, semicolon and && is not supported by
     os.execvp(). Does not catch OSError!
 
     :param cmd: command to run (a single string or a list of strings).
     :param stdin: optional string to pass to stdin.
+    :param kw: everything there is passed to Popen.
     """
 
     try:
         if stdin:
             p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                 stdin=subprocess.PIPE)
+                                 stdin=subprocess.PIPE, **kw)
             result, err = p.communicate(stdin)
         else:
-            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kw)
             result, err = p.communicate()
 
     except OSError as e:
@@ -804,10 +804,10 @@ class cache(object):
 
 def track(f):
     """decorator to track files when event.create|change|skip is called."""
-    def dec(cls, what, path, *args, **kwargs):
+    def dec(cls, path, *args, **kwargs):
         global _tracked_files
         _tracked_files.add(path)
-        return f(cls, what, path, *args, **kwargs)
+        return f(cls, path, *args, **kwargs)
     return dec
 
 
@@ -831,7 +831,7 @@ class event:
 
     @classmethod
     @track
-    def create(self, what, path, ctime=None):
+    def create(self, path, ctime=None):
         if ctime:
             log.info("create  [%.2fs] %s", ctime, path)
         else:
@@ -839,7 +839,7 @@ class event:
 
     @classmethod
     @track
-    def changed(self, what, path, ctime=None):
+    def changed(self, path, ctime=None):
         if ctime:
             log.info("update  [%.2fs] %s", ctime, path)
         else:
@@ -847,12 +847,12 @@ class event:
 
     @classmethod
     @track
-    def skip(self, what, path):
+    def skip(self, path):
         log.skip("skip  %s", path)
 
     @classmethod
     @track
-    def identical(self, what, path):
+    def identical(self, path):
         log.skip("identical  %s", path)
 
     @classmethod

@@ -12,6 +12,11 @@ class TestTag(unittest.TestCase):
 
     def test_tagcloud(self):
 
+        try:
+            self.assertIn
+        except AttributeError:
+            self.assertIn = lambda x, y: self.assertTrue(x in y)
+
         tags = {'foo': range(1), 'bar': range(2)}
         cloud = tag.Tagcloud(tags, steps=4, max_items=100, start=0)
         lst = [(t.name, t.step) for t in cloud]

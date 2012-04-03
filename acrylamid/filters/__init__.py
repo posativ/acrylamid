@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 #
-# Copyright 2011 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid.py
+# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
 import sys
 import os
@@ -149,7 +149,7 @@ class Filter(object):
     def __eq__(self, other):
         return True if hash(other) == hash(self) else False
 
-    def transform(self, text, request, *args):
+    def transform(self, text, entry, *args):
         raise NotImplemented
 
 
@@ -167,7 +167,7 @@ class FilterList(list):
         Otherwise y is not in FilterList.
         """
         for x in self:
-            if x is y:
+            if x.__class__.__name__ == y.__class__.__name__:
                 return True
         for f in y.conflicts:
             for x in self:
@@ -185,37 +185,4 @@ class FilterList(list):
         return f
 
 
-class FilterStorage(dict):
-    """store multiple keys per value and make __call__ do nothing, when
-    filter is prefixed by *no*."""
-
-    def __init__(self, *args):
-        dict.__init__(self, args)
-        self.map = {}
-
-    def __contains__(self, key):
-        return True if key in self.map else False
-
-    def __setitem__(self, key, value):
-
-        if isinstance(key, basestring):
-            self.map[key] = key
-            dict.__setitem__(self, key, value)
-        else:
-            for k in key:
-                self.map[k] = key[0]
-            dict.__setitem__(self, key[0], value)
-
-    def __getitem__(self, key):
-
-        q = key[2:] if key.startswith('no') else key
-        try:
-            f = dict.__getitem__(self, self.map[q])
-        except KeyError:
-            raise AcrylamidException('no such filter: %s' % key)
-        if key.startswith('no'):
-            f = copy.copy(f)
-            f.__call__ = lambda x, y, *z: x
-        return f
-
-callbacks = FilterList() # FilterStorage()
+callbacks = FilterList()

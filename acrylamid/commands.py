@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 #
-# Copyright 2011 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid.py
+# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
 import sys
 import os
@@ -20,7 +20,7 @@ from jinja2 import Environment, FileSystemBytecodeCache
 from acrylamid import filters, views, log, utils
 from acrylamid.lib.importer import fetch, parse, build
 from acrylamid.errors import AcrylamidException
-from acrylamid.utils import cache, ExtendedFileSystemLoader, FileEntry, event, escapes, \
+from acrylamid.utils import cache, ExtendedFileSystemLoader, FileEntry, event, escape, \
                             system, filelist
 
 from acrylamid.filters import FilterList
@@ -32,19 +32,25 @@ def initialize(conf, env):
     a request dict is returned.
     """
     # set up templating environment
-    env['tt_env'] = Environment(loader=ExtendedFileSystemLoader(conf['layout_dir']),
+    env['jinja2'] = Environment(loader=ExtendedFileSystemLoader(conf['layout_dir']),
                                 bytecode_cache=FileSystemBytecodeCache('.cache/'))
-    env['tt_env'].filters.update({'safeslug': lambda x: x, 'tagify': lambda x: x})
+    env['jinja2'].filters.update({'safeslug': utils.safeslug, 'tagify': lambda x: x})
 
     # initialize the locale, will silently fail if locale is not
     # available and uses system's locale
     try:
         locale.setlocale(locale.LC_ALL, conf.get('lang', ''))
-    except (locale.Error, TypeError):
-        # invalid locale
-        locale.setlocale(locale.LC_ALL, '')
-        log.warn("unsupported locale '%s', set to '%s'", conf['lang'], locale.getlocale()[0])
-    conf['lang'] = locale.getlocale()
+    except (locale.Error, TypeError, KeyError):
+        if conf['lang'] in locale.locale_alias:
+            try:
+                locale.setlocale(locale.LC_ALL, locale.locale_alias[conf['lang']])
+            except locale.Error:
+                log.warn('your OS does not support %s', locale.locale_alias[conf['lang']])
+                locale.setlocale(locale.LC_ALL, 'C')
+        else:
+            locale.setlocale(locale.LC_ALL, '')
+            log.debug("locale set to '%s'", locale.getlocale()[0])
+    conf['lang'] = locale.getlocale()[0][:2] if locale.getlocale()[0] is not None else 'C'
 
     if 'www_root' not in conf:
         log.warn('no `www_root` specified, using localhost:8000')
@@ -67,6 +73,7 @@ def initialize(conf, env):
     cache.init()
 
     # import and initialize plugins
+    # XXX put them into defaults
     filters.initialize(conf.get("filters_dir", []), conf, env,
                           exclude=conf.get("filters_ignore", []),
                           include=conf.get("filters_include", []))
@@ -99,7 +106,6 @@ def compile(conf, env, force=False, **options):
     # get available filter list, something like with obj.get-function
     # list = [<class head_offset.Headoffset at 0x1014882c0>, <class html.HTML at 0x101488328>,...]
     aflist = filters.get_filters()
-
 
     # ... and get all configured views
     _views = views.get_views()
@@ -161,15 +167,8 @@ def compile(conf, env, force=False, **options):
         request['entrylist'] = filter(v.condition, entrylist)
         tt = time.time()
 
-        for res in v.generate(request):
-            try:
-                html, path, message = res
-            except ValueError:
-                # also allow two items yielding for simplicity
-                html, path = res
-                message = path.replace(conf['output_dir'], '')
-
-            utils.mkfile(html, path, message, time.time()-tt, **options)
+        for html, path in v.generate(request):
+            utils.mkfile(html, path, time.time()-tt, **options)
             tt = time.time()
 
     log.info('Blog compiled in %.2fs' % (time.time() - ctime))
@@ -246,7 +245,7 @@ def clean(conf, everything=False, dryrun=False, **kwargs):
                 pass
 
 
-def new(conf, env, title):
+def new(conf, env, title, prompt=True):
     """Subcommand: new -- create a new blog entry the easy way.  Either run
     ``acrylamid new My fresh new Entry`` or interactively via ``acrylamid new``
     and the file will be created using the preferred permalink format."""
@@ -256,7 +255,7 @@ def new(conf, env, title):
 
     if not title:
         title = raw_input("Entry's title: ")
-    title = escapes(title)
+    title = escape(title)
 
     with os.fdopen(fd, 'wb') as f:
         f.write('---\n')
@@ -276,10 +275,13 @@ def new(conf, env, title):
     if isfile(filepath):
         raise AcrylamidException('Entry already exists %r' % filepath)
     os.rename(tmp, filepath)
-    event.create(title, filepath)
+    event.create(filepath)
 
     if datetime.now().hour == 23 and datetime.now().minute > 45:
         log.info("notice  consider editing entry.date-day after you passed mignight!")
+
+    if not prompt:
+        return
 
     try:
         if editor:

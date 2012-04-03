@@ -1,5 +1,5 @@
-# Copyright 2011 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid.py
+# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses. see acrylamid/__init__.py
 #
 # -*- encoding: utf-8 -*-
 
@@ -46,7 +46,7 @@ class Tagcloud:
 
 class Tag(View):
 
-    def init(self, items_per_page=25, pagination='/tag/:name/:num/'):
+    def init(self, items_per_page=10, pagination='/tag/:name/:num/'):
         self.items_per_page = items_per_page
         self.pagination = pagination
 
@@ -65,14 +65,13 @@ class Tag(View):
         tags = defaultdict(list)
         for e in request['entrylist']:
             for tag in e.tags:
-                tags[tag].append(e)
+                tags[tag.lower()].append(e)
 
-        env['tag_cloud'] = Tagcloud(tags, self.conf['tag_cloud_steps'],
-                                          self.conf['tag_cloud_max_items'],
-                                          self.conf['tag_cloud_start_index'],
-                                          self.conf.get('tag_cloud_shuffle', False))
-        self.env['tt_env'].filters['safeslug'] = safeslug
-        self.env['tt_env'].filters['tagify'] = tagify
+        env.jinja2.filters['tagify'] = tagify
+        env.tag_cloud = Tagcloud(tags, self.conf['tag_cloud_steps'],
+                                       self.conf['tag_cloud_max_items'],
+                                       self.conf['tag_cloud_start_index'],
+                                       self.conf.get('tag_cloud_shuffle', False))
 
         self.tags = {}
         for k, v in tags.iteritems():
@@ -83,37 +82,41 @@ class Tag(View):
     def generate(self, request):
         """Creates paged listing by tag."""
 
-        entrylist = request['entrylist']
         ipp = self.items_per_page
+        tt = self.env.jinja2.get_template('main.html')
 
-        tt_entry = self.env['tt_env'].get_template('entry.html')
-        tt_main = self.env['tt_env'].get_template('main.html')
+        entrylist = [entry for entry in request['entrylist'] if not entry.draft]
 
         for tag in self.tags:
+
             entrylist = [entry for entry in self.tags[tag]]
-            for i, entries, has_changed in paginate(entrylist, ipp, lambda e: not e.draft, salt=tag,
-                                                    orphans=self.conf['default_orphans']):
+            paginator = paginate(entrylist, ipp, salt=tag, orphans=self.conf['default_orphans'])
+
+            for (next, curr, prev), entries, has_changed in paginator:
 
                 # e.g.: curr = /page/3, next = /page/2, prev = /page/4
-                if i == 0:
-                    next = None
+
+                if next == 1:
+                    next = expand(self.path, {'name': tag}).rstrip('/')
+                elif next > 1:
+                    next = expand(self.pagination, {'name': tag, 'num': next})
+
+                if curr == 1:
                     curr = expand(self.path, {'name': tag})
-                else:
-                    curr = expand(self.pagination, {'num': str(i+1), 'name': tag})
-                    next = expand(self.path, {'name': tag}) if i==1 \
-                             else expand(self.pagination, {'name': tag, 'num': str(i)})
+                elif curr > 1:
+                    curr = expand(self.pagination, {'num': curr, 'name': tag})
 
-                prev = None if i >= len(list(entries))-1 \
-                            else expand(self.pagination, {'name': tag, 'num': str(i+2)})
-                p = joinurl(self.conf['output_dir'], curr, 'index.html')
+                if prev is not None:
+                    prev = expand(self.pagination, {'name': tag, 'num': prev})
 
-                if exists(p) and not  bool(filter(lambda e: e.has_changed, entries)):
-                    if not (tt_entry.has_changed or tt_main.has_changed):
-                        event.skip(curr, path=p)
-                        continue
+                path = joinurl(self.conf['output_dir'], curr, 'index.html')
 
-                html = tt_main.render(conf=self.conf, env=union(self.env, entrylist=entries,
-                                      type='tag', prev=prev, curr=curr, next=next,
-                                      items_per_page=ipp, num_entries=len(entrylist)))
+                if exists(path) and not has_changed and not tt.has_changed:
+                    event.skip(path)
+                    continue
 
-                yield html, p, curr
+                html = tt.render(conf=self.conf, env=union(self.env, entrylist=entries,
+                                type='tag', prev=prev, curr=curr, next=next,
+                                items_per_page=ipp, num_entries=len(entrylist)))
+
+                yield html, path

@@ -1,5 +1,5 @@
-# Copyright 2011 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid.py
+# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
 from acrylamid.views import View
 from acrylamid.utils import union, joinurl, event, cache, md5
@@ -11,19 +11,13 @@ from collections import defaultdict
 class Articles(View):
     """Generates a overview of all articles."""
 
-    path = '/articles/'
-
     def generate(self, request):
 
         entrylist = sorted((e for e in request['entrylist'] if not e.draft),
                         key=lambda k: k.date, reverse=True)
 
-        articles = defaultdict(list)
-        tt_articles = self.env['tt_env'].get_template('articles.html')
-
-        p = joinurl(self.conf['output_dir'], self.path)
-        if not filter(lambda e: p.endswith(e), ['.xml', '.html']):
-            p = joinurl(p, 'index.html')
+        tt = self.env.jinja2.get_template('articles.html')
+        path = joinurl(self.conf['output_dir'], self.path, 'index.html')
 
         hv = md5(*entrylist, attr=lambda o: o.md5)
         rv = cache.memoize('articles-hash')
@@ -35,15 +29,15 @@ class Articles(View):
             cache.memoize('articles-hash', hv)
             has_changed = True
 
-        if exists(p) and not has_changed and not tt_articles.has_changed:
-                event.skip(p.replace(self.conf['output_dir'], ''), path=p)
+        if exists(path) and not has_changed and not tt.has_changed:
+                event.skip(path)
                 raise StopIteration
 
+        articles = {}
         for entry in entrylist:
-            url, title, year = entry.permalink, entry.title, entry.date.year
-            articles[year].append((entry.date, url, title))
+            articles.setdefault((entry.year, entry.month), []).append(entry)
 
-        html = tt_articles.render(conf=self.conf, articles=articles,
-                                  env=union(self.env, num_entries=len(entrylist)))
+        html = tt.render(conf=self.conf, articles=articles,
+                         env=union(self.env, num_entries=len(entrylist)))
 
-        yield html, p
+        yield html, path

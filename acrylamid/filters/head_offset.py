@@ -1,5 +1,5 @@
-# Copyright 2011 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid.py
+# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
 from acrylamid.filters import Filter
 from re import sub
@@ -9,7 +9,7 @@ class Headoffset(Filter):
 
     match = ['h' + str(i + 1) for i in range(5)]
 
-    def transform(self, text, request, *args):
+    def transform(self, text, entry, *args):
 
         def f(m):
             '''will return html with all headers increased by 1'''

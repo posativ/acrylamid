@@ -1,4 +1,4 @@
-Configuration
+    Configuration
 =============
 
 Acrylamid's configuration is read from ``conf.py`` inside your current working
@@ -60,7 +60,7 @@ Variable name (default value)                       Description
 `EMAIL` (``'info@example.com'``)                    Your email address -- used in Atom/RSS feeds and as
                                                     contact ability at the bottom in the default layout.
 `ENCODING` (``'utf-8'``)                            Default encoding of your text files, only global.
-`OUTPUT_IGNORE` (``['blog.css', 'img/*']``)         A list of filename/directory-patterns which
+`OUTPUT_IGNORE` (``['style.css', 'img/*']``)        A list of filename/directory-patterns which
                                                     Acrylamid should ignore.
 `FILTERS` ( |filter_example|)                       Global list of filters.
 `VIEWS` (see example conf.py)                       Dictionary of views set in conf.py.
@@ -122,6 +122,12 @@ Variable name (default value)                       Description
 `DEFAULT_ORPHANS` (``0``)                           The minimum number of articles allowed on the last
                                                     page. Use this when you don’t want to have a last
                                                     page with very few articles.
+`SUMMARIZE_MODE` (``1``)                            Mode *0* this injects the link to the end of the
+                                                    current tag, *1* after some black-listed tags and
+                                                    *2* after all tags as standalone link.
+`SUMMARIZE_ELLIPSIS` (``&#8230;``)                  Ellipsis (defaults to three typographical dots, …)
+`SUMMARIZE_IDENTIFIER` (``weiterlesen``)            The text inside the continue reading link.
+`SUMMARIZE_CLASS` (``continue``)                    CSS-class used in ``<a>``-Tag.
 ================================================    =====================================================
 
 .. [#] Note, disqus only knows a given URL. If you change the title of an entry

@@ -1,5 +1,5 @@
-# Copyright 2011 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid.py
+# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
 from os.path import exists
 
@@ -10,15 +10,11 @@ from acrylamid.errors import AcrylamidException
 class Entry(View):
     """Creates single full-length entry."""
 
-    path = '/:year/:slug/'
-    filters = []
-
     def generate(self, request):
 
-        entrylist = request['entrylist']
+        tt = self.env.jinja2.get_template('main.html')
 
-        tt_entry = self.env['tt_env'].get_template('entry.html')
-        tt_main = self.env['tt_env'].get_template('main.html')
+        entrylist = request['entrylist']
         pathes = dict()
 
         for entry in entrylist:
@@ -35,13 +31,12 @@ class Entry(View):
                                                                        entry.filename))
             pathes[p] = entry
 
-        for p, entry in pathes.iteritems():
-            if exists(p) and not entry.has_changed:
-                if not (tt_entry.has_changed or tt_main.has_changed):
-                    event.skip(entry.title, path=p)
-                    continue
+        for path, entry in pathes.iteritems():
+            if exists(path) and not entry.has_changed and not tt.has_changed:
+                event.skip(path)
+                continue
 
-            html = tt_main.render(env=union(self.env, entrylist=[entry], type='entry'),
-                                  conf=self.conf, entry=entry)
+            html = tt.render(env=union(self.env, entrylist=[entry], type='entry'),
+                             conf=self.conf, entry=entry)
 
-            yield html, p, entry.title
+            yield html, path

@@ -1,5 +1,5 @@
-# Copyright 2011 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid.py
+# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
 from acrylamid.filters import Filter
 from acrylamid.utils import system
@@ -13,13 +13,16 @@ class Pandoc(Filter):
     priority = 70.0
 
     def init(self, conf, env):
+        self.ignore = env.options.ignore
+
+    def transform(self, text, entry, *args):
 
         try:
-            system('pandoc', '--help')
-        except OSError:
-            raise AcrylamidException('no pandoc available')
-
-    def transform(self, text, request, *args):
+            system(['which', 'pandoc'])
+        except AcrylamidException:
+            if self.ignore:
+                return text
+            raise AcrylamidException('Pandoc: pandoc not available')
 
         if len(args) == 0:
             raise AcrylamidException("pandoc filter takes one or more arguments")

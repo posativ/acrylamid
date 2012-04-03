@@ -57,7 +57,7 @@ class Acronyms(Filter):
         self.tag_re = re.compile("<\D.*?>")
         self.tag_digit_re = re.compile("<\d+?>")
 
-    def transform(self, text, request, *args):
+    def transform(self, text, entry, *args):
 
         acrolist = self.acronyms
         if len(args) > 0:

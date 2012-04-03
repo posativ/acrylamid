@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 #
-# Copyright 2011 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid.py
+# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
 import sys
 import os
@@ -26,6 +26,25 @@ if hasattr(sys, '_getframe'): currentframe = lambda: sys._getframe(3)
 # done filching
 
 
+class TerminalHandler(logging.StreamHandler):
+    """A handler that logs everything >= logging.WARN to stderr and everything
+    below to stdout."""
+
+    def __init__(self):
+        logging.StreamHandler.__init__(self)
+        self.stream = None # reset it; we are not going to use it anyway
+
+    def emit(self, record):
+        if record.levelno >= logging.WARN:
+            self.__emit(record, sys.stderr)
+        else:
+            self.__emit(record, sys.stdout)
+
+    def __emit(self, record, strm):
+        self.stream = strm
+        logging.StreamHandler.emit(self, record)
+
+
 class ANSIFormatter(logging.Formatter):
     """Implements basic colored output using ANSI escape codes.  Currently acrylamid
     uses nanoc's color and information scheme: skip, create, identical, update,
@@ -42,9 +61,8 @@ class ANSIFormatter(logging.Formatter):
     GREY = '\033[1;37m%s\033[0m'
     RED_UNDERLINE = '\033[4;31m%s\033[0m'
 
-    def __init__(self, fmt='[%(levelname)s] %(name)s: %(message)s', debug=False):
+    def __init__(self, fmt='[%(levelname)s] %(name)s: %(message)s'):
         logging.Formatter.__init__(self, fmt)
-        self.debug = debug
 
     def format(self, record):
 
@@ -76,18 +94,17 @@ class SkipHandler(logging.Logger):
         self.log(15, msg, *args, **kwargs)
 
 
-def init(name, level, handler=logging.StreamHandler()):
+def init(name, level, colors=True):
 
     global logger, critical, fatal, warn, warning, info, skip, debug, error
 
     logging.setLoggerClass(SkipHandler)
     logger = logging.getLogger(name)
 
-    fmt = ANSIFormatter('%(message)s')
-    if level == logging.DEBUG:
-        fmt = '%(msecs)d [%(levelname)s] %(name)s.py:%(lineno)s:%(funcName)s %(message)s'
+    handler = TerminalHandler()
+    if colors:
+        handler.setFormatter(ANSIFormatter('%(message)s'))
 
-    handler.setFormatter(fmt)
     logger.addHandler(handler)
     logger.setLevel(level)
 
@@ -104,6 +121,11 @@ def init(name, level, handler=logging.StreamHandler()):
 def setLevel(level):
     global logger
     logger.setLevel(level)
+
+
+def level():
+    global logger
+    return logger.level
 
 
 def findCaller():
@@ -156,11 +178,12 @@ def once(args=[], **kwargs):
 
 
 __all__ = ['fatal', 'warn', 'info', 'skip', 'debug', 'error',
-           'WARN', 'INFO', 'SKIP', 'DEBUG', 'setLevel']
+           'WARN', 'INFO', 'SKIP', 'DEBUG', 'setLevel', 'level']
 
 if __name__ == '__main__':
     init('test', 20)
     setLevel(10)
+    level()
     logger.warn('foo')
     logger.info('update dich')
     logger.info('create kekse')

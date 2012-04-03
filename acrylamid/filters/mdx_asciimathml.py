@@ -40,7 +40,12 @@ class ASCIIMathMLPattern(markdown.inlinepatterns.Pattern):
         return RE
 
     def handleMatch(self, m):
-        math = asciimathml.parse(m.group(2).strip(), markdown.etree.Element, markdown.AtomicString)
+        if markdown.version_info < (2, 1, 0):
+            math = asciimathml.parse(m.group(2).strip(), markdown.etree.Element,
+                       markdown.AtomicString)
+        else:
+            math = asciimathml.parse(m.group(2).strip(),
+                       markdown.util.etree.Element, markdown.util.AtomicString)
         math.set('xmlns', 'http://www.w3.org/1998/Math/MathML')
         return math
 

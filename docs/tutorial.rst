@@ -10,7 +10,7 @@ Creating a Blog
 Acrylamid is a command line application. That means you should have at least
 a clue how to open the terminal on your operation system (excluding windows).
 
-An acrylamid-powered blog is basically a configuration file and three 
+An acrylamid-powered blog is basically a configuration file and three
 directories containing the content, layout and the generated output. To create
 basic structure, type into the terminal:
 
@@ -59,7 +59,7 @@ structure. Before you can view your blog, it needs to be compiled. To compile,
 do this:
 
 ::
-    
+
     tutorial$> acrylamid compile
 
 This is what’ll appear in the terminal while acrylamid is compiling:
@@ -84,9 +84,7 @@ a web server using the built-in webserver:
     tutorial$> acrylamid view
 
 Now, open your web browser and navigate to http://localhost:8000/. What you’ll
-see is something like this:
-
-#XXX: BILD!1!
+see is something like `this screenshot <http://posativ.org/acrylamid/example.png>`_.
 
 Editing the Entry
 -----------------
@@ -105,7 +103,7 @@ paragraph somewhere in the file. Something like this:
 
 ::
 
-    This is a new paragraph which I've just inserted into this file. I can 
+    This is a new paragraph which I've just inserted into this file. I can
     even write [Markdown](http://daringfireball.net/projects/markdown/)!
 
 To view the changes, you must recompile first. So, run the **compile**
@@ -156,7 +154,7 @@ Adding a New Entry
 
 Unlike other static site compiler, acrylamid does not rely on any fileystem's
 structure to route entries to urls. You can create for each item a new folder,
-sort them by year (I do prefer this), by category or by year/month – the main 
+sort them by year (I do prefer this), by category or by year/month – the main
 thing is, it is a text file with a YAML-header in it.
 
 When you have done all steps before, especially the previous one, creating an
@@ -195,16 +193,14 @@ An adopted header could look like this:
     filters: rest
     ---
 
-Filters modify the appearance of the entry. ``rest`` defines REST as
-markup language. For available filters see the section on
-`filters </posativ/acrylamid/blob/master/docs/filters.rst>`_.
+Filters modify the appearance of the entry. ``rest`` defines REST as markup
+language. For available filters see the section on :doc:`filters`.
 
-Another useful option is the date-option. The required format is
-'%d.%m.%Y, %H:%M' which is used in acrylamid by default.
-(See `conf.py </posativ/acrylamid/blob/master/docs/conf.py.rst>`_.
-for informations about how to change that behavior)
-If the date is not given, the last modifcation time of the file is used
-(which could by bad when you only add updates to an entry).
+Another useful option is the date-option. The required format is '%d.%m.%Y,
+%H:%M' which is used in acrylamid by default. (See :doc:`conf.py. for
+informations about how to change that behavior) If the date is not given, the
+last modifcation time of the file is used (which could by bad when you only
+add updates to an entry).
 
 
 If you're done, just compile like above:

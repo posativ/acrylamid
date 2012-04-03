@@ -133,8 +133,8 @@ HTML
 No transformation will applied. Useful if your text is already written in
 HTML.
 
-head_offset
------------
+h, head_offset
+--------------
 
 :Requires:
 	<built-in>
@@ -159,8 +159,9 @@ summarize
 :Defaults:
 	summarize+200
 
-Summarizes content to make listings of text previews (used for the default
-tag/page view).
+Summarizes content to make listings of text previews (used in tag/page by default).
+You can customize the ellipsis, CSS-class, link-text and the behaviour how the link
+appears in your :doc:`conf.py`.
 
 hyphenate
 ---------
@@ -170,6 +171,12 @@ hyphenate
 
 :Aliases:
     hyphenate, hyph
+
+:Arguments:
+    Minimum length before this filter hyphenates the word (smallest possible value is four).
+
+:Defaults:
+    hyphenate+10
 
 Hyphenates words greater than 10 characters using Frank Liang's algorithm.
 Hyphenation pattern depends on the language and should therefore

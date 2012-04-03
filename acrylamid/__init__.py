@@ -17,7 +17,7 @@
 # those of the authors and should not be interpreted as representing official
 # policies, either expressed or implied, of posativ <info@posativ.org>.
 
-__version__ = "0.3.0-dev"
+__version__ = "0.3.0"
 __author__ = 'posativ <info@posativ.org>'
 __url__ = 'https://github.com/posativ/acrylamid/'
 
@@ -37,6 +37,21 @@ from acrylamid.errors import AcrylamidException
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 sys.path.insert(0, os.path.dirname(__package__))
+
+
+class Environment(dict):
+
+    def __getattribute__(self, attr):
+        try:
+            return getattr(super(Environment, self), attr)
+        except AttributeError:
+            try:
+                return self[attr]
+            except KeyError:
+                raise AttributeError
+
+    def __setattribute__(self, attr, value):
+        self[attr] = value
 
 
 class Acryl:
@@ -59,6 +74,8 @@ class Acryl:
                         help=SUPPRESS_HELP, const=log.SKIP),
             make_option("-q", "--quit", action="store_const", dest="verbosity",
                         help=SUPPRESS_HELP, const=log.WARN, default=log.INFO),
+            make_option("-C", "--no-color", action="store_false", dest="colors",
+                        default=True, help=SUPPRESS_HELP),
             make_option("--version", action="store_true", dest="version",
                             help=SUPPRESS_HELP, default=False)
             ]
@@ -67,12 +84,14 @@ class Acryl:
         if len(sys.argv) > 2 and sys.argv[1] in ('--help', 'help'):
             sys.argv[1], sys.argv[2] = sys.argv[2], '--help'
 
-        if len(sys.argv) <= 1 or sys.argv[1] in ('-h', '--help'):
+        if len(sys.argv) <= 1 or sys.argv[1] in ('-h', '--help', 'help'):
             options, constants = [], [
-                make_option("-q", "--quit", action="store_const", dest="verbosity",
+                make_option("-q", "--quiet", action="store_const", dest="verbosity",
                         help="less verbose", const=log.WARN, default=log.INFO),
                 make_option("-v", "--verbose", action="store_const", dest="verbosity",
                             help="more verbose", const=log.SKIP),
+                make_option("-C", "--no-color", action="store_false", dest="colors",
+                            default=True, help="disable color"),
                 make_option("-h", "--help", action="store_true",
                             help="show this help message and exit"),
                 make_option("--version", action="store_true", dest="version",
@@ -87,14 +106,18 @@ class Acryl:
                       "  clean   (rm)   remove abandoned files\n"
                       "  import         import content from URL\n"
                       "  deploy         run a given TASK\n"
-                      "\nAll subcommand except `init` require a conf.py file.\n")
+                      "\nAll subcommands except `init` require a conf.py file.\n")
 
         # --- init params --- #
         elif sys.argv[1] in ('init', 'initialize'):
             usage = "%prog " + sys.argv[1] + " [DEST|FILE] [-p]"
             options = [
                 make_option("-f", "--force", action="store_true", dest="force",
-                        help="don't ask, just overwrite it", default=False)
+                        help="don't ask, just overwrite", default=False),
+                make_option("--xhtml", action="store_const", dest="theme", const="xhtml",
+                            help="use XHTML theme", default="html5"),
+                make_option("--html5", action="store_const", dest="theme", const="html5",
+                            help="use HTML5 theme")
                 ]
         # --- init params --- #
         elif sys.argv[1] in ('new',):
@@ -108,9 +131,11 @@ class Acryl:
             usage = "%prog " + sys.argv[1] + " [-fn]"
             options = [
                 make_option("-f", "--force", action="store_true", dest="force",
-                            help="clears cache before compilation", default=False),
+                            help="clear cache before compilation", default=False),
                 make_option("-n", "--dry-run", dest="dryrun", action='store_true',
-                               default=False, help="show what would have been compiled")
+                            default=False, help="show what would have been compiled"),
+                make_option("-i", "--ignore", dest="ignore", action="store_true",
+                            default=False, help="ignore critical errors")
             ]
         # --- webserver params --- #
         elif sys.argv[1] in ('view', 'serve', 'srv'):
@@ -124,7 +149,9 @@ class Acryl:
             usage = "%prog " + sys.argv[1] + " [-pf]"
             options = [
                 make_option("-f", "--force", action="store_true", dest="force",
-                            help="clears cache before compilation", default=False),
+                            help="clear cache before compilation", default=False),
+                make_option("-i", "--ignore", dest="ignore", action="store_true",
+                            default=False, help="ignore critical errors"),
                 make_option("-p", "--port", dest="port", type=int, default=8000,
                             help="webserver port"),
             ]
@@ -135,7 +162,7 @@ class Acryl:
                 make_option("-f", "--force", action="store_true", dest="force",
                             help="remove all files generated by Acrylamid", default=False),
                 make_option("-n", "--dry-run", dest="dryrun", action='store_true',
-                               default=False, help="show what would have been deleted"),
+                            default=False, help="show what would have been deleted"),
             ]
         # --- import params --- #
         elif sys.argv[1] in ('import', ):
@@ -163,11 +190,13 @@ class Acryl:
             sys.exit(0)
 
         # initialize colored logger
-        log.init('acrylamid', level=options.verbosity)
+        log.init('acrylamid', level=options.verbosity, colors=options.colors)
 
-        env = {'version': __version__, 'author': __author__, 'url': __url__}
+        env = Environment({'version': __version__, 'author': __author__, 'url': __url__})
+        env['options'] = options
+
         if options.version:
-            print "acrylamid" + ' ' + env['version']
+            print 'acrylamid ' + env.version
             sys.exit(0)
 
         # -- init -- #
@@ -175,9 +204,9 @@ class Acryl:
 
         if 'init' in args:
             if len(args) == 2:
-                defaults.init(args[1], options.force)
+                defaults.init(args[1], options.theme, options.force)
             else:
-                defaults.init(overwrite=options.force)
+                defaults.init('.', options.theme, options.force)
             sys.exit(0)
 
         # -- teh real thing -- #
@@ -214,7 +243,7 @@ class Acryl:
 
         elif args[0] in ('new', 'create'):
             try:
-                commands.new(conf, env, title=' '.join(args[1:]))
+                commands.new(conf, env, title=' '.join(args[1:]), prompt=log.level()<log.WARN)
             except AcrylamidException as e:
                 log.fatal(e.message)
                 sys.exit(1)
@@ -222,6 +251,7 @@ class Acryl:
         elif args[0] in ('clean', 'rm'):
             try:
                 log.setLevel(options.verbosity+5)
+                options.ignore = True  # we don't bother the user here
                 commands.compile(conf, env, dryrun=True, force=False)
                 log.setLevel(options.verbosity)
                 commands.clean(conf, everything=options.force, **options.__dict__)

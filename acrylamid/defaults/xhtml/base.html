@@ -1,0 +1,44 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN"
+         "http://www.w3.org/Math/DTD/mathml2/xhtml-math11-f.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    {% block head -%}
+    <title>{% block title %}{% endblock %}</title>
+    <meta http-equiv="Content-Type" content="text/xhtml; charset=utf-8" />
+    <meta http-equiv="content-language" content="de, en" />
+    <link media="all" href="{{ env.path + '/style.css' }}" type="text/css" rel="stylesheet" />
+    <link href="/favicon.ico" rel="shortcut icon" />
+    <link href="{{ env.path + '/' }}" rel="home" />
+    <link href="{{ env.path + '/atom/' }}" type="application/atom+xml" rel="alternate" title="Atom Feed" />
+    <link href="{{ env.path + '/rss/' }}" type="application/rss+xml" rel="alternate" title="RSS Feed" />
+    {%- endblock %}
+</head>
+<body>
+    <div id="blogheader">
+        <div id="blogtitle">
+            <h2><a href="{{ env.path + '/' }}" class="blogtitle">{{ conf.sitename }}</a></h2>
+        </div>
+        <div id="mainlinks">
+            <ul>
+                <li><a href="{{ env.path + '/' }}">blog</a></li>
+                <li><a href="{{ env.path + '/atom/' }}">atom</a></li>
+                <li><a href="{{ env.path + '/rss/' }}">rss</a></li>
+                <li><a href="{{ env.path + '/articles/' }}">articles</a></li>
+            </ul>
+        </div>
+    </div>
+    <div id="blogbody">
+        {% block content -%}
+        {%- endblock %}
+    </div>
+    <div id="blogfooter">
+        {% block footer %}
+        <p>written by <a href="mailto:{{ conf.email }}">{{ conf.author }}</a></p>
+        <a href="http://creativecommons.org/licenses/by-nc-sa/2.0/de/" rel="copyright">
+            <img src="http://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png" alt="by-nc-sa" />
+        </a>
+        {% endblock %}
+    </div>
+ </body>
+</html>

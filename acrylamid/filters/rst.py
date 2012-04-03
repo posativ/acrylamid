@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 #
-# Copyright 2011 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid.py
+# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
 from acrylamid.filters import Filter
 from acrylamid.utils import cached_property
@@ -16,7 +16,7 @@ class Restructuredtext(Filter):
 
     __ext__ = dict((x, x) for x in [])
 
-    def transform(self, content, request, *filters):
+    def transform(self, content, entry, *filters):
         initial_header_level = 1
         transform_doctitle = 0
         settings = {
