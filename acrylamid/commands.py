@@ -225,7 +225,7 @@ def clean(conf, everything=False, dryrun=False, **kwargs):
             event.removed(p)
 
         if everything:
-            for i, p in enumerate(found):
+            for i, p in enumerate(found.intersection(_tracked_files)):
                 if not dryrun:
                     os.remove(p)
                 event.removed(p)
