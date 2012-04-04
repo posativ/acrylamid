@@ -63,6 +63,7 @@ class TestUtils(unittest.TestCase):
 
         self.assertEqual(utils.expand('/:foo/:bar/', {'foo': 1, 'bar': 2}), '/1/2/')
         self.assertEqual(utils.expand('/:foo/:spam/', {'foo': 1, 'bar': 2}), '/1/:spam/')
+        self.assertEqual(utils.expand('/:foo/', {'bar': 2}), '/:foo/')
 
     def test_paginate(self):
 
