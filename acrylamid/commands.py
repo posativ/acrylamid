@@ -322,20 +322,23 @@ def deploy(conf, env, task, *args):
     Popen. Use ``%s`` inside your command to let acrylamid substitute ``%s`` with the
     output path, if no ``%s`` is set, the path is appended  as first argument. Every
     argument after ``acrylamid deploy task ARG1 ARG2``."""
-
-    cmd = shlex.split(conf.get('deployment', {}).get(task, None))
+    
+    cmd = conf.get('deployment', {}).get(task, None)
     if not cmd:
         raise AcrylamidException('no tasks named %r in conf.py' % task)
-
-    try:
-        cmd[cmd.index('%s')] = conf['output_dir']
-    except ValueError:
-        cmd.append(conf['output_dir'])
-
+    
+    if '%s' in cmd:
+        cmd = cmd.replace('%s', conf['output_dir'])
+    else:
+        # append output-string
+        cmd += ' ' + conf['output_dir']
+    
     # apply ARG1 ARG2 ... and -v --long-args to the command, e.g.:
     # $> acrylamid deploy task arg1 -- -b --foo
-    cmd.extend(args)
-
+    cmd += ' ' + ' '.join(args)
+    
+    print 'executing ' + cmd + '...'
+    
     try:
         result = system(cmd)
         print '\n'.join('    '+line for line in result.strip().split('\n'))

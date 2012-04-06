@@ -666,10 +666,10 @@ def system(cmd, stdin=None, **kw):
     try:
         if stdin:
             p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                 stdin=subprocess.PIPE, **kw)
+                                 stdin=subprocess.PIPE, shell=True, **kw)
             result, err = p.communicate(stdin)
         else:
-            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kw)
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, **kw)
             result, err = p.communicate()
 
     except OSError as e:
