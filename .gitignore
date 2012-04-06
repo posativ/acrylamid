@@ -4,3 +4,5 @@
 MANIFEST
 docs/*build/
 build/
+acrylamid.egg-info/
+src/
