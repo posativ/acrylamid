@@ -403,10 +403,8 @@ class FileEntry:
         path = md5(self.filename, i, fxs)
 
         if not exists(cache._get_filename(path)):
-            print 'does not exist %r' % path
             return True
         if getmtime(self.filename) > cache.get_mtime(path):
-            print 'mtime differs %r' % path
             return True
         else:
             return False
