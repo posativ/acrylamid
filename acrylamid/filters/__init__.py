@@ -8,10 +8,8 @@ import sys
 import os
 import glob
 import fnmatch
-import copy
 
 from acrylamid import log
-from acrylamid.errors import AcrylamidException
 
 
 def get_filters():

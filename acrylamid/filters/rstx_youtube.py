@@ -7,7 +7,6 @@
 # XXX: try https://hg.rafaelmartins.eng.br/blohg/file/a09f8f0c6cad/blohg/rst/directives.py
 
 from docutils import nodes
-from docutils.parsers.rst import directives
 
 match = ['youtube', 'yt']
 

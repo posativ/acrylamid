@@ -6,7 +6,6 @@
 
 import os
 
-from acrylamid.errors import AcrylamidException
 from acrylamid.filters import Filter
 from acrylamid.utils import cached_property
 

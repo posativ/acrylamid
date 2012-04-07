@@ -8,7 +8,6 @@ import os
 import markdown
 
 from acrylamid.filters import Filter
-from acrylamid.filters import log
 from acrylamid.errors import AcrylamidException
 
 
