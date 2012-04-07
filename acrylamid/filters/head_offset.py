@@ -6,20 +6,18 @@ from re import sub
 
 
 class Headoffset(Filter):
+    """This filter increases an HTML header tag by N whereas N is the suffix of
+    this filter, e.g. `h2' increases headers by two."""
 
     match = ['h' + str(i + 1) for i in range(5)]
 
     def transform(self, text, entry, *args):
 
         def f(m):
-            '''will return html with all headers increased by 1'''
-            l = lambda i: i if i not in [str(x) for x in range(1, 6)] \
-                            else str(int(i) + 1) if int(i) < 5 else '6'
-            return ''.join([l(i) for i in m.groups()])
+            i = int(m.group(1))+1
+            return ''.join(['<h%i' % i, m.group(2), '>', m.group(3), '</h%i>' % i])
 
-        offset = int(self.name[1])
-
-        for i in range(offset):
-            text = sub('(<h)(\d)(>)(.+)(</h)(\d)(>)', f, text)
+        for i in range(int(self.name[1])):
+            text = sub(r'<h([12345])([^>]*)>(.+)</h\1>', f, text)
 
         return text
