@@ -123,6 +123,19 @@ three additional directives:
           width=600
           height=400
 
+textile
+-------
+
+============  ==================================================
+Requires      ``textile``
+Aliases       Textile, textile, pytextile, PyTextile
+Conflicts     HTML, Markdown, Pandoc, reStructuredText
+============  ==================================================
+
+A *textile* filter if you prefer the `textile
+<https://en.wikipedia.org/wiki/Textile_%28markup_language%29>`
+markup language.
+
 pandoc
 ------
 
