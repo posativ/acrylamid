@@ -35,8 +35,6 @@ class Summarizer(HTMLParser):
                 return '<%s>' % tag
 
         if self.words < self.maxwords:
-            if tag == 'br':
-                return self.summarized.append('<br />')
             self.stack.append(tag)
             self.summarized.append(tagify(tag, attrs))
 
@@ -54,9 +52,6 @@ class Summarizer(HTMLParser):
             self.words += ws
 
     def handle_endtag(self, tag):
-        if tag == 'br':
-            return
-
         # If we are behind the word limit, append out link in various modes, else append tag
         if self.words < self.maxwords:
             self.summarized.append('</%s>' % self.stack.pop())
@@ -80,6 +75,10 @@ class Summarizer(HTMLParser):
             # this adds the link when the stack is empty
             if self.mode == 2:
                 self.summarized.append(self.link % self.href)
+
+    def handle_startendtag(self, tag, attrs):
+        s = '<%s %s/>' % (tag, ' '.join(['%s="%s"' % (k, escape(v)) for k, v in attrs]))
+        self.summarized.append(s)
 
     def handle_entityref(self, entity):
         # handle &shy; correctly

@@ -128,7 +128,7 @@ class Separator(HTMLParser):
     def handle_data(self, data):
         """Hyphenate words longer than 10 characters."""
 
-        if filter(lambda i: i in self.stack, ['pre', 'code', 'math', 'em']):
+        if filter(lambda i: i in self.stack, ['pre', 'code', 'math', 'em', 'script']):
             pass
         else:
             split = [word for word in re.split(r"[.:,\s!?+=\(\)/-]+", data)
@@ -147,6 +147,10 @@ class Separator(HTMLParser):
         except IndexError:
             pass
         self.result.append('</%s>' % tag)
+
+    def handle_startendtag(self, tag, attrs):
+        s = '<%s %s/>' % (tag, ' '.join(['%s="%s"' % (k, escape(v)) for k, v in attrs]))
+        self.result.append(s)
 
     def handle_entityref(self, name):
         self.result.append('&' + name + ';')
