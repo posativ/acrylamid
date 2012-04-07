@@ -4,18 +4,20 @@
 from acrylamid.filters import Filter
 from acrylamid.errors import AcrylamidException
 
+try:
+    from textile import textile
+except ImportError:
+    textile = None
+
+
 class PyTextile(Filter):
 
     match = ['Textile', 'textile', 'pytextile', 'PyTextile']
     conflicts = ['Markdown', 'reStructuredText', 'HTML', 'Pandoc']
     priority = 70.0
 
-    def init(self, conf, env):
-        self.ignore = env.options.ignore
-
     def transform(self, text, entry, *args):
-        try:
-            from textile import textile
-        except ImportError:
+
+        if textile is None:
             raise AcrylamidException('Textile: PyTextile not available')
         return textile(text)
