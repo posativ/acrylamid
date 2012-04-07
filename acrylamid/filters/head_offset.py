@@ -6,7 +6,7 @@ from re import sub
 
 
 class Headoffset(Filter):
-    """This filter increases an HTML header tag by N whereas N is the suffix of
+    """This filter increases HTML headings tag by N whereas N is the suffix of
     this filter, e.g. `h2' increases headers by two."""
 
     match = ['h' + str(i + 1) for i in range(5)]
