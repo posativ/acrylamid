@@ -166,13 +166,20 @@ class FilterList(list):
         providing `conflicts` are checked wether y conflicts with a filter.
         Otherwise y is not in FilterList.
         """
+        # check wether it's the same filter
         for x in self:
             if x.__class__.__name__ == y.__class__.__name__:
                 return True
-        for f in y.conflicts:
-            for x in self:
-                if f in x.match:
-                    return True
+
+        # check if y.conflicts matches a filter in list
+        for x in y.conflicts:
+            if filter(lambda k: x in k.match, self):
+                return True
+
+        # check if any filter in list conflicts with y
+        for x in self:
+            if filter(lambda k: k in y.match, x.conflicts):
+                return True
         return False
 
     def __getitem__(self, item):
