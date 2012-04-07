@@ -4,6 +4,9 @@
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
+import os
+
+from acrylamid.errors import AcrylamidException
 from acrylamid.filters import Filter
 from acrylamid.utils import cached_property
 
@@ -14,62 +17,48 @@ class Restructuredtext(Filter):
     conflicts = ['markdown', 'plain']
     priority = 70.00
 
-    __ext__ = dict((x, x) for x in [])
+    def init(self, conf, env):
+
+        self.failed = []
+        self.extensions = {}
+        self.ignore = env.options.ignore
 
     def transform(self, content, entry, *filters):
-        initial_header_level = 1
-        transform_doctitle = 0
+
+        self.filters = filters
+
         settings = {
-            'initial_header_level': initial_header_level,
-            'doctitle_xform': transform_doctitle
-            }
+            'initial_header_level': 1,
+            'doctitle_xform': 0
+        }
+
         parts = self.publish_parts(content, writer_name='html', settings_overrides=settings)
         return parts['body'].encode('utf-8')
 
     @cached_property
     def publish_parts(self):
         """On-demand import.  Importing reStructuredText and Pygments takes
-        3/5 of overall runtime just to __init__ and fill memory."""
+        3/5 of overall runtime just to import."""
 
-        from docutils import nodes
         from docutils.core import publish_parts
-        from docutils.parsers.rst import directives, Directive
+        from docutils.parsers.rst import directives
 
-        from pygments import highlight
-        from pygments.formatters import HtmlFormatter
-        from pygments.lexers import get_lexer_by_name, TextLexer
-
-        # Set to True if you want inline CSS styles instead of classes
-        INLINESTYLES = False
-
-        # The default formatter
-        DEFAULT = HtmlFormatter(noclasses=INLINESTYLES)
-
-        # Add name -> formatter pairs for every variant you want to use
-        VARIANTS = {
-            # 'linenos': HtmlFormatter(noclasses=INLINESTYLES, linenos=True),
-        }
-
-        class Pygments(Directive):
-            """ Source code syntax hightlighting.
-            """
-            required_arguments = 1
-            optional_arguments = 0
-            final_argument_whitespace = True
-            option_spec = dict([(key, directives.flag) for key in VARIANTS])
-            has_content = True
-
-            def run(self):
-                self.assert_has_content()
+        # -- discover reStructuredText extensions --
+        for mem in os.listdir(os.path.dirname(__file__)):
+            if mem.startswith('rstx_') and mem.endswith('.py'):
                 try:
-                    lexer = get_lexer_by_name(self.arguments[0])
-                except ValueError:
-                    # no lexer found - use the text one instead of an exception
-                    lexer = TextLexer()
-                # take an arbitrary option if more than one is given
-                formatter = self.options and VARIANTS[self.options.keys()[0]] or DEFAULT
-                parsed = highlight(u'\n'.join(self.content), lexer, formatter)
-                return [nodes.raw('', parsed, format='html')]
+                    mod = __import__(mem.replace('.py', ''))
+                    rstx = mod.makeExtension()
+                    if isinstance(mod.match, basestring):
+                        self.match.append(mod.match)
+                        self.extensions[mod.__name__] = rstx
+                    else:
+                        for name in mod.match:
+                            self.extensions[name] = rstx
+                except (ImportError, Exception), e:
+                    self.failed.append('%r %s: %s' % (mem, e.__class__.__name__, e))
 
-        directives.register_directive('sourcecode', Pygments)
+        for directive, klass in self.extensions.iteritems():
+            directives.register_directive(directive, klass)
+
         return publish_parts
