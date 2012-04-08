@@ -16,21 +16,21 @@ one filter, or simply omit the key, if you've already defined a global filter:
     ---
 
 If you pass conflicting filters like ``reST, Markdown`` the first one gets
-applied and every conflicing ignored. This is useful, when you define a global
-filter *Markdown* but also write single entries in e.g. *reStructuredText*.  Most
-inbuilt filters have aliases so you don't have to remember/write the exact name.
-As an example, *rst*, *reST* and *restructuredtext* are aliases for
-*reStructuredText*.
+applied and the next conflicing ignored. This is useful, when you define a
+global filter *Markdown* but also write single entries in e.g.
+*reStructuredText*.  Most builtin filters have aliases so you don't have to
+remember/write the exact name. Note that the identifier may case-sensitive,
+although all builtin filters accept capitalized and lowercase spelling. As an
+example, *rst*, *reST* and *restructuredtext* are aliases for
+*reStructuredText* (or the other way around).
 
 Some filters may take additional arguments to activate builtin filters like
-Markdown's code-hilighting. Here's a list of all Markdon `built-in extensions
-<http://freewisdom.org/projects/python-markdown/Available_Extensions>`_) and in
-addition, acrylamid features a `asciimathml extension
-<https://github.com/favalex/python-asciimathml>`_. The syntax is:
+Markdown's code-hilighting. Not every filter supports additional arguments,
+please refer to the filter's arguments for details. The formal syntax is:
 
 ::
 
-    filters: [markdown+mathml, ...]
+    filters: [markdown+mathml, summarize+100]
     # or
     filters: [markdown+mathml+codehilite(css_class=highlight), ...]
 
@@ -40,9 +40,6 @@ You can also disable filters applied globally by prefixing them with *no*:
 
     filters: nosummary
 
-A short word to filter evaluation. Internally, it is iterating over all
-items in entry_filters+config_filters. If a filter conflicts with an
-existing filter, it will overgone.
 
 Built-in Filters
 ****************
@@ -50,17 +47,13 @@ Built-in Filters
 Markdown
 --------
 
-:Requires:
-    markdown or (python-markdown) -- already as a dependency implicitly installed
-
-:Aliases:
-    md, mkdown, markdown
-
-:Conflicts:
-    HTML, reStructuredText, Pandoc
-
-:Arguments:
-	asciimathml (mathml, math), ...
+============  ==================================================
+Requires      ``markdown`` or (``python-markdown``) -- already
+              as a dependency implicitly installed
+Aliases       md, mkdown, markdown
+Conflicts     HTML, reStructuredText, Pandoc
+Arguments     asciimathml (mathml, math), <built-in extensions>
+============  ==================================================
 
 Lets write you using Markdown which simplifies HTML generation and is a lot
 easier to write. The Markdown filter uses `the official implementation by John
@@ -70,7 +63,8 @@ Gruber <http://freewisdom.org/projects/python-markdown/>`_ and all it's
 *Note*, `pygments <http://pygments.org>`_ is required for `codehilite
 <http://freewisdom.org/projects/python-markdown/CodeHilite>`_.
 
-XXX: cheat sheet
+Here's an online service converting Markdown to HTML and providing a handy
+cheat sheet: `Dingus <http://daringfireball.net/projects/markdown/dingus>`_.
 
 Acrylamid features an `AsciiMathML
 <https://github.com/favalex/python-asciimathml>`_ extension. The aliases are:
@@ -81,83 +75,120 @@ your formula into single dollar signs like ``$a+b^2$`` intead of two!
 reStructuredText
 ----------------
 
-:Requires:
-	pygments, docutils (or python-docutils)
+============  ==================================================
+Requires      ``docutils`` (or ``python-docutils``), optional
+              ``pygments`` for syntax highlighting
+Aliases       rst, rest, reST, restructuredtext
+Conflicts     HTML, Markdown, Pandoc
+============  ==================================================
 
-:Aliases:
-    rst, rest, reST, restructuredtext
+reStructuredText lets you write in reStructuredText syntax instead of HTML.
+reStructuredText is more powerful and reliable than Markdown but is also
+slower and more difficult to use (but also easier than HTML). Acrylamid offers
+three additional directives:
 
-:Conflicts:
-    HTML, Markdown, Pandoc
+- `Pygments <http://pygments.org/>`_ syntax highlighting via ``code-block``,
+  ``sourcecode`` or   ``pygments``. Here's   an example (``linenos`` enables
+  line numbering):
 
-reStructuredText enables you to write in reStructuredText syntax instead of
-HTML. reStructuredText is more powerful and reliable than Markdown but is also
-slower and more difficult to write (but also easier than HTML).
+  ::
 
-XXX: cheat sheet
+        .. code-block:: python
+          :linenos:
+
+          #!/usr/bin/env python
+          print "Hello World!
+
+- JavaScript-enabled syntax highlighting via ``code`` and additional scripts:
+
+  ::
+
+      .. source:: python
+
+         #!/usr/bin/env python
+         print "Hello, World!"
+
+      .. raw:: html
+
+          <script type="text/javascript" src="http://alexgorbatchev.com/pub/sh/current/scripts/shCore.js"></script>
+          <script type="text/javascript" src="http://alexgorbatchev.com/pub/sh/current/scripts/shBrushPython.js"></script>
+          <link type="text/css" rel="stylesheet" href="http://alexgorbatchev.com/pub/sh/current/styles/shCoreDefault.css"/>
+          <script type="text/javascript">SyntaxHighlighter.defaults.toolbar=false; SyntaxHighlighter.all();</script>
+
+- YouTube directive for easy embedding (key/value pairs are optional of course):
+
+  ::
+
+      .. youtube:: asdfjkl
+          width=600
+          height=400
+
+textile
+-------
+
+============  ==================================================
+Requires      ``textile``
+Aliases       Textile, textile, pytextile, PyTextile
+Conflicts     HTML, Markdown, Pandoc, reStructuredText
+============  ==================================================
+
+A *textile* filter if you prefer the `textile
+<https://en.wikipedia.org/wiki/Textile_%28markup_language%29>`
+markup language.
 
 pandoc
 ------
 
-:Requires:
-    `Pandoc – a universal document converter <http://johnmacfarlane.net/pandoc/>`_ in PATH
+============  ==================================================
+Requires      `Pandoc – a universal document converter
+              <http://johnmacfarlane.net/pandoc/>`_ in PATH
+Aliases       Pandoc, pandoc
+Conflicts     reStructuredText, HTML, Markdown
+Arguments     First argument is the FORMAT like Markdown,
+              textile and so on. All arguments after that are
+              applied as additional long-opts to pandoc.
+============  ==================================================
 
-:Conflicts:
-    reStructuredText, HTML, Markdown
-
-:Aliases:
-    Pandoc, pandoc
-
-:Arguments:
-    First argument is the FORMAT like Markdown, textile and so on. All arguments after that are applied as additional long-opts to pandoc.
 
 This is filter is a universal converter for various markup language such as
 Markdown, reStructuredText, Textile and LaTeX (including special extensions by
 pandoc) to HTML. A typical call would look like ``filters:
-[pandoc+Markdown+mathml+...]``. You can find a complete list of pandocs improved
-(and bugixed) Markdown in the `Pandoc User's Guide
+[pandoc+Markdown+mathml+...]``. You can find a complete list of pandocs
+improved (and bugfixed) Markdown in the `Pandoc User's Guide
 <http://johnmacfarlane.net/pandoc/README.html#pandocs-markdown>`_.
 
 HTML
 ----
 
-:Requires:
-	<built-in>
+============  ==================================================
+Requires      `<built-in>`
+Aliases       pass, plain, html, xhtml, HTML
+Conflicts     reStructuredText, Markdown, Pandoc
+============  ==================================================
 
-:Conflicts:
-	reStructuredText, Markdown, Pandoc
-
-:Aliases:
-	pass, plain, html, xhtml
-
-No transformation will applied. Useful if your text is already written in
-HTML.
+No transformation applied. Useful if your text is already written in HTML.
 
 h, head_offset
 --------------
 
-:Requires:
-	<built-in>
+============  ==================================================
+Requires      <built-in>
+Aliases       h1, h2, h3, h4, h5
+============  ==================================================
 
-:Aliases:
-    h1, h2, h3, h4, h5
-
-Increase HTML-headings (<h1>...</h1>) by h(x).
+This filter increases HTML headings tag by N whereas N is the suffix of
+this filter, e.g. `h2' increases headers by two.
 
 summarize
 ---------
 
-:Requires:
-	<built-in>
+============  ==================================================
+Requires      `<built-in>`
+Aliases       sum
+Arguments     Maximum words in summarize (an Integer), defaults
+              to ``summarize+200``.
+============  ==================================================
 
-:Aliases:
-	sum
-
-:Arguments:
-	Maximum words in summarize (an Integer)
-
-:Defaults:
-	summarize+200
 
 Summarizes content to make listings of text previews (used in tag/page by default).
 You can customize the ellipsis, CSS-class, link-text and the behaviour how the link
@@ -166,21 +197,19 @@ appears in your :doc:`conf.py`.
 hyphenate
 ---------
 
-:Requires:
-	language patterns (comes pre-installed with `de`, `en` and `fr` patterns)
-
-:Aliases:
-    hyphenate, hyph
-
-:Arguments:
-    Minimum length before this filter hyphenates the word (smallest possible value is four).
-
-:Defaults:
-    hyphenate+10
+============  ==================================================
+Requires      language patterns (ships with `de`,  `en` and
+              `fr` patterns)
+Aliases       hyphenate, hyph
+Arguments     Minimum length before this filter hyphenates the
+              word (smallest possible value is four), defaults
+              to ``hyphenate+10``.
+============  ==================================================
 
 Hyphenates words greater than 10 characters using Frank Liang's algorithm.
-Hyphenation pattern depends on the language and should therefore
-Only en, de and fr dictionary are provided by Acrylamid. Example usage:
+Hyphenation pattern depends on the current language of an article (defaulting
+to system's locale). Only en, de and fr dictionaries are provided by
+Acrylamid. Example usage:
 
 ::
 
@@ -195,18 +224,13 @@ both, ``hyph-*.chr.txt`` and ``hyph-*.pat.txt``, to
 typography
 ----------
 
-:Requires:
-	`smartypants <https://code.google.com/p/typogrify/>`_
-
-:Aliases:
-    typography, typo, smartypants
-
-:Arguments:
-    all, typo, typogrify, amp, widont, smartypants, caps, initial_quotes,
-    number_suffix
-
-:Defaults:
-	typography+amp+widont+smartypants+caps
+============  ==================================================
+Requires      `smartypants <https://code.google.com/p/typogrify/>`_
+Aliases       typography, typo, smartypants
+Arguments     all, typo, typogrify, amp, widont, smartypants,
+              caps, initial_quotes, number_suffix. Defaults to
+              ``typography+amp+widont+smartypants+caps``.
+============  ==================================================
 
 Enables typographical transformation to your written content. This includes no
 widows, typographical quotes and special css-classes for words written in CAPS
@@ -220,17 +244,12 @@ filters are applied in the order as they are written down.
 acronyms
 --------
 
-:Requires:
-    `<built-in>`
-
-:Aliases:
-    Acronyms, Acronym, acronyms, acronym
-
-:Arguments:
-    zero to N strings
-
-:Defaults:
-    no arguments
+============  ==================================================
+Requires      `<built-in>`
+Aliases       Acronym(s), abbr (both case insensitive)
+Arguments     zero to N keys to use from acronyms file, no
+              arguments by default (= all acronyms are used)
+============  ==================================================
 
 This filter is a direct port of `Pyblosxom's acrynoms plugin
 <http://pyblosxom.bluesock.org/1.5/plugins/acronyms.html>`_, that marks acronyms
@@ -238,7 +257,7 @@ and abbreviations in your text based on either a built-in acronyms list or a
 user-specified. To use a custom list just add the FILE to your conf.py like
 this:
 
-.. code-block:: python
+::
 
     ACRONYMS_FILE = '/path/to/my/acronyms.txt'
 
@@ -252,11 +271,10 @@ acronyms-file>`_ of how to make an acronyms file!
 jinja2
 ------
 
-:Requires:
-    <built-in>
-
-:Aliases:
-    Jinja2, jinja2
+============  ==================================================
+Requires      `<built-in>`
+Aliases       Jinja2, jinja2
+============  ==================================================
 
 In addition to HTML templating you can also use `Jinja2
 <http://jinja.pocoo.org/docs/>`_ in your postings, which may be useful when
@@ -273,7 +291,11 @@ rebuilt this content, the output might differ).
     filters: jinja2
     ---
 
-    my ip address: {{ 'curl -s http://ifconfig.me/ip' | system }}.
+    Take a look at my code:
+
+    .. code-block:: python
+
+        {{ "cat ~/work/project/code.py" | system | indent(4) }}
 
 Environment variables are the same as in :doc:`templating`.
 

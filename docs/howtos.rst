@@ -26,7 +26,7 @@ performance tweaks
 ******************
 
 Though acrylamid caches as much as possible, re-generation in worst-case can
-be something like f(x) = 0.5 + 0.1x where x is the amount of entries
+be something like :math:`f(x) = 0.5 + 0.1x` where x is the amount of entries
 processed. *f(x)* returns the computing time if you have expensive
 filters like *hyphenate* or *reStructuredText*.
 On my MacBook (i5 2,4 Ghz) *hyphenate* takes around 257 ms for each language

@@ -128,7 +128,7 @@ clean
 
 With the time Acrylamid compiles some files you later renamed or just removed.
 These files are not touched until you force it with ``acrylamid clean``. This
-actually run a ``acrylamid compile -q`` and tracks all visited files and
+actually run a ``acrylamid compile -q`` and tracks all visited files thus
 afterwards it can show and delete untracked files in ``OUTPUT_DIR``.
 
 If you have static files in ``OUTPUT_DIR`` you should add them to
@@ -143,6 +143,20 @@ otherwise Acrylamid removes them.
     $> rm content/2012/foo.txt
     $> acrylamid clean
         removed  output/2012/foo/index.html
+
+The syntax for patterns in ``OUTPUT_IGNORE`` is similar to ``git-ignore``: a
+path with a leading slash means absolute position (to /path/to/output/),
+path with trailing slash marks a directory and everything else is just
+relative fnmatch.
+
+- ``".hidden"`` matches every file named *.hidden*, ``"/.hidden"`` matches
+  a file in the base directory named the same.
+- ``".git/*"`` excludes *HEAD*, *config* and *description* but not the
+  directories  *hooks/* and *info/*.
+- ``".git/"`` ignores a *.git* folder anywhere in the output directory,
+  ``"/.git/"`` only *output/.git*.
+
+If you are unsure, wether your pattern works, use -n/--dry-run!
 
 
 import
