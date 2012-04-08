@@ -12,7 +12,7 @@ import tempfile
 import shlex
 import subprocess
 
-from os.path import join, dirname, getmtime, isfile
+from os.path import join, dirname, getmtime, isfile, basename
 from fnmatch import fnmatch
 from urlparse import urlsplit
 from datetime import datetime
@@ -208,18 +208,30 @@ def clean(conf, everything=False, dryrun=False, **kwargs):
     :param dryrun: don't delete, just show what would have been done
     """
 
-    def excluded(path, excl_files):
-        """test if path should be ignored"""
-        if filter(lambda p: fnmatch(path, p), excl_files):
-            return True
-        return False
+    def excluded(root, path, excl_files):
+        """Test wether a path is excluded by the user. The ignore syntax is
+        similar to Git: a path with a leading slash means absolute position
+        (relative to output root), path with trailing slash marks a directory
+        and everything else is just relative fnmatch.
+
+        :param root: current directory
+        :param path: current path
+        :param excl_files: a list of patterns
+        """
+        for pattern in excl_files:
+            if pattern.startswith('/'):
+                if fnmatch(join(root, path), join(conf['output_dir'], pattern[1:])):
+                    return True
+            elif fnmatch(path, pattern):
+                return True
+        else:
+            return False
 
     _tracked_files = utils.get_tracked_files()
-    ignored = [join(conf['output_dir'], p) for p in conf['output_ignore']]
-
     for root, dirs, files in os.walk(conf['output_dir'], topdown=True):
         found = set([join(root, p) for p in files
-                     if not excluded(join(root, p), ignored)])
+                     if not excluded(root, p, conf['output_ignore'])])
+
         for i, p in enumerate(found.difference(_tracked_files)):
             if not dryrun:
                 os.remove(p)
@@ -233,8 +245,7 @@ def clean(conf, everything=False, dryrun=False, **kwargs):
 
         # don't visit excluded dirs
         for dir in dirs[:]:
-            p = join(root, dir)
-            if excluded(p, ignored) or excluded(p+'/', ignored):
+            if excluded(root, dir+'/', conf['output_ignore']):
                 dirs.remove(dir)
 
     # remove empty directories
