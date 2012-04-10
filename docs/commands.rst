@@ -70,7 +70,7 @@ this command will *not* remove orphaned files. Depending on your changes and
 content size it may take some time.
 
 -f, --force     clear cache before compilation
--i, --ignore    ignore critical errors (e.g. missing module in a filters)
+-i, --ignore    ignore critical errors (e.g. missing modules in filters)
 -n, --dry-run   show what would have been compiled
 
 ::
@@ -112,7 +112,7 @@ automatically compile and serve when you save your document. Hit *Ctrl-C* to
 quit.
 
 -f, --force           clear cache before compilation
--i, --ignore    ignore critical errors (e.g. missing module in a filters)
+-i, --ignore    ignore critical errors (e.g. missing modules in filters)
 -p PORT, --port=PORT  webserver port
 
 ::
