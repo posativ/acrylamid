@@ -10,16 +10,13 @@ BSD Style, 2 clauses.
 
    installation
    tutorial
-   .. usage
    conf.py
    commands
    filters
    views
    templating
-   .. deployment
    extending
    howtos
-   .. static_search
    about
 
 Features

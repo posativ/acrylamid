@@ -1,4 +1,4 @@
-    Configuration
+Configuration
 =============
 
 Acrylamid's configuration is read from ``conf.py`` inside your current working
@@ -7,41 +7,41 @@ dir. If a given value is not set it will be derived from *acrylamid.defaults*.
 A basic configuration looks like this (This file is directly executed as
 python script and therefore must be valid python code!):
 
-::
+.. code-block:: python
 
-    # -*- encoding: utf-8 -*-
-    # This is your config file.  Please write in a valid python syntax!
-    # See http://acrylamid.readthedocs.org/en/latest/conf.py.html
+    SITENAME = 'A descriptive blog title'
+    WWW_ROOT = 'http://example.com/'
 
-    SITENAME = "A descriptive blog title"
-    WWW_ROOT = "http://example.com/"
+    AUTHOR = 'Anonymous'
+    EMAIL = 'mail@example.com'
 
-    AUTHOR = "Anonymous"
-    EMAIL = "info@example.org"
-
-    FILTERS = ["markdown+codehilite(css_class=highlight)", "hyphenate"]
+    FILTERS = ['markdown+codehilite(css_class=highlight)', 'hyphenate', 'h1']
     VIEWS = {
-        "/": {"filters": ["summarize", "h1"],
-              "pagination": "/page/:num",
-              "view": "index"},
-        "/:year/:slug/": {"filters": ["h1"], "view": "entry"},
-        "/atom/": {"filters": ["h2"], "view": "atom"},
-        "/rss/": {"filters": ["h2"], "view": "rss"},
-        "/articles/": {"view": "articles"},
-        #"/atom/full": {"filters": ["h2"], "view": "atom", "num_entries": 1000},
-        "/tag/:name/": {"filters": ["h1", "summarize"], "view":"tag",
-                       "pagination": "/tag/:name/:num"},
-        }
+        '/': {'filters': 'summarize', 'view': 'index',
+              'pagination': '/page/:num'},
 
-    PERMALINK_FORMAT = "/:year/:slug/index.html"
-    DATE_FORMAT = "%d.%m.%Y, %H:%M"
+        '/:year/:slug/': {'view': 'entry'},
+
+        '/tag/:name/': {'filters': 'summarize', 'view':'tag',
+                        'pagination': '/tag/:name/:num'},
+
+        '/atom/': {'filters': ['h2', 'nohyphenate'], 'view': 'atom'},
+        '/rss/': {'filters': ['h2', 'nohyphenate'], 'view': 'rss'},
+
+        '/articles/': {'view': 'articles'},
+    }
+
+    PERMALINK_FORMAT = '/:year/:slug/index.html'
+    DATE_FORMAT = '%d.%m.%Y, %H:%M'
 
 Each key-value pair (except views [#]_) is available during :doc:`templating`.
 Acrylamid uses `jinja2 <http://jinja.pocoo.org/docs/>`_, see their `Template
 Designer Documentation <http://jinja.pocoo.org/docs/templates/>`_ for details.
 
 All the settings identifiers must be set in caps, otherwise they will not be
-processed.
+processed. This file is processed within a namespace that contains default
+values for almost every parameter. This allows something like ``OUTPUT_IGNORE +=
+['foo']`` and makes it more DRY (except ``VIEWS``).
 
 Here is a list of settings for acrylamid, regarding the different features.
 
@@ -60,23 +60,26 @@ Variable name (default value)                       Description
 `EMAIL` (``'info@example.com'``)                    Your email address -- used in Atom/RSS feeds and as
                                                     contact ability at the bottom in the default layout.
 `ENCODING` (``'utf-8'``)                            Default encoding of your text files, only global.
-`OUTPUT_IGNORE` (``['style.css', 'img/*']``)        A list of filename/directory-patterns which
+`OUTPUT_IGNORE` (|ignored|)                         A list of filename/directory-patterns which
                                                     Acrylamid should ignore.
-`FILTERS` ( |filter_example|)                       Global list of filters.
+`FILTERS` (|filter|)                                Global list of filters.
 `VIEWS` (see example conf.py)                       Dictionary of views set in conf.py.
 `WWW_ROOT` (``'http://localhost:8000'``)            Your actual website link where you host this blog.
                                                     It's used to build absolute urls (required for disqus
                                                     and feeds)
 ================================================    =====================================================
 
-.. |filter_example| replace::
+.. |ignored| replace::
+
+    ``['/style.css', '/images/*', '.git/']``
+
+.. |filter| replace::
 
     ``["markdown+codehilite(css_class=highlight)", "hyphenate"]``
 
 
 URL Settings
 ------------
-
 
 
 ================================================    =====================================================
@@ -89,13 +92,12 @@ Date format and locale
 ----------------------
 
 
-
 ================================================    =====================================================
 Variable name (default value)                       Description
 ================================================    =====================================================
 `LANG`  (``''`` [#]_)                               Default language [#]_ to use -- is important for
-                                                    hyphenation patterns XXX: and
-                                                    ``meta http-equiv="content-language"``.
+                                                    hyphenation patterns. Is available as two-character
+                                                    locale in templating.
 `DATE_FORMAT` (``'%d.%m.%Y, %H:%M'``)               This python date-format string is used in
                                                     ``layout/entry.html`` to render the date nicely.
                                                     See `Python's strftime directives
@@ -108,8 +110,11 @@ Variable name (default value)                       Description
 ================================================    =====================================================
 
 .. [#] default is the system locale.
-.. [#] see `ISO_639 <https://en.wikipedia.org/wiki/ISO_639>`_, if not set the
-   system's will be used. If not available, fallback to ``'C'``.
+.. [#] see `ISO_639 <https://en.wikipedia.org/wiki/ISO_639>`_, if not set or the
+   given locale is not available,  the system's will be used. If you don't like
+   this behaviour, use ``'C'`` instead which results in an english locale. On
+   linux and you may not have generated all locales, try *en-us* instead of *en*
+   or use the *exact* locale like "en_US.UTF-8".
 
 Miscellaneous
 -------------
@@ -138,7 +143,8 @@ Variable name (default value)                       Description
 Tag cloud
 ---------
 
-If you want to generate a tag cloud with all your tags, you can do so using the following settings.
+If you want to generate a tag cloud with all your tags, you can do so using the
+following settings.
 
 ================================================    =====================================================
 Variable name (default value)                       Description
@@ -160,4 +166,5 @@ The default theme does not support tag clouds, but it is fairly easy to add:
     </ul>
 
 
-You should then also define a CSS style with the appropriate classes (tag-0 to tag-N, where N matches TAG_CLOUD_STEPS -1).
+You should then also define a CSS style with the appropriate classes (tag-0 to
+tag-N, where N matches TAG_CLOUD_STEPS -1).

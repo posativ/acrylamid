@@ -37,21 +37,23 @@ def initialize(conf, env):
                                 bytecode_cache=FileSystemBytecodeCache('.cache/'))
     env['jinja2'].filters.update({'safeslug': utils.safeslug, 'tagify': lambda x: x})
 
-    # initialize the locale, will silently fail if locale is not
-    # available and uses system's locale
+    # try language set in LANG, if set correctly use it
     try:
         locale.setlocale(locale.LC_ALL, conf.get('lang', ''))
     except (locale.Error, TypeError, KeyError):
-        if conf['lang'] in locale.locale_alias:
-            try:
-                locale.setlocale(locale.LC_ALL, locale.locale_alias[conf['lang']])
-            except locale.Error:
-                log.warn('your OS does not support %s', locale.locale_alias[conf['lang']])
-                locale.setlocale(locale.LC_ALL, 'C')
-        else:
+        # try if LANG is an alias
+        try:
+            locale.setlocale(locale.LC_ALL, locale.locale_alias[conf['lang']])
+        except (locale.Error, KeyError):
+            # LANG is not an alias, so we use system's default
             locale.setlocale(locale.LC_ALL, '')
-            log.debug("locale set to '%s'", locale.getlocale()[0])
-    conf['lang'] = locale.getlocale()[0][:2] if locale.getlocale()[0] is not None else 'C'
+            log.warn('your OS does not support %s, fallback to %s', conf['lang'],
+                     locale.getlocale()[0])
+    if locale.getlocale()[0] is not None:
+        conf['lang'] = locale.getlocale()[0][:2]
+    else:
+        # getlocale() is (None, None) aka 'C'
+        conf['lang'] = 'en'
 
     if 'www_root' not in conf:
         log.warn('no `www_root` specified, using localhost:8000')
@@ -75,10 +77,9 @@ def initialize(conf, env):
 
     # import and initialize plugins
     # XXX put them into defaults
-    filters.initialize(conf.get("filters_dir", []), conf, env,
-                          exclude=conf.get("filters_ignore", []),
-                          include=conf.get("filters_include", []))
-    views.initialize(conf.get("views_dir", []), conf, env)
+    filters.initialize(conf["filters_dir"], conf, env, exclude=conf["filters_ignore"],
+                                                       include=conf["filters_include"])
+    views.initialize(conf["views_dir"], conf, env)
     env['views'] = dict([(v.view, v) for v in views.get_views()])
 
     return {'conf': conf, 'env': env}

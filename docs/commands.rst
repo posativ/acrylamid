@@ -21,6 +21,8 @@ the first command you'll execute. In addition to initialization it also can
 restore changed/deleted files if you specify the complete path as argument.
 
 -f, --force       don't ask, just overwrite
+--html5           use HTML5 layout (default)
+--xhtml           use legacy XHTML 1.1 layout
 
 ::
 
@@ -68,6 +70,7 @@ this command will *not* remove orphaned files. Depending on your changes and
 content size it may take some time.
 
 -f, --force     clear cache before compilation
+-i, --ignore    ignore critical errors (e.g. missing module in a filters)
 -n, --dry-run   show what would have been compiled
 
 ::
@@ -109,6 +112,7 @@ automatically compile and serve when you save your document. Hit *Ctrl-C* to
 quit.
 
 -f, --force           clear cache before compilation
+-i, --ignore    ignore critical errors (e.g. missing module in a filters)
 -p PORT, --port=PORT  webserver port
 
 ::

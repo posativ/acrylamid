@@ -42,9 +42,9 @@ def init(root, theme='html5', overwrite=False):
 
     global default
 
-    default['output_dir'] = default.get('output_dir', 'output').rstrip('/')
-    default['entries_dir'] = default.get('entries_dir', 'content').rstrip('/')
-    default['layout_dir'] = default.get('layout_dir', 'layouts').rstrip('/')
+    default['output_dir'] = default['output_dir'].rstrip('/')
+    default['entries_dir'] = default['entries_dir'].rstrip('/')
+    default['layout_dir'] = default['layout_dir'].rstrip('/')
 
     dirs = ['%(entries_dir)s/', '%(layout_dir)s/', '%(output_dir)s/', '.cache/']
 
@@ -158,23 +158,17 @@ conf = default = {
     'tag_cloud_steps': 4,
     'tag_cloud_start_index': 0,
 
+    'filters_dir': [],
+    'views_dir': [],
+    'entries_dir': 'content/',
+    'layout_dir': 'layouts/',
+    'output_dir': 'output/',
+
+    'filters_ignore': [],
+    'filters_include': [],
+
     'filters': ['markdown+codehilite(css_class=highlight)', 'hyphenate'],
     'views': {
-        '/': {
-            'view': 'index',
-            'pagination': '/page/:num',
-            'filters': ['summarize', 'h1'],
-        },
-        '/:year/:slug/': {
-            'view': 'entry',
-            'filters': ['h1'],
-        },
-        '/atom/index.html': {
-            'view': 'atom',
-            'filters': ['h2'],
-        },
-        '/rss/': {'filters': ['h2'], 'view': 'rss'},
-        '/articles/': {'view': 'articles'}
     }
 }
 
