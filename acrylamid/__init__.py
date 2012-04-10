@@ -213,7 +213,7 @@ class Acryl:
         conf = defaults.conf
 
         try:
-            ns = {}
+            ns = dict([(k.upper(), v) for k, v in defaults.conf.iteritems()])
             execfile('conf.py', ns)
             conf.update(dict([(k.lower(), ns[k]) for k in ns if k.upper() == k]))
         except OSError:
