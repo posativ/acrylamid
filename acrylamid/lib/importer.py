@@ -24,6 +24,9 @@ from acrylamid import log
 from acrylamid.utils import FileEntry, event, escape, system
 from acrylamid.errors import AcrylamidException
 
+# no joke
+USED_WORDPRESS = False
+
 
 class InvalidSource(Exception):
     pass
@@ -171,6 +174,48 @@ def atom(xml):
                'link': entry['link']}
 
 
+def wp(xml):
+    """WordPress to Acrylamid, stolen from pelican-import.py, thank you Alexis.
+    -- https://github.com/ametaireau/pelican/blob/master/pelican/tools/pelican_import.py
+    """
+
+    global USED_WORDPRESS
+    USED_WORDPRESS = True
+
+    try:
+        from BeautifulSoup import BeautifulStoneSoup
+    except ImportError:
+        raise AcrylamidException('BeautifulSoup is required for WordPress import')
+
+    soup = BeautifulStoneSoup(xml)
+    items = soup.rss.channel.findAll('item')
+
+    # --- site settings --- #
+    title = soup.rss.channel.fetch('title')[0].contents[0]
+    www_root = soup.rss.channel.fetch('link')[0].contents[0]
+
+    yield {'title': title, 'www_root': www_root}
+
+    # --- individual posts --- #
+    for item in items:
+        if item.fetch('wp:status')[0].contents[0] == "publish":
+
+            title = item.title.contents[0]
+            link = item.fetch('link')[0].contents[0]
+
+            content = item.fetch('content:encoded')[0].contents[0]
+            content = content.replace('\n', '<br />\n')
+
+            raw_date = item.fetch('wp:post_date')[0].contents[0]
+            date = datetime.strptime(raw_date, "%Y-%m-%d %H:%M:%S")
+
+            author = item.fetch('dc:creator')[0].contents[0].title()
+            tags = [tag.contents[0] for tag in item.fetch(domain='post_tag')]
+
+            yield {'title': title, 'content': content, 'date': date, 'author': author,
+                   'tags': tags, 'link': link}
+
+
 def fetch(url, auth=None):
     """Fetch URL, optional with HTTP Basic Authentication."""
 
@@ -204,7 +249,7 @@ def fetch(url, auth=None):
 def parse(content):
 
     failed = []
-    for method in (rss20, atom):
+    for method in (wp, rss20, atom):
         try:
             res =  method(content)
             return res.next(), res
@@ -218,7 +263,9 @@ def parse(content):
 
 def build(conf, env, defaults, items, fmt, keep=False):
 
-    def create(title, date, content, permalink=None):
+    def create(defaults, title, date, author, content, fmt, permalink=None, tags=None):
+
+        global USED_WORDPRESS
 
         fd, tmp = tempfile.mkstemp(suffix='.txt')
         title = escape(title)
@@ -226,12 +273,25 @@ def build(conf, env, defaults, items, fmt, keep=False):
         with os.fdopen(fd, 'wb') as f:
             f.write('---\n')
             f.write('title: %s\n' % title)
+            if author != defaults.get('author', None):
+                f.write('author: %s\n' % author)
             f.write('date: %s\n' % date.strftime(conf['date_format']))
             f.write('filter: [%s, ]\n' % fmt)
+            if tags:
+                f.write('tags: [%s]\n' % ', '.join(tags))
             if permalink:
                 f.write('permalink: %s\n' % permalink)
             f.write('---\n\n')
-            f.write(content[0])
+
+            # this are fixes for WordPress because they don't save HTML but a
+            # stupid mixed-in form of HTML making it very difficult to get either HTML
+            # or reStructuredText/Markdown
+            if USED_WORDPRESS and fmt == 'markdown':
+                content = content.replace("\n ", "  \n")
+                content = content.replace("\n", "  \n")
+            elif USED_WORDPRESS and fmt == 'rst':
+                content = content.replace('\n ', '\n\n')
+            f.write(content+'\n')
 
         entry = FileEntry(tmp, conf)
         p = join(conf['entries_dir'], dirname(entry.permalink)[1:])
@@ -253,8 +313,9 @@ def build(conf, env, defaults, items, fmt, keep=False):
             m = urlsplit(item['link'])
             permalink = m.path if m.path != '/' else None
 
-        create(item['title'], item['date'], convert(item.get('content', ''), fmt),
-               permalink=permalink if keep else None)
+        content, fmt = convert(item.get('content', ''), fmt)
+        create(defaults, item['title'], item['date'], item['author'], content, fmt,
+               tags=item.get('tags', None), permalink=permalink if keep else None)
 
     print "\nImport was successful. Edit your conf.py with these new settings:"
     for key, value in defaults.iteritems():
