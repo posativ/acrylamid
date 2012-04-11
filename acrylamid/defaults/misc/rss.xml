@@ -12,7 +12,7 @@
         <title>{{ conf.sitename | escape }}</title>
         <link>{{ conf.www_root + '/' }}</link>
         <description>{{ conf.description }}</description>
-        <language>{{ conf.lang[0].replace('_', '-').lower() }}</language>
+        <language>{{ conf.lang }}</language>
         <pubDate>{{ env.updated | rfc822 }}</pubDate>
         <docs>{{ conf.www_root+env.views.rss.path }}</docs>
         <generator>acrylamid {{ env.version }}</generator>
