@@ -83,7 +83,7 @@ def rss20(xml):
         tree = ElementTree.fromstring(xml)
     except ElementTree.ParseError:
         raise InvalidSource('no well-formed XML')
-    if tree.tag != 'rss' or tree.attrib.get('version') == '2.0':
+    if tree.tag != 'rss' or tree.attrib.get('version') != '2.0':
         raise InvalidSource('no RSS 2.0 feed')
 
     # --- site settings --- #
@@ -255,6 +255,10 @@ def build(conf, env, defaults, items, fmt, keep=False):
 
         create(item['title'], item['date'], convert(item.get('content', ''), fmt),
                permalink=permalink if keep else None)
+
+    print "\nImport was successful. Edit your conf.py with these new settings:"
+    for key, value in defaults.iteritems():
+        print "    %s = '%s'" % (key.upper(), value)
 
 
 __all__ = ['fetch', 'parse', 'build']
