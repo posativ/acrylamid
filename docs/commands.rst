@@ -166,21 +166,34 @@ If you are unsure, wether your pattern works, use -n/--dry-run!
 import
 ------
 
-Acrylamid features a basic RSS and Atom feed importer (WordPress dump is
-planned) to make it more easy to move to Acrylamid. To import a feed, point to
+Acrylamid features a basic RSS, Atom feed importer and also a WordPress Export
+importer to make it more easy to move to Acrylamid. To import a feed, point to
 an URL or local FILE. By default, all HTML is reconversed to Markdown using,
 first pandoc_ if found, then `html2text
 <http://www.aaronsw.com/2002/html2text/>`_ if found, else the plain HTML is
 stored into plaintext files. reStructuredText is also supported by pandoc_ and
-optional by `html2rest <http://pypi.python.org/pypi/html2rest>`_.
+optional by `html2rest <http://pypi.python.org/pypi/html2rest>`_. If you have
+imported your content successfully you get a short hint of what configuration
+you have to edit to.
+
+Migrating from WordPress is more difficult than an RSS/Atom feed because WP does
+not store a valid HTML content but a pre-HTML state. Thus we fix this with some
+stupid <br />-Tags to convert it back to Markdown/reStructuredText. It is not
+recommended to import WordPress blogs as pure HTML because it does not validate!
 
 .. _pandoc: http://johnmacfarlane.net/pandoc/
 
 ::
 
+    $> acrylamid init foo  # we need a base structure before we import
+
     $> acrylamid import http://example.com/rss/
          create  content/2012/entry.txt
          create  content/2012/another-entry.txt
+         ...
+    $> acrylamid import -k example.wordpress.xml
+         create  content/dan/wordpress/2008/08/a-simple-post-with-text.txt
+         create  content/dan/wordpress/news/our-company.txt
          ...
 
 .. note::
@@ -191,10 +204,10 @@ optional by `html2rest <http://pypi.python.org/pypi/html2rest>`_.
     which a re-layout of your entries, you can use ``--keep-links`` to use the
     permalink as path.
 
---markup=LANG       reconversion of HTML to LANG, supports every language that
+-m, --markup=LANG   reconversion of HTML to LANG, supports every language that
                     pandoc supports (if you have pandoc installed). Use "HTML"
                     if you don't whish any reconversion.
---keep-links        keep original permanent-links and also create content
+-k, --keep-links    keep original permanent-links and also create content
                     structure in that way. This does *not* work, if you links
                     are like this: ``/?p=23``.
 

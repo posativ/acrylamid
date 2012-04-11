@@ -49,7 +49,7 @@ class Acronyms(Filter):
             else:
                 if secondpart.startswith("acronym|"):
                     secondpart = secondpart[8:]
-                repl = "<acronym title=\"%s\">\\1</acronym>" % secondpart
+                repl = "<abbr title=\"%s\">\\1</abbr>" % secondpart
 
             acronyms.append((firstpartre, repl))
 

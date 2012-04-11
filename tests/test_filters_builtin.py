@@ -73,7 +73,10 @@ class TestHyphenation(unittest.TestCase):
                     # now with HTML entities
                      '<p>Hel&shy;lo Wor&shy;ld, you have to <span>&#8230;<a href="/foo/" '+ \
                      'class="continue">continue</a>.</span></p>'),
-                    ('Hello<br />', 'Hello<br />')]
+                    ('Hello<br />', 'Hello<br />'),
+                    ('<p>Hello World, you have<br /> to <br /> click<br /> this<br /> link...</p>',
+                     '<p>Hello World, you have<br /> to <span>&#8230;<a href="/foo/" '+ \
+                     'class="continue">continue</a>.</span></p>')]
 
         for text, result in examples:
             self.assertEqual(summarize.transform(text, Entry(), '5'), result)

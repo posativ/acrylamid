@@ -9,10 +9,9 @@ import time
 import locale
 import codecs
 import tempfile
-import shlex
 import subprocess
 
-from os.path import join, dirname, getmtime, isfile, basename
+from os.path import join, dirname, getmtime, isfile
 from fnmatch import fnmatch
 from urlparse import urlsplit
 from datetime import datetime
@@ -32,9 +31,12 @@ def initialize(conf, env):
     some minor things. Filter and View are inited with conf and env,
     a request dict is returned.
     """
+    # initialize cache, optional to cache_dir
+    cache.init(conf.get('cache_dir', None))
+
     # set up templating environment
     env['jinja2'] = Environment(loader=ExtendedFileSystemLoader(conf['layout_dir']),
-                                bytecode_cache=FileSystemBytecodeCache('.cache/'))
+                                bytecode_cache=FileSystemBytecodeCache(cache.cache_dir))
     env['jinja2'].filters.update({'safeslug': utils.safeslug, 'tagify': lambda x: x})
 
     # try language set in LANG, if set correctly use it
@@ -59,6 +61,7 @@ def initialize(conf, env):
         log.warn('no `www_root` specified, using localhost:8000')
         conf['www_root'] = 'http://localhost:8000/'
 
+
     env['protocol'], env['netloc'], env['path'], x, y = urlsplit(conf['www_root'])
 
     # take off the trailing slash for www_root and path
@@ -71,12 +74,7 @@ def initialize(conf, env):
     except LookupError:
         raise AcrylamidException('no such encoding available: %r' % conf['encoding'])
 
-    # XXX implement _optional_ config argments like cache_dir
-    # init to conf['cache_dir'] (defaults to '.cache/')
-    cache.init()
-
-    # import and initialize plugins
-    # XXX put them into defaults
+    # import and initialize filters and views
     filters.initialize(conf["filters_dir"], conf, env, exclude=conf["filters_ignore"],
                                                        include=conf["filters_include"])
     views.initialize(conf["views_dir"], conf, env)

@@ -3,6 +3,19 @@
 Version 0.3
 -----------
 
+### 0.3.1
+
+- new content filter: textile (thanks to sebix)
+- add import for WordPress (thanks to ametaireau/pelican) and Atom
+- new reStructuredText directives: code (JS), code-block (Pygments)
+  and YouTube
+- bugfixes in various built-in filters and internals
+- deployment is no longer limited to a single command (thanks to sebix)
+- deployment has now incremental output
+- Markdown 2.1 compatibility for asciimathml
+
+### 0.3.0
+
 Released on April, 1th 2012 [Aprilscherz]
 
 - new command `acrylamid new` to create a new post with some defaults

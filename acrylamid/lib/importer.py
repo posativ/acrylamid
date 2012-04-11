@@ -24,17 +24,20 @@ from acrylamid import log
 from acrylamid.utils import FileEntry, event, escape, system
 from acrylamid.errors import AcrylamidException
 
+# no joke
+USED_WORDPRESS = False
 
-class ParseException(Exception):
+
+class InvalidSource(Exception):
     pass
 
 
-def _unescape(s):
+def unescape(s):
     return re.sub('&(%s);' % '|'.join(name2codepoint),
             lambda m: unichr(name2codepoint[m.group(1)]), s)
 
 
-def _convert(data, fmt='markdown'):
+def convert(data, fmt='markdown'):
     """Reconversion of HTML to Markdown or reStructuredText.  Defaults to Markdown,
     but can be in fact every format pandoc supports. If pandoc is not available, try
     some specific conversion tools like html2text and html2rest.
@@ -51,7 +54,7 @@ def _convert(data, fmt='markdown'):
     else:
         cmds = []
 
-    cmds.insert(0, ['pandoc', '-f', 'html', '-t', fmt, '--strict'])
+    cmds.insert(0, ['pandoc', '--normalize', '-f', 'html', '-t', fmt, '--strict'])
 
     if fmt == 'html':
         return data, 'html'
@@ -72,7 +75,7 @@ def _convert(data, fmt='markdown'):
         return data, 'html'
 
 
-def _rss20(content):
+def rss20(xml):
 
     def parse_date_time(stamp):
         ts = parsedate_tz(stamp)
@@ -80,14 +83,13 @@ def _rss20(content):
         return datetime.fromtimestamp(ts)
 
     try:
-        tree = ElementTree.fromstring(content)
+        tree = ElementTree.fromstring(xml)
     except ElementTree.ParseError:
-        raise AcrylamidException('no well-formed XML')
-    if tree.tag != 'rss' and tree.attrib.get('version') == '2.0':
-        raise ParseException('no RSS 2.0 feed')
+        raise InvalidSource('no well-formed XML')
+    if tree.tag != 'rss' or tree.attrib.get('version') != '2.0':
+        raise InvalidSource('no RSS 2.0 feed')
 
     # --- site settings --- #
-
     defaults = {}
     channel = tree.getchildren()[0]
 
@@ -97,9 +99,9 @@ def _rss20(content):
         except AttributeError:
             pass
 
-    # --- individual posts --- #
+    yield defaults
 
-    items = []
+    # --- individual posts --- #
     for item in channel.findall('item'):
 
         entry = {}
@@ -107,27 +109,111 @@ def _rss20(content):
                      'content': 'description'}.iteritems():
             try:
                 entry[k] = item.find(v).text if k != 'content' \
-                                             else _unescape(item.find(v).text)
+                                             else unescape(item.find(v).text)
             except (AttributeError, TypeError):
                 pass
 
+        if filter(lambda k: not k in entry, ['title', 'date', 'link', 'content']):
+            raise AcrylamidException('invalid RSS 2.0 feed: provide at least title, ' \
+                                     + 'link, content and pubDate!')
+
+        yield {'title': entry['title'],
+               'content': entry['content'],
+               'date': parse_date_time(entry['date']),
+               'link': entry['link']}
+
+
+def atom(xml):
+
+    def parse_date_time(stamp):
+        ts = parsedate_tz(stamp)
+        ts = mktime_tz(ts)
+        return datetime.fromtimestamp(ts)
+
+    try:
+        tree = ElementTree.fromstring(xml)
+    except ElementTree.ParseError:
+        raise InvalidSource('no well-formed XML')
+
+
+    if not tree.tag.endswith('/2005/Atom}feed'):
+        raise InvalidSource('no Atom feed')
+
+    # --- site settings --- #
+    ns = '{http://www.w3.org/2005/Atom}'  # etree Y U have stupid namespace handling?
+    defaults = {}
+
+    defaults['title'] = tree.find(ns + 'title').text
+    defaults['www_root'] = tree.find(ns + 'id').text
+    defaults['author'] = tree.find(ns + 'author').find(ns + 'name').text
+
+    yield defaults
+
+    # --- individual posts --- #
+    for item in tree.findall(ns + 'entry'):
+        entry = {}
+
         try:
-            entry['content'] = [_.text for _ in item.getchildren() if _.tag.endswith('encoded')][0]
-        except (AttributeError, IndexError):
+            entry['title'] = item.find(ns + 'title').text
+            entry['date'] = item.find(ns + 'updated').text
+            entry['link'] = item.find(ns + 'link').text
+            entry['content'] = item.find(ns + 'content').text
+        except (AttributeError, TypeError):
             pass
 
+        if item.find(ns + 'content').get('type', 'text') == 'html':
+            entry['content'] = unescape(entry['content'])
+
         if filter(lambda k: not k in entry, ['title', 'date', 'link', 'content']):
-            raise ParseException('invalid RSS 2.0 feed: provide at least a title, '
-                                 + 'link, content and pubDate!')
+            raise AcrylamidException('invalid Atom feed: provide at least title, '
+                                     + 'link, content and updated!')
 
-        items.append({
-            'title': entry['title'],
-            'content': entry['content'],
-            'date': parse_date_time(entry['date']),
-            'link': entry['link']
-            })
+        yield {'title': entry['title'],
+               'content': entry['content'],
+               'date': datetime.strptime(entry['date'], "%Y-%m-%dT%H:%M:%SZ"),
+               'link': entry['link']}
 
-    return defaults, items
+
+def wp(xml):
+    """WordPress to Acrylamid, stolen from pelican-import.py, thank you Alexis.
+    -- https://github.com/ametaireau/pelican/blob/master/pelican/tools/pelican_import.py
+    """
+
+    global USED_WORDPRESS
+    USED_WORDPRESS = True
+
+    try:
+        from BeautifulSoup import BeautifulStoneSoup
+    except ImportError:
+        raise AcrylamidException('BeautifulSoup is required for WordPress import')
+
+    soup = BeautifulStoneSoup(xml)
+    items = soup.rss.channel.findAll('item')
+
+    # --- site settings --- #
+    title = soup.rss.channel.fetch('title')[0].contents[0]
+    www_root = soup.rss.channel.fetch('link')[0].contents[0]
+
+    yield {'title': title, 'www_root': www_root}
+
+    # --- individual posts --- #
+    for item in items:
+        if item.fetch('wp:status')[0].contents[0] == "publish":
+
+            title = item.title.contents[0]
+            link = item.fetch('link')[0].contents[0]
+
+            content = item.fetch('content:encoded')[0].contents[0]
+            content = content.replace('\n', '<br />\n')
+
+            raw_date = item.fetch('wp:post_date')[0].contents[0]
+            date = datetime.strptime(raw_date, "%Y-%m-%d %H:%M:%S")
+
+            author = item.fetch('dc:creator')[0].contents[0].title()
+            tags = [tag.contents[0] for tag in item.fetch(domain='post_tag')]
+
+            yield {'title': title, 'content': content, 'date': date, 'author': author,
+                   'tags': tags, 'link': link}
 
 
 def fetch(url, auth=None):
@@ -162,32 +248,50 @@ def fetch(url, auth=None):
 
 def parse(content):
 
-    for method in (_rss20,):
+    failed = []
+    for method in (wp, rss20, atom):
         try:
-            return method(content)
-        except ValueError as e:
-            raise AcrylamidException(e.message)
-        except ParseException:
-            pass
+            res =  method(content)
+            return res.next(), res
+        # except ValueError as e:
+        #     raise AcrylamidException(e.message)
+        except InvalidSource as e:
+            failed.append(str(e))
     else:
-        raise AcrylamidException('unable to parse feed.')
+        raise AcrylamidException('unable to parse source, %s' % '; '.join(failed))
 
 
 def build(conf, env, defaults, items, fmt, keep=False):
 
-    def create(title, date, content, permalink=None):
-        fd, tmp = tempfile.mkstemp(suffix='.txt', dir='.cache/')
+    def create(defaults, title, date, author, content, fmt, permalink=None, tags=None):
+
+        global USED_WORDPRESS
+
+        fd, tmp = tempfile.mkstemp(suffix='.txt')
         title = escape(title)
 
         with os.fdopen(fd, 'wb') as f:
             f.write('---\n')
             f.write('title: %s\n' % title)
+            if author != defaults.get('author', None):
+                f.write('author: %s\n' % author)
             f.write('date: %s\n' % date.strftime(conf['date_format']))
             f.write('filter: [%s, ]\n' % fmt)
+            if tags:
+                f.write('tags: [%s]\n' % ', '.join(tags))
             if permalink:
                 f.write('permalink: %s\n' % permalink)
             f.write('---\n\n')
-            f.write(content[0])
+
+            # this are fixes for WordPress because they don't save HTML but a
+            # stupid mixed-in form of HTML making it very difficult to get either HTML
+            # or reStructuredText/Markdown
+            if USED_WORDPRESS and fmt == 'markdown':
+                content = content.replace("\n ", "  \n")
+                content = content.replace("\n", "  \n")
+            elif USED_WORDPRESS and fmt == 'rst':
+                content = content.replace('\n ', '\n\n')
+            f.write(content+'\n')
 
         entry = FileEntry(tmp, conf)
         p = join(conf['entries_dir'], dirname(entry.permalink)[1:])
@@ -209,5 +313,13 @@ def build(conf, env, defaults, items, fmt, keep=False):
             m = urlsplit(item['link'])
             permalink = m.path if m.path != '/' else None
 
-        create(item['title'], item['date'], _convert(item.get('content', ''), fmt),
-               permalink=permalink if keep else None)
+        content, fmt = convert(item.get('content', ''), fmt)
+        create(defaults, item['title'], item['date'], item['author'], content, fmt,
+               tags=item.get('tags', None), permalink=permalink if keep else None)
+
+    print "\nImport was successful. Edit your conf.py with these new settings:"
+    for key, value in defaults.iteritems():
+        print "    %s = '%s'" % (key.upper(), value)
+
+
+__all__ = ['fetch', 'parse', 'build']
