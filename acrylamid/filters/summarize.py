@@ -77,8 +77,9 @@ class Summarizer(HTMLParser):
                 self.summarized.append(self.link % self.href)
 
     def handle_startendtag(self, tag, attrs):
-        s = '<%s %s/>' % (tag, ' '.join(['%s="%s"' % (k, escape(v)) for k, v in attrs]))
-        self.summarized.append(s)
+        if self.words < self.maxwords:
+            s = '<%s %s/>' % (tag, ' '.join(['%s="%s"' % (k, escape(v)) for k, v in attrs]))
+            self.summarized.append(s)
 
     def handle_entityref(self, entity):
         # handle &shy; correctly
