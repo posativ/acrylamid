@@ -160,7 +160,7 @@ body {
 #disqus_thread {
   padding-top: 24px; }
 
-object[type="application/x-shockwave-flash"], iframe {
+object[type="application/x-shockwave-flash"], iframe.video {
   -moz-box-shadow: 0px 0px 12px #777777;
   -webkit-box-shadow: 0px 0px 12px #777777;
   box-shadow: 0px 0px 12px #777777;

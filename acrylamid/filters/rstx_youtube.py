@@ -50,7 +50,7 @@ class YouTube(Directive):
 
         YT_EMBED = """<iframe width="%(width)s" height="%(height)s" src="%(uri)s" \
                       frameborder="%(border)s" style="display: block; margin: %(align)s;" \
-                      allowfullscreen></iframe>"""
+                      class="video" allowfullscreen></iframe>"""
         return [nodes.raw('', YT_EMBED % self.options, format='html')]
 
 def makeExtension():
