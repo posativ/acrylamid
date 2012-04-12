@@ -113,9 +113,10 @@ three additional directives:
 
   ::
 
-      .. youtube:: asdfjkl
-          width=600
-          height=400
+        .. youtube:: ZPJlyRv_IGI
+           :align: center
+           :height: 1280
+           :width: 720
 
 ============  ==================================================
 Requires      ``docutils`` (or ``python-docutils``), optional
