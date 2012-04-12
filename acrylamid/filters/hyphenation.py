@@ -4,11 +4,11 @@
 from acrylamid.filters import Filter
 from acrylamid.filters import log
 from acrylamid.utils import cached_property
+from acrylamid.lib import HTMLParser, HTMLParseError
 
 import re
 import os
 import codecs
-from HTMLParser import HTMLParser, HTMLParseError
 from cgi import escape
 from os.path import join, dirname, basename
 
@@ -103,27 +103,10 @@ class Separator(HTMLParser):
     math and em tags."""
 
     def __init__(self, html, hyphenationfunc, length=10):
-        HTMLParser.__init__(self)
         self.hyphenate = hyphenationfunc
         self.length = length
-        self.result = []
-        self.stack = []
 
-        self.feed(html)
-
-    def handle_starttag(self, tag, attrs):
-        """Apply and stack each read tag until we reach maxword."""
-
-        def tagify(tag, attrs):
-            """convert parsed tag back into a html tag"""
-            if attrs:
-                return '<%s %s>' % (tag, ' '.join(['%s="%s"' % (k, escape(v))
-                                        for k, v in attrs]))
-            else:
-                return '<%s>' % tag
-
-        self.stack.append(tag)
-        self.result.append(tagify(tag, attrs))
+        HTMLParser.__init__(self, html)
 
     def handle_data(self, data):
         """Hyphenate words longer than 10 characters."""
@@ -138,25 +121,6 @@ class Separator(HTMLParser):
                 data = data.replace(word, hyphenated)
 
         self.result.append(data)
-
-    def handle_endtag(self, tag):
-        """Until we reach not the maxwords limit, we can safely pop every ending tag,
-           added by handle_starttag. Afterwards, we apply missing endings tags if missing."""
-        try:
-            self.stack.pop()
-        except IndexError:
-            pass
-        self.result.append('</%s>' % tag)
-
-    def handle_startendtag(self, tag, attrs):
-        s = '<%s %s/>' % (tag, ' '.join(['%s="%s"' % (k, escape(v)) for k, v in attrs]))
-        self.result.append(s)
-
-    def handle_entityref(self, name):
-        self.result.append('&' + name + ';')
-
-    def handle_charref(self, char):
-        self.result.append('&#' + char + ';')
 
 
 def build(lang):
