@@ -23,7 +23,7 @@ class Entry(View):
             else:
                 p = joinurl(self.conf['output_dir'], expand(self.path, entry))
 
-            if not filter(lambda e: p.endswith(e), ['.xml', '.html']):
+            if p.endswith('/'):
                 p = joinurl(p, 'index.html')
 
             if p in pathes:
