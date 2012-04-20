@@ -42,10 +42,10 @@ def initialize(conf, env):
     # try language set in LANG, if set correctly use it
     try:
         locale.setlocale(locale.LC_ALL, conf.get('lang', ''))
-    except (locale.Error, TypeError, KeyError):
+    except (locale.Error, TypeError):
         # try if LANG is an alias
         try:
-            locale.setlocale(locale.LC_ALL, locale.locale_alias[conf['lang']])
+            locale.setlocale(locale.LC_ALL, locale.locale_alias[conf['lang'].lower()])
         except (locale.Error, KeyError):
             # LANG is not an alias, so we use system's default
             locale.setlocale(locale.LC_ALL, '')
