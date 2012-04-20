@@ -177,7 +177,7 @@ body > footer a:hover {
     text-shadow: #aaaaaa 0px 0px 1px;
 }
 .comments a:visited { color: black }
-object[type="application/x-shockwave-flash"] {
+object[type="application/x-shockwave-flash"], iframe.video {
     box-shadow: 0px 0px 12px #777777;
     margin-left: 15px;
     text-align: center;

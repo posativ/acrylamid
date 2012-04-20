@@ -417,7 +417,9 @@ class FileEntry:
             yield k
 
     def __getitem__(self, key):
-        return getattr(self, key)
+        if key in self.__keys__:
+            return getattr(self, key)
+        return self.props[key]
 
 
 class ExtendedFileSystemLoader(FileSystemLoader):

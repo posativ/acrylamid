@@ -1,65 +1,57 @@
-#!/usr/bin/env python
+# License: BSD Style, 2 clauses. see acrylamid/__init__.py
 # -*- encoding: utf-8 -*-
-#
-# http://countergram.com/youtube-in-rst
-# License: MIT
-#
-# XXX: try https://hg.rafaelmartins.eng.br/blohg/file/a09f8f0c6cad/blohg/rst/directives.py
 
 from docutils import nodes
+from docutils.parsers.rst import Directive, directives
 
 match = ['youtube', 'yt']
 
 
-CODE = """\
-<object type="application/x-shockwave-flash"
-        width="%(width)s"
-        height="%(height)s"
-        class="youtube-embed"
-        data="http://www.youtube.com/v/%(yid)s">
-    <param name="movie" value="http://www.youtube.com/v/%(yid)s"></param>
-    <param name="wmode" value="transparent"></param>%(extra)s
-</object>
-"""
-
-PARAM = """\n    <param name="%s" value="%s"></param>"""
+def align(argument):
+    return directives.choice(argument, ('left', 'center', 'right'))
 
 
-def youtube(name, args, options, content, lineno,
-            contentOffset, blockText, state, stateMachine):
-    """ Restructured text extension for inserting youtube embedded videos.
+class YouTube(Directive):
+    """reStructuredText directive that creates an embed object to display
+    a video from Youtube
 
     Usage example::
 
-    ::
-
-        .. youtube:: asdfjkl
-            width=600
-            height=400
-            someOtherParam=value
+        .. youtube:: ZPJlyRv_IGI
+           :align: center
+           :height: 1280
+           :width: 720
     """
-    if len(content) == 0:
-        return
-    string_vars = {
-        'yid': content[0],
-        'width': 460,
-        'height': 390,
-        'extra': ''
-        }
-    extra_args = content[1:] # Because content[0] is ID
-    extra_args = [ea.strip().split("=") for ea in extra_args] # key=value
-    extra_args = [ea for ea in extra_args if len(ea) == 2] # drop bad lines
-    extra_args = dict(extra_args)
-    if 'width' in extra_args:
-        string_vars['width'] = extra_args.pop('width')
-    if 'height' in extra_args:
-        string_vars['height'] = extra_args.pop('height')
-    if extra_args:
-        params = [PARAM % (key, extra_args[key]) for key in extra_args]
-        string_vars['extra'] = "".join(params)
-    return [nodes.raw('', CODE % (string_vars), format='html')]
 
+    required_arguments = 1
+    optional_arguments = 0
+    option_spec = {
+        'height': directives.length_or_unitless,
+        'width': directives.length_or_percentage_or_unitless,
+        'border': directives.length_or_unitless,
+        'align': align,
+    }
+    has_content = False
+
+    def run(self):
+
+        alignments = {
+            'left': '0',
+            'center': '0 auto',
+            'right': '0 0 0 auto',
+        }
+
+        self.options['uri'] = 'https://www.youtube-nocookie.com/embed/' \
+            + self.arguments[0]
+        self.options.setdefault('width', '680')
+        self.options.setdefault('height', '382px')
+        self.options['align'] = alignments[self.options.get('align', 'center')]
+        self.options.setdefault('border', '0')
+
+        YT_EMBED = """<iframe width="%(width)s" height="%(height)s" src="%(uri)s" \
+                      frameborder="%(border)s" style="display: block; margin: %(align)s;" \
+                      class="video" allowfullscreen></iframe>"""
+        return [nodes.raw('', YT_EMBED % self.options, format='html')]
 
 def makeExtension():
-    youtube.content = True
-    return youtube
+    return YouTube

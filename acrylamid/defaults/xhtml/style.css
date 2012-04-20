@@ -94,8 +94,6 @@ body {
       #blogbody .posting .postbody img {
         max-width: 700px;
         margin: 0em 20px;
-        -moz-box-shadow: 0px 0px 9px black;
-        -webkit-box-shadow: 0px 0px 9px black;
         box-shadow: 0px 0px 4px black; }
       #blogbody .posting .postbody .amp {
         color: #666666;
@@ -160,16 +158,12 @@ body {
 #disqus_thread {
   padding-top: 24px; }
 
-object[type="application/x-shockwave-flash"] {
-  -moz-box-shadow: 0px 0px 12px #777777;
-  -webkit-box-shadow: 0px 0px 12px #777777;
+object[type="application/x-shockwave-flash"], iframe.video {
   box-shadow: 0px 0px 12px #777777;
   margin-left: 15px;
   text-align: center; }
 
 .shadow {
-  -moz-box-shadow: 0px 0px 9px black;
-  -webkit-box-shadow: 0px 0px 9px black;
   box-shadow: 0px 0px 4px black; }
 
 .floatright {
