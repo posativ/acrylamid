@@ -10,6 +10,7 @@ import codecs
 import tempfile
 import subprocess
 import hashlib
+import zlib
 from fnmatch import fnmatch
 from datetime import datetime
 from os.path import join, exists, dirname, getmtime, basename
@@ -263,7 +264,6 @@ class FileEntry:
                         remap={'tag': 'tags', 'filter': 'filters'})
         self.offset = i
         self.props.update(props)
-        self.ctime = 0.01  # time used to compile (cheating with 0.01 init value)
 
         fx = self.props.get('filters', [])
         if isinstance(fx, basestring):
@@ -272,7 +272,7 @@ class FileEntry:
         self.filters = FilterTree(fx)
 
     def __repr__(self):
-        return "<fileentry f'%s'>" % self.filename
+        return "<FileEntry f'%s'>" % self.filename
 
     @cached_property
     def permalink(self):
@@ -360,21 +360,29 @@ class FileEntry:
 
     @property
     def content(self):
+        """Returns the processed content.  This one of the core functions of
+        acrylamid: it compiles incrementally the filter chain using a tree
+        representation and saves final output or intermediates to cache, so
+        we can rapidly re-compile the whole content.
+
+        The cache is rather dumb: acrylamid can not determine wether it's
+        abandoned or differs only in a single character. Thus, to minimize
+        the overhead the content is zlib-compressed."""
 
         # previous value
         pv = None
 
         for i, fxs in self.filters.iter(context=self.context):
-            hv = md5(self.filename, i, fxs)
+            key = md5(i, fxs)
+            obj = md5(self.filename)
 
             try:
-                rv = cache.get(hv, mtime=self.mtime)
+                rv = cache.get(obj, key, mtime=self.mtime)
                 if rv is None:
                     res = self.source if pv is None else pv
                     for f in fxs:
                         res = f.transform(res, self, *f.args)
-                    pv = cache.set(hv, res)
-                    # XXX
+                    pv = cache.set(obj, key, data=res)
                     self.has_changed = True
                 else:
                     pv = rv
@@ -400,7 +408,7 @@ class FileEntry:
     @property
     def has_changed(self):
         i, fxs = list(self.filters.iter(self.context))[-1]
-        path = md5(self.filename, i, fxs)
+        path = md5(self.filename)
 
         if not exists(cache._get_filename(path)):
             return True
@@ -734,32 +742,61 @@ class cache(object):
                 pass
 
     @classmethod
-    def get(self, key, default=None, mtime=0.0):
+    def get(self, obj, key, default=None, mtime=0.0):
+        """Restore data from obj[key] if mtime has not changed or return default.
+
+        :param obj: object's hash that will be used as filename
+        :param key: key of this data
+        :param default: default return value
+        :param mtime: modification timestamp as float value
+        """
         try:
-            filename = self._get_filename(key)
+            filename = self._get_filename(obj)
             if mtime > getmtime(filename):
                 return default
             with open(filename, 'rb') as fp:
-                return pickle.load(fp)
+                return zlib.decompress(pickle.load(fp)[key])
             os.remove(filename)
-        except (OSError, IOError, pickle.PickleError):
+        except (OSError, IOError, KeyError, pickle.PickleError, zlib.error):
             pass
         return default
 
     @classmethod
-    def set(self, key, value):
-        filename = self._get_filename(key)
-        try:
-            fd, tmp = tempfile.mkstemp(suffix=self._fs_transaction_suffix,
-                                       dir=self.cache_dir)
-            with os.fdopen(fd, 'wb') as fp:
-                pickle.dump(value, fp, pickle.HIGHEST_PROTOCOL)
-            os.rename(tmp, filename)
-            os.chmod(filename, self.mode)
-        except (IOError, OSError):
-            pass
+    def set(self, obj, key, data):
+        """Save a key, value pair into a blob using pickle and moderate zlib
+        compression (level 6). We simply save a dictionary containing all
+        different intermediates (from every view) of an entry.
 
-        return value
+        :param obj: the object's hash, used as filename
+        :param key: dictionary key where we store the data
+        :param data: a string we compress with zlib and afterwards save
+        """
+        filename = self._get_filename(obj)
+
+        if exists(filename):
+            try:
+                with open(filename, 'rb') as fp:
+                    rv = pickle.load(fp)
+            except pickle.PickleError:
+                rv = {}
+            try:
+                with open(filename, 'wb') as fp:
+                    rv[key] = zlib.compress(data, 6)
+                    pickle.dump(rv, fp, pickle.HIGHEST_PROTOCOL)
+            except (IOError, OSError):
+                pass
+        else:
+            try:
+                fd, tmp = tempfile.mkstemp(suffix=self._fs_transaction_suffix,
+                                           dir=self.cache_dir)
+                with os.fdopen(fd, 'wb') as fp:
+                    pickle.dump({key: zlib.compress(data, 6)}, fp, pickle.HIGHEST_PROTOCOL)
+                os.rename(tmp, filename)
+                os.chmod(filename, self.mode)
+            except (IOError, OSError):
+                pass
+
+        return data
 
     @classmethod
     def get_mtime(self, key, default=0.0):
