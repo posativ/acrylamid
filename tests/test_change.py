@@ -92,7 +92,7 @@ class TestUtils(unittest.TestCase):
 
         # change mtime should result result in at least one identical
         touch('content/sample-entry.txt', '+5s')
-        self.shortcut(['acrylamid', 'compile', '-C'], 'identical', any)
+        self.shortcut(['acrylamid', 'compile', '-C'], 'skip', one)
 
         # change content should result in at least on change
         subprocess.check_call(['sed', '-i', '-e', 's/i/u/g', 'content/sample-entry.txt'])
