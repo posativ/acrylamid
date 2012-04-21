@@ -7,7 +7,7 @@ from acrylamid.errors import AcrylamidException
 
 class Tex(Filter):
 
-    match = ['tex', 'latex', 'xetex']
+    match = ['metalogo']
     priority = 70.0
 
     def transform(self, text, entry, *args):
