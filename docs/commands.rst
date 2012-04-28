@@ -34,14 +34,14 @@ restore changed/deleted files if you specify the complete path as argument.
     Created your fresh new blog at 'foo'. Enjoy!
 
 If you give . (dot) as argument the current working dir is used. Let's say you
-have edited *output/blog.css* and want restore the original version.
+have edited *output/style.css* and want restore the original version.
 
 ::
 
     $> cd foo/
     $> $> acrylamid init output/blog.css
-    re-initialize 'output/blog.css'? [yn]: y
-      re-initialized output/blog.css
+    re-initialize 'output/style.css'? [yn]: y
+      re-initialized output/style.css
 
 
 new
@@ -70,8 +70,8 @@ this command will *not* remove orphaned files. Depending on your changes and
 content size it may take some time.
 
 -f, --force     clear cache before compilation
--i, --ignore    ignore critical errors (e.g. missing module in a filters)
 -n, --dry-run   show what would have been compiled
+-i, --ignore    ignore critical errors (e.g. missing module used in a filter)
 
 ::
 
@@ -112,7 +112,7 @@ automatically compile and serve when you save your document. Hit *Ctrl-C* to
 quit.
 
 -f, --force           clear cache before compilation
--i, --ignore    ignore critical errors (e.g. missing module in a filters)
+-i, --ignore    ignore critical errors (e.g. missing module used in a filter)
 -p PORT, --port=PORT  webserver port
 
 ::
@@ -237,19 +237,22 @@ substitution variable can be anywhere.
 ::
 
     $> acrylamid deploy ls
-        2009
-        2010
-        ...
-        tag
+        execute ls output/
+    2009
+    2010
+    ...
+    tag
 
-    $> acrylamid deploy echo
-        output/
+    $> acrylamid dp echo
+        execute echo output/ 
+    output/
 
     $> acrylamid deploy blog
-        building file list ... done
+        execute rsync -av --delete output/ www@server:~/blog.example.org/
+    building file list ... done
 
-        sent 19701 bytes  received 20 bytes  7888.40 bytes/sec
-        total size is 13017005  speedup is 660.06
+    sent 19701 bytes  received 20 bytes  7888.40 bytes/sec
+    total size is 13017005  speedup is 660.06
 
 It's also possible to pass additional commands to these tasks. Every argument
 after the task identifier is passed to and using ``--`` as delimiter for
@@ -258,5 +261,6 @@ acrylamid's flags you can also apply opts and long-opts:
 ::
 
     $> acrylamid deploy ls -- content/ -d
-        content/
-        output/
+        execute ls output/ content/ -d
+    content/
+    output/

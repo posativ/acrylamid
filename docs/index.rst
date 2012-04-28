@@ -28,14 +28,15 @@ features mainly:
 
 - blog articles, static pages, tags RSS/Atom feeds and an article overview
 - theming support (using jinja2_) and support for jinja2 directly in postings
-- Markdown_, reStructuredText_ and pandoc_
+- Markdown_, reStructuredText_, textile_ and pandoc_
 - MathML, modern web-typography and hyphenation using `&shy;`
 - RSS/Atom import, deployment and a handy CLI
 - it's very flexible/configurable and fast
 
 .. _jinja2: http://jinja.pocoo.org/
-.. _reStructuredText: http://docutils.sourceforge.net/rst.html
 .. _Markdown: http://daringfireball.net/projects/markdown/
+.. _reStructuredText: http://docutils.sourceforge.net/rst.html
+.. _textile: https://en.wikipedia.org/wiki/Textile_%28markup_language%29
 .. _pandoc: http://johnmacfarlane.net/pandoc/
 .. _AsciiMathML: http://www1.chapman.edu/~jipsen/mathml/asciimath.html
 
@@ -84,7 +85,7 @@ Filters
 -------
 
 You can apply various filter to a single entry, to a specific view or globally
-and Acrylamid resolve it automatically (some filters conflict with others so
+and Acrylamid resolves it automatically (some filters conflict with others so
 you can for example apply *Markdown* as global filter but render some entries
 with reStructuredText). Currently supported by acrylamid, see
 `docs/filters.rst <http://acrylamid.readthedocs.org/en/latest/filters.html>`_
@@ -93,7 +94,8 @@ for detailed information:
 - **Markdown**: rendering Markdown (+asciimathml,pygments,built-in extensions)
 - **reST**: reStructuredText (+pygments)
 - **pandoc**: Pandoc (+Markdown,textitle,rst,...)
-- **HTML**: don't render with Markdown, reStructuredText or Pandoc (it's a conflicting filter)
+- **textile**: using Textile as markup language
+- **HTML**: don't render with filters mentioned above (it's a conflicting filter)
 
 - **typography**: https://code.google.com/p/typogrify/ (and custom modifications)
 - **hyphenation**: hyphenate words (len > 10) based on language

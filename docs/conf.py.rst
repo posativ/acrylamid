@@ -43,9 +43,11 @@ processed. This file is processed within a namespace that contains default
 values for almost every parameter. This allows something like ``OUTPUT_IGNORE +=
 ['foo']`` and makes it more DRY (except ``VIEWS``).
 
-Here is a list of settings for acrylamid, regarding the different features.
+.. [#] views is a dictionary mapping of view name to view instance and is not
+   available in ``conf`` but ``env``, so you can test for a given view with
+   ``if 'entry' in env.views``.
 
-.. [#] views is a list of all used views, e.g. [index, entry, ...]
+Here is a list of settings for acrylamid, regarding the different features.
 
 Basic settings
 --------------
@@ -81,15 +83,32 @@ Variable name (default value)                       Description
 URL Settings
 ------------
 
+When it comes to URLs, Acrylamid follows two simple rules: always add a
+*index.html* to an URL with trailing slash. Secondly: substitution variables
+begin with a double dash and then the wished property:
+
+- ``/2012/hello-world/`` gets a ``index.html`` as filename for nice URLs
+- ``/atom/index.html`` gets not touched anywhere and uses ``index.html``
+  as filename.
+- ``/page/:num/`` gets expanded to ``/page/2/index.html`` if ``num = 2``.
+
+Use :doc:`views` and :doc:`templating` as reference guide for all possible
+variable name substitutions in a current view.
 
 ================================================    =====================================================
 Variable name (default value)                       Description
 ================================================    =====================================================
-`PERMALINK_FORMAT` (``'/:year/:slug/'``)            A substitution string as described here (XXX).
+`PERMALINK_FORMAT` (``'/:year/:slug/'``)            A (substitution) string where we save this URL
 ================================================    =====================================================
 
 Date format and locale
 ----------------------
+
+A few filters and views (namely hyphenation and syndication feeds) depend on a
+valid locale and language. By default we use the system's locale but in some
+cases you would rather use a different. Thus, you can set ``LANG`` to your
+favourite language (if available) and it will be also used as default language
+for hyphenation.
 
 
 ================================================    =====================================================

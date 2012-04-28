@@ -27,7 +27,7 @@ performance tweaks
 
 Though acrylamid caches as much as possible, re-generation in worst-case can
 be something like :math:`f(x) = 0.5 + 0.1x` where x is the amount of entries
-processed. *f(x)* returns the computing time if you have expensive
+processed. :math:`f(x)` returns the computing time if you have expensive
 filters like *hyphenate* or *reStructuredText*.
 On my MacBook (i5 2,4 Ghz) *hyphenate* takes around 257 ms for each language
 just for generating the pattern. To just import *reStructuredText* from
@@ -36,7 +36,7 @@ just for generating the pattern. To just import *reStructuredText* from
 If acrylamid is too slow, first thing you can do is to **turn off
 hyphenation**. If a single entry changes (must not be a reStructuredText post)
 it loads at least the default language pattern which adds a huge constant in
-`*O*-notation <https://en.wikipedia.org/wiki/Big_O_notation>`_. Below a short
+`O-notation <https://en.wikipedia.org/wiki/Big_O_notation>`_. Below a short
 profiling of generation using hyphenate and reST filters.
 
 ::
