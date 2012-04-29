@@ -29,7 +29,7 @@ Released on April, 1th 2012 [Aprilscherz]
   get multilanguage support in your blog
 - new jinja2, acronyms and pandoc filters
 - new HTML5 layout (and it even validates)
-- inspired pelican configuration
+- pelican inspired configuration
 - optional PyYAML support
 - documentation
 - major refactoring

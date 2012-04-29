@@ -5,7 +5,6 @@ from acrylamid import log
 from acrylamid.filters import Filter
 
 from acrylamid.lib import HTMLParser, HTMLParseError
-from cgi import escape
 
 
 class Summarizer(HTMLParser):

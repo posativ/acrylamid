@@ -5,7 +5,6 @@ from acrylamid.views import View
 from acrylamid.utils import union, joinurl, event, cache, md5
 
 from os.path import exists
-from collections import defaultdict
 
 
 class Articles(View):

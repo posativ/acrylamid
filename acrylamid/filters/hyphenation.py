@@ -9,7 +9,6 @@ from acrylamid.lib import HTMLParser, HTMLParseError
 import re
 import os
 import codecs
-from cgi import escape
 from os.path import join, dirname, basename
 
 
