@@ -294,7 +294,7 @@ def build(conf, env, defaults, items, fmt, keep=False):
             f.write(content+'\n')
 
         entry = FileEntry(tmp, conf)
-        p = join(conf['entries_dir'], dirname(entry.permalink)[1:])
+        p = join(conf['content_dir'], dirname(entry.permalink)[1:])
 
         try:
             os.makedirs(p.rsplit('/', 1)[0])

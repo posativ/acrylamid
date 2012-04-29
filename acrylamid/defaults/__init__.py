@@ -43,10 +43,10 @@ def init(root, theme='html5', overwrite=False):
     global default
 
     default['output_dir'] = default['output_dir'].rstrip('/')
-    default['entries_dir'] = default['entries_dir'].rstrip('/')
+    default['content_dir'] = default['content_dir'].rstrip('/')
     default['layout_dir'] = default['layout_dir'].rstrip('/')
 
-    dirs = ['%(entries_dir)s/', '%(layout_dir)s/', '%(output_dir)s/', '.cache/']
+    dirs = ['%(content_dir)s/', '%(layout_dir)s/', '%(output_dir)s/', '.cache/']
 
     files = [p % theme for p in [
         '%s/style.css', '%s/base.html', '%s/main.html', '%s/entry.html',
@@ -108,7 +108,7 @@ def init(root, theme='html5', overwrite=False):
         if filter(lambda k: path.endswith(k), ('.html', '.xml')):
             create(default['layout_dir'], path)
         elif path.endswith('.txt'):
-            create(default['entries_dir'], path)
+            create(default['content_dir'], path)
         else:
             create(default['output_dir'], path)
 
@@ -160,7 +160,7 @@ conf = default = {
 
     'filters_dir': [],
     'views_dir': [],
-    'entries_dir': 'content/',
+    'content_dir': 'content/',
     'layout_dir': 'layouts/',
     'output_dir': 'output/',
 

@@ -519,16 +519,16 @@ class ExtendedFileSystemLoader(FileSystemLoader):
         return tt
 
 
-def filelist(entries_dir, entries_ignore=[]):
-    """Gathering all entries in entries_dir except entries_ignore via fnmatch."""
+def filelist(content_dir, entries_ignore=[]):
+    """Gathering all entries in content_dir except entries_ignore via fnmatch."""
 
     flist = []
-    for root, dirs, files in os.walk(entries_dir):
+    for root, dirs, files in os.walk(content_dir):
         for f in files:
             if f[0] == '.':
                 continue
             path = join(root, f)
-            fn = filter(lambda p: fnmatch(path, os.path.join(entries_dir, p)), entries_ignore)
+            fn = filter(lambda p: fnmatch(path, os.path.join(content_dir, p)), entries_ignore)
             if not fn:
                 flist.append(path)
     return flist

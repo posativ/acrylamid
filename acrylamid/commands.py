@@ -96,7 +96,7 @@ def compile(conf, env, force=False, **options):
         cache.clear()
 
     # list of FileEntry-objects reverse sorted by date.
-    entrylist = sorted([FileEntry(e, conf) for e in filelist(conf['entries_dir'],
+    entrylist = sorted([FileEntry(e, conf) for e in filelist(conf['content_dir'],
                                                              conf.get('entries_ignore', []))],
                        key=lambda k: k.date, reverse=True)
 
@@ -181,7 +181,7 @@ def autocompile(conf, env, **options):
     mtime = -1
 
     while True:
-        ntime = max(getmtime(e) for e in filelist(conf['entries_dir']))
+        ntime = max(getmtime(e) for e in filelist(conf['content_dir']))
         if mtime != ntime:
             try:
                 compile(conf, env, **options)
@@ -275,7 +275,7 @@ def new(conf, env, title, prompt=True):
         f.write('---\n\n')
 
     entry = FileEntry(tmp, conf)
-    p = join(conf['entries_dir'], dirname(entry.permalink)[1:])
+    p = join(conf['content_dir'], dirname(entry.permalink)[1:])
 
     try:
         os.makedirs(p.rsplit('/', 1)[0])

@@ -225,7 +225,7 @@ class Acryl:
             sys.exit(1)
 
         conf['output_dir'] = conf.get('output_dir', 'output/')
-        conf['entries_dir'] = conf.get('entries_dir', 'content/')
+        conf['content_dir'] = conf.get('content_dir', 'content/')
         conf['layout_dir'] = conf.get('layout_dir', 'layouts/')
 
         assert defaults.check_conf(conf)
