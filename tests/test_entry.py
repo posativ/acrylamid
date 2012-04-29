@@ -84,7 +84,7 @@ class TestFileEntry(unittest.TestCase):
         create(self.path, title='foo', tags='Foo')
         self.assertEquals(FileEntry(self.path, conf).tags, ['Foo'])
 
-        create(self.path, title='foo', tags=['Foo', 'Bar'])
+        create(self.path, title='foo', tags='[Foo, Bar]')
         self.assertEquals(FileEntry(self.path, conf).tags, ['Foo', 'Bar'])
 
     def test_mapping(self):

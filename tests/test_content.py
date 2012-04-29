@@ -92,7 +92,7 @@ class TestSingleEntry(unittest.TestCase):
 
     def test_content_minimal(self):
         with open('content/bla.txt', 'wb') as fp:
-            fp.write(entry(permalink='/', filter=['Markdown']))
+            fp.write(entry(permalink='/', filter='[Markdown]'))
 
         compile(self.conf, self.env, options)
 
@@ -101,7 +101,7 @@ class TestSingleEntry(unittest.TestCase):
 
     def test_content_full(self):
         with open('content/bla.txt', 'wb') as fp:
-            fp.write(entry(permalink='/', filter=['Markdown', 'h1', 'hyphenate'], lang='en'))
+            fp.write(entry(permalink='/', filter='[Markdown, h1, hyphenate]', lang='en'))
 
         compile(self.conf, self.env, options)
 
