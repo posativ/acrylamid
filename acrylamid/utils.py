@@ -245,7 +245,22 @@ class FilterTree(list):
 
 class FileEntry:
     """This class gets it's data and metadata from the file specified
-    by the filename argument."""
+    by the filename argument.
+
+    During templating, every (cached) property is available as well as additional
+    key, value pairs defined in the YAML header. Note that *tag* is automatically
+    mapped to *tags*, *filter* to *filters* and *static* to *draft*.
+
+    If you have something like
+
+    ::
+
+        ---
+        title: Foo
+        image: /path/to/my/image.png
+        ---
+
+    it is available in jinja2 templates as entry.image"""
 
     __keys__ = ['permalink', 'date', 'year', 'month', 'day', 'filters', 'tags',
                 'title', 'author', 'content', 'description', 'lang', 'draft',
@@ -276,6 +291,10 @@ class FileEntry:
 
     @cached_property
     def permalink(self):
+        """Actual permanent link, depends on entry's property and ``permalink_format``.
+        If you set permalink in the YAML header, we use this as permalink otherwise
+        the URL without trailing *index.html.*"""
+
         try:
             return self.props['permalink']
         except KeyError:
@@ -283,8 +302,8 @@ class FileEntry:
 
     @cached_property
     def date(self):
-        """return datetime.datetime obj.  Either converted from given key and
-        date_format or fallback to mtime."""
+        """return :class:`datetime.datetime` object.  Either converted from given key
+        and ``date_format`` or fallback to modification timestamp of the file."""
 
         # alternate formats from pelican.utils, thank you!
         # https://github.com/ametaireau/pelican/blob/master/pelican/utils.py
@@ -311,18 +330,24 @@ class FileEntry:
 
     @property
     def year(self):
+        """entry's year (Integer)"""
         return self.date.year
 
     @property
     def month(self):
+        """entry's month (Integer)"""
         return self.date.month
 
     @property
     def day(self):
+        """entry's day (Integer)"""
         return self.date.day
 
     @property
     def tags(self):
+        """per-post list of applied tags, if any.  If you applied a single string it
+        is used as one-item array."""
+
         fx = self.props.get('tags', [])
         if isinstance(fx, basestring):
             return [fx]
@@ -330,18 +355,22 @@ class FileEntry:
 
     @property
     def title(self):
+        """entry's title."""
         return self.props.get('title', 'No Title!')
 
     @property
     def author(self):
+        """entry's author as set in entry or from conf.py if unset"""
         return self.props['author']
 
     @property
     def email(self):
+        """the author's email address"""
         return self.props['email']
 
     @property
     def draft(self):
+        """If set to True, the entry will not appear in articles, index, feed and tag view."""
         return True if self.props.get('draft', False) else False
 
     @property
@@ -350,6 +379,7 @@ class FileEntry:
 
     @property
     def extension(self):
+        """filename's extension without leading dot"""
         return os.path.splitext(self.filename)[1][1:]
 
     @property
@@ -394,10 +424,12 @@ class FileEntry:
 
     @property
     def slug(self):
+        """ascii safe entry title"""
         return safeslug(self.title)
 
     @property
     def description(self):
+        """first 50 characters from the source"""
         # XXX this is really poor
         return self.source[:50].strip() + '...'
 

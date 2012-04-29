@@ -1,16 +1,25 @@
 Templating
 ==========
 
+The default theme is very minimalistic and may don't fit to everyone's
+expectations. But like every blog compiler, you can edit the complete layout to
+your likings.
+
+Unlike others Acrylamid knows when you edited a template file, hence when you do
+a session on templates and just the your changes without any interaction, launch
+Acrylamid in auto-compile mode (``acrylamid autocompile``) and even when you
+have hundrets of postings you will see your result almost immediately appear.
+
 Variables
 ---------
 
 Internally all configuration variables are written in small caps, therefore
-this listing may differ from `doc: conf.py`.
+this listing differs from :doc:`conf.py`.
 
 conf
 ****
 
-Global configuration, ``conf.py``.
+Global configuration, :doc:`conf.py`.
 
 env
 ***
