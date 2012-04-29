@@ -244,7 +244,7 @@ substitution variable can be anywhere.
     tag
 
     $> acrylamid dp echo
-        execute echo output/ 
+        execute echo output/
     output/
 
     $> acrylamid deploy blog

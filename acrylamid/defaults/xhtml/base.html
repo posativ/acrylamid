@@ -6,7 +6,7 @@
     {% block head -%}
     <title>{% block title %}{% endblock %}</title>
     <meta http-equiv="Content-Type" content="text/xhtml; charset=utf-8" />
-    <meta http-equiv="content-language" content="de, en" />
+    <meta http-equiv="content-language" content="{{ conf.lang }}" />
     <link media="all" href="{{ env.path + '/style.css' }}" type="text/css" rel="stylesheet" />
     <link href="/favicon.ico" rel="shortcut icon" />
     <link href="{{ env.path + '/' }}" rel="home" />
