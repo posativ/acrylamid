@@ -10,6 +10,7 @@ class Headoffset(Filter):
     this filter, e.g. `h2' increases headers by two."""
 
     match = ['h' + str(i + 1) for i in range(5)]
+    version = '1.0.0'
 
     def transform(self, text, entry, *args):
 

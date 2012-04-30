@@ -439,15 +439,22 @@ class FileEntry:
 
     @property
     def has_changed(self):
-        i, fxs = list(self.filters.iter(self.context))[-1]
-        path = md5(self.filename)
+        """Check wether the entry has changed using the following conditions:
 
-        if not exists(cache._get_filename(path)):
-            return True
-        if getmtime(self.filename) > cache.get_mtime(path):
-            return True
+        - cache file does not exist -> has changed
+        - cache file does not contain required filter intermediate -> has changed
+        - entry's file is newer than the cache's one -> has changed
+        - otherwise -> not changed
+        """
+
+        path = md5(self.filename)
+        filters = self.filters.iter(self.context)
+
+        for i, fxs in filters:
+            if not cache.has_key(path, md5(i, fxs)):
+                return True
         else:
-            return False
+            return getmtime(self.filename) > cache.get_mtime(path)
 
     def keys(self):
         return list(iter(self))
@@ -772,6 +779,15 @@ class cache(object):
                 os.remove(fname)
             except (IOError, OSError):
                 pass
+
+    @classmethod
+    def has_key(self, obj, key):
+        try:
+            filename = self._get_filename(obj)
+            with open(filename, 'rb') as fp:
+                return key in pickle.load(fp)
+        except (OSError, IOError, pickle.PickleError):
+            return False
 
     @classmethod
     def get(self, obj, key, default=None, mtime=0.0):

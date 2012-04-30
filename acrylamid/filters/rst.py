@@ -13,6 +13,8 @@ from acrylamid.utils import cached_property
 class Restructuredtext(Filter):
 
     match = ['restructuredtext', 'rst', 'rest', 'reST', 'reStructuredText']
+    version = '1.0.0'
+
     conflicts = ['markdown', 'plain']
     priority = 70.00
 

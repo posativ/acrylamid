@@ -156,6 +156,7 @@ def build(lang):
 class Hyphenate(Filter):
 
     match = [re.compile('^(H|h)yph')]
+    version = '1.0.0'
 
     @cached_property
     def default(self):

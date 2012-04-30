@@ -14,6 +14,8 @@ class Jinja2(Filter):
     written posts. XXX: and offers some jinja2 extensions."""
 
     match = ['Jinja2', 'jinja2']
+    version = '1.0.0'
+
     priority = 90.0
 
     def init(self, conf, env, *args):

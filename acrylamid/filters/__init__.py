@@ -129,6 +129,8 @@ class meta(type):
 class Filter(object):
 
     __metaclass__ = meta
+
+    version = "1.0.0"
     priority = 50.0
     conflicts = []
 
@@ -138,8 +140,8 @@ class Filter(object):
         self.args = args
 
     def __repr__(self):
-        return "<%s %2.f:%s>" % (self.__class__.__name__,
-                                 self.priority, self.name)
+        return "<%s@%s %2.f:%s>" % (self.__class__.__name__, self.version,
+                                    self.priority, self.name)
 
     def __hash__(self):
         return hash(self.name + repr(self.args))

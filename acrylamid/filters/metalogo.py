@@ -8,6 +8,8 @@ from acrylamid.errors import AcrylamidException
 class Tex(Filter):
 
     match = ['metalogo']
+    version = '1.0.0'
+
     priority = 70.0
 
     def transform(self, text, entry, *args):
