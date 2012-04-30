@@ -5,6 +5,7 @@ try:
 except ImportError:
     import unittest # NOQA
 
+import sys
 import re
 
 from acrylamid.filters import FilterList
@@ -19,6 +20,18 @@ class TestFilters(unittest.TestCase):
 
     def setUp(self):
         pass
+
+    def assertIn(self, x, y):
+        if sys.version_info >= (2, 7):
+            super(TestFilters, self).assertIn(x, y)
+        else:
+            self.assertTrue(x in y)
+
+    def assertNotIn(self, x, y):
+        if sys.version_info >= (2, 7):
+            super(TestFilters, self).assertNotIn(x, y)
+        else:
+            self.assertTrue(x not in y)
 
     def test_FilterList(self):
 

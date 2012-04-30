@@ -10,7 +10,6 @@ except ImportError:
 
 from acrylamid.lib import importer
 from acrylamid import log
-from subprocess import check_output
 
 log.init('acrylamid', 20)
 

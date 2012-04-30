@@ -112,6 +112,7 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(utils.escape('Hello\'s World'), '"Hello\'s World"')
         self.assertEqual(utils.escape('Hello "World"'), "'Hello \"World\"'")
 
+    @unittest.skipIf(sys.version_info < (2, 7), '')
     def test_system(self):
 
         examples = ((['echo', 'ham'], None, 'ham'),

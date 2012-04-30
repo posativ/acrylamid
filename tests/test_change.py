@@ -20,6 +20,22 @@ import random
 from os.path import join, isfile
 from datetime import datetime, timedelta
 
+try:
+    from subprocess import check_output
+except ImportError:
+    def check_output(*popenargs, **kwargs):
+        if 'stdout' in kwargs:
+            raise ValueError('stdout argument not allowed, it will be overridden.')
+        process = subprocess.Popen(stdout=subprocess.PIPE, *popenargs, **kwargs)
+        output, unused_err = process.communicate()
+        retcode = process.poll()
+        if retcode:
+            cmd = kwargs.get("args")
+            if cmd is None:
+                cmd = popenargs[0]
+            raise subprocessCalledProcessError(retcode, cmd, output=output)
+        return output
+
 one = lambda iterable: len(filter(lambda k: k, iterable)) == 1
 
 
@@ -75,7 +91,7 @@ class TestUtils(unittest.TestCase):
         subprocess.check_call(['acrylamid', 'compile', '-qC'])
 
     def shortcut(self, cmd, regex, func=any):
-        out = subprocess.check_output(cmd).strip('\x1b[?1034h')  # XXX my OS X/Terminal fault?
+        out = check_output(cmd).strip('\x1b[?1034h')  # XXX my OS X/Terminal fault?
         regex = re.compile('^\s*'+ regex)
 
         for line in out.split('\n')[:-2]:
