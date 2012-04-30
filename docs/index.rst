@@ -19,6 +19,20 @@ BSD Style, 2 clauses.
    howtos
    about
 
+Why?
+----
+
+Why another static blog compiler, that's a valid question. So, why is Acrylamid better
+than X (pelican, hyde, nikola...): Acrylamid is faster than X, because incremental
+compilation is a core feature. Acrylamid is better, because you can not only use
+Markdown/reST/whatyoulike, you can even use all builtin extensions and more. Acrylamid
+has no custom header/body/filesystem layout. It uses well-known YAML and that's it.
+
+Why not Acrylamid? Well, it's not well tested by different people with different
+requirements. It does not use multiple cores (currently no static blog framework does
+this, but I am working on this). The default layout is indeed not the most beautifulst.
+Acrylamid currently has no asset handling (naïve "copy tree" sucks).
+
 Features
 --------
 
@@ -29,7 +43,8 @@ features mainly:
 - blog articles, static pages, tags RSS/Atom feeds and an article overview
 - theming support (using jinja2_) and support for jinja2 directly in postings
 - Markdown_, reStructuredText_, textile_ and pandoc_
-- MathML, modern web-typography and hyphenation using `&shy;`
+- Markdown extensions and custom reStructuredText directives
+- MathML, modern web-typography and hyphenation using soft-hyphens
 - RSS/Atom import, deployment and a handy CLI
 - it's very flexible/configurable and fast
 

@@ -1,9 +1,24 @@
 Welcome to Acrylamid's Documentation!
 =====================================
 
-Acrylamid is yet another lightweight static blogging software written in
-python and designed to get a high quality output. Its licensed under BSD
-Style, 2 clauses.
+Acrylamid is yet another static blog compiler written in python that aims to
+be lightweight, fast and producing high quality output. It is licensed under
+BSD Style, 2 clauses.
+
+
+Why?
+----
+
+Why another static blog compiler, that's a valid question. So, why is Acrylamid better
+than X (pelican, hyde, nikola...): Acrylamid is faster than X, because incremental
+compilation is a core feature. Acrylamid is better, because you can not only use
+Markdown/reST/whatyoulike, you can even use all builtin extensions and more. Acrylamid
+has no custom header/body/filesystem layout. It uses well-known YAML and that's it.
+
+Why not Acrylamid? Well, it's not well tested by different people with different
+requirements. It does not use multiple cores (currently no static blog framework does
+this, but I am working on this). The default layout is indeed not the most beautifulst.
+Acrylamid currently has no asset handling (naïve "copy tree" sucks).
 
 Features
 --------
@@ -12,16 +27,18 @@ Acrylamid is a mixture of `nanoc <http://nanoc.stoneship.org/>`_, `Pyblosxom
 <http://pyblosxom.bluesock.org/>`_ and `Pelican <http://pelican.notmyidea.org/>`_. It
 features mainly:
 
-- blog articles, simple pages, tags RSS/Atom feeds and an article overview
+- blog articles, static pages, tags RSS/Atom feeds and an article overview
 - theming support (using jinja2_) and support for jinja2 directly in postings
-- Markdown_, reStructuredText_ and pandoc_
-- MathML, modern web-typography and hyphenation using `&shy;`
-- RSS/Atom import, deployment and a very handy CLI
-- it's very flexible and fast
+- Markdown_, reStructuredText_, textile_ and pandoc_
+- Markdown extensions and custom reStructuredText directives
+- MathML, modern web-typography and hyphenation using soft-hyphens
+- RSS/Atom import, deployment and a handy CLI
+- it's very flexible/configurable and fast
 
 .. _jinja2: http://jinja.pocoo.org/
-.. _reStructuredText: http://docutils.sourceforge.net/rst.html
 .. _Markdown: http://daringfireball.net/projects/markdown/
+.. _reStructuredText: http://docutils.sourceforge.net/rst.html
+.. _textile: https://en.wikipedia.org/wiki/Textile_%28markup_language%29
 .. _pandoc: http://johnmacfarlane.net/pandoc/
 .. _AsciiMathML: http://www1.chapman.edu/~jipsen/mathml/asciimath.html
 
@@ -32,23 +49,16 @@ Quickstart
 
     easy_install -U acrylamid
 
-You'll need ``python``, ``jinja2`` and either ``markdown`` (default) or
-``docutils``. ``pygments`` and ``asciimathml`` for colored code listings
-respectively MathML. Typography requires ``smartypants``. To get a
-full-featured installation do:
+It has actually only one dependency, ``jinja2`` but for convenience it also
+installs ``markdown`` and ``translitcodec``. In addition it has support for
+PyYAML, reStructuredText, syntax highlighting using pygments, asciimathml
+to render MathML and finally smartypants for nicer typography.
 
 ::
 
-    pip install docutils pygments asciimathml smartypants
+    easy_install -U docutils pygments asciimathml smartypants
 
-
-If you are interested in recent changes, try the master version:
-
-::
-
-    pip install -e git+git://github.com/posativ/acrylamid.git#egg=acrylamid
-
-Get acrylamid, edit *conf.py* and *layouts/* and run acrylamid with:
+Get acrylamid, edit *conf.py* and *layouts/* and compile with:
 
 ::
 
@@ -69,20 +79,25 @@ Real World Example?
 *******************
 
 I have released all sources from my personal blog:
-`posativ/blog.posativ.org/ <https://github.com/posativ/blog.posativ.org>`_. Take a
+`/posativ/blog.posativ.org/ <https://github.com/posativ/blog.posativ.org/>`_. Take a
 look at my *conf.py* for some inspiration.
 
 
 Filters
 -------
 
-See `docs/filters.rst <http://acrylamid.readthedocs.org/en/latest/filters.html>`_ for
-detailed information. Currently supported by acrylamid:
+You can apply various filter to a single entry, to a specific view or globally
+and Acrylamid resolves it automatically (some filters conflict with others so
+you can for example apply *Markdown* as global filter but render some entries
+with reStructuredText). Currently supported by acrylamid, see
+`docs/filters.rst <http://acrylamid.readthedocs.org/en/latest/filters.html>`_
+for detailed information:
 
 - **Markdown**: rendering Markdown (+asciimathml,pygments,built-in extensions)
 - **reST**: reStructuredText (+pygments)
 - **pandoc**: Pandoc (+Markdown,textitle,rst,...)
-- **HTML**: don't render with Markdown, reStructuredText or Pandoc (it's a conflicting filter)
+- **textile**: using Textile as markup language
+- **HTML**: don't render with filters mentioned above (it's a conflicting filter)
 
 - **typography**: https://code.google.com/p/typogrify/ (and custom modifications)
 - **hyphenation**: hyphenate words (len > 10) based on language
@@ -92,11 +107,11 @@ detailed information. Currently supported by acrylamid:
 - **jinja2**: write jinja2 in your entries (you can also execute system calls therewith)
 - **acronyms**: automatically replace acronyms and abbreviations to help unexperienced users
 
+
 Commands
 --------
 
-See `commands <http://acrylamid.readthedocs.org/en/latest/commands.html>`_ for
-a detailed overview.
+See :doc:`commands` for a detailed overview.
 
 ::
 
