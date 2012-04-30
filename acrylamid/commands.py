@@ -255,6 +255,9 @@ def clean(conf, everything=False, dryrun=False, **kwargs):
             except OSError:
                 pass
 
+    # remove abandoned cache files
+    utils.cache.clean(dryrun)
+
 
 def new(conf, env, title, prompt=True):
     """Subcommand: new -- create a new blog entry the easy way.  Either run

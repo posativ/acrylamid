@@ -11,9 +11,11 @@ import tempfile
 import subprocess
 import hashlib
 import zlib
+
 from fnmatch import fnmatch
 from datetime import datetime
 from os.path import join, exists, dirname, getmtime, basename
+from collections import defaultdict
 
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
@@ -742,18 +744,18 @@ class cache(object):
 
     _fs_transaction_suffix = '.__ac_cache'
     cache_dir = '.cache/'
+    tracked = defaultdict(set)
     mode = 0600
 
     @classmethod
     def _get_filename(self, hash):
-        return os.path.join(self.cache_dir, hash)
+        return join(self.cache_dir, hash)
 
     @classmethod
     def _list_dir(self):
         """return a list of (fully qualified) cache filenames"""
-        return [os.path.join(self.cache_dir, fn) for fn in os.listdir(self.cache_dir)
-                if not fn.endswith(self._fs_transaction_suffix) \
-                   and not fn.endswith('.cache')]
+        return [join(self.cache_dir, fn) for fn in os.listdir(self.cache_dir)
+                if not fn.endswith('.cache')]
 
     @classmethod
     def init(self, cache_dir=None, mode=0600):
@@ -784,6 +786,51 @@ class cache(object):
     def has_key(self, obj, key):
         try:
             filename = self._get_filename(obj)
+            with open(filename, 'rb') as fp:
+                return key in pickle.load(fp)
+        except (OSError, IOError, pickle.PickleError):
+            return False
+
+    @classmethod
+    def clean(self, dryrun=False):
+        """Remove abandoned cache files that are not accessed during a compilation.
+        This does not affect jinja2 templates or cache's memoize file *.cache/info*.
+
+        This does also remove abandoned intermediates from a cache file (they accumulate
+        over time).
+
+        :param dryrun: don't remove files
+        """
+        # first we search for cache files from entries that have vanished
+        for path in set(self._list_dir()).difference(set(self.tracked.keys())):
+            if not dryrun:
+                os.remove(path)
+
+        # next we clean the cache files itself
+        for path, keys in self.tracked.iteritems():
+
+            try:
+                with open(path, 'rb') as fp:
+                    obj = pickle.load(fp)
+                    found = set(obj.keys())
+            except (OSError, IOError, pickle.PickleError):
+                obj, found = {}, set([])
+
+            try:
+                for key in found.difference(set(keys)):
+                    obj.pop(key)
+                with open(path, 'wb') as fp:
+                    pickle.dump(obj, fp, pickle.HIGHEST_PROTOCOL)
+            except (OSError, IOError, pickle.PickleError):
+                pass
+
+    @classmethod
+    def has_key(self, obj, key):
+        """check wether cache file has key and track them as used (= not abandoned)."""
+        filename = self._get_filename(obj)
+        self.tracked[filename].add(key)
+
+        try:
             with open(filename, 'rb') as fp:
                 return key in pickle.load(fp)
         except (OSError, IOError, pickle.PickleError):
@@ -861,6 +908,7 @@ class cache(object):
         `cache_dir`/info."""
 
         filename = join(self.cache_dir, 'info')
+        self.tracked[filename].add(key)
 
         if not exists(filename):
             try:
