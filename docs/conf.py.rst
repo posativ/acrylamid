@@ -182,7 +182,7 @@ Variable name (default value)                       Description
 
 The default theme does not support tag clouds, but it is fairly easy to add:
 
-.. code-block:: jinja2
+.. code-block:: html+jinja
 
     <ul>
     {% for tag in tag_cloud %}

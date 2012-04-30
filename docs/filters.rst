@@ -38,7 +38,7 @@ A normal usage of explicit filters in an article:
     title: We write reStructuredText
     filters: [reST, hyphenate]
     ---
-    
+
     With reStructuredText I can write :math:`x^2`, that's pretty cool, eh?
 
 Filters with arguments:
