@@ -305,11 +305,11 @@ def new(conf, env, title, prompt=True):
 
     try:
         if editor:
-            retcode = system([editor, filepath])
+            retcode = subprocess.call([editor, filepath])
         elif sys.platform == 'darwin':
-            retcode = system(['open', filepath])
+            retcode = subprocess.call(['open', filepath])
         else:
-            retcode = system(['xdg-open', filepath])
+            retcode = subprocess.call(['xdg-open', filepath])
     except OSError:
         raise AcrylamidException('Could not launch an editor')
 
