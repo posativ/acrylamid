@@ -3,6 +3,18 @@
 Version 0.3
 -----------
 
+### 0.3.2
+
+- use a single, compressed cache file for each entry
+- fix (hopefully) the last issue with system locales
+- don't touch permalinks with trailing slash
+- make custom keys in YAML header available in templating
+- new YouTube embed code for reStructuredText
+- new metalogo filter by sebix
+- fix a serious issue where <tag foo> raises an exception
+- clean removes abandoned cache files as well, #27
+- add filter version, #26
+
 ### 0.3.1
 
 - new content filter: textile (thanks to sebix)
