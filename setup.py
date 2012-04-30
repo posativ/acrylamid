@@ -124,7 +124,7 @@ See :doc:`commands` for a detailed overview.
 
 setup(
     name='acrylamid',
-    version='0.3.1',
+    version='0.3.2',
     author='posativ',
     author_email='info@posativ.org',
     packages=[
@@ -135,7 +135,7 @@ setup(
         'acrylamid.filters': ['hyph/*.txt'],
         'acrylamid.defaults': ['misc/*', 'xhtml/*', 'html5/*']},
     url='http://pypi.python.org/pypi/acrylamid/',
-    license='BSD style',
+    license='BSD revised',
     description='yet another static blog generator',
     long_description=__doc__,
     classifiers=[
