@@ -11,6 +11,7 @@ Version 0.3
 - make custom keys in YAML header available in templating
 - new YouTube embed code for reStructuredText
 - new metalogo filter by sebix
+- add explicit `static` for static pages
 - fix a serious issue where <tag foo> raises an exception
 - clean removes abandoned cache files as well, #27
 - add filter version, #26

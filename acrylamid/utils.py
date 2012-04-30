@@ -278,7 +278,7 @@ class FileEntry:
                                  'permalink_format', 'email'])
 
         i, props = read(filename, self.props['encoding'],
-                        remap={'tag': 'tags', 'filter': 'filters'})
+                        remap={'tag': 'tags', 'filter': 'filters', 'static': 'draft'})
         self.offset = i
         self.props.update(props)
 
