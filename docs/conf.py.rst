@@ -68,7 +68,13 @@ Variable name (default value)                       Description
 `VIEWS` (see example conf.py)                       Dictionary of views set in conf.py.
 `WWW_ROOT` (``'http://localhost:8000'``)            Your actual website link where you host this blog.
                                                     It's used to build absolute urls (required for disqus
-                                                    and feeds)
+                                                    and feeds).
+`CONTENT_DIR`(``content/``)                         Directoy where you write your posts to.
+`LAYOUT_DIR` (``layouts/``)                         Directoy where you place your jinja2 templates.
+`OUTPUT_DIR` (``output/``)                          Directoy where the output goes to.
+`FILTERS_DIR` (*not set*)                           If you want add your own filters, create a directory,
+                                                    put your filters into and add this directory to conf.
+`VIEWS_DIR` (*not set*)                             Like above but for custom views.
 ================================================    =====================================================
 
 .. |ignored| replace::

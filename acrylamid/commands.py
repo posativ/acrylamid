@@ -74,7 +74,13 @@ def initialize(conf, env):
     except LookupError:
         raise AcrylamidException('no such encoding available: %r' % conf['encoding'])
 
-    # import and initialize filters and views
+    # prepare, import and initialize filters and views
+    if isinstance(conf['filters_dir'], basestring):
+        conf['filters_dir'] = [conf['filters_dir'], ]
+
+    if isinstance(conf['views_dir'], basestring):
+        conf['views_dir'] = [conf['views_dir'], ]
+
     filters.initialize(conf["filters_dir"], conf, env, exclude=conf["filters_ignore"],
                                                        include=conf["filters_include"])
     views.initialize(conf["views_dir"], conf, env)
