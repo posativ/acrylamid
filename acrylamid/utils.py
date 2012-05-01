@@ -404,9 +404,11 @@ class FileEntry:
         # previous value
         pv = None
 
+        # this is our cache filename
+        obj = md5(self.filename)
+
         for i, fxs in self.filters.iter(context=self.context):
             key = md5(i, fxs)
-            obj = md5(self.filename)
 
             try:
                 rv = cache.get(obj, key, mtime=self.mtime)
@@ -783,15 +785,6 @@ class cache(object):
                 pass
 
     @classmethod
-    def has_key(self, obj, key):
-        try:
-            filename = self._get_filename(obj)
-            with open(filename, 'rb') as fp:
-                return key in pickle.load(fp)
-        except (OSError, IOError, pickle.PickleError):
-            return False
-
-    @classmethod
     def clean(self, dryrun=False):
         """Remove abandoned cache files that are not accessed during a compilation.
         This does not affect jinja2 templates or cache's memoize file *.cache/info*.
@@ -848,6 +841,7 @@ class cache(object):
         try:
             filename = self._get_filename(obj)
             if mtime > getmtime(filename):
+                os.remove(filename)
                 return default
             with open(filename, 'rb') as fp:
                 return zlib.decompress(pickle.load(fp)[key])
