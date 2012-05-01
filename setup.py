@@ -152,4 +152,9 @@ setup(
         'Markdown>=2.0.1',
         'translitcodec>=0.2'
     ],
+    tests_require=[
+        'tox',
+        'cram',
+        'konira'
+    ],
 )
