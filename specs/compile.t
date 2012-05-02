@@ -1,6 +1,7 @@
 Test (slow) full-featured compilation
 
   $ [ -n "$PYTHON" ] || PYTHON="`which python`"
+  $ LANG="de_DE.UTF-8" && unset LC_ALL && unset LANGUAGE
   $ acrylamid init -q $TMPDIR
   $ cd $TMPDIR
 

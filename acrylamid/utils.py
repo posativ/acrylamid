@@ -388,7 +388,7 @@ class FileEntry:
     def source(self):
         with io.open(self.filename, 'r', encoding=self.props['encoding'],
         errors='replace') as f:
-            return ''.join(f.readlines()[self.offset:]).strip()
+            return u''.join(f.readlines()[self.offset:]).strip()
 
     @property
     def content(self):
@@ -568,14 +568,14 @@ def mkfile(content, path, ctime=0.0, force=False, dryrun=False, **kwargs):
 
     # XXX use hashing for comparison
     if exists(dirname(path)) and exists(path):
-        with io.open(path, 'r') as f:
-            old = f.read()
+        with io.open(path, 'r') as fp:
+            old = fp.read()
         if content == old and not force:
             event.identical(path)
         else:
             if not dryrun:
-                with io.open(path, 'w') as f:
-                    f.write(content)
+                with io.open(path, 'w') as fp:
+                    fp.write(content)
             event.changed(path=path, ctime=ctime)
     else:
         try:
@@ -585,8 +585,8 @@ def mkfile(content, path, ctime=0.0, force=False, dryrun=False, **kwargs):
             # dir already exists (mostly)
             pass
         if not dryrun:
-            with io.open(path, 'w') as f:
-                f.write(content)
+            with io.open(path, 'w') as fp:
+                fp.write(content)
         event.create(path=path, ctime=ctime)
 
 

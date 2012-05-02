@@ -4,6 +4,8 @@
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
+from __future__ import unicode_literals
+
 import sys
 import os
 import io

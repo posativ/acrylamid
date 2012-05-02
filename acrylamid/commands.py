@@ -279,10 +279,10 @@ def new(conf, env, title, prompt=True):
     title = escape(title)
 
     with io.open(fd, 'w') as f:
-        f.write('---\n')
-        f.write('title: %s\n' % title)
-        f.write('date: %s\n' % datetime.now().strftime(conf['date_format']))
-        f.write('---\n\n')
+        f.write(u'---\n')
+        f.write(u'title: %s\n' % title)
+        f.write(u'date: %s\n' % datetime.now().strftime(conf['date_format']))
+        f.write(u'---\n\n')
 
     entry = FileEntry(tmp, conf)
     p = join(conf['content_dir'], dirname(entry.permalink)[1:])
