@@ -5,6 +5,7 @@
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
 import os
+import io
 import re
 import tempfile
 import getpass
@@ -221,7 +222,7 @@ def fetch(url, auth=None):
 
     if not (url.startswith('http://') or url.startswith('https://')):
         try:
-            with open(url, 'r') as fp:
+            with io.open(url, 'r') as fp:
                 content = fp.read()
             return content
         except OSError as e:
@@ -270,7 +271,7 @@ def build(conf, env, defaults, items, fmt, keep=False):
         fd, tmp = tempfile.mkstemp(suffix='.txt')
         title = escape(title)
 
-        with os.fdopen(fd, 'w') as f:
+        with io.fdopen(fd, 'w') as f:
             f.write('---\n')
             f.write('title: %s\n' % title)
             if author != defaults.get('author', None):

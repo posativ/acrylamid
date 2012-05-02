@@ -5,6 +5,7 @@
 
 import sys
 import os
+import io
 import re
 import codecs
 import tempfile
@@ -568,13 +569,13 @@ def mkfile(content, path, ctime=0.0, force=False, dryrun=False, **kwargs):
 
     # XXX use hashing for comparison
     if exists(dirname(path)) and exists(path):
-        with file(path) as f:
+        with io.open(path, 'r') as f:
             old = f.read()
         if content == old and not force:
             event.identical(path)
         else:
             if not dryrun:
-                with open(path, 'w') as f:
+                with io.open(path, 'w') as f:
                     f.write(content)
             event.changed(path=path, ctime=ctime)
     else:
@@ -585,7 +586,7 @@ def mkfile(content, path, ctime=0.0, force=False, dryrun=False, **kwargs):
             # dir already exists (mostly)
             pass
         if not dryrun:
-            with open(path, 'w') as f:
+            with io.open(path, 'w') as f:
                 f.write(content)
         event.create(path=path, ctime=ctime)
 
@@ -803,7 +804,7 @@ class cache(object):
         for path, keys in self.tracked.iteritems():
 
             try:
-                with open(path, 'rb') as fp:
+                with io.open(path, 'rb') as fp:
                     obj = pickle.load(fp)
                     found = set(obj.keys())
             except (OSError, IOError, pickle.PickleError):
@@ -812,7 +813,7 @@ class cache(object):
             try:
                 for key in found.difference(set(keys)):
                     obj.pop(key)
-                with open(path, 'wb') as fp:
+                with io.open(path, 'wb') as fp:
                     pickle.dump(obj, fp, pickle.HIGHEST_PROTOCOL)
             except (OSError, IOError, pickle.PickleError):
                 pass
@@ -824,7 +825,7 @@ class cache(object):
         self.tracked[filename].add(key)
 
         try:
-            with open(filename, 'rb') as fp:
+            with io.open(filename, 'rb') as fp:
                 return key in pickle.load(fp)
         except (OSError, IOError, pickle.PickleError):
             return False
@@ -843,7 +844,7 @@ class cache(object):
             if mtime > getmtime(filename):
                 os.remove(filename)
                 return default
-            with open(filename, 'rb') as fp:
+            with io.open(filename, 'rb') as fp:
                 return zlib.decompress(pickle.load(fp)[key])
             os.remove(filename)
         except (OSError, IOError, KeyError, pickle.PickleError, zlib.error):
@@ -864,12 +865,12 @@ class cache(object):
 
         if exists(filename):
             try:
-                with open(filename, 'rb') as fp:
+                with io.open(filename, 'rb') as fp:
                     rv = pickle.load(fp)
             except pickle.PickleError:
                 rv = {}
             try:
-                with open(filename, 'wb') as fp:
+                with io.open(filename, 'wb') as fp:
                     rv[key] = zlib.compress(data, 6)
                     pickle.dump(rv, fp, pickle.HIGHEST_PROTOCOL)
             except (IOError, OSError):
@@ -878,7 +879,7 @@ class cache(object):
             try:
                 fd, tmp = tempfile.mkstemp(suffix=self._fs_transaction_suffix,
                                            dir=self.cache_dir)
-                with os.fdopen(fd, 'wb') as fp:
+                with io.open(fd, 'wb') as fp:
                     pickle.dump({key: zlib.compress(data, 6)}, fp, pickle.HIGHEST_PROTOCOL)
                 os.rename(tmp, filename)
                 os.chmod(filename, self.mode)
@@ -908,7 +909,7 @@ class cache(object):
             try:
                 fd, tmp = tempfile.mkstemp(suffix=self._fs_transaction_suffix,
                                            dir=self.cache_dir)
-                with os.fdopen(fd, 'wb') as fp:
+                with io.open(fd, 'wb') as fp:
                     pickle.dump({}, fp, pickle.HIGHEST_PROTOCOL)
                 os.rename(tmp, filename)
                 os.chmod(filename, self.mode)
@@ -919,13 +920,13 @@ class cache(object):
             raise TypeError('key must be a string')
 
         if value is not None:
-            with open(filename, 'rb') as fp:
+            with io.open(filename, 'rb') as fp:
                 values = pickle.load(fp)
             values[key] = value
-            with open(filename, 'wb') as fp:
+            with io.open(filename, 'wb') as fp:
                 pickle.dump(values, fp, pickle.HIGHEST_PROTOCOL)
         else:
-            with open(filename, 'rb') as fp:
+            with io.open(filename, 'rb') as fp:
                 return pickle.load(fp).get(key, None)
 
 

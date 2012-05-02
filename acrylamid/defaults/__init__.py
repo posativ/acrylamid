@@ -6,6 +6,7 @@
 
 import sys
 import os
+import io
 import shutil
 import logging
 import hashlib
@@ -75,7 +76,7 @@ def init(root, theme='html5', overwrite=False):
     # re-initialize conf.py
     if root == 'conf.py':
         if overwrite or raw_input('re-initialize %r? [yn]: ' % root) == 'y':
-            with open('conf.py', 'w') as fp:
+            with io.open('conf.py', 'w') as fp:
                 fp.write(confstring)
             log.info('re-initialized %s' % root)
         sys.exit(0)
@@ -101,7 +102,7 @@ def init(root, theme='html5', overwrite=False):
         elif not exists(directory):
             os.mkdir(directory)
 
-    with open(join(root, 'conf.py'), 'w') as fp:
+    with io.open(join(root, 'conf.py'), 'w') as fp:
         fp.write(confstring)
 
     for path in files:

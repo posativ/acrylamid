@@ -8,6 +8,7 @@
 # This is a port of PyBlosxom's acronyms plugin as acrylamid
 # filter. All credits go to Pyblosxom's and blosxom's authors.
 
+import io
 import re
 
 from acrylamid import log
@@ -25,7 +26,7 @@ class Acronyms(Filter):
     def init(self, conf, env):
 
         if conf.get('acronyms_file', None):
-            with open(conf['acronyms_file'], 'r') as fp:
+            with io.open(conf['acronyms_file'], 'r') as fp:
                 data = fp.readlines()
         else:
             global ACRONYMS

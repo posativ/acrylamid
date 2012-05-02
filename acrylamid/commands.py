@@ -5,6 +5,7 @@
 
 import sys
 import os
+import io
 import time
 import locale
 import codecs
@@ -277,7 +278,7 @@ def new(conf, env, title, prompt=True):
         title = raw_input("Entry's title: ")
     title = escape(title)
 
-    with os.fdopen(fd, 'w') as f:
+    with io.open(fd, 'w') as f:
         f.write('---\n')
         f.write('title: %s\n' % title)
         f.write('date: %s\n' % datetime.now().strftime(conf['date_format']))
