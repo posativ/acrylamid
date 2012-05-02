@@ -8,7 +8,7 @@ from acrylamid.lib import HTMLParser, HTMLParseError
 
 import re
 import os
-import codecs
+import io
 from os.path import join, dirname, basename
 
 
@@ -139,9 +139,9 @@ def build(lang):
     dir = os.path.join(dirname(__file__), 'hyph/')
     fpath = gethyph(lang, dir).rsplit('.', 2)[0]
     try:
-        with codecs.open(fpath + '.chr.txt', encoding='utf-8') as f:
+        with io.open(fpath + '.chr.txt', encoding='utf-8') as f:
             chars = ''.join([line[0] for line in f.readlines()])
-        with codecs.open(fpath + '.pat.txt', encoding='utf-8') as f:
+        with io.open(fpath + '.pat.txt', encoding='utf-8') as f:
             patterns = f.read()
     except IOError:
         raise HyphenPatternNotFound('hyph/%s.chr.txt or hyph/%s.pat.txt missing' % (lang, lang))

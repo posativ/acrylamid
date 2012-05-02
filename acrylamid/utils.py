@@ -7,7 +7,6 @@ import sys
 import os
 import io
 import re
-import codecs
 import tempfile
 import subprocess
 import hashlib
@@ -124,7 +123,7 @@ def read(filename, encoding, remap={}):
     head = []
     i = 0
 
-    with codecs.open(filename, 'r', encoding=encoding, errors='replace') as f:
+    with io.open(filename, 'r', encoding=encoding, errors='replace') as f:
         while True:
             line = f.readline(); i += 1
             if i == 1 and line.startswith('---'):
@@ -387,7 +386,7 @@ class FileEntry:
 
     @property
     def source(self):
-        with codecs.open(self.filename, 'r', encoding=self.props['encoding'],
+        with io.open(self.filename, 'r', encoding=self.props['encoding'],
         errors='replace') as f:
             return ''.join(f.readlines()[self.offset:]).strip()
 
