@@ -270,7 +270,7 @@ def build(conf, env, defaults, items, fmt, keep=False):
         fd, tmp = tempfile.mkstemp(suffix='.txt')
         title = escape(title)
 
-        with os.fdopen(fd, 'wb') as f:
+        with os.fdopen(fd, 'w') as f:
             f.write('---\n')
             f.write('title: %s\n' % title)
             if author != defaults.get('author', None):

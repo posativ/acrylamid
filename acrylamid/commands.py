@@ -277,7 +277,7 @@ def new(conf, env, title, prompt=True):
         title = raw_input("Entry's title: ")
     title = escape(title)
 
-    with os.fdopen(fd, 'wb') as f:
+    with os.fdopen(fd, 'w') as f:
         f.write('---\n')
         f.write('title: %s\n' % title)
         f.write('date: %s\n' % datetime.now().strftime(conf['date_format']))
