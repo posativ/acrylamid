@@ -819,13 +819,19 @@ class cache(object):
 
     @classmethod
     def has_key(self, obj, key):
-        """check wether cache file has key and track them as used (= not abandoned)."""
+        """Check wether cache file has key and track them as used (= not abandoned)."""
+
         filename = self._get_filename(obj)
-        self.tracked[filename].add(key)
+        if key in self.tracked.get(filename, []):
+            return True
 
         try:
             with io.open(filename, 'rb') as fp:
-                return key in pickle.load(fp)
+                if key in pickle.load(fp):
+                    self.tracked[filename].add(key)
+                    return True
+                else:
+                    return False
         except (OSError, IOError, pickle.PickleError):
             return False
 
@@ -884,6 +890,9 @@ class cache(object):
                 os.chmod(filename, self.mode)
             except (IOError, OSError):
                 pass
+
+        # update our tracked database
+        self.tracked[filename].add(key)
 
         return data
 
