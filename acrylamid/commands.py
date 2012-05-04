@@ -178,6 +178,9 @@ def compile(conf, env, force=False, **options):
             utils.mkfile(html, path, time.time()-tt, **options)
             tt = time.time()
 
+    # remove abandoned cache files
+    utils.cache.shutdown()
+
     log.info('Blog compiled in %.2fs' % (time.time() - ctime))
 
 
@@ -261,9 +264,6 @@ def clean(conf, everything=False, dryrun=False, **kwargs):
                 os.rmdir(p)
             except OSError:
                 pass
-
-    # remove abandoned cache files
-    utils.cache.clean(dryrun)
 
 
 def new(conf, env, title, prompt=True):
