@@ -139,12 +139,13 @@ class Filter(object):
         self.name = fname
         self.args = args
 
+        # precalculate __hash__ because we need it quite often in tree
+        h = hash(fname + repr(args))
+        setattr(self, '__hash__', lambda : h)
+
     def __repr__(self):
         return "<%s@%s %2.f:%s>" % (self.__class__.__name__, self.version,
                                     self.priority, self.name)
-
-    def __hash__(self):
-        return hash(self.name + repr(self.args))
 
     def __eq__(self, other):
         return True if hash(other) == hash(self) else False

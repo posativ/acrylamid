@@ -5,8 +5,8 @@
 
 import sys
 import os
+import io
 import re
-import codecs
 import tempfile
 import subprocess
 import hashlib
@@ -96,6 +96,33 @@ class cached_property(object):
         return value
 
 
+class memoized(object):
+   """Decorator. Caches a function's return value each time it is called.
+   If called later with the same arguments, the cached value is returned
+   (not reevaluated).
+   """
+   def __init__(self, func):
+      self.func = func
+      self.cache = {}
+   def __call__(self, *args):
+      try:
+         return self.cache[args]
+      except KeyError:
+         value = self.func(*args)
+         self.cache[args] = value
+         return value
+      except TypeError:
+         # uncachable -- for instance, passing a list as an argument.
+         # Better to not cache than to blow up entirely.
+         return self.func(*args)
+   def __repr__(self):
+      """Return the function's docstring."""
+      return self.func.__doc__
+   def __get__(self, obj, objtype):
+      """Support instance methods."""
+      return functools.partial(self.__call__, obj)
+
+
 def read(filename, encoding, remap={}):
     """Open filename and read content using specified encoding.  It will try
     to parse the YAML header with yaml.load or fallback (if not available) to
@@ -123,7 +150,7 @@ def read(filename, encoding, remap={}):
     head = []
     i = 0
 
-    with codecs.open(filename, 'r', encoding=encoding, errors='replace') as f:
+    with io.open(filename, 'r', encoding=encoding, errors='replace') as f:
         while True:
             line = f.readline(); i += 1
             if i == 1 and line.startswith('---'):
@@ -220,18 +247,18 @@ class FilterTree(list):
         return self.paths[context]
 
     def iter(self, context):
-        """This returns a generator which yields a tuple containing the count
-        of views using this filter list and the filter list itself."""
+        """This returns a generator which yields a tuple containing the zero-index
+        and the filter list itself using a given context."""
 
         path, node = self.path(context)[:], self.root
-        i, j = 0, self.root[path[0]].refs
+        n = self.root[path[0]].refs
 
         while True:
 
             ls = []
             for key in path[:]:
-                if node[key].refs != j:
-                    j = node[key].refs
+                if node[key].refs != n:
+                    n = node[key].refs
                     break
 
                 ls.append(key)
@@ -241,8 +268,7 @@ class FilterTree(list):
             if not ls:
                 raise StopIteration
 
-            i += 1
-            yield i, ls
+            yield ls
 
 
 class FileEntry:
@@ -386,9 +412,9 @@ class FileEntry:
 
     @property
     def source(self):
-        with codecs.open(self.filename, 'r', encoding=self.props['encoding'],
+        with io.open(self.filename, 'r', encoding=self.props['encoding'],
         errors='replace') as f:
-            return ''.join(f.readlines()[self.offset:]).strip()
+            return u''.join(f.readlines()[self.offset:]).strip()
 
     @property
     def content(self):
@@ -405,18 +431,26 @@ class FileEntry:
         pv = None
 
         # this is our cache filename
-        obj = md5(self.filename)
+        path = join(cache.cache_dir, self.md5)
 
-        for i, fxs in self.filters.iter(context=self.context):
-            key = md5(i, fxs)
+        # growing dependencies of the filter chain
+        deps = []
+
+        for fxs in self.filters.iter(context=self.context):
+
+            # extend dependencies
+            deps.extend(fxs)
+
+            # key where we save this filter chain
+            key = md5(*deps)
 
             try:
-                rv = cache.get(obj, key, mtime=self.mtime)
+                rv = cache.get(path, key, mtime=self.mtime)
                 if rv is None:
                     res = self.source if pv is None else pv
                     for f in fxs:
                         res = f.transform(res, self, *f.args)
-                    pv = cache.set(obj, key, data=res)
+                    pv = cache.set(path, key, res)
                     self.has_changed = True
                 else:
                     pv = rv
@@ -437,7 +471,7 @@ class FileEntry:
         # XXX this is really poor
         return self.source[:50].strip() + '...'
 
-    @property
+    @cached_property
     def md5(self):
         return md5(self.filename, self.title, self.date)
 
@@ -451,14 +485,18 @@ class FileEntry:
         - otherwise -> not changed
         """
 
-        path = md5(self.filename)
-        filters = self.filters.iter(self.context)
+        path = join(cache.cache_dir, self.md5)
+        deps = []
 
-        for i, fxs in filters:
-            if not cache.has_key(path, md5(i, fxs)):
+        for fxs in self.filters.iter(self.context):
+
+            # extend filter dependencies
+            deps.extend(fxs)
+
+            if not cache.has_key(path, md5(*deps)):
                 return True
         else:
-            return getmtime(self.filename) > cache.get_mtime(path)
+            return getmtime(self.filename) > cache.getmtime(path)
 
     def keys(self):
         return list(iter(self))
@@ -568,14 +606,14 @@ def mkfile(content, path, ctime=0.0, force=False, dryrun=False, **kwargs):
 
     # XXX use hashing for comparison
     if exists(dirname(path)) and exists(path):
-        with file(path) as f:
-            old = f.read()
+        with io.open(path, 'r') as fp:
+            old = fp.read()
         if content == old and not force:
             event.identical(path)
         else:
             if not dryrun:
-                with open(path, 'w') as f:
-                    f.write(content)
+                with io.open(path, 'w') as fp:
+                    fp.write(content)
             event.changed(path=path, ctime=ctime)
     else:
         try:
@@ -585,8 +623,8 @@ def mkfile(content, path, ctime=0.0, force=False, dryrun=False, **kwargs):
             # dir already exists (mostly)
             pass
         if not dryrun:
-            with open(path, 'w') as f:
-                f.write(content)
+            with io.open(path, 'w') as fp:
+                fp.write(content)
         event.create(path=path, ctime=ctime)
 
 
@@ -680,7 +718,7 @@ def paginate(list, ipp, func=lambda x: x, salt=None, orphans=0):
 
         if rv == hv:
             # check if a FileEntry-instance has changed
-            if bool(filter(lambda e: e.has_changed, entries)):
+            if any(filter(lambda e: e.has_changed, entries)):
                 has_changed = True
             else:
                 has_changed = False
@@ -734,24 +772,56 @@ def system(cmd, stdin=None, **kw):
     return result.strip()
 
 
+class Memory(dict):
+
+    __call__ = lambda self, k, v=None: self.__setitem__(k, v) if v else self.get(k, None)
+
+
+def track_cache(f):
+    """decorator to track used cache files"""
+    def dec(cls, path, key, *args, **kw):
+
+        rv = f(cls, path, key, *args, **kw)
+
+        if rv is not None:
+            cls.tracked[path].add(key)
+
+        return rv
+    return dec
+
+
 class cache(object):
     """A cache that stores the entries on the file system.  Borrowed from
     werkzeug.contrib.cache, see their AUTHORS and LICENSE for additional
     copyright information.
 
+    This version is a bit more advanced and can track used cache objects to
+    remove them, it reduces I/O so we can call `has_key` very often. After
+    a run, we can automatically remove dead objects from cache.
+
     cache is designed as singleton and should not constructed using __init__ .
+
     >>> cache.init('.mycache/')
-    >>> cache.get(key, default=None, mtime=0.0)
-    >>> cache.set(key, value)"""
+    >>> cache.get(obj, key, default=None, mtime=0.0)
+    None
+    >>> cache.set("My Object's name", "mykey", value)
+    `value`
+    >>> cache.get("My Object's name", "mykey", value)
+    `value`
+    >>> cache.has_key("My objects's key", "mykey")
+    True
+    >>> cache.has_key("Foo", "Bar")
+    False
+    """
 
     _fs_transaction_suffix = '.__ac_cache'
     cache_dir = '.cache/'
-    tracked = defaultdict(set)
     mode = 0600
 
-    @classmethod
-    def _get_filename(self, hash):
-        return join(self.cache_dir, hash)
+    tracked = defaultdict(set)
+    objects = defaultdict(set)
+
+    memoize = Memory()
 
     @classmethod
     def _list_dir(self):
@@ -776,157 +846,157 @@ class cache(object):
                 log.fatal("could not create directory '%s'" % self.cache_dir)
                 sys.exit(1)
 
-    @classmethod
-    def clear(self):
-        for fname in self._list_dir():
+        # get all cache objects
+        for path in self._list_dir():
             try:
-                os.remove(fname)
-            except (IOError, OSError):
-                pass
+                with io.open(path, 'rb') as fp:
+                    self.objects[path] = set(pickle.load(fp).keys())
+            except pickle.PickleError:
+                os.remove(path)
+            except IOError:
+                continue
+
+        # load memorized items
+        try:
+            with io.open(join(cache.cache_dir, 'info'), 'rb') as fp:
+                cache.memoize.update(pickle.load(fp))
+        except (IOError, pickle.PickleError) as e:
+            pass
 
     @classmethod
-    def clean(self, dryrun=False):
+    def shutdown(self):
         """Remove abandoned cache files that are not accessed during a compilation.
         This does not affect jinja2 templates or cache's memoize file *.cache/info*.
 
         This does also remove abandoned intermediates from a cache file (they accumulate
-        over time).
+        over time)."""
 
-        :param dryrun: don't remove files
-        """
+        # save memoized items to disk
+        try:
+            path = join(self.cache_dir, 'info')
+            self.tracked[path] = set(self.memoize.keys())
+            with io.open(path, 'wb') as fp:
+                pickle.dump(self.memoize, fp, pickle.HIGHEST_PROTOCOL)
+        except (IOError, pickle.PickleError) as e:
+            log.warn('%s: %s' % (e.__class__.__name__, e))
+
         # first we search for cache files from entries that have vanished
         for path in set(self._list_dir()).difference(set(self.tracked.keys())):
-            if not dryrun:
-                os.remove(path)
+            os.remove(path)
 
         # next we clean the cache files itself
         for path, keys in self.tracked.iteritems():
 
             try:
-                with open(path, 'rb') as fp:
+                with io.open(path, 'rb') as fp:
                     obj = pickle.load(fp)
                     found = set(obj.keys())
-            except (OSError, IOError, pickle.PickleError):
+            except (IOError, pickle.PickleError):
                 obj, found = {}, set([])
 
             try:
                 for key in found.difference(set(keys)):
                     obj.pop(key)
-                with open(path, 'wb') as fp:
+                with io.open(path, 'wb') as fp:
                     pickle.dump(obj, fp, pickle.HIGHEST_PROTOCOL)
-            except (OSError, IOError, pickle.PickleError):
+            except pickle.PickleError:
+                try:
+                    os.remove(path)
+                except OSError as e:
+                    log.warn('OSError: %s' % e)
+            except IOError:
                 pass
 
     @classmethod
-    def has_key(self, obj, key):
-        """check wether cache file has key and track them as used (= not abandoned)."""
-        filename = self._get_filename(obj)
-        self.tracked[filename].add(key)
-
+    def remove(self, path):
+        """Remove a cache object completely from disk, objects and tracked files."""
         try:
-            with open(filename, 'rb') as fp:
-                return key in pickle.load(fp)
-        except (OSError, IOError, pickle.PickleError):
-            return False
+            os.remove(path)
+        except OSError as e:
+            log.debug('OSError: %s' % e)
+
+        self.objects.pop(path, None)
+        self.tracked.pop(path, None)
 
     @classmethod
-    def get(self, obj, key, default=None, mtime=0.0):
-        """Restore data from obj[key] if mtime has not changed or return default.
+    def clear(self):
+        for path in self._list_dir():
+            cache.remove(path)
 
-        :param obj: object's hash that will be used as filename
-        :param key: key of this data
+    @classmethod
+    @track_cache
+    def get(self, path, key, default=None, mtime=0.0):
+        """Restore value from obj[key] if mtime has not changed or return default.
+
+        :param path: path of this cache object
+        :param key: key of this value
         :param default: default return value
         :param mtime: modification timestamp as float value
         """
         try:
-            filename = self._get_filename(obj)
-            if mtime > getmtime(filename):
-                os.remove(filename)
+            if mtime > getmtime(path):
+                cache.remove(path)
                 return default
-            with open(filename, 'rb') as fp:
+            with io.open(path, 'rb') as fp:
                 return zlib.decompress(pickle.load(fp)[key])
-            os.remove(filename)
-        except (OSError, IOError, KeyError, pickle.PickleError, zlib.error):
+        except (OSError, KeyError):
             pass
+        except (IOError, pickle.PickleError, zlib.error):
+            cache.remove(path)
+
         return default
 
     @classmethod
-    def set(self, obj, key, data):
+    @track_cache
+    def set(self, path, key, value):
         """Save a key, value pair into a blob using pickle and moderate zlib
         compression (level 6). We simply save a dictionary containing all
         different intermediates (from every view) of an entry.
 
-        :param obj: the object's hash, used as filename
-        :param key: dictionary key where we store the data
-        :param data: a string we compress with zlib and afterwards save
+        :param path: path of this cache object
+        :param key: dictionary key where we store the value
+        :param value: a string we compress with zlib and afterwards save
         """
-        filename = self._get_filename(obj)
-
-        if exists(filename):
+        if exists(path):
             try:
-                with open(filename, 'rb') as fp:
+                with io.open(path, 'rb') as fp:
                     rv = pickle.load(fp)
-            except pickle.PickleError:
+            except (pickle.PickleError, IOError):
+                cache.remove(path)
                 rv = {}
             try:
-                with open(filename, 'wb') as fp:
-                    rv[key] = zlib.compress(data, 6)
+                with io.open(path, 'wb') as fp:
+                    rv[key] = zlib.compress(value, 6)
                     pickle.dump(rv, fp, pickle.HIGHEST_PROTOCOL)
-            except (IOError, OSError):
-                pass
+            except (IOError, pickle.PickleError) as e:
+                log.warn('%s: %s' % (e.__class__.__name__, e))
         else:
             try:
                 fd, tmp = tempfile.mkstemp(suffix=self._fs_transaction_suffix,
                                            dir=self.cache_dir)
-                with os.fdopen(fd, 'wb') as fp:
-                    pickle.dump({key: zlib.compress(data, 6)}, fp, pickle.HIGHEST_PROTOCOL)
-                os.rename(tmp, filename)
-                os.chmod(filename, self.mode)
-            except (IOError, OSError):
-                pass
+                with io.open(fd, 'wb') as fp:
+                    pickle.dump({key: zlib.compress(value, 6)}, fp, pickle.HIGHEST_PROTOCOL)
+                os.rename(tmp, path)
+                os.chmod(path, self.mode)
+            except (IOError, OSError, pickle.PickleError, zlib.error) as e:
+                log.warn('%s: %s' % (e.__class__.__name__, e))
 
-        return data
+        self.objects[path].add(key)
+        return value
 
     @classmethod
-    def get_mtime(self, key, default=0.0):
-        filename = self._get_filename(key)
+    @track_cache
+    def has_key(self, path, key):
+        """Check wether cache file has key and track them as used (= not abandoned)."""
+        return key in self.objects[path]
+
+    @classmethod
+    @memoized
+    def getmtime(self, path, default=0.0):
         try:
-            mtime = getmtime(filename)
-        except (OSError, IOError):
+            return getmtime(path)
+        except OSError:
             return default
-        return mtime
-
-    @classmethod
-    def memoize(self, key, value=None):
-        """Memoize (stores) key/value pairs into a single file in
-        `cache_dir`/info."""
-
-        filename = join(self.cache_dir, 'info')
-        self.tracked[filename].add(key)
-
-        if not exists(filename):
-            try:
-                fd, tmp = tempfile.mkstemp(suffix=self._fs_transaction_suffix,
-                                           dir=self.cache_dir)
-                with os.fdopen(fd, 'wb') as fp:
-                    pickle.dump({}, fp, pickle.HIGHEST_PROTOCOL)
-                os.rename(tmp, filename)
-                os.chmod(filename, self.mode)
-            except (IOError, OSError) as e:
-                raise AcrylamidException(str(e.message))
-
-        if not isinstance(key, basestring):
-            raise TypeError('key must be a string')
-
-        if value is not None:
-            with open(filename, 'rb') as fp:
-                values = pickle.load(fp)
-            values[key] = value
-            with open(filename, 'wb') as fp:
-                pickle.dump(values, fp, pickle.HIGHEST_PROTOCOL)
-        else:
-            with open(filename, 'rb') as fp:
-                return pickle.load(fp).get(key, None)
 
 
 def track(f):

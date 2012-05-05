@@ -2,6 +2,7 @@ XXX: check wether clean really removes files
 Test `acrylamid clean`.
 
   $ [ -n "$PYTHON" ] || PYTHON="`which python`"
+  $ LANG="de_DE.UTF-8" && unset LC_ALL && unset LANGUAGE
   $ acrylamid init -q $TMPDIR
   $ cd $TMPDIR
   $ acrylamid compile -q

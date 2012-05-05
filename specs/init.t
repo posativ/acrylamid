@@ -1,6 +1,7 @@
 Testing `acrylamid init` in different ways:
 
   $ [ -n "$PYTHON" ] || PYTHON="`which python`"
+  $ LANG="de_DE.UTF-8" && unset LC_ALL && unset LANGUAGE
   $ cd $TMPDIR
 
 Setup in current directory?

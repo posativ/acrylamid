@@ -5,6 +5,7 @@
 
 import sys
 import os
+import io
 import time
 import locale
 import codecs
@@ -177,6 +178,9 @@ def compile(conf, env, force=False, **options):
             utils.mkfile(html, path, time.time()-tt, **options)
             tt = time.time()
 
+    # remove abandoned cache files
+    utils.cache.shutdown()
+
     log.info('Blog compiled in %.2fs' % (time.time() - ctime))
 
 
@@ -261,9 +265,6 @@ def clean(conf, everything=False, dryrun=False, **kwargs):
             except OSError:
                 pass
 
-    # remove abandoned cache files
-    utils.cache.clean(dryrun)
-
 
 def new(conf, env, title, prompt=True):
     """Subcommand: new -- create a new blog entry the easy way.  Either run
@@ -277,11 +278,11 @@ def new(conf, env, title, prompt=True):
         title = raw_input("Entry's title: ")
     title = escape(title)
 
-    with os.fdopen(fd, 'wb') as f:
-        f.write('---\n')
-        f.write('title: %s\n' % title)
-        f.write('date: %s\n' % datetime.now().strftime(conf['date_format']))
-        f.write('---\n\n')
+    with io.open(fd, 'w') as f:
+        f.write(u'---\n')
+        f.write(u'title: %s\n' % title)
+        f.write(u'date: %s\n' % datetime.now().strftime(conf['date_format']))
+        f.write(u'---\n\n')
 
     entry = FileEntry(tmp, conf)
     p = join(conf['content_dir'], dirname(entry.permalink)[1:])
