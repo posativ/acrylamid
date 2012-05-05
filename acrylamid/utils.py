@@ -432,7 +432,7 @@ class FileEntry:
         pv = None
 
         # this is our cache filename
-        path = join(cache.cache_dir, md5(self.filename))
+        path = join(cache.cache_dir, self.md5)
 
         for i, fxs in self.filters.iter(context=self.context):
             key = md5(i, fxs)
@@ -464,7 +464,7 @@ class FileEntry:
         # XXX this is really poor
         return self.source[:50].strip() + '...'
 
-    @property
+    @cached_property
     def md5(self):
         return md5(self.filename, self.title, self.date)
 
@@ -478,7 +478,7 @@ class FileEntry:
         - otherwise -> not changed
         """
 
-        path = join(cache.cache_dir, md5(self.filename))
+        path = join(cache.cache_dir, self.md5)
         filters = self.filters.iter(self.context)
 
         for i, fxs in filters:
@@ -761,6 +761,11 @@ def system(cmd, stdin=None, **kw):
     return result.strip()
 
 
+class Memory(dict):
+
+    __call__ = lambda self, k, v=None: self.__setitem__(k, v) if v else self.get(k, None)
+
+
 def track_cache(f):
     """decorator to track used cache files"""
     def dec(cls, path, key, *args, **kw):
@@ -805,6 +810,8 @@ class cache(object):
     tracked = defaultdict(set)
     objects = defaultdict(set)
 
+    memoize = Memory()
+
     @classmethod
     def _list_dir(self):
         """return a list of (fully qualified) cache filenames"""
@@ -838,6 +845,13 @@ class cache(object):
             except IOError:
                 continue
 
+        # load memorized items
+        try:
+            with io.open(join(cache.cache_dir, 'info'), 'rb') as fp:
+                cache.memoize.update(pickle.load(fp))
+        except (IOError, pickle.PickleError) as e:
+            pass
+
     @classmethod
     def shutdown(self):
         """Remove abandoned cache files that are not accessed during a compilation.
@@ -845,6 +859,15 @@ class cache(object):
 
         This does also remove abandoned intermediates from a cache file (they accumulate
         over time)."""
+
+        # save memoized items to disk
+        try:
+            path = join(self.cache_dir, 'info')
+            self.tracked[path] = set(self.memoize.keys())
+            with io.open(path, 'wb') as fp:
+                pickle.dump(self.memoize, fp, pickle.HIGHEST_PROTOCOL)
+        except (IOError, pickle.PickleError) as e:
+            log.warn('%s: %s' % (e.__class__.__name__, e))
 
         # first we search for cache files from entries that have vanished
         for path in set(self._list_dir()).difference(set(self.tracked.keys())):
@@ -953,7 +976,6 @@ class cache(object):
                 pass
 
         self.objects[path].add(key)
-        # self.tracked[path].add(key)
         return value
 
     @classmethod
@@ -963,52 +985,6 @@ class cache(object):
             return getmtime(path)
         except OSError:
             return default
-
-    @classmethod
-    def memoize(self, key, value=None):
-        """Memorize key/value pairs into a single file in `self.cache_dir`/info."""
-
-        path = join(self.cache_dir, 'info')
-
-        self.tracked[path].add(key)
-        self.objects[path].add(key)
-
-        if not exists(path):
-            try:
-                fd, tmp = tempfile.mkstemp(suffix=self._fs_transaction_suffix,
-                                           dir=self.cache_dir)
-                with io.open(fd, 'wb') as fp:
-                    pickle.dump({}, fp, pickle.HIGHEST_PROTOCOL)
-                os.rename(tmp, path)
-                os.chmod(path, self.mode)
-            except pickle.PickleError:
-                cache.remove(path)
-            except (IOError, OSError) as e:
-                log.warn('%s: %s' % (e.__clase__.__name__, e))
-
-        if not isinstance(key, basestring):
-            raise TypeError('key must be a string')
-
-        if value is None:
-            try:
-                with io.open(path, 'rb') as fp:
-                    return pickle.load(fp).get(key, None)
-            except pickle.PickleError:
-                cache.remove(path)
-            except IOError as e:
-                log.warn('IOError: %s' % e)
-        else:
-            try:
-                with io.open(path, 'rb') as fp:
-                    values = pickle.load(fp)
-                values[key] = value
-                with io.open(path, 'wb') as fp:
-                    pickle.dump(values, fp, pickle.HIGHEST_PROTOCOL)
-                    return value
-            except pickle.PickleError:
-                cache.remove(path)
-            except (IOError, pickle.PickleError) as e:
-                log.warn('%s: %s' % (e.__clase__.__name__, e))
 
 
 def track(f):
