@@ -66,6 +66,9 @@ Acrylamid should update a file if the content changes!
   identical  output/tag/franz-kafka/index.html
   Blog compiled in 0.\d+s (re)
 
+  $ /usr/bin/touch -A 00 content/sample-entry.txt
+  $ find output -exec /usr/bin/touch -A 00 {} \;
+
 Lets try if we have really incremental rendering:
 
   $ acrylamid new -q Spam
@@ -84,7 +87,7 @@ Now with templates. We have patched jinja2 template loader so we have a
 recognition wether a template (including its parent templates) has changed.
 *Note*, that this required BSD touch, too.
 
-Let's randomly (choosen by fair dice) change some mtimes...
+Let's randomly (chosen by fair dice) change some mtimes...
 
   $ /usr/bin/touch -A 05 layouts/articles.html
   $ /usr/bin/touch -A 42 layouts/entry.html
@@ -163,6 +166,20 @@ Now we change the base template and should see some updates:
 
   $ /usr/bin/touch -A 00 layouts/base.html
   $ find output -exec /usr/bin/touch -A 00 {} \;
+
+If we change a filter in conf.py we should see an update:
+
+  $ sed -i "" -e s/\'hyphenate/\'nohyphenate/g conf.py
+  $ acrylamid compile -C
+  skip  output/articles/index.html
+  update  \[0.\d+s\] output/2012/die-verwandlung/index.html (re)
+  identical  output/2012/spam/index.html
+  identical  output/rss/index.html
+  identical  output/atom/index.html
+  update  [0.00s] output/index.html
+  update  [0.00s] output/tag/die-verwandlung/index.html
+  update  [0.00s] output/tag/franz-kafka/index.html
+  Blog compiled in 0.\d+s (re)
 
 And we should clean up everything:
 

@@ -247,18 +247,18 @@ class FilterTree(list):
         return self.paths[context]
 
     def iter(self, context):
-        """This returns a generator which yields a tuple containing the count
-        of views using this filter list and the filter list itself."""
+        """This returns a generator which yields a tuple containing the zero-index
+        and the filter list itself using a given context."""
 
         path, node = self.path(context)[:], self.root
-        i, j = 0, self.root[path[0]].refs
+        n = self.root[path[0]].refs
 
         while True:
 
             ls = []
             for key in path[:]:
-                if node[key].refs != j:
-                    j = node[key].refs
+                if node[key].refs != n:
+                    n = node[key].refs
                     break
 
                 ls.append(key)
@@ -268,8 +268,7 @@ class FilterTree(list):
             if not ls:
                 raise StopIteration
 
-            i += 1
-            yield i, ls
+            yield ls
 
 
 class FileEntry:
@@ -434,8 +433,16 @@ class FileEntry:
         # this is our cache filename
         path = join(cache.cache_dir, self.md5)
 
-        for i, fxs in self.filters.iter(context=self.context):
-            key = md5(i, fxs)
+        # growing dependencies of the filter chain
+        deps = []
+
+        for fxs in self.filters.iter(context=self.context):
+
+            # extend dependencies
+            deps.extend(fxs)
+
+            # key where we save this filter chain
+            key = md5(*deps)
 
             try:
                 rv = cache.get(path, key, mtime=self.mtime)
@@ -479,10 +486,14 @@ class FileEntry:
         """
 
         path = join(cache.cache_dir, self.md5)
-        filters = self.filters.iter(self.context)
+        deps = []
 
-        for i, fxs in filters:
-            if not cache.has_key(path, md5(i, fxs)):
+        for fxs in self.filters.iter(self.context):
+
+            # extend filter dependencies
+            deps.extend(fxs)
+
+            if not cache.has_key(path, md5(*deps)):
                 return True
         else:
             return getmtime(self.filename) > cache.getmtime(path)
@@ -707,7 +718,7 @@ def paginate(list, ipp, func=lambda x: x, salt=None, orphans=0):
 
         if rv == hv:
             # check if a FileEntry-instance has changed
-            if bool(filter(lambda e: e.has_changed, entries)):
+            if any(filter(lambda e: e.has_changed, entries)):
                 has_changed = True
             else:
                 has_changed = False
@@ -914,12 +925,6 @@ class cache(object):
 
     @classmethod
     @track_cache
-    def has_key(self, path, key):
-        """Check wether cache file has key and track them as used (= not abandoned)."""
-        return key in self.objects[path]
-
-    @classmethod
-    @track_cache
     def get(self, path, key, default=None, mtime=0.0):
         """Restore value from obj[key] if mtime has not changed or return default.
 
@@ -956,14 +961,15 @@ class cache(object):
             try:
                 with io.open(path, 'rb') as fp:
                     rv = pickle.load(fp)
-            except pickle.PickleError:
+            except (pickle.PickleError, IOError):
+                cache.remove(path)
                 rv = {}
             try:
                 with io.open(path, 'wb') as fp:
                     rv[key] = zlib.compress(value, 6)
                     pickle.dump(rv, fp, pickle.HIGHEST_PROTOCOL)
-            except IOError:
-                pass
+            except (IOError, pickle.PickleError) as e:
+                log.warn('%s: %s' % (e.__class__.__name__, e))
         else:
             try:
                 fd, tmp = tempfile.mkstemp(suffix=self._fs_transaction_suffix,
@@ -972,11 +978,17 @@ class cache(object):
                     pickle.dump({key: zlib.compress(value, 6)}, fp, pickle.HIGHEST_PROTOCOL)
                 os.rename(tmp, path)
                 os.chmod(path, self.mode)
-            except (IOError, OSError, pickle.PickleError, zlib.error):
-                pass
+            except (IOError, OSError, pickle.PickleError, zlib.error) as e:
+                log.warn('%s: %s' % (e.__class__.__name__, e))
 
         self.objects[path].add(key)
         return value
+
+    @classmethod
+    @track_cache
+    def has_key(self, path, key):
+        """Check wether cache file has key and track them as used (= not abandoned)."""
+        return key in self.objects[path]
 
     @classmethod
     @memoized
