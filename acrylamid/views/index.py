@@ -5,7 +5,7 @@
 from os.path import exists
 
 from acrylamid.views import View
-from acrylamid.utils import union, joinurl, event, paginate, expand
+from acrylamid.helpers import union, joinurl, event, paginate, expand
 
 
 class Index(View):

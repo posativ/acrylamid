@@ -18,13 +18,13 @@ from urlparse import urlsplit
 from datetime import datetime
 from jinja2 import Environment, FileSystemBytecodeCache
 
-from acrylamid import filters, views, log, utils
-from acrylamid.lib.importer import fetch, parse, build
+from acrylamid import log
 from acrylamid.errors import AcrylamidException
-from acrylamid.utils import cache, ExtendedFileSystemLoader, FileEntry, event, escape, \
-                            system, filelist
 
-from acrylamid.filters import FilterList
+from acrylamid import filters, views, utils, helpers
+from acrylamid.lib.importer import fetch, parse, build
+from acrylamid.core import cache, ExtendedFileSystemLoader
+from acrylamid.helpers import event, escape, FileEntry
 
 
 def initialize(conf, env):
@@ -38,7 +38,7 @@ def initialize(conf, env):
     # set up templating environment
     env['jinja2'] = Environment(loader=ExtendedFileSystemLoader(conf['layout_dir']),
                                 bytecode_cache=FileSystemBytecodeCache(cache.cache_dir))
-    env['jinja2'].filters.update({'safeslug': utils.safeslug, 'tagify': lambda x: x})
+    env['jinja2'].filters.update({'safeslug': helpers.safeslug, 'tagify': lambda x: x})
 
     # try language set in LANG, if set correctly use it
     try:
@@ -103,7 +103,7 @@ def compile(conf, env, force=False, **options):
         cache.clear()
 
     # list of FileEntry-objects reverse sorted by date.
-    entrylist = sorted([FileEntry(e, conf) for e in filelist(conf['content_dir'],
+    entrylist = sorted([FileEntry(e, conf) for e in utils.filelist(conf['content_dir'],
                                                              conf.get('entries_ignore', []))],
                        key=lambda k: k.date, reverse=True)
 
@@ -143,7 +143,7 @@ def compile(conf, env, force=False, **options):
         for v in _views:
 
             # a list that sorts out conflicting and duplicated filters
-            flst = FilterList()
+            flst = filters.FilterList()
 
             # filters found in this specific entry plus views and conf.py
             found = entry.filters + v.filters + request['conf']['filters']
@@ -175,11 +175,11 @@ def compile(conf, env, force=False, **options):
         tt = time.time()
 
         for html, path in v.generate(request):
-            utils.mkfile(html, path, time.time()-tt, **options)
+            helpers.mkfile(html, path, time.time()-tt, **options)
             tt = time.time()
 
     # remove abandoned cache files
-    utils.cache.shutdown()
+    cache.shutdown()
 
     log.info('Blog compiled in %.2fs' % (time.time() - ctime))
 
@@ -191,7 +191,7 @@ def autocompile(conf, env, **options):
     mtime = -1
 
     while True:
-        ntime = max(getmtime(e) for e in filelist(conf['content_dir']))
+        ntime = max(getmtime(e) for e in utils.filelist(conf['content_dir']))
         if mtime != ntime:
             try:
                 compile(conf, env, **options)
@@ -236,7 +236,7 @@ def clean(conf, everything=False, dryrun=False, **kwargs):
         else:
             return False
 
-    _tracked_files = utils.get_tracked_files()
+    _tracked_files = helpers.get_tracked_files()
     for root, dirs, files in os.walk(conf['output_dir'], topdown=True):
         found = set([join(root, p) for p in files
                      if not excluded(root, p, conf['output_ignore'])])

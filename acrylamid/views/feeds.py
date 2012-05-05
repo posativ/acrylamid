@@ -6,7 +6,7 @@ from datetime import datetime
 from os.path import exists
 
 from acrylamid.views import View
-from acrylamid.utils import joinurl, event, union
+from acrylamid.helpers import joinurl, event, union
 
 
 class Feed(View):

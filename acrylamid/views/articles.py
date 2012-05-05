@@ -2,7 +2,8 @@
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
 from acrylamid.views import View
-from acrylamid.utils import union, joinurl, event, cache, md5
+
+from acrylamid.helpers import union, joinurl, event, md5, memoize
 
 from os.path import exists
 
@@ -19,13 +20,13 @@ class Articles(View):
         path = joinurl(self.conf['output_dir'], self.path, 'index.html')
 
         hv = md5(*entrylist, attr=lambda o: o.md5)
-        rv = cache.memoize('articles-hash')
+        rv = memoize('articles-hash')
 
         if rv == hv:
             has_changed = False
         else:
             # save new value for next run
-            cache.memoize('articles-hash', hv)
+            memoize('articles-hash', hv)
             has_changed = True
 
         if exists(path) and not has_changed and not tt.has_changed:

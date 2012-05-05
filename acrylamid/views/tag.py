@@ -10,7 +10,7 @@ from os.path import exists
 from collections import defaultdict
 
 from acrylamid.views import View
-from acrylamid.utils import union, joinurl, safeslug, event, paginate, expand
+from acrylamid.helpers import union, joinurl, safeslug, event, paginate, expand
 
 
 class Tagcloud:

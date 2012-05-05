@@ -3,7 +3,7 @@
 
 from acrylamid import log
 from acrylamid.filters import Filter
-from acrylamid.utils import system as defaultsystem
+from acrylamid.helpers import system as defaultsystem
 from acrylamid.errors import AcrylamidException
 
 from jinja2 import Environment, TemplateError

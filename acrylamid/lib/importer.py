@@ -22,8 +22,9 @@ from email.utils import parsedate_tz, mktime_tz
 from os.path import join, dirname, isfile
 
 from acrylamid import log
-from acrylamid.utils import FileEntry, event, escape, system
 from acrylamid.errors import AcrylamidException
+
+from acrylamid.helpers import event, escape, system, FileEntry
 
 # no joke
 USED_WORDPRESS = False
@@ -271,18 +272,18 @@ def build(conf, env, defaults, items, fmt, keep=False):
         fd, tmp = tempfile.mkstemp(suffix='.txt')
         title = escape(title)
 
-        with io.fdopen(fd, 'w') as f:
-            f.write('---\n')
-            f.write('title: %s\n' % title)
+        with io.open(fd, 'w') as f:
+            f.write(u'---\n')
+            f.write(u'title: %s\n' % title)
             if author != defaults.get('author', None):
-                f.write('author: %s\n' % author)
-            f.write('date: %s\n' % date.strftime(conf['date_format']))
-            f.write('filter: [%s, ]\n' % fmt)
+                f.write(u'author: %s\n' % author)
+            f.write(u'date: %s\n' % date.strftime(conf['date_format']))
+            f.write(u'filter: [%s, ]\n' % fmt)
             if tags:
-                f.write('tags: [%s]\n' % ', '.join(tags))
+                f.write(u'tags: [%s]\n' % ', '.join(tags))
             if permalink:
-                f.write('permalink: %s\n' % permalink)
-            f.write('---\n\n')
+                f.write(u'permalink: %s\n' % permalink)
+            f.write(u'---\n\n')
 
             # this are fixes for WordPress because they don't save HTML but a
             # stupid mixed-in form of HTML making it very difficult to get either HTML
@@ -292,7 +293,7 @@ def build(conf, env, defaults, items, fmt, keep=False):
                 content = content.replace("\n", "  \n")
             elif USED_WORDPRESS and fmt == 'rst':
                 content = content.replace('\n ', '\n\n')
-            f.write(content+'\n')
+            f.write(content+u'\n')
 
         entry = FileEntry(tmp, conf)
         p = join(conf['content_dir'], dirname(entry.permalink)[1:])

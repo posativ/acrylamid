@@ -2,7 +2,7 @@
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
 from acrylamid.filters import Filter
-from acrylamid.utils import system
+from acrylamid.helpers import system
 from acrylamid.errors import AcrylamidException
 
 

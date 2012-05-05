@@ -193,4 +193,79 @@ class FilterList(list):
         return f
 
 
+class Node(dict):
+    """This is a root, an edge and a leaf. Stores predecessor and
+    count of views using this leaf."""
+
+    def __init__(self, *args, **kwargs):
+        dict.__init__(self, *args, **kwargs)
+        self.refs = 1
+        self.prev = None
+
+
+class FilterTree(list):
+    """Store all applied filters of an entry in a tree structure to find
+    common paths where we can share computed intermediates."""
+
+    def __init__(self, *args, **kwargs):
+
+        # its a list after all ;-)
+        super(FilterTree, self).__init__(*args, **kwargs)
+
+        self.root = Node()
+        self.views = {None: self}
+        self.paths = {None: []}
+
+    def __iter__(self):
+        """Iterating over list of filters of given context."""
+
+        raise NotImplemented('XXX get context with some magic')
+
+    def add(self, lst, context):
+        """This adds a list of filters and stores the context and the
+        reference to that path in self.views."""
+
+        node = self.root
+        for key in lst:
+            if key not in node:
+                node[key] = Node()
+                node[key].prev = node
+                node = node[key]
+            else:
+                node = node[key]
+                node.refs += 1
+
+        self.views[context] = node
+        self.paths[context] = lst
+
+    def path(self, context):
+        """Return the actual 'path' a view would use."""
+
+        return self.paths[context]
+
+    def iter(self, context):
+        """This returns a generator which yields a tuple containing the zero-index
+        and the filter list itself using a given context."""
+
+        path, node = self.path(context)[:], self.root
+        n = self.root[path[0]].refs
+
+        while True:
+
+            ls = []
+            for key in path[:]:
+                if node[key].refs != n:
+                    n = node[key].refs
+                    break
+
+                ls.append(key)
+                node = node[key]
+                path.pop(0)
+
+            if not ls:
+                raise StopIteration
+
+            yield ls
+
+
 callbacks = FilterList()

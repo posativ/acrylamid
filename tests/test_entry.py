@@ -12,7 +12,7 @@ import tempfile
 from datetime import datetime
 
 from acrylamid import log, errors
-from acrylamid.utils import FileEntry, escape
+from acrylamid.helpers import FileEntry, escape
 from acrylamid.defaults import conf
 
 log.init('acrylamid', level=40)
