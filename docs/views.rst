@@ -71,6 +71,8 @@ Same behaviour like Index except ``route`` that defaults to */tag/:name/* and
 ``pagination`` that defaults to */tag/:name/:num/* where :name is the current
 tag identifier.
 
+To create a tag cloud head over to :doc:`conf.py`.
+
 Feed
 ----
 

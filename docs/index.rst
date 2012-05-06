@@ -17,6 +17,7 @@ BSD Style, 2 clauses.
    templating
    extending
    howtos
+   internals
    about
 
 Why?
