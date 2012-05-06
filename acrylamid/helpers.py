@@ -14,6 +14,7 @@ import traceback
 import subprocess
 
 from datetime import datetime
+from collections import defaultdict
 from os.path import join, exists, dirname, basename, getmtime
 
 from acrylamid import log
@@ -538,13 +539,35 @@ def system(cmd, stdin=None, **kw):
     return result.strip()
 
 
-def track(f):
-    """decorator to track files when event.create|change|skip is called."""
-    def dec(cls, path, *args, **kwargs):
-        global _tracked_files
-        _tracked_files.add(path)
-        return f(cls, path, *args, **kwargs)
-    return dec
+def metavent(cls, parents, attrs):
+    """Add classmethod to each callable, track given methods and intercept
+    methods with callbacks added to cls.callbacks
+    """
+    def track(f):
+        """decorator to track files when event.create|change|skip is called."""
+        def dec(cls, path, *args, **kwargs):
+            global _tracked_files
+            _tracked_files.add(path)
+            return f(cls, path, *args, **kwargs)
+        return dec
+
+    def intercept(func):
+        """decorator which calls callback registered to this method."""
+        name = func.func_name
+        def dec(cls, path, *args, **kwargs):
+            for callback in  cls.callbacks[name]:
+                callback(path, *args, **kwargs)
+            return func(cls, path, *args, **kwargs)
+        return dec
+
+    for name, func in attrs.items():
+        if not name.startswith('_') and callable(func):
+            func = intercept(func)
+            if name in ['create', 'update', 'skip', 'identical']:
+                func = track(func)
+            attrs[name] = classmethod(intercept(func))
+
+    return type(cls, parents, attrs)
 
 
 def get_tracked_files():
@@ -561,36 +584,33 @@ class event:
 
     This class is a singleton and should not be initialized."""
 
-    @classmethod
+    __metaclass__ = metavent
+    callbacks = defaultdict(list)
+
     def __init__(self):
         raise AcrylamidException('Not Implemented')
 
-    @classmethod
-    @track
+    def register(self, callback, to=[]):
+        for item in to:
+            event.callbacks[item].append(callback)
+
     def create(self, path, ctime=None):
         if ctime:
             log.info("create  [%.2fs] %s", ctime, path)
         else:
             log.info("create  %s", path)
 
-    @classmethod
-    @track
     def update(self, path, ctime=None):
         if ctime:
             log.info("update  [%.2fs] %s", ctime, path)
         else:
             log.info("update  %s", path)
 
-    @classmethod
-    @track
     def skip(self, path):
         log.skip("skip  %s", path)
 
-    @classmethod
-    @track
     def identical(self, path):
         log.skip("identical  %s", path)
 
-    @classmethod
     def remove(self, path):
         log.info("remove  %s", path)
