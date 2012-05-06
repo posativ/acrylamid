@@ -380,7 +380,7 @@ def mkfile(content, path, ctime=0.0, force=False, dryrun=False, **kwargs):
             if not dryrun:
                 with io.open(path, 'w') as fp:
                     fp.write(content)
-            event.changed(path=path, ctime=ctime)
+            event.update(path=path, ctime=ctime)
     else:
         try:
             if not dryrun:
@@ -575,7 +575,7 @@ class event:
 
     @classmethod
     @track
-    def changed(self, path, ctime=None):
+    def update(self, path, ctime=None):
         if ctime:
             log.info("update  [%.2fs] %s", ctime, path)
         else:
@@ -592,6 +592,5 @@ class event:
         log.skip("identical  %s", path)
 
     @classmethod
-    def removed(self, path):
-        log.info("removed  %s", path)
-
+    def remove(self, path):
+        log.info("remove  %s", path)

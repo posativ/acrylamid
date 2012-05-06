@@ -244,13 +244,13 @@ def clean(conf, everything=False, dryrun=False, **kwargs):
         for i, p in enumerate(found.difference(_tracked_files)):
             if not dryrun:
                 os.remove(p)
-            event.removed(p)
+            event.remove(p)
 
         if everything:
             for i, p in enumerate(found.intersection(_tracked_files)):
                 if not dryrun:
                     os.remove(p)
-                event.removed(p)
+                event.remove(p)
 
         # don't visit excluded dirs
         for dir in dirs[:]:
