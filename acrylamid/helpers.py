@@ -36,7 +36,6 @@ except ImportError:
     yaml = None
 
 _slug_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
-_tracked_files = set([])
 
 
 def read(filename, encoding, remap={}):
@@ -541,15 +540,7 @@ def system(cmd, stdin=None, **kw):
 
 def metavent(cls, parents, attrs):
     """Add classmethod to each callable, track given methods and intercept
-    methods with callbacks added to cls.callbacks
-    """
-    def track(f):
-        """decorator to track files when event.create|change|skip is called."""
-        def dec(cls, path, *args, **kwargs):
-            global _tracked_files
-            _tracked_files.add(path)
-            return f(cls, path, *args, **kwargs)
-        return dec
+    methods with callbacks added to cls.callbacks"""
 
     def intercept(func):
         """decorator which calls callback registered to this method."""
@@ -563,16 +554,9 @@ def metavent(cls, parents, attrs):
     for name, func in attrs.items():
         if not name.startswith('_') and callable(func):
             func = intercept(func)
-            if name in ['create', 'update', 'skip', 'identical']:
-                func = track(func)
             attrs[name] = classmethod(intercept(func))
 
     return type(cls, parents, attrs)
-
-
-def get_tracked_files():
-    global _tracked_files
-    return _tracked_files
 
 
 class event:

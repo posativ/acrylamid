@@ -13,7 +13,6 @@ import tempfile
 import subprocess
 
 from os.path import join, dirname, getmtime, isfile
-from fnmatch import fnmatch
 from urlparse import urlsplit
 from datetime import datetime
 from jinja2 import Environment, FileSystemBytecodeCache
@@ -202,70 +201,6 @@ def autocompile(conf, env, **options):
         time.sleep(1)
 
 
-def clean(conf, everything=False, dryrun=False, **kwargs):
-    """Attention: this function may eat your data!  Every create, changed
-    or skip event call tracks automatically files. After generation,
-    ``acrylamid clean`` will call this function and remove untracked files.
-
-    - with OUTPUT_IGNORE you can specify a list of patterns which are ignored.
-    - you can use --dry-run to see what would have been removed
-    - by default acrylamid does NOT call this function
-    - it removes silently every empty directory
-
-    :param conf: user configuration
-    :param every: remove all tracked files, too
-    :param dryrun: don't delete, just show what would have been done
-    """
-
-    def excluded(root, path, excl_files):
-        """Test wether a path is excluded by the user. The ignore syntax is
-        similar to Git: a path with a leading slash means absolute position
-        (relative to output root), path with trailing slash marks a directory
-        and everything else is just relative fnmatch.
-
-        :param root: current directory
-        :param path: current path
-        :param excl_files: a list of patterns
-        """
-        for pattern in excl_files:
-            if pattern.startswith('/'):
-                if fnmatch(join(root, path), join(conf['output_dir'], pattern[1:])):
-                    return True
-            elif fnmatch(path, pattern):
-                return True
-        else:
-            return False
-
-    _tracked_files = helpers.get_tracked_files()
-    for root, dirs, files in os.walk(conf['output_dir'], topdown=True):
-        found = set([join(root, p) for p in files
-                     if not excluded(root, p, conf['output_ignore'])])
-
-        for i, p in enumerate(found.difference(_tracked_files)):
-            if not dryrun:
-                os.remove(p)
-            event.remove(p)
-
-        if everything:
-            for i, p in enumerate(found.intersection(_tracked_files)):
-                if not dryrun:
-                    os.remove(p)
-                event.remove(p)
-
-        # don't visit excluded dirs
-        for dir in dirs[:]:
-            if excluded(root, dir+'/', conf['output_ignore']):
-                dirs.remove(dir)
-
-    # remove empty directories
-    for root, dirs, files in os.walk(conf['output_dir'], topdown=True):
-        for p in (join(root, k) for k in dirs):
-            try:
-                os.rmdir(p)
-            except OSError:
-                pass
-
-
 def new(conf, env, title, prompt=True):
     """Subcommand: new -- create a new blog entry the easy way.  Either run
     ``acrylamid new My fresh new Entry`` or interactively via ``acrylamid new``
@@ -370,4 +305,4 @@ def deploy(conf, env, task, *args):
             sys.stdout.flush()
 
 
-__all__ = ["compile", "autocompile", "new", "clean", "importer", "deploy"]
+__all__ = ["compile", "autocompile", "new", "importer", "deploy"]

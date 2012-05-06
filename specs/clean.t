@@ -13,21 +13,21 @@ Does `acrylamid clean` work?
   $ rm content/sample-entry.txt
 
   $ acrylamid clean -nC
-  removed  output/index.html
-  removed  output/2012/die-verwandlung/index.html
-  removed  output/tag/die-verwandlung/index.html
-  removed  output/tag/franz-kafka/index.html
+  remove  output/index.html
+  remove  output/2012/die-verwandlung/index.html
+  remove  output/tag/die-verwandlung/index.html
+  remove  output/tag/franz-kafka/index.html
 
   $ acrylamid clean -C
-  removed  output/index.html
-  removed  output/2012/die-verwandlung/index.html
-  removed  output/tag/die-verwandlung/index.html
-  removed  output/tag/franz-kafka/index.html
+  remove  output/index.html
+  remove  output/2012/die-verwandlung/index.html
+  remove  output/tag/die-verwandlung/index.html
+  remove  output/tag/franz-kafka/index.html
 
   $ acrylamid clean -fC
-  removed  output/articles/index.html
-  removed  output/atom/index.html
-  removed  output/rss/index.html
+  remove  output/articles/index.html
+  remove  output/atom/index.html
+  remove  output/rss/index.html
 
 And we should clean up everything:
 
