@@ -10,6 +10,7 @@ import glob
 import traceback
 
 from acrylamid import log
+from acrylamid.errors import AcrylamidException
 
 # module-wide callbacks variable contaning views, reset this on initialize!
 __views_list = []
@@ -138,4 +139,4 @@ class View(object):
         return env
 
     def generate(self, request):
-        raise NotImplemented
+        raise AcrylamidException('%s.generate not implemented' % self.__class__.__name__)

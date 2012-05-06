@@ -563,7 +563,7 @@ class event:
 
     @classmethod
     def __init__(self):
-        raise NotImplemented
+        raise AcrylamidException('Not Implemented')
 
     @classmethod
     @track
