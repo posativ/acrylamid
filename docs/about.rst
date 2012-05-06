@@ -24,9 +24,17 @@ Extensions
 - acronym definitions and implementation from the `Pyblosxom plugin`_
 - Hyphenation is based on `Frank Liang's algorithm <http://nedbatchelder.com/code/modules/hyphenate.py>`_
   `TEX hyphenation patterns <http://tug.org/tex-hyphen/>`_
-  
+
 .. _blohg: https://hg.rafaelmartins.eng.br/blohg/file/a09f8f0c6cad/blohg/rst/directives.py
 .. _Pyblosxom plugin: http://pyblosxom.bluesock.org/1.5/plugins/acronyms.html
+
+Thanks to
+*********
+
+- sebix_ <szebi@gmx.at> who forced me to make docs and work with linux' locale
+  and also supplied the *textile* and *metalogo* filter.
+
+.. _sebix: http://sebix.github.com/
 
 Ideas
 *****
