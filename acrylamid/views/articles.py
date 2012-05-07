@@ -30,8 +30,8 @@ class Articles(View):
             has_changed = True
 
         if exists(path) and not has_changed and not tt.has_changed:
-                event.skip(path)
-                raise StopIteration
+            event.skip(path)
+            raise StopIteration
 
         articles = {}
         for entry in entrylist:

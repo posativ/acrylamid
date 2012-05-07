@@ -19,7 +19,7 @@ __views_list = []
 def get_views():
 
     global __views_list
-    return __views_list
+    return sorted(__views_list, key=lambda v: v.priority, reverse=True)
 
 
 def index_views(module, urlmap, conf, env):
@@ -105,6 +105,7 @@ def initialize(ext_dir, conf, env):
 class View(object):
 
     _filters = []
+    priority = 50.0
     condition = lambda v, e: True
     view = 'View'
     path = '/'
