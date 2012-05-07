@@ -5,7 +5,7 @@ import io
 import re
 
 from time import strftime, gmtime
-from os.path import join, getmtime
+from os.path import join, getmtime, exists
 
 from acrylamid.views import View
 from acrylamid.helpers import event, joinurl
@@ -70,7 +70,7 @@ class Sitemap(View):
         path = joinurl(self.conf['output_dir'], self.path)
         sm = Map()
 
-        if not self.has_changed:
+        if exists(path) and not self.has_changed:
             event.skip(path)
             raise StopIteration
 
