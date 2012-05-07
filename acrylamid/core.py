@@ -160,6 +160,13 @@ class cache(object):
                     self.objects[path] = set(pickle.load(fp).keys())
             except pickle.PickleError:
                 os.remove(path)
+            except AttributeError:
+                # this may happen after a refactor
+                log.info('notice  invalid cache objects, recompile everything.' \
+                         + ' This may take a while...')
+                for obj in self._list_dir():
+                    cache.remove(obj)
+                break
             except IOError:
                 continue
 
