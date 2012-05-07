@@ -9,6 +9,9 @@
     <meta http-equiv="content-language" content="{{ conf.lang }}" />
     <link media="all" href="{{ env.path + '/style.css' }}" type="text/css" rel="stylesheet" />
     <link href="/favicon.ico" rel="shortcut icon" />
+    {%- if 'sitemap' in env.views -%}
+        <link rel="sitemap" type="application/xml" title="Sitemap" href="{{ env.views.sitemap.path }}">
+    {%- endif%}
     <link href="{{ env.path + '/' }}" rel="home" />
     <link href="{{ env.path + '/atom/' }}" type="application/atom+xml" rel="alternate" title="Atom Feed" />
     <link href="{{ env.path + '/rss/' }}" type="application/rss+xml" rel="alternate" title="RSS Feed" />

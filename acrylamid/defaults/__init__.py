@@ -202,6 +202,8 @@ VIEWS = {
 
     '/articles/': {'view': 'articles'},
 
+    '/sitemap.xml': {'view': 'sitemap'},
+
     # Here are some more examples
 
     # # '/atom/full/' will give you a _complete_ feed of all your entries
