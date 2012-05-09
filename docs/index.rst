@@ -23,16 +23,17 @@ BSD Style, 2 clauses.
 Why?
 ----
 
-Why another static blog compiler, that's a valid question. So, why is Acrylamid better
-than X (pelican, hyde, nikola...): Acrylamid is faster than X, because incremental
-compilation is a core feature. Acrylamid is better, because you can not only use
-Markdown/reST/whatyoulike, you can even use all builtin extensions and more. Acrylamid
-has no custom header/body/filesystem layout. It uses well-known YAML and that's it.
+Why another static blog compiler, that's a valid question. So, why would you
+use Acrylamid: It's fast when you start blogging and it stays fast when you
+have hundreds of articles due incremental compilation. It ships with all
+builtin Markdown extensions, custom ones and additional reStructuredText
+directives to embed YouTube or Code. With all complexity of Acrylamid itself,
+it is super easy to use.
 
-Why not Acrylamid? Well, it's not well tested by different people with different
-requirements. It does not use multiple cores (currently no static blog framework does
-this, but I am working on this). The default layout is indeed not the most beautifulst.
-Acrylamid currently has no asset handling (naïve "copy tree" sucks).
+Why not Acrylamid? It's not well tested by different people with different
+requirements. It may has some serious issues I didn't noticed yet. It also
+lacks some internal documentation. The default layout is indeed not the most
+beautiful and Acrylamid has no asset handling yet.
 
 Features
 --------
@@ -41,12 +42,12 @@ Acrylamid is a mixture of `nanoc <http://nanoc.stoneship.org/>`_, `Pyblosxom
 <http://pyblosxom.bluesock.org/>`_ and `Pelican <http://pelican.notmyidea.org/>`_. It
 features mainly:
 
-- blog articles, static pages, tags RSS/Atom feeds and an article overview
+- blog articles, static pages, tags, RSS/Atom feeds and an article overview
 - theming support (using jinja2_) and support for jinja2 directly in postings
 - Markdown_, reStructuredText_, textile_ and pandoc_
 - Markdown extensions and custom reStructuredText directives
 - MathML, modern web-typography and hyphenation using soft-hyphens
-- RSS/Atom import, deployment and a handy CLI
+- RSS/Atom/WordPress import, deployment and a handy CLI
 - it's very flexible/configurable and fast
 
 .. _jinja2: http://jinja.pocoo.org/
@@ -89,12 +90,12 @@ Get acrylamid, edit *conf.py* and *layouts/* and compile with:
         create  '/', written to output/index.html
        * Running on http://127.0.0.1:8000/
 
-Real World Example?
-*******************
+Real World Examples?
+********************
 
-I have released all sources from my personal blog:
-`/posativ/blog.posativ.org/ <https://github.com/posativ/blog.posativ.org/>`_. Take a
-look at my *conf.py* for some inspiration.
+- sources from my personal blog:
+  `/posativ/blog.posativ.org <https://github.com/posativ/blog.posativ.org/>`_.
+- sebix' (contributer) sources: `/sebix/sebix.github.com-sources <https://github.com/sebix/sebix.github.com-sources>`_.
 
 
 Filters
@@ -107,9 +108,9 @@ with reStructuredText). Currently supported by acrylamid, see
 `docs/filters.rst <http://acrylamid.readthedocs.org/en/latest/filters.html>`_
 for detailed information:
 
-- **Markdown**: rendering Markdown (+asciimathml,pygments,built-in extensions)
+- **Markdown**: rendering Markdown (+asciimathml, pygments, built-in extensions)
 - **reST**: reStructuredText (+pygments)
-- **pandoc**: Pandoc (+Markdown,textitle,rst,...)
+- **pandoc**: Pandoc (+Markdown, textitle, rst, ...)
 - **textile**: using Textile as markup language
 - **HTML**: don't render with filters mentioned above (it's a conflicting filter)
 
@@ -149,3 +150,10 @@ See :doc:`commands` for a detailed overview.
       deploy         run a given TASK
 
     All subcommands except `init` require a conf.py file.
+
+Need Help?
+----------
+
+Join ``#acrylamid`` on Freenode_!
+
+.. _Freenode: http://freenode.net/
