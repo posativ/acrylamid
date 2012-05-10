@@ -13,14 +13,16 @@ def align(argument):
 
 class YouTube(Directive):
     """reStructuredText directive that creates an embed object to display
-    a video from Youtube
+    a video from Youtube (:options: are optional).
 
     Usage example::
 
         .. youtube:: ZPJlyRv_IGI
+           :start: 34
            :align: center
            :height: 1280
            :width: 720
+           :ssl:
     """
 
     required_arguments = 1
@@ -30,6 +32,8 @@ class YouTube(Directive):
         'width': directives.length_or_percentage_or_unitless,
         'border': directives.length_or_unitless,
         'align': align,
+        'start': int,
+        'ssl': directives.flag,
     }
     has_content = False
 
@@ -41,16 +45,18 @@ class YouTube(Directive):
             'right': '0 0 0 auto',
         }
 
-        self.options['uri'] = 'https://www.youtube-nocookie.com/embed/' \
-            + self.arguments[0]
-        self.options.setdefault('width', '680')
-        self.options.setdefault('height', '382px')
+        uri = ('https://' if 'ssl' in self.options else 'http://') \
+              + 'www.youtube-nocookie.com/embed/' + self.arguments[0]
+        self.options['uri'] = uri
         self.options['align'] = alignments[self.options.get('align', 'center')]
-        self.options.setdefault('border', '0')
+        self.options.setdefault('width', '680px')
+        self.options.setdefault('height', '382px')
+        self.options.setdefault('border', 0)
+        self.options.setdefault('start', 0)
 
         YT_EMBED = """<iframe width="%(width)s" height="%(height)s" src="%(uri)s" \
                       frameborder="%(border)s" style="display: block; margin: %(align)s;" \
-                      class="video" allowfullscreen></iframe>"""
+                      start="%(start)i" class="video" allowfullscreen></iframe>"""
         return [nodes.raw('', YT_EMBED % self.options, format='html')]
 
 def makeExtension():

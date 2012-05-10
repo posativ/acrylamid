@@ -151,14 +151,16 @@ directives, acrylamid offers three additional one:
           <link type="text/css" rel="stylesheet" href="http://alexgorbatchev.com/pub/sh/current/styles/shCoreDefault.css"/>
           <script type="text/javascript">SyntaxHighlighter.defaults.toolbar=false; SyntaxHighlighter.all();</script>
 
-- YouTube directive for easy embedding (key/value pairs are optional of course):
+- YouTube directive for easy embedding (`:options:` are optional).
 
   .. code-block:: restructuredtext
 
-        .. youtube:: ZPJlyRv_IGI
-           :align: center
-           :height: 1280
-           :width: 720
+      .. youtube:: ZPJlyRv_IGI
+         :start: 34
+         :align: center
+         :height: 1280
+         :width: 720
+         :ssl:
 
 ============  ==================================================
 Requires      ``docutils`` (or ``python-docutils``), optional
