@@ -11,7 +11,7 @@
 {% block head %}
     {{- super() }}
     {%- if env.type == 'entry' %}
-    <meta name="description" content="{{ entry.description }}" />
+    <meta name="description" content="{{ entry.description | e }}" />
     <meta name="keywords" content="{{ entry.tags | join(', ') }}" />
     {%- endif -%}
 {% endblock %}
