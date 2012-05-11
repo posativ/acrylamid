@@ -25,6 +25,7 @@ Does `acrylamid clean` work?
   remove  output/tag/franz-kafka/index.html
 
   $ acrylamid clean -fC
+  remove  output/sitemap.xml
   remove  output/articles/index.html
   remove  output/atom/index.html
   remove  output/rss/index.html

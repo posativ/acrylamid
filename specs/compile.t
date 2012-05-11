@@ -13,14 +13,15 @@ Can we compile? Use a decent machine, everything should compile
 in less than a second.
 
   $ acrylamid compile -C
-  create  \[0.\d+s\] output/articles/index.html (re)
-  create  \[0.\d+s\] output/2012/die-verwandlung/index.html (re)
-  create  \[0.\d+s\] output/rss/index.html (re)
-  create  \[0.\d+s\] output/atom/index.html (re)
+  create  [0.??s] output/articles/index.html (glob)
+  create  [0.??s] output/2012/die-verwandlung/index.html (glob)
+  create  [0.??s] output/rss/index.html (glob)
+  create  [0.??s] output/atom/index.html (glob)
   create  [0.00s] output/index.html
   create  [0.00s] output/tag/die-verwandlung/index.html
   create  [0.00s] output/tag/franz-kafka/index.html
-  Blog compiled in 0.\d+s (re)
+  create  [0.00s] output/sitemap.xml
+  Blog compiled in 0.??s (glob)
 
 If we compile a second time, nothing should happen at all (except you use a
 filter with version that randomly changes, but *this* is not an intented!)
@@ -33,7 +34,8 @@ filter with version that randomly changes, but *this* is not an intented!)
   skip  output/index.html
   skip  output/tag/die-verwandlung/index.html
   skip  output/tag/franz-kafka/index.html
-  Blog compiled in 0.\d+s (re)
+  skip  output/sitemap.xml
+  Blog compiled in 0.??s (glob)
 
 If we change the modification but this require a BSD touch, because GNU's
 touch sucks!
@@ -48,7 +50,8 @@ touch sucks!
   identical  output/index.html
   identical  output/tag/die-verwandlung/index.html
   identical  output/tag/franz-kafka/index.html
-  Blog compiled in 0.\d+s (re)
+  identical  output/sitemap.xml
+  Blog compiled in 0.??s (glob)
 
   $ /usr/bin/touch -A 00 content/sample-entry.txt
   $ find output -exec /usr/bin/touch -A 00 {} \;
@@ -58,13 +61,14 @@ Acrylamid should update a file if the content changes!
   $ echo "Foo." >> content/sample-entry.txt
   $ acrylamid compile -C
   skip  output/articles/index.html
-  update  \[0.\d+s\] output/2012/die-verwandlung/index.html (re)
-  update  \[0.\d+s\] output/rss/index.html (re)
-  update  \[0.\d+s\] output/atom/index.html (re)
+  update  [0.??s] output/2012/die-verwandlung/index.html (glob)
+  update  [0.??s] output/rss/index.html (glob)
+  update  [0.??s] output/atom/index.html (glob)
   identical  output/index.html
   identical  output/tag/die-verwandlung/index.html
   identical  output/tag/franz-kafka/index.html
-  Blog compiled in 0.\d+s (re)
+  identical  output/sitemap.xml
+  Blog compiled in 0.??s (glob)
 
   $ /usr/bin/touch -A 00 content/sample-entry.txt
   $ find output -exec /usr/bin/touch -A 00 {} \;
@@ -73,15 +77,16 @@ Lets try if we have really incremental rendering:
 
   $ acrylamid new -q Spam
   $ acrylamid compile -C
-  update  \[0.\d+s\] output/articles/index.html (re)
+  update  [0.??s] output/articles/index.html (glob)
   skip  output/2012/die-verwandlung/index.html
-  create  \[0.\d+s\] output/2012/spam/index.html (re)
-  update  \[0.\d+s\] output/rss/index.html (re)
-  update  \[0.\d+s\] output/atom/index.html (re)
-  update  \[0.\d+s\] output/index.html (re)
+  create  [0.??s] output/2012/spam/index.html (glob)
+  update  [0.??s] output/rss/index.html (glob)
+  update  [0.??s] output/atom/index.html (glob)
+  update  [0.??s] output/index.html (glob)
   skip  output/tag/die-verwandlung/index.html
   skip  output/tag/franz-kafka/index.html
-  Blog compiled in 0.\d+s (re)
+  update  [0.00s] output/sitemap.xml
+  Blog compiled in 0.??s (glob)
 
 Now with templates. We have patched jinja2 template loader so we have a
 recognition wether a template (including its parent templates) has changed.
@@ -103,7 +108,8 @@ Let's randomly (chosen by fair dice) change some mtimes...
   identical  output/index.html
   identical  output/tag/die-verwandlung/index.html
   identical  output/tag/franz-kafka/index.html
-  Blog compiled in 0.\d+s (re)
+  identical  output/sitemap.xml
+  Blog compiled in 0.??s (glob)
 
   $ /usr/bin/touch -A 00 layouts/articles.html
   $ /usr/bin/touch -A 00 layouts/entry.html
@@ -125,7 +131,8 @@ Now we touch a parent template and all inherited templates should change as, too
   identical  output/index.html
   identical  output/tag/die-verwandlung/index.html
   identical  output/tag/franz-kafka/index.html
-  Blog compiled in 0.\d+s (re)
+  identical  output/sitemap.xml
+  Blog compiled in 0.??s (glob)
 
   $ /usr/bin/touch -A 00 layouts/base.html
   $ find output -exec /usr/bin/touch -A 00 {} \;
@@ -143,7 +150,8 @@ And now vice versa: we touch completely different templates:
   skip  output/index.html
   skip  output/tag/die-verwandlung/index.html
   skip  output/tag/franz-kafka/index.html
-  Blog compiled in 0.\d+s (re)
+  identical  output/sitemap.xml
+  Blog compiled in 0.??s (glob)
 
   $ /usr/bin/touch -A 00 layouts/rss.xml
   $ find output -exec /usr/bin/touch -A 00 {} \;
@@ -154,15 +162,16 @@ Now we change the base template and should see some updates:
   $ /usr/bin/touch -A 01 layouts/base.html
 
   $ acrylamid compile -C
-  update  \[0.\d+s\] output/articles/index.html (re)
-  update  \[0.\d+s\] output/2012/die-verwandlung/index.html (re)
+  update  [0.??s] output/articles/index.html (glob)
+  update  [0.??s] output/2012/die-verwandlung/index.html (glob)
   update  [0.00s] output/2012/spam/index.html
   skip  output/rss/index.html
   skip  output/atom/index.html
   update  [0.00s] output/index.html
   update  [0.00s] output/tag/die-verwandlung/index.html
   update  [0.00s] output/tag/franz-kafka/index.html
-  Blog compiled in 0.\d+s (re)
+  identical  output/sitemap.xml
+  Blog compiled in 0.??s (glob)
 
   $ /usr/bin/touch -A 00 layouts/base.html
   $ find output -exec /usr/bin/touch -A 00 {} \;
@@ -172,14 +181,15 @@ If we change a filter in conf.py we should see an update:
   $ sed -i "" -e s/\'hyphenate/\'nohyphenate/g conf.py
   $ acrylamid compile -C
   skip  output/articles/index.html
-  update  \[0.\d+s\] output/2012/die-verwandlung/index.html (re)
+  update  [0.??s] output/2012/die-verwandlung/index.html (glob)
   identical  output/2012/spam/index.html
   identical  output/rss/index.html
   identical  output/atom/index.html
   update  [0.00s] output/index.html
   update  [0.00s] output/tag/die-verwandlung/index.html
   update  [0.00s] output/tag/franz-kafka/index.html
-  Blog compiled in 0.\d+s (re)
+  identical  output/sitemap.xml
+  Blog compiled in 0.??s (glob)
 
 And we should clean up everything:
 
