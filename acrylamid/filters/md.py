@@ -45,6 +45,14 @@ class Markdown(Filter):
     def __contains__(self, key):
         return True if key in self.extensions else False
 
+    def inject(self):
+
+        if 'codehilite' in self:
+            from pygments.formatters import HtmlFormatter
+            return {'text/css': '/* Pygments */\n\n' + HtmlFormatter().get_style_defs('trac')}
+
+        return {}
+
     def transform(self, text, entry, *filters):
 
         val = []

@@ -5,12 +5,43 @@
 from acrylamid.filters import Filter
 from acrylamid.errors import AcrylamidException
 
+CSS = """\
+/* LaTeX */
+
+.latex {
+  font-family: Times, "Times New Roman", serif;
+  letter-spacing: 1px;
+}
+
+.latex sup {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.85em;
+  vertical-align: 0.15em;
+  margin-left: -0.36em;
+  margin-right: -0.15em;
+}
+
+.latex sub {
+  text-transform: uppercase;
+  vertical-align: -0.5ex;
+  margin-left: -0.1667em;
+  margin-right: -0.125em;
+  font-size: 1em;
+}"""
+
 class Tex(Filter):
 
     match = ['metalogo']
     version = '1.0.0'
 
     priority = 70.0
+
+    def inject(self):
+
+        return {
+            'text/css': CSS,
+        }
 
     def transform(self, text, entry, *args):
         replacings = (('LaTeX', '<span class="latex">L<sup>a</sup>T<sub>e</sub>X</span>'),

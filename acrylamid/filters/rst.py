@@ -24,6 +24,11 @@ class Restructuredtext(Filter):
         self.extensions = {}
         self.ignore = env.options.ignore
 
+    def inject(self):
+
+        from pygments.formatters import HtmlFormatter
+        return {'text/css': '/* Pygments */\n\n' + HtmlFormatter().get_style_defs('trac')}
+
     def transform(self, content, entry, *filters):
 
         self.filters = filters
