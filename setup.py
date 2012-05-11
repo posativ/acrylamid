@@ -129,7 +129,7 @@ setup(
     author_email='info@posativ.org',
     packages=[
         'acrylamid', 'acrylamid.filters', 'acrylamid.views', 'acrylamid.lib',
-        'acrylamid.defaults'],
+        'acrylamid.defaults', 'acrylamid.tasks'],
     scripts=['bin/acrylamid'],
     package_data={
         'acrylamid.filters': ['hyph/*.txt'],
