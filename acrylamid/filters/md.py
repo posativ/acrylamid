@@ -11,6 +11,15 @@ from acrylamid.filters import Filter
 from acrylamid.errors import AcrylamidException
 
 
+def get_pygments_style():
+    try:
+        from pygments.formatters import get_formatter_by_name
+    except ImportError:
+        return {}
+
+    fmt = get_formatter_by_name('html', style='trac')
+    return {'text/css': '/* Pygments */\n\n' + fmt.get_style_defs('.highlight')}
+
 class Markdown(Filter):
 
     match = ['md', 'mkdown', 'markdown', 'Markdown']
@@ -48,9 +57,7 @@ class Markdown(Filter):
     def inject(self):
 
         if 'codehilite' in self:
-            from pygments.formatters import HtmlFormatter
-            return {'text/css': '/* Pygments */\n\n' + HtmlFormatter().get_style_defs('trac')}
-
+            return get_pygments_style()
         return {}
 
     def transform(self, text, entry, *filters):

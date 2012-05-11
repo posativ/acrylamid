@@ -6,9 +6,9 @@
 
 import os
 
-from acrylamid.filters import Filter
 from acrylamid.utils import cached_property
-
+from acrylamid.filters import Filter
+from acrylamid.filters.md import get_pygments_style
 
 class Restructuredtext(Filter):
 
@@ -26,8 +26,7 @@ class Restructuredtext(Filter):
 
     def inject(self):
 
-        from pygments.formatters import HtmlFormatter
-        return {'text/css': '/* Pygments */\n\n' + HtmlFormatter().get_style_defs('trac')}
+        return get_pygments_style()
 
     def transform(self, content, entry, *filters):
 

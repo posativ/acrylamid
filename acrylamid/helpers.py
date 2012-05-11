@@ -548,6 +548,7 @@ def metavent(cls, parents, attrs):
         def dec(cls, path, *args, **kwargs):
             for callback in  cls.callbacks[name]:
                 callback(path, *args, **kwargs)
+            cls.called.add(name)
             return func(cls, path, *args, **kwargs)
         return dec
 
@@ -570,6 +571,7 @@ class event:
 
     __metaclass__ = metavent
     callbacks = defaultdict(list)
+    called = set([])
 
     def __init__(self):
         raise AcrylamidException('Not Implemented')
