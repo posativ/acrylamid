@@ -157,3 +157,12 @@ Need Help?
 Join ``#acrylamid`` on Freenode_!
 
 .. _Freenode: http://freenode.net/
+
+API Reference
+=============
+
+.. toctree::
+   :maxdepth: 2
+
+   api/helpers
+

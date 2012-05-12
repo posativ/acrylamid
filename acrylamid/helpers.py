@@ -37,12 +37,16 @@ except ImportError:
 
 _slug_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
 
+__all__ = ['memoize', 'union', 'mkfile', 'md5', 'expand', 'joinurl',
+           'safeslug', 'paginate', 'escape', 'system', 'event', 'FileEntry']
+
 
 def read(filename, encoding, remap={}):
-    """Open filename and read content using specified encoding.  It will try
-    to parse the YAML header with yaml.load or fallback (if not available) to
-    a naïve key-value parser. Returns offset where the real content begins and
-    YAML header.
+    """Open and read content using the specified encoding and return position
+    where the actual content begins and all collected properties.
+    
+    If ``pyyaml`` is available we use this parser but we provide a dumb
+    fallback parser that can handle simple assigments in YAML.
 
     :param filename: path to an existing text file
     :param encoding: encoding of this file
@@ -105,30 +109,36 @@ def read(filename, encoding, remap={}):
 
 
 class FileEntry:
-    """This class gets it's data and metadata from the file specified
-    by the filename argument.
-
-    During templating, every (cached) property is available as well as additional
-    key, value pairs defined in the YAML header. Note that *tag* is automatically
-    mapped to *tags*, *filter* to *filters* and *static* to *draft*.
-
-    If you have something like
-
-    ::
-
+    """This class represents a single entry. Every property from this class is
+    available during templating including custom key-value pairs from the
+    header. The formal structure is first a YAML with some key/value pairs and
+    then the actual content. For example::
+    
         ---
-        title: Foo
+        title: My Title
+        date: 12.04.2012, 14:12
+        tags: [some, values]
+        
+        custom: key example
         image: /path/to/my/image.png
         ---
-
-    it is available in jinja2 templates as entry.image"""
+        
+        Here we start!
+    
+    Where you can access the image path via ``entry.image``.
+    
+    For convenience Acrylamid maps "filter" and "tag" automatically to "filters"
+    and "tags" and also converts a single string into an array containing only
+    one string.
+    
+    :param filename: valid path to an entry
+    :param conf: acrylamid configuration"""
 
     __keys__ = ['permalink', 'date', 'year', 'month', 'day', 'filters', 'tags',
                 'title', 'author', 'content', 'description', 'lang', 'draft',
                 'extension', 'slug']
 
     def __init__(self, filename, conf):
-        """parsing FileEntry's YAML header."""
 
         self.filename = filename
         self.mtime = os.path.getmtime(filename)
@@ -163,8 +173,14 @@ class FileEntry:
 
     @cached_property
     def date(self):
-        """return :class:`datetime.datetime` object.  Either converted from given key
-        and ``date_format`` or fallback to modification timestamp of the file."""
+        """parse date value and return :class:`datetime.datetime` object,
+        fallback to modification timestamp of the file if unset.
+        You can set a ``DATE_FORMAT`` in your :doc:`../conf.py` otherwise
+        Acrylamid tries several format strings and throws an exception if
+        no pattern works.
+        
+        As shortcut you can access ``date.day``, ``date.month``, ``date.year``
+        via ``entry.day``, ``entry.month`` and ``entry.year``."""
 
         # alternate formats from pelican.utils, thank you!
         # https://github.com/ametaireau/pelican/blob/master/pelican/utils.py
@@ -191,23 +207,20 @@ class FileEntry:
 
     @property
     def year(self):
-        """entry's year (Integer)"""
         return self.date.year
 
     @property
     def month(self):
-        """entry's month (Integer)"""
         return self.date.month
 
     @property
     def day(self):
-        """entry's day (Integer)"""
         return self.date.day
 
     @property
     def tags(self):
-        """per-post list of applied tags, if any.  If you applied a single string it
-        is used as one-item array."""
+        """Tags applied to this entry, if any.  If you set a single string it
+        is converted to an array containing this string."""
 
         fx = self.props.get('tags', [])
         if isinstance(fx, basestring):
@@ -216,18 +229,8 @@ class FileEntry:
 
     @property
     def title(self):
-        """entry's title."""
+        """Title of this entry (required)."""
         return self.props.get('title', 'No Title!')
-
-    @property
-    def author(self):
-        """entry's author as set in entry or from conf.py if unset"""
-        return self.props['author']
-
-    @property
-    def email(self):
-        """the author's email address"""
-        return self.props['email']
 
     @property
     def draft(self):
@@ -236,15 +239,18 @@ class FileEntry:
 
     @property
     def lang(self):
+        """Language used in this article. This is important for the hyphenation
+        pattern."""
         return self.props['lang']
 
     @property
     def extension(self):
-        """filename's extension without leading dot"""
+        """Filename's extension without leading dot"""
         return os.path.splitext(self.filename)[1][1:]
 
     @property
     def source(self):
+        """Returns the actual, unmodified content."""
         with io.open(self.filename, 'r', encoding=self.props['encoding'],
         errors='replace') as f:
             return u''.join(f.readlines()[self.offset:]).strip()
@@ -315,9 +321,8 @@ class FileEntry:
         - cache file does not exist -> has changed
         - cache file does not contain required filter intermediate -> has changed
         - entry's file is newer than the cache's one -> has changed
-        - otherwise -> not changed
-        """
-
+        - otherwise -> not changed"""
+        
         path = join(cache.cache_dir, self.md5)
         deps = []
 
@@ -345,13 +350,17 @@ class FileEntry:
 
 
 def memoize(key, value=None):
-    """A shortcut to core.cache.memoize"""
+    """Persistent memory for small values, set and get in a single function.
+    
+    :param key: get value saved to key, if key does not exist, return None.
+    :param value: set key to value
+    """
     return cache.memoize(key, value)
 
 
 def union(*args, **kwargs):
     """Takes a list of dictionaries and performs union of each.  Can take additional
-    key=values as parameters which may overwrite or add a key/value-pair."""
+    key=values as parameters to overwrite or add key/value-pairs."""
 
     d = args[0]
     for dikt in args[1:]:
@@ -395,8 +404,11 @@ def mkfile(content, path, ctime=0.0, force=False, dryrun=False, **kwargs):
 
 
 def md5(*objs,  **kw):
-    """A multifunctional hash function which can take one or multiple objects
-    and you can specify which character-sequences you want calculate to a MD5."""
+    """A multifunctional hash function that can take one or more objects
+    and a getter from which you want calculate the MD5 sum.
+    
+    :param obj: one or more objects
+    :param attr: a getter, defaults to ``lambda o: o.__str__()``"""
 
     attr = kw.get('attr', lambda o: o.__str__())  # positional arguments before *args issue
     h = hashlib.md5()
@@ -407,8 +419,15 @@ def md5(*objs,  **kw):
 
 
 def expand(url, obj):
-    """expanding '/:year/:slug/' scheme into e.g. '/2011/awesome-title/"""
-
+    """Substitutes/expands URL parameters beginning with a colon.
+    
+    :param url: a URL with zero or more :key words
+    :param obj: a dictionary where we get key from
+    
+    >>> expand('/:year/:slug/', {'year': 2012, 'slug': 'awesome title'})
+    '/2011/awesome-title/'
+    """
+    
     for k in obj:
         if not k.endswith('/') and (':' + k) in url:
             url = url.replace(':'+k, str(obj[k]))
@@ -416,8 +435,12 @@ def expand(url, obj):
 
 
 def joinurl(*args):
-    """joins multiple urls to one single domain without loosing root (first element)"""
-
+    """Joins multiple urls pieces to one single URL without loosing the root
+    (first element).
+    
+    >>> joinurl('/hello/', '/world/')
+    '/hello/world/'
+    """
     r = []
     for i, mem in enumerate(args):
         if i > 0:
@@ -443,16 +466,22 @@ def safeslug(slug):
 
 
 def paginate(list, ipp, func=lambda x: x, salt=None, orphans=0):
-    """Yields a triple (index, list of entries, has changed) of a paginated
-    entrylist.  It will first filter by the specified function, then split the
-    ist into several sublists and check wether the list or an entry has changed.
+    """Yields a triple ((next, current, previous), list of entries, has
+    changed) of a paginated entrylist. It will first filter by the specified
+    function, then split the ist into several sublists and check wether the
+    list or an entry has changed.
 
     :param list: the entrylist containing FileEntry instances.
     :param ipp: items per page
     :param func: filter list of entries by this function
     :param salt: uses as additional identifier in memoize
-    :param orphans: avoid N orphans on last page.
-    """
+    :param orphans: avoid N orphans on last page
+    
+    >>> for x, values, _, paginate(entryrange(20), 6, orphans=2):
+    ...    print x, values
+    (None, 0, 1), [entries 1..6]
+    (0, 1, 2), [entries 7..12]
+    (1, 2, None), [entries 12..20]"""
 
     # apply filter function and prepare pagination with ipp
     res = filter(func, list)
@@ -497,8 +526,7 @@ def paginate(list, ipp, func=lambda x: x, salt=None, orphans=0):
 
 
 def escape(string):
-    """Escape string to fit to the YAML standard.  I did not read the
-    specs, though."""
+    """Escape string to fit in to the YAML standard, but I don't read the specs"""
 
     if filter(lambda c: c in string, '\'\"#:'):
         if '"' in string:
@@ -508,23 +536,23 @@ def escape(string):
     return string
 
 
-def system(cmd, stdin=None, **kw):
+def system(cmd, stdin=None, **kwargs):
     """A simple front-end to python's horrible Popen-interface which lets you
     run a single shell command (only one, semicolon and && is not supported by
     os.execvp(). Does not catch OSError!
 
     :param cmd: command to run (a single string or a list of strings).
     :param stdin: optional string to pass to stdin.
-    :param kw: everything there is passed to Popen.
+    :param kwargs: is passed to :class:`subprocess.Popen`.
     """
 
     try:
         if stdin:
             p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                 stdin=subprocess.PIPE, **kw)
+                                 stdin=subprocess.PIPE, **kwargs)
             result, err = p.communicate(stdin)
         else:
-            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kw)
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kwargs)
             result, err = p.communicate()
 
     except OSError as e:
@@ -544,12 +572,13 @@ def metavent(cls, parents, attrs):
 
     def intercept(func):
         """decorator which calls callback registered to this method."""
-        name = func.func_name
+        name, doc = func.func_name, func.__doc__
         def dec(cls, path, *args, **kwargs):
             for callback in  cls.callbacks[name]:
                 callback(path, *args, **kwargs)
             cls.called.add(name)
             return func(cls, path, *args, **kwargs)
+        dec.__doc__ = func.__doc__  # sphinx
         return dec
 
     for name, func in attrs.items():
@@ -561,42 +590,54 @@ def metavent(cls, parents, attrs):
 
 
 class event:
-    """this helper class provides an easy mechanism to give user feedback of
+    """This helper class provides an easy mechanism to give user feedback of
     created, changed or deleted files.  As side-effect every non-destructive
     call will add the given path to the global tracking list and makes it
     possible to remove unused files (e.g. after you've changed your permalink
     scheme or just reworded your title).
 
-    This class is a singleton and should not be initialized."""
+    .. Note:: This class is a singleton and should not be initialized"""
 
     __metaclass__ = metavent
     callbacks = defaultdict(list)
     called = set([])
 
     def __init__(self):
-        raise AcrylamidException('Not Implemented')
+        raise TypeError("You can't construct event.")
 
     def register(self, callback, to=[]):
+        """Register a callback to a list of events. Everytime the event
+        eventuates, your callback gets called with all arguments of this
+        particular event handler.
+        
+        :param callback: a function
+        :param to: a list of events when your function gets called"""
+        
         for item in to:
             event.callbacks[item].append(callback)
 
     def create(self, path, ctime=None):
+        """:param path: path\n:param ctime: computing time"""
         if ctime:
             log.info("create  [%.2fs] %s", ctime, path)
         else:
             log.info("create  %s", path)
 
     def update(self, path, ctime=None):
+        """:param path: path\n:param ctime: computing time"""
         if ctime:
             log.info("update  [%.2fs] %s", ctime, path)
         else:
             log.info("update  %s", path)
 
     def skip(self, path):
+        """:param path: path"""
         log.skip("skip  %s", path)
 
     def identical(self, path):
+        """:param path: path"""
         log.skip("identical  %s", path)
 
     def remove(self, path):
+        """:param path: path"""
         log.info("remove  %s", path)
