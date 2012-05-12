@@ -19,6 +19,7 @@ __views_list = []
 def get_views():
 
     global __views_list
+    __views_list = sorted(__views_list, key=lambda v: v.__class__.__name__)
     return sorted(__views_list, key=lambda v: v.priority, reverse=True)
 
 
