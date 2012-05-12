@@ -237,6 +237,8 @@ class cache(object):
     def clear(self):
         for path in self._list_dir():
             cache.remove(path)
+        cache.remove(join(self.cache_dir, 'info'))
+        cache.memoize = Memory()
 
     @classmethod
     @track
