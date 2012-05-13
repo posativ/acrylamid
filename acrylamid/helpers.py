@@ -35,16 +35,16 @@ try:
 except ImportError:
     yaml = None
 
-_slug_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
-
 __all__ = ['memoize', 'union', 'mkfile', 'md5', 'expand', 'joinurl',
            'safeslug', 'paginate', 'escape', 'system', 'event', 'FileEntry']
+
+_slug_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
 
 
 def read(filename, encoding, remap={}):
     """Open and read content using the specified encoding and return position
     where the actual content begins and all collected properties.
-    
+
     If ``pyyaml`` is available we use this parser but we provide a dumb
     fallback parser that can handle simple assigments in YAML.
 
@@ -113,24 +113,24 @@ class FileEntry:
     available during templating including custom key-value pairs from the
     header. The formal structure is first a YAML with some key/value pairs and
     then the actual content. For example::
-    
+
         ---
         title: My Title
         date: 12.04.2012, 14:12
         tags: [some, values]
-        
+
         custom: key example
         image: /path/to/my/image.png
         ---
-        
+
         Here we start!
-    
+
     Where you can access the image path via ``entry.image``.
-    
+
     For convenience Acrylamid maps "filter" and "tag" automatically to "filters"
     and "tags" and also converts a single string into an array containing only
     one string.
-    
+
     :param filename: valid path to an entry
     :param conf: acrylamid configuration"""
 
@@ -178,7 +178,7 @@ class FileEntry:
         You can set a ``DATE_FORMAT`` in your :doc:`../conf.py` otherwise
         Acrylamid tries several format strings and throws an exception if
         no pattern works.
-        
+
         As shortcut you can access ``date.day``, ``date.month``, ``date.year``
         via ``entry.day``, ``entry.month`` and ``entry.year``."""
 
@@ -336,22 +336,29 @@ class FileEntry:
         else:
             return getmtime(self.filename) > cache.getmtime(path)
 
+    @has_changed.setter
+    def has_changed(self, value):
+        self._has_changed = value
+
     def keys(self):
         return list(iter(self))
 
     def __iter__(self):
-        for k in self.__keys__:
+        for k in self.__keys__ + self.props.keys():
             yield k
 
-    def __getitem__(self, key):
-        if key in self.__keys__:
-            return getattr(self, key)
-        return self.props[key]
+    def __getattr__(self, attr):
+        try:
+            return self.props[attr]
+        except KeyError:
+            raise AttributeError
+
+    __getitem__ = lambda self, attr: getattr(self, attr)
 
 
 def memoize(key, value=None):
     """Persistent memory for small values, set and get in a single function.
-    
+
     :param key: get value saved to key, if key does not exist, return None.
     :param value: set key to value
     """
@@ -406,7 +413,7 @@ def mkfile(content, path, ctime=0.0, force=False, dryrun=False, **kwargs):
 def md5(*objs,  **kw):
     """A multifunctional hash function that can take one or more objects
     and a getter from which you want calculate the MD5 sum.
-    
+
     :param obj: one or more objects
     :param attr: a getter, defaults to ``lambda o: o.__str__()``"""
 
@@ -420,14 +427,14 @@ def md5(*objs,  **kw):
 
 def expand(url, obj):
     """Substitutes/expands URL parameters beginning with a colon.
-    
+
     :param url: a URL with zero or more :key words
     :param obj: a dictionary where we get key from
-    
+
     >>> expand('/:year/:slug/', {'year': 2012, 'slug': 'awesome title'})
     '/2011/awesome-title/'
     """
-    
+
     for k in obj:
         if not k.endswith('/') and (':' + k) in url:
             url = url.replace(':'+k, str(obj[k]))
@@ -437,7 +444,7 @@ def expand(url, obj):
 def joinurl(*args):
     """Joins multiple urls pieces to one single URL without loosing the root
     (first element).
-    
+
     >>> joinurl('/hello/', '/world/')
     '/hello/world/'
     """
@@ -596,7 +603,13 @@ class event:
     possible to remove unused files (e.g. after you've changed your permalink
     scheme or just reworded your title).
 
-    .. Note:: This class is a singleton and should not be initialized"""
+    .. Note:: This class is a singleton and should not be initialized
+
+    .. attribute:: called
+
+         A set of events like ``set(['create', 'skip'])`` that have been called
+         during the rendering processs. When a event occurs it's directly added
+         into ``called``."""
 
     __metaclass__ = metavent
     callbacks = defaultdict(list)
@@ -609,10 +622,10 @@ class event:
         """Register a callback to a list of events. Everytime the event
         eventuates, your callback gets called with all arguments of this
         particular event handler.
-        
+
         :param callback: a function
         :param to: a list of events when your function gets called"""
-        
+
         for item in to:
             event.callbacks[item].append(callback)
 

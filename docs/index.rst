@@ -165,3 +165,4 @@ API Reference
    :maxdepth: 2
 
    api/helpers
+   api/core

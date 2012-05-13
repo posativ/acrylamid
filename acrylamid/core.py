@@ -24,7 +24,12 @@ except ImportError:
     import pickle
 
 
+__all__ = ['ExtendedFileSystemLoader', 'Memory', 'cache']
+
+
 class ExtendedFileSystemLoader(FileSystemLoader):
+    """A custom :class:`jinja2.FileSystemLoader` to work with Acrylamid's
+    caching requirements."""
 
     # Acrylamid views (should) process templates on the fly thus we
     # don't have a 1. "select template", 2. "render template" stage
@@ -82,15 +87,19 @@ class ExtendedFileSystemLoader(FileSystemLoader):
 
 
 class Memory(dict):
+    """A callable dictionary object described at :func:`acrylamid.helpers.memoize`."""
 
     __call__ = lambda self, k, v=None: self.__setitem__(k, v) if v else self.get(k, None)
 
 
-def track(f):
-    """decorator to track used cache files"""
+def track(func):
+    """Decorator to track accessed cache objects that return something.
+
+    :param func: function to decorate
+    """
     def dec(cls, path, key, *args, **kw):
 
-        rv = f(cls, path, key, *args, **kw)
+        rv = func(cls, path, key, *args, **kw)
 
         if rv is not None:
             cls.tracked[path].add(key)
@@ -100,15 +109,15 @@ def track(f):
 
 
 class cache(object):
-    """A cache that stores the entries on the file system.  Borrowed from
-    werkzeug.contrib.cache, see their AUTHORS and LICENSE for additional
-    copyright information.
+    """A cache that stores all intermediates of an entry on the file system.
+    Inspired from ``werkzeug.contrib.cache``, but heavily modified to fit
+    our needs.
 
-    This version is a bit more advanced and can track used cache objects to
-    remove them, it reduces I/O so we can call `has_key` very often. After
-    a run, we can automatically remove dead objects from cache.
+    This cache is a bit more advanced and can track used cache objects to
+    remove them afterwards, it reduces I/O so we can call `has_key` very
+    often. After a run, we can automatically remove dead objects from cache.
 
-    cache is designed as singleton and should not constructed using __init__ .
+    cache is designed as global singleton and should not be constructed.
 
     >>> cache.init('.mycache/')
     >>> cache.get(obj, key, default=None, mtime=0.0)
@@ -140,7 +149,9 @@ class cache(object):
 
     @classmethod
     def init(self, cache_dir=None, mode=0600):
-        """
+        """Initialize cache object by creating the cache_dir if non-existent,
+        read all available cache objects and restore memoized key/values.
+
         :param cache_dir: the directory where cache files are stored.
         :param mode: the file mode wanted for the cache files, default 0600
         """
