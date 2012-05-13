@@ -11,6 +11,8 @@ from acrylamid.helpers import joinurl, event, union
 
 class Feed(View):
 
+    priority = 25.0
+
     def generate(self, request):
 
         entrylist = filter(lambda e: not e.draft, request['entrylist'])[:self.num_entries]

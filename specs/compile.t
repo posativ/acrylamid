@@ -15,11 +15,11 @@ in less than a second.
   $ acrylamid compile -C
   create  [0.??s] output/articles/index.html (glob)
   create  [0.??s] output/2012/die-verwandlung/index.html (glob)
-  create  [0.??s] output/rss/index.html (glob)
-  create  [0.??s] output/atom/index.html (glob)
   create  [0.00s] output/index.html
   create  [0.00s] output/tag/die-verwandlung/index.html
   create  [0.00s] output/tag/franz-kafka/index.html
+  create  [0.??s] output/atom/index.html (glob)
+  create  [0.??s] output/rss/index.html (glob)
   create  [0.00s] output/sitemap.xml
   Blog compiled in 0.??s (glob)
 
@@ -29,11 +29,11 @@ filter with version that randomly changes, but *this* is not an intented!)
   $ acrylamid compile -C
   skip  output/articles/index.html
   skip  output/2012/die-verwandlung/index.html
-  skip  output/rss/index.html
-  skip  output/atom/index.html
   skip  output/index.html
   skip  output/tag/die-verwandlung/index.html
   skip  output/tag/franz-kafka/index.html
+  skip  output/atom/index.html
+  skip  output/rss/index.html
   skip  output/sitemap.xml
   Blog compiled in 0.??s (glob)
 
@@ -45,11 +45,11 @@ touch sucks!
   $ acrylamid compile -C
   skip  output/articles/index.html
   identical  output/2012/die-verwandlung/index.html
-  identical  output/rss/index.html
-  identical  output/atom/index.html
   identical  output/index.html
   identical  output/tag/die-verwandlung/index.html
   identical  output/tag/franz-kafka/index.html
+  identical  output/atom/index.html
+  identical  output/rss/index.html
   identical  output/sitemap.xml
   Blog compiled in 0.??s (glob)
 
@@ -58,15 +58,16 @@ touch sucks!
 
 Acrylamid should update a file if the content changes!
 
+  $ sleep 0.2
   $ echo "Foo." >> content/sample-entry.txt
   $ acrylamid compile -C
   skip  output/articles/index.html
   update  [0.??s] output/2012/die-verwandlung/index.html (glob)
-  update  [0.??s] output/rss/index.html (glob)
-  update  [0.??s] output/atom/index.html (glob)
   identical  output/index.html
   identical  output/tag/die-verwandlung/index.html
   identical  output/tag/franz-kafka/index.html
+  update  [0.??s] output/atom/index.html (glob)
+  update  [0.??s] output/rss/index.html (glob)
   identical  output/sitemap.xml
   Blog compiled in 0.??s (glob)
 
@@ -80,11 +81,11 @@ Lets try if we have really incremental rendering:
   update  [0.??s] output/articles/index.html (glob)
   skip  output/2012/die-verwandlung/index.html
   create  [0.??s] output/2012/spam/index.html (glob)
-  update  [0.??s] output/rss/index.html (glob)
-  update  [0.??s] output/atom/index.html (glob)
   update  [0.??s] output/index.html (glob)
   skip  output/tag/die-verwandlung/index.html
   skip  output/tag/franz-kafka/index.html
+  update  [0.??s] output/atom/index.html (glob)
+  update  [0.??s] output/rss/index.html (glob)
   update  [0.00s] output/sitemap.xml
   Blog compiled in 0.??s (glob)
 
@@ -103,11 +104,11 @@ Let's randomly (chosen by fair dice) change some mtimes...
   identical  output/articles/index.html
   identical  output/2012/die-verwandlung/index.html
   identical  output/2012/spam/index.html
-  identical  output/rss/index.html
-  identical  output/atom/index.html
   identical  output/index.html
   identical  output/tag/die-verwandlung/index.html
   identical  output/tag/franz-kafka/index.html
+  identical  output/atom/index.html
+  identical  output/rss/index.html
   identical  output/sitemap.xml
   Blog compiled in 0.??s (glob)
 
@@ -126,11 +127,11 @@ Now we touch a parent template and all inherited templates should change as, too
   identical  output/articles/index.html
   identical  output/2012/die-verwandlung/index.html
   identical  output/2012/spam/index.html
-  skip  output/rss/index.html
-  skip  output/atom/index.html
   identical  output/index.html
   identical  output/tag/die-verwandlung/index.html
   identical  output/tag/franz-kafka/index.html
+  skip  output/atom/index.html
+  skip  output/rss/index.html
   identical  output/sitemap.xml
   Blog compiled in 0.??s (glob)
 
@@ -145,11 +146,11 @@ And now vice versa: we touch completely different templates:
   skip  output/articles/index.html
   skip  output/2012/die-verwandlung/index.html
   skip  output/2012/spam/index.html
-  identical  output/rss/index.html
-  skip  output/atom/index.html
   skip  output/index.html
   skip  output/tag/die-verwandlung/index.html
   skip  output/tag/franz-kafka/index.html
+  skip  output/atom/index.html
+  identical  output/rss/index.html
   identical  output/sitemap.xml
   Blog compiled in 0.??s (glob)
 
@@ -165,11 +166,11 @@ Now we change the base template and should see some updates:
   update  [0.??s] output/articles/index.html (glob)
   update  [0.??s] output/2012/die-verwandlung/index.html (glob)
   update  [0.00s] output/2012/spam/index.html
-  skip  output/rss/index.html
-  skip  output/atom/index.html
   update  [0.00s] output/index.html
   update  [0.00s] output/tag/die-verwandlung/index.html
   update  [0.00s] output/tag/franz-kafka/index.html
+  skip  output/atom/index.html
+  skip  output/rss/index.html
   identical  output/sitemap.xml
   Blog compiled in 0.??s (glob)
 
@@ -183,11 +184,11 @@ If we change a filter in conf.py we should see an update:
   skip  output/articles/index.html
   update  [0.??s] output/2012/die-verwandlung/index.html (glob)
   identical  output/2012/spam/index.html
-  identical  output/rss/index.html
-  identical  output/atom/index.html
   update  [0.00s] output/index.html
   update  [0.00s] output/tag/die-verwandlung/index.html
   update  [0.00s] output/tag/franz-kafka/index.html
+  identical  output/atom/index.html
+  identical  output/rss/index.html
   identical  output/sitemap.xml
   Blog compiled in 0.??s (glob)
 
