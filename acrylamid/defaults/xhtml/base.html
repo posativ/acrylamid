@@ -17,7 +17,7 @@
     <link href="{{ env.path + '/rss/' }}" type="application/rss+xml" rel="alternate" title="RSS Feed" />
     {% for asset in env.assets.injected() -%}
       {%- if 'javascript' in asset.type -%}
-        <noscript src="{{ env.path + '/' + asset.url.replace('.javascript', '.js') }}"></noscript>
+        <script src="{{ env.path + '/' + asset.url.replace('.javascript', '.js') }}"></script>
       {%- elif 'css' in asset.type -%}
         <link href="{{ env.path + '/' + asset.url }}" type="{{ asset.type }}" media="all" rel="stylesheet" />
       {%- endif %}
