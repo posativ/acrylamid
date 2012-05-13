@@ -108,7 +108,7 @@ def read(filename, encoding, remap={}):
     return i, props
 
 
-class FileEntry:
+class FileEntry(object):
     """This class represents a single entry. Every property from this class is
     available during templating including custom key-value pairs from the
     header. The formal structure is first a YAML with some key/value pairs and
@@ -132,11 +132,15 @@ class FileEntry:
     one string.
 
     :param filename: valid path to an entry
-    :param conf: acrylamid configuration"""
+    :param conf: acrylamid configuration
+
+    .. attribute:: lang
+
+       Language used in this article. This is important for the hyphenation pattern."""
 
     __keys__ = ['permalink', 'date', 'year', 'month', 'day', 'filters', 'tags',
-                'title', 'author', 'content', 'description', 'lang', 'draft',
-                'extension', 'slug']
+                'title', 'content', 'description', 'draft', 'slug',
+                'extension']
 
     def __init__(self, filename, conf):
 
@@ -238,12 +242,6 @@ class FileEntry:
         return True if self.props.get('draft', False) else False
 
     @property
-    def lang(self):
-        """Language used in this article. This is important for the hyphenation
-        pattern."""
-        return self.props['lang']
-
-    @property
     def extension(self):
         """Filename's extension without leading dot"""
         return os.path.splitext(self.filename)[1][1:]
@@ -322,7 +320,14 @@ class FileEntry:
         - cache file does not contain required filter intermediate -> has changed
         - entry's file is newer than the cache's one -> has changed
         - otherwise -> not changed"""
-        
+
+        # with new-style classes we can't delete/overwrite @property-ied methods,
+        # so we try to return a fixed value otherwise continue
+        try:
+            return self._has_changed
+        except AttributeError:
+            pass
+
         path = join(cache.cache_dir, self.md5)
         deps = []
 
