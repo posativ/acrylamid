@@ -1,5 +1,5 @@
-Welcome to Acrylamid's Documentation!
-=====================================
+Welcome to Acrylamid
+====================
 
 Acrylamid is yet another static blog compiler written in python that aims to
 be lightweight, fast and producing high quality output. It is licensed under
@@ -159,10 +159,9 @@ Join ``#acrylamid`` on Freenode_!
 .. _Freenode: http://freenode.net/
 
 API Reference
-=============
+-------------
 
 .. toctree::
    :maxdepth: 2
 
    api/helpers
-

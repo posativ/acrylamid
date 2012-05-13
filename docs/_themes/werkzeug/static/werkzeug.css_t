@@ -51,6 +51,14 @@ div.body {
     background-color: #ffffff;
     color: #3E4349;
     padding: 0 30px 0 30px;
+    
+    /* hyphens1! */
+    text-align: justify;
+    -moz-hyphens: auto;
+    -ms-hyphens: auto;
+    -o-hyphens: auto;
+    -webkit-hyphens: auto;
+    hyphens: auto;
 }
 
 img.floatingflask {
@@ -194,10 +202,6 @@ div.body p, div.body dd, div.body li {
 
 div.admonition {
     background: #fafafa;
-    margin: 20px -30px;
-    padding: 10px 30px;
-    border-top: 1px solid #ccc;
-    border-bottom: 1px solid #ccc;
 }
 
 div.admonition tt.xref, div.admonition a tt {
@@ -211,8 +215,6 @@ dd div.admonition {
 
 div.admonition p.admonition-title {
     font-family: {{ font_family }};
-    font-weight: normal;
-    font-size: 24px;
     margin: 0 0 10px 0;
     padding: 0;
     line-height: 1;
@@ -232,7 +234,6 @@ dt:target, .highlight {
 
 div.note {
     background-color: #eee;
-    border: 1px solid #ccc;
 }
  
 div.seealso {
@@ -269,21 +270,19 @@ tt.descname {
 }
 
 img.screenshot {
-    -moz-box-shadow: 2px 2px 4px #eee;
-    -webkit-box-shadow: 2px 2px 4px #eee;
     box-shadow: 2px 2px 4px #eee;
 }
 
 table.docutils {
-    border: 1px solid #888;
-    -moz-box-shadow: 2px 2px 4px #eee;
-    -webkit-box-shadow: 2px 2px 4px #eee;
-    box-shadow: 2px 2px 4px #eee;
+    border: 0 none;
+    border-collapse: collapse;
 }
 
 table.docutils td, table.docutils th {
-    border: 1px solid #888;
-    padding: 0.25em 0.7em;
+    border-color: -moz-use-text-color -moz-use-text-color #AAAAAA;
+    border-style: none none solid;
+    border-width: 0 0 1px;
+    padding: 1px 8px 1px 5px;
 }
 
 table.field-list, table.footnote {
@@ -296,7 +295,6 @@ table.field-list, table.footnote {
 table.footnote {
     margin: 15px 0;
     width: 100%;
-    border: 1px solid #eee;
     background: #fdfdfd;
     font-size: 0.9em;
 }
@@ -344,14 +342,13 @@ ul, ol {
  
 pre {
     background: #E8EFF0;
-    padding: 7px 30px;
-    margin: 15px -30px;
+    padding: 7px 15px;
     line-height: 1.3em;
 }
 
-dl pre, blockquote pre, li pre {
-    margin-left: -60px;
-    padding-left: 60px;
+dl pre, blockquote pre {
+    margin-left: -30px;
+    padding-left: 30px;
 }
 
 dl dl pre {
