@@ -12,7 +12,8 @@ import tempfile
 from datetime import datetime
 
 from acrylamid import log, errors
-from acrylamid.helpers import FileEntry, escape
+from acrylamid.helpers import escape
+from acrylamid.base import Entry
 from acrylamid.defaults import conf
 
 log.init('acrylamid', level=40)
@@ -29,7 +30,7 @@ def create(path, **kwargs):
         fp.write('---\n')
 
 
-class TestFileEntry(unittest.TestCase):
+class TestEntry(unittest.TestCase):
 
     def setUp(self):
         fd, path = tempfile.mkstemp(suffix='.txt')
@@ -37,8 +38,8 @@ class TestFileEntry(unittest.TestCase):
 
     def test_date1(self):
 
-        create(self.path, date='13.02.2011, 15:36')
-        date = FileEntry(self.path, conf).date
+        create(self.path, date='13.02.2011, 15:36', title='bla')
+        date = Entry(self.path, conf).date
 
         self.assertEquals(date.year, 2011)
         self.assertEquals(date.month, 2)
@@ -47,8 +48,8 @@ class TestFileEntry(unittest.TestCase):
 
     def test_date2(self):
 
-        create(self.path, date='1.2.2034')
-        date = FileEntry(self.path, conf).date
+        create(self.path, date='1.2.2034', title='bla')
+        date = Entry(self.path, conf).date
 
         self.assertEquals(date.year, 2034)
         self.assertEquals(date.month, 2)
@@ -57,50 +58,57 @@ class TestFileEntry(unittest.TestCase):
 
     def test_date3(self):
 
-        create(self.path, date='unparsable')
+        create(self.path, date='unparsable', title='bla')
 
         with self.assertRaises(errors.AcrylamidException):
-            date = FileEntry(self.path, conf).date
+            date = Entry(self.path, conf).date
 
     def test_permalink(self):
 
         create(self.path, title='foo')
-        entry = FileEntry(self.path, conf)
+        entry = Entry(self.path, conf)
 
         self.assertEquals(entry.permalink, '/2012/foo/')
 
         create(self.path, title='foo', permalink='/hello/world/')
-        entry = FileEntry(self.path, conf)
+        entry = Entry(self.path, conf)
 
         self.assertEquals(entry.permalink, '/hello/world/')
 
         create(self.path, title='foo', permalink_format='/:year/:slug/index.html')
-        entry = FileEntry(self.path, conf)
+        entry = Entry(self.path, conf)
 
         self.assertEquals(entry.permalink, '/2012/foo/')
 
     def test_tags(self):
 
         create(self.path, title='foo', tags='Foo')
-        self.assertEquals(FileEntry(self.path, conf).tags, ['Foo'])
+        self.assertEquals(Entry(self.path, conf).tags, ['Foo'])
 
         create(self.path, title='foo', tags='[Foo, Bar]')
-        self.assertEquals(FileEntry(self.path, conf).tags, ['Foo', 'Bar'])
+        self.assertEquals(Entry(self.path, conf).tags, ['Foo', 'Bar'])
 
     def test_mapping(self):
 
         create(self.path, title='foo', tag=None, filter=None)
-        entry = FileEntry(self.path, conf)
+        entry = Entry(self.path, conf)
 
         self.assertTrue('tags' in entry)
         self.assertTrue('filters' in entry)
 
+    def test_custom(self):
+
+        create(self.path, title='foo', image='/img/test.png')
+        entry = Entry(self.path, conf)
+
+        self.assertTrue('image' in entry)
+        self.assertEquals(entry.image, '/img/test.png')
+
     def test_fallback(self):
 
-        create(self.path)
-        entry = FileEntry(self.path, conf)
+        create(self.path, title='Bla')
+        entry = Entry(self.path, conf)
 
-        self.assertEquals(entry.title, 'No Title!')
         self.assertEquals(entry.draft, False)
         self.assertEquals(entry.email, 'info@example.com')
         self.assertEquals(entry.author, 'Anonymous')

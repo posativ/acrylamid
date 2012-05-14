@@ -3,7 +3,6 @@
 # Idea by http://nitens.org/taraborelli/texlogo
 
 from acrylamid.filters import Filter
-from acrylamid.errors import AcrylamidException
 
 CSS = """\
 /* LaTeX */

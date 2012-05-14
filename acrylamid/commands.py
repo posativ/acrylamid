@@ -22,8 +22,9 @@ from acrylamid.errors import AcrylamidException
 
 from acrylamid import filters, views, utils, helpers
 from acrylamid.lib.importer import fetch, parse, build
+from acrylamid.base import Entry
 from acrylamid.core import cache, ExtendedFileSystemLoader, assets
-from acrylamid.helpers import event, escape, FileEntry
+from acrylamid.helpers import event, escape
 
 
 def initialize(conf, env):
@@ -106,8 +107,8 @@ def compile(conf, env, force=False, **options):
         # acrylamid compile -f
         cache.clear()
 
-    # list of FileEntry-objects reverse sorted by date.
-    entrylist = sorted([FileEntry(e, conf) for e in utils.filelist(conf['content_dir'],
+    # list of Entry-objects reverse sorted by date.
+    entrylist = sorted([Entry(e, conf) for e in utils.filelist(conf['content_dir'],
                                                              conf.get('entries_ignore', []))],
                        key=lambda k: k.date, reverse=True)
 
@@ -241,7 +242,7 @@ def new(conf, env, title, prompt=True):
         f.write(u'date: %s\n' % datetime.now().strftime(conf['date_format']))
         f.write(u'---\n\n')
 
-    entry = FileEntry(tmp, conf)
+    entry = Entry(tmp, conf)
     p = join(conf['content_dir'], dirname(entry.permalink)[1:])
 
     try:

@@ -24,7 +24,8 @@ from os.path import join, dirname, isfile
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
-from acrylamid.helpers import event, escape, system, FileEntry
+from acrylamid.base import Entry
+from acrylamid.helpers import event, escape, system
 
 # no joke
 USED_WORDPRESS = False
@@ -295,7 +296,7 @@ def build(conf, env, defaults, items, fmt, keep=False):
                 content = content.replace('\n ', '\n\n')
             f.write(content+u'\n')
 
-        entry = FileEntry(tmp, conf)
+        entry = Entry(tmp, conf)
         p = join(conf['content_dir'], dirname(entry.permalink)[1:])
 
         try:

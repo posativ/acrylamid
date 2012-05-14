@@ -2,11 +2,19 @@
 #
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
+#
+# Utilities that do not depend on any further Acrylamid object
 
 import os
+import io
 import functools
 
 from fnmatch import fnmatch
+
+try:
+    import yaml
+except ImportError:
+    yaml = None
 
 
 # Borrowed from werkzeug._internal
@@ -102,3 +110,73 @@ def filelist(content_dir, entries_ignore=[]):
             if not fn:
                 flist.append(path)
     return flist
+
+
+def read(filename, encoding, remap={}):
+    """Open and read content using the specified encoding and return position
+    where the actual content begins and all collected properties.
+
+    If ``pyyaml`` is available we use this parser but we provide a dumb
+    fallback parser that can handle simple assigments in YAML.
+
+    :param filename: path to an existing text file
+    :param encoding: encoding of this file
+    :param remap: remap deprecated/false-written YAML keywords
+    """
+
+    def distinguish(value):
+        if value == '':
+            return None
+        elif value.isdigit():
+            return int(value)
+        elif value.lower() in ['true', 'false']:
+             return True if value.capitalize() == 'True' else False
+        elif value[0] == '[' and value[-1] == ']':
+            return list([unicode(x.strip())
+                for x in value[1:-1].split(',') if x.strip()])
+        else:
+            return unicode(value.strip('"').strip("'"))
+
+    head = []
+    i = 0
+
+    with io.open(filename, 'r', encoding=encoding, errors='replace') as f:
+        while True:
+            line = f.readline(); i += 1
+            if i == 1 and line.startswith('---'):
+                pass
+            elif i > 1 and not line.startswith('---'):
+                head.append(line)
+            elif i > 1 and line.startswith('---'):
+                break
+
+    if head and yaml:
+        try:
+            props = yaml.load(''.join(head))
+        except yaml.YAMLError as e:
+            raise ValueError('YAMLError: %s' % str(e))
+        for key, to in remap.iteritems():
+            if key in props:
+                props[to] = props[key]
+                del props[key]
+    else:
+        props = {}
+        for j, line in enumerate(head):
+            if line[0] == '#' or not line.strip():
+                continue
+            try:
+                key, value = [x.strip() for x in line.split(':', 1)]
+                if key in remap:
+                    key = remap[key]
+            except ValueError:
+                raise ValueError('%s:%i ValueError: %s\n%s' %
+                    (filename, j, line.strip('\n'),
+                    ("Either your YAML is malformed or our naïve parser is to dumb \n"
+                     "to read it. Revalidate your YAML or install PyYAML parser with \n"
+                     "> easy_install -U pyyaml")))
+            props[key] = distinguish(value)
+
+    if 'title' not in props:
+        raise ValueError('No title given in %r' % filename)
+
+    return i, props

@@ -2,6 +2,8 @@
 #
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
+#
+# This provide some basic functionality of Acrylamid: caching and re-validating
 
 import os
 import io
@@ -14,6 +16,7 @@ from os.path import join, exists, getmtime
 
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
+
 from acrylamid.utils import memoized
 
 from jinja2 import FileSystemLoader, meta
@@ -22,7 +25,6 @@ try:
     import cPickle as pickle
 except ImportError:
     import pickle
-
 
 __all__ = ['ExtendedFileSystemLoader', 'Memory', 'cache']
 
@@ -369,4 +371,3 @@ class assets(object):
                                              'type': key, 'source': self.store[key],
                                              'path': join(self.assets_dir, path)})
             yield cls()
-
