@@ -1,6 +1,6 @@
-=================
-Acrylamid helpers
-=================
+==============
+Helper Objects
+==============
 
 .. module:: acrylamid.helpers
 

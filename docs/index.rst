@@ -164,5 +164,6 @@ API Reference
 .. toctree::
    :maxdepth: 2
 
-   api/helpers
    api/core
+   api/base
+   api/helpers
