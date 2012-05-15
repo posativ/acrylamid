@@ -165,7 +165,10 @@ class Acryl:
                 make_option("-k", "--keep-links", dest="keep_links", action="store_true",
                             help="keep permanent links"),
             ]
-
+        # --- deploy params --- #
+        elif sys.argv[1] in ('deploy', 'dp'):
+            usage = "%prog " + sys.argv[1] + " [TASK]"
+        # --- tasks from acrylamid.tasks --- #
         else:
             tasks = get_tasks()
             if sys.argv[1] in tasks:
@@ -281,15 +284,16 @@ class Acryl:
             except AcrylamidException as e:
                 log.critical(e.message)
                 sys.exit(1)
+
         elif args[0] in ('deploy', 'dp', 'task'):
             if len(args) <= 1:
-                log.fatal('deploy requires a build TASK')
-                sys.exit(1)
+                args.append(None)
             try:
                 commands.deploy(conf, env, args[1], *args[2:])
             except AcrylamidException as e:
                 log.critical(e.message)
                 sys.exit(1)
+
         elif args[0] in tasks:
             try:
                 tasks[args[0]].run(conf, env, args[1:], **options.__dict__)

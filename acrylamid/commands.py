@@ -302,6 +302,11 @@ def deploy(conf, env, task, *args):
     output path, if no ``%s`` is set, the path is appended  as first argument. Every
     argument after ``acrylamid deploy task ARG1 ARG2`` is appended to cmd."""
 
+    if task is None:
+        for task in conf.get('deployment', {}).keys():
+            print >>sys.stdout, task
+        return
+
     cmd = conf.get('deployment', {}).get(task, None)
     if not cmd:
         raise AcrylamidException('no tasks named %r in conf.py' % task)
