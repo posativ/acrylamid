@@ -3,7 +3,7 @@
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 #
-# This provide some basic functionality of Acrylamid: caching and re-validating
+# This provide some basic functionality of Acrylamid: caching and re-validating.
 
 import os
 import io
@@ -31,14 +31,16 @@ __all__ = ['ExtendedFileSystemLoader', 'Memory', 'cache']
 
 class ExtendedFileSystemLoader(FileSystemLoader):
     """A custom :class:`jinja2.FileSystemLoader` to work with Acrylamid's
-    caching requirements."""
+    caching requirements. Jinja2 does track template changes using the
+    modification timestamp of the compiled but we need template dependencies
+    as well as consistent has_changed values over the whole compilation
+    process."""
 
-    # Acrylamid views (should) process templates on the fly thus we
-    # don't have a 1. "select template", 2. "render template" stage
+    # remember already resolved templates
     resolved = {}
 
     def load(self, environment, name, globals=None):
-        """patched `load` to add a has_changed property providing information
+        """patched `load` to add a has_changed attribute providing information
         whether the template or its parents have changed."""
 
         def resolve(parent):
@@ -83,19 +85,21 @@ class ExtendedFileSystemLoader(FileSystemLoader):
         if code is None:
             code = environment.compile(source, name, filename)
 
-        tt = environment.template_class.from_code(environment, code, globals, uptodate)
+        tt = environment.template_class.from_code(environment, code,
+                                                  globals, uptodate)
         tt.has_changed = has_changed
         return tt
 
 
 class Memory(dict):
-    """A callable dictionary object described at :func:`acrylamid.helpers.memoize`."""
+    """A callable dictionary object described at
+    :func:`acrylamid.helpers.memoize`."""
 
     __call__ = lambda self, k, v=None: self.__setitem__(k, v) if v else self.get(k, None)
 
 
 def track(func):
-    """Decorator to track accessed cache objects that return something.
+    """Decorator to track accessed cache objects that return something != None.
 
     :param func: function to decorate
     """
@@ -111,15 +115,35 @@ def track(func):
 
 
 class cache(object):
-    """A cache that stores all intermediates of an entry on the file system.
-    Inspired from ``werkzeug.contrib.cache``, but heavily modified to fit
-    our needs.
+    """A cache that stores all intermediates of an entry zlib-compressed on
+    file system. Inspired from ``werkzeug.contrib.cache``, but heavily modified
+    to fit our needs.
 
     This cache is a bit more advanced and can track used cache objects to
     remove them afterwards, it reduces I/O so we can call `has_key` very
     often. After a run, we can automatically remove dead objects from cache.
 
+    Terminology: A cache object is a pickled dictionary into a single file in
+    cache. An intermediate (object) is a key/value pair that we store into a
+    cache object. An intermediate is the content of an entry that is the same
+    for an amount of filters.
+
     cache is designed as global singleton and should not be constructed.
+
+    .. attribute:: cache_dir
+
+       Location where all cache objects are being stored, defaults to *.cache/*
+
+    .. attribute:: tracked
+
+       A bunch of cache objects with all tracked (used) intermediate objects
+
+    .. attribute:: objects
+
+       Internal cache for less I/O on cache objects containing all cache objects
+       and keys belong to them. On :func:`init` we parse all existent cache
+       objects and update them when it's necessary (we delete or update an
+       cache object).
 
     >>> cache.init('.mycache/')
     >>> cache.get(obj, key, default=None, mtime=0.0)
@@ -145,7 +169,7 @@ class cache(object):
 
     @classmethod
     def _list_dir(self):
-        """return a list of (fully qualified) cache filenames"""
+        """return a list of valid cache filenames"""
         return [join(self.cache_dir, fn) for fn in os.listdir(self.cache_dir)
                 if not fn.endswith('.cache')]
 
@@ -165,7 +189,8 @@ class cache(object):
             try:
                 os.mkdir(self.cache_dir, 0700)
             except OSError:
-                raise AcrylamidException("could not create directory '%s'" % self.cache_dir)
+                raise AcrylamidException("could not create directory '%s'" %
+                                         self.cache_dir)
 
         # get all cache objects
         for path in self._list_dir():
@@ -193,11 +218,10 @@ class cache(object):
 
     @classmethod
     def shutdown(self):
-        """Remove abandoned cache files that are not accessed during a compilation.
-        This does not affect jinja2 templates or cache's memoize file *.cache/info*.
-
-        This does also remove abandoned intermediates from a cache file (they accumulate
-        over time)."""
+        """Remove abandoned cache files that are not accessed during compilation
+        process. This does not affect jinja2 templates or *.cache/info*. This
+        also removes abandoned intermediates from a cache file (they may
+        accumulate over time)."""
 
         # save memoized items to disk
         try:
@@ -237,7 +261,8 @@ class cache(object):
 
     @classmethod
     def remove(self, path):
-        """Remove a cache object completely from disk, objects and tracked files."""
+        """Remove a cache object completely from disk, objects and tracked
+        files."""
         try:
             os.remove(path)
         except OSError as e:
@@ -256,7 +281,8 @@ class cache(object):
     @classmethod
     @track
     def get(self, path, key, default=None, mtime=0.0):
-        """Restore value from obj[key] if mtime has not changed or return default.
+        """Restore value from obj[key] if mtime has not changed or return
+        default.
 
         :param path: path of this cache object
         :param key: key of this value
@@ -305,7 +331,8 @@ class cache(object):
                 fd, tmp = tempfile.mkstemp(suffix=self._fs_transaction_suffix,
                                            dir=self.cache_dir)
                 with io.open(fd, 'wb') as fp:
-                    pickle.dump({key: zlib.compress(value, 6)}, fp, pickle.HIGHEST_PROTOCOL)
+                    pickle.dump({key: zlib.compress(value, 6)}, fp,
+                                pickle.HIGHEST_PROTOCOL)
                 os.rename(tmp, path)
                 os.chmod(path, self.mode)
             except (IOError, OSError, pickle.PickleError, zlib.error) as e:
@@ -317,12 +344,20 @@ class cache(object):
     @classmethod
     @track
     def has_key(self, path, key):
-        """Check wether cache file has key and track them as used (= not abandoned)."""
+        """Check wether cache file has key and track them as used (that means
+        not abandoned)."""
         return key in self.objects[path]
 
     @classmethod
     @memoized
     def getmtime(self, path, default=0.0):
+        """Get last modification timestamp from cache object but store it over
+        the whole compilation process so we have the same value for different
+        views.
+
+        :param path: valid cache object
+        :param default: default value if an :class:`OSError` occurs
+        """
         try:
             return getmtime(path)
         except OSError:
