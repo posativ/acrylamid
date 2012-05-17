@@ -23,7 +23,7 @@ from acrylamid.errors import AcrylamidException
 from acrylamid import filters, views, utils, helpers
 from acrylamid.lib import lazy, importer
 from acrylamid.base import Entry
-from acrylamid.core import cache, ExtendedFileSystemLoader
+from acrylamid.core import cache, ExtendedFileSystemLoader, assets
 from acrylamid.helpers import event, escape
 
 
@@ -34,6 +34,11 @@ def initialize(conf, env):
     """
     # initialize cache, optional to cache_dir
     cache.init(conf.get('cache_dir', None))
+
+    # initialize our asset object
+    assets.init(conf['output_dir'])
+    # make it available during templating
+    env['assets'] = assets
 
     # set up templating environment
     env['jinja2'] = Environment(loader=ExtendedFileSystemLoader(conf['layout_dir']),
@@ -94,24 +99,6 @@ def initialize(conf, env):
 
 
 def compile(conf, env, force=False, **options):
-    """The compilation process.
-
-    Current API:
-
-        #. when we require context
-        #. when we called an event
-
-    New API:
-
-        #. before we start with view Initialization
-        #. after we initialized views
-        #. before we require context
-        #. after we required context
-        #. before we template
-        #. before we write a file
-        #. when we called an event
-        #. when we finish
-    """
 
     # time measurement
     ctime = time.time()
@@ -198,6 +185,23 @@ def compile(conf, env, force=False, **options):
         for html, path in v.generate(request):
             helpers.mkfile(html, path, time.time()-tt, **options)
             tt = time.time()
+
+    # handle assets from filters
+    files = cache.memoize('assets')
+    changed = any(filter(lambda p: not isfile(p), files)) if files else True
+
+    if changed or any(filter(lambda e: e in event.called, ['create', 'update'])):
+        for fx in ns:
+            if hasattr(fx, 'inject'):
+                assets.add(fx.inject())
+        files = []
+        for asset in assets.injected():
+            files.append(asset.path)
+            helpers.mkfile(asset.source.read(), asset.path, **options)
+        cache.memoize('assets', files)
+    else:
+        for path in files:
+            event.skip(path)
 
     # remove abandoned cache files
     cache.shutdown()

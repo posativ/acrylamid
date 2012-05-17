@@ -362,3 +362,47 @@ class cache(object):
             return getmtime(path)
         except OSError:
             return default
+
+
+class assets(object):
+
+    store = defaultdict(io.StringIO)
+    md5sums = set([])
+
+    assets_dir = 'assets'
+    filename = 'extra'
+
+    @classmethod
+    def init(self, assets_dir=None, filename=None):
+
+        if assets_dir:
+            self.assets_dir = assets_dir
+
+        if filename:
+            self.filename = filename
+
+        self.store['text/css'] = io.StringIO()
+
+    @classmethod
+    def add(self, assets):
+
+        for key, value in assets.items():
+
+            md5 = hashlib.md5(value).hexdigest()
+            if md5 in self.md5sums:
+                continue
+
+            self.store[key].write(value + u'\n\n')
+            self.md5sums.add(md5)
+
+    @classmethod
+    def injected(self):
+
+        for key in sorted(self.store.keys()):
+            self.store[key].seek(0)
+            path = 'extra.' + key.split('/')[-1]
+
+            cls = type('Asset', (object, ), {'url': path,
+                                             'type': key, 'source': self.store[key],
+                                             'path': join(self.assets_dir, path)})
+            yield cls()
