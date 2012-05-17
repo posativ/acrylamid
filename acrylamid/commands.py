@@ -21,7 +21,7 @@ from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
 from acrylamid import filters, views, utils, helpers
-from acrylamid.lib.importer import fetch, parse, build
+from acrylamid.lib import lazy, importer
 from acrylamid.base import Entry
 from acrylamid.core import cache, ExtendedFileSystemLoader, assets
 from acrylamid.helpers import event, escape
@@ -87,10 +87,12 @@ def initialize(conf, env):
     if isinstance(conf['views_dir'], basestring):
         conf['views_dir'] = [conf['views_dir'], ]
 
+    lazy.enable()
     filters.initialize(conf["filters_dir"], conf, env, exclude=conf["filters_ignore"],
                                                        include=conf["filters_include"])
     views.initialize(conf["views_dir"], conf, env)
     env['views'] = dict([(v.view, v) for v in views.get_views()])
+    lazy.disable()
 
     return {'conf': conf, 'env': env}
 
@@ -291,9 +293,10 @@ def importer(conf, env, url, **options):
 
     If you don't like any reconversion, simply use ``--format=html``."""
 
-    content = fetch(url, auth=options.get('auth', None))
-    defaults, items = parse(content)
-    build(conf, env, defaults, items, fmt=options['import_fmt'], keep=options['keep_links'])
+    content = importer.fetch(url, auth=options.get('auth', None))
+    defaults, items = importer.parse(content)
+    importer.build(conf, env, defaults, items, fmt=options['import_fmt'],
+                                               keep=options['keep_links'])
 
 
 def deploy(conf, env, task, *args):

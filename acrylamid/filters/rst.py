@@ -10,6 +10,9 @@ from acrylamid.utils import cached_property
 from acrylamid.filters import Filter
 from acrylamid.filters.md import get_pygments_style
 
+from docutils.core import publish_parts
+from docutils.parsers.rst import directives
+
 class Restructuredtext(Filter):
 
     match = ['restructuredtext', 'rst', 'rest', 'reST', 'reStructuredText']
@@ -42,11 +45,6 @@ class Restructuredtext(Filter):
 
     @cached_property
     def publish_parts(self):
-        """On-demand import.  Importing reStructuredText and Pygments takes
-        3/5 of overall runtime just to import."""
-
-        from docutils.core import publish_parts
-        from docutils.parsers.rst import directives
 
         # -- discover reStructuredText extensions --
         for mem in os.listdir(os.path.dirname(__file__)):
