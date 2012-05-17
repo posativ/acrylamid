@@ -303,3 +303,5 @@ class Acryl:
         else:
             log.critical('No such command!')
             sys.exit(2)
+
+        sys.exit(0)
