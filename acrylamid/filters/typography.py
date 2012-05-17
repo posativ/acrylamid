@@ -12,14 +12,11 @@
 # [1]: https://github.com/mintchaos/typogrify
 # [2]: http://web.chad.org/projects/smartypants.py/
 
+import re
+import smartypants
+
 from acrylamid.filters import Filter
 from acrylamid.errors import AcrylamidException
-import re
-
-try:
-    import smartypants
-except ImportError:
-    smartypants = None
 
 mode = "2"  # -- en-dash, --- em-dash
 default = ['amp', 'widont', 'smartypants', 'caps']
@@ -34,20 +31,16 @@ class Typography(Filter):
 
     def init(self, conf, env):
 
+        smartypants.educateDashes = new_dashes
+        smartypants.educateDashesOldSchool = new_dashes
+
         self.ignore = env.options.ignore
         self.filters = {'amp': amp, 'widont': widont, 'caps': caps,
                         'initial_quotes': initial_quotes, 'number_suffix': number_suffix,
-                        'typo': typogrify, 'typogrify': typogrify, 'all': typogrify}
-        if smartypants:
-            self.filters['smartypants'] = smartypants.smartyPants
+                        'typo': typogrify, 'typogrify': typogrify, 'all': typogrify,
+                        'smartypants': smartypants.smartyPants}
 
     def transform(self, content, entry, *args):
-
-        if smartypants is None:
-            if self.ignore:
-                return content
-            else:
-                raise AcrylamidException("'typography' ImportError: No module named smartypants")
 
         if filter(lambda k: k in args, ['all', 'typo', 'typogrify']):
             return typogrify(content)
@@ -67,11 +60,6 @@ def new_dashes(str):
     str = re.sub(r"""(\s)--""", r"""\1&#8211;""", str)   # en (yes, backwards)
     str = re.sub(r"""(\s)---""", r"""\1&#8212;""", str)  # em (yes, backwards)
     return str
-
-
-if smartypants:
-    smartypants.educateDashes = new_dashes
-    smartypants.educateDashesOldSchool = new_dashes
 
 
 def amp(text, autoescape=None):

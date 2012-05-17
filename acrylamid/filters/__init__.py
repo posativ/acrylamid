@@ -10,6 +10,7 @@ import glob
 import fnmatch
 
 from acrylamid import log
+from acrylamid.errors import AcrylamidException
 
 
 def get_filters():
@@ -128,10 +129,17 @@ class meta(type):
 
         def initialize(self, func):
 
-            if not self.__initialized__:
-                self.init(self.conf, self.env)
-                self.__initialized__ = True
-
+            if not self.initialized:
+                try:
+                    self.init(self.conf, self.env)
+                    self.initialized = True
+                except ImportError as e:
+                    if self.env.options.ignore:
+                        log.warn(str(e))
+                        setattr(cls, 'transform', lambda cls, x, y, *z: x)
+                        self.initialized = True
+                        return lambda cls, x, y, *z: x
+                    raise AcrylamidException('%s: %s' % (self.__class__.__name__, str(e)))
             return func
 
         init = dct.get('init', lambda s, x, y: None)
@@ -148,8 +156,8 @@ class meta(type):
 class Filter(object):
 
     __metaclass__ = meta
-    __initialized__ = False
 
+    initialized = False
     version = "1.0.0"
     priority = 50.0
     conflicts = []

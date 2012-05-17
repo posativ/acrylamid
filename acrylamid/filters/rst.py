@@ -7,11 +7,16 @@
 import os
 
 from acrylamid import log
+from acrylamid.errors import AcrylamidException
 from acrylamid.filters import Filter
 from acrylamid.filters.md import get_pygments_style
 
-from docutils.core import publish_parts
-from docutils.parsers.rst import directives
+try:
+    from docutils.core import publish_parts
+    from docutils.parsers.rst import directives
+except ImportError:
+    publish_parts = None
+    directives = None
 
 class Restructuredtext(Filter):
 
@@ -25,6 +30,9 @@ class Restructuredtext(Filter):
 
         self.extensions = {}
         self.ignore = env.options.ignore
+
+        if not publish_parts or not directives:
+            raise ImportError('reStructuredText: No module named docutils')
 
         # -- discover reStructuredText extensions --
         for mem in os.listdir(os.path.dirname(__file__)):
