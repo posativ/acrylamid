@@ -13,7 +13,7 @@ from acrylamid.filters import Filter
 
 
 def build(name, **kw):
-    return type(name, (Filter, ), kw)(name)
+    return type(name, (Filter, ), kw)({}, {}, name)
 
 
 class TestFilters(unittest.TestCase):
