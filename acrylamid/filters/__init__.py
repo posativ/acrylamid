@@ -32,7 +32,6 @@ def index_filters(module, conf, env):
     cs = [getattr(module, c) for c in dir(module) if not c.startswith('_')]
     for mem in cs:
         if isinstance(mem, meta) and hasattr(mem, 'match'):
-            mem.init(conf, env)
             callbacks.append(mem)
 
 
@@ -116,11 +115,31 @@ class RegexList(list):
 
 
 class meta(type):
+    """Python metaclass magic to provide a easy filter API.  You can write complex
+    calculations into your initialization, but it is only called when this filter
+    is actually needed and then also only once.
+
+    This is done via decorators around :func:`Filter.transform` and is hidden from
+    the developer.
+
+    Here we also wrap ``Filter.match`` into :class:`RegexList`."""
 
     def __init__(cls, name, bases, dct):
 
+        def initialize(self, func):
+
+            if not self.__initialized__:
+                self.init(self.conf, self.env)
+                self.__initialized__ = True
+
+            return func
+
+        init = dct.get('init', lambda s, x, y: None)
+        transform = lambda cls, x, y, *z: initialize(cls, dct['transform'])(cls, x, y, *z)
+
         super(meta, cls).__init__(name, bases, dct)
-        setattr(cls, 'init', classmethod(dct.get('init', lambda s, x, y: None)))
+        setattr(cls, 'init', init)
+        setattr(cls, 'transform', transform)
 
         if 'match' in dct:
             setattr(cls, 'match', RegexList(dct['match']))
@@ -129,12 +148,16 @@ class meta(type):
 class Filter(object):
 
     __metaclass__ = meta
+    __initialized__ = False
 
     version = "1.0.0"
     priority = 50.0
     conflicts = []
 
-    def __init__(self, fname, *args):
+    def __init__(self, conf, env, fname, *args):
+
+        self.conf = conf
+        self.env = env
 
         self.name = fname
         self.args = args

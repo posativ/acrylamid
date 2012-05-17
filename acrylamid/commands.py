@@ -134,13 +134,13 @@ def compile(conf, env, force=False, **options):
 
         try:
             # initialize the filter with its function name and arguments
-            fx = aflist[fname](val, *fargs)
+            fx = aflist[fname](conf, env, val, *fargs)
             if val.startswith('no'):
                 fx.transform = lambda x, y, *z: x
                 fx.__hash__ = lambda : 0
         except ValueError:
             try:
-                fx = aflist[val.split('+')[:1][0]](val, *fargs)
+                fx = aflist[val.split('+')[:1][0]](conf, env, val, *fargs)
             except ValueError:
                 raise AcrylamidException('no such filter: %s' % val)
 
