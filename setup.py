@@ -1,12 +1,27 @@
 #!/usr/bin/env python
 from distutils.core import setup
 
-"""Welcome to Acrylamid's Documentation!
-=====================================
+"""Welcome to Acrylamid
+====================
 
 Acrylamid is yet another static blog compiler written in python that aims to
 be lightweight, fast and producing high quality output. It is licensed under
 BSD Style, 2 clauses.
+
+Why?
+----
+
+Why another static blog compiler, that's a valid question. So, why would you
+use Acrylamid: It's fast when you start blogging and it stays fast when you
+have hundreds of articles due incremental compilation. It ships with all
+builtin Markdown extensions, custom ones and additional reStructuredText
+directives to embed YouTube or Code. With all complexity of Acrylamid itself,
+it is super easy to use.
+
+Why not Acrylamid? It's not well tested by different people with different
+requirements. It may has some serious issues I didn't noticed yet. It also
+lacks some internal documentation. The default layout is indeed not the most
+beautiful and Acrylamid has no asset handling yet.
 
 Features
 --------
@@ -15,16 +30,18 @@ Acrylamid is a mixture of `nanoc <http://nanoc.stoneship.org/>`_, `Pyblosxom
 <http://pyblosxom.bluesock.org/>`_ and `Pelican <http://pelican.notmyidea.org/>`_. It
 features mainly:
 
-- blog articles, static pages, tags RSS/Atom feeds and an article overview
+- blog articles, static pages, tags, RSS/Atom feeds and an article overview
 - theming support (using jinja2_) and support for jinja2 directly in postings
-- Markdown_, reStructuredText_ and pandoc_
-- MathML, modern web-typography and hyphenation using `&shy;`
-- RSS/Atom import, deployment and a handy CLI
+- Markdown_, reStructuredText_, textile_ and pandoc_
+- Markdown extensions and custom reStructuredText directives
+- MathML, modern web-typography and hyphenation using soft-hyphens
+- RSS/Atom/WordPress import, deployment and a handy CLI
 - it's very flexible/configurable and fast
 
 .. _jinja2: http://jinja.pocoo.org/
-.. _reStructuredText: http://docutils.sourceforge.net/rst.html
 .. _Markdown: http://daringfireball.net/projects/markdown/
+.. _reStructuredText: http://docutils.sourceforge.net/rst.html
+.. _textile: https://en.wikipedia.org/wiki/Textile_%28markup_language%29
 .. _pandoc: http://johnmacfarlane.net/pandoc/
 .. _AsciiMathML: http://www1.chapman.edu/~jipsen/mathml/asciimath.html
 
@@ -61,28 +78,29 @@ Get acrylamid, edit *conf.py* and *layouts/* and compile with:
         create  '/', written to output/index.html
        * Running on http://127.0.0.1:8000/
 
-Real World Example?
-*******************
+Real World Examples?
+********************
 
-I have released all sources from my personal blog:
-`/posativ/blog.posativ.org/ <https://github.com/posativ/blog.posativ.org/>`_. Take a
-look at my *conf.py* for some inspiration.
+- sources from my personal blog:
+  `/posativ/blog.posativ.org <https://github.com/posativ/blog.posativ.org/>`_.
+- sebix' (contributer) sources: `/sebix/sebix.github.com-sources <https://github.com/sebix/sebix.github.com-sources>`_.
 
 
 Filters
 -------
 
 You can apply various filter to a single entry, to a specific view or globally
-and Acrylamid resolve it automatically (some filters conflict with others so
+and Acrylamid resolves it automatically (some filters conflict with others so
 you can for example apply *Markdown* as global filter but render some entries
 with reStructuredText). Currently supported by acrylamid, see
 `docs/filters.rst <http://acrylamid.readthedocs.org/en/latest/filters.html>`_
 for detailed information:
 
-- **Markdown**: rendering Markdown (+asciimathml,pygments,built-in extensions)
+- **Markdown**: rendering Markdown (+asciimathml, pygments, built-in extensions)
 - **reST**: reStructuredText (+pygments)
-- **pandoc**: Pandoc (+Markdown,textitle,rst,...)
-- **HTML**: don't render with Markdown, reStructuredText or Pandoc (it's a conflicting filter)
+- **pandoc**: Pandoc (+Markdown, textitle, rst, ...)
+- **textile**: using Textile as markup language
+- **HTML**: don't render with filters mentioned above (it's a conflicting filter)
 
 - **typography**: https://code.google.com/p/typogrify/ (and custom modifications)
 - **hyphenation**: hyphenate words (len > 10) based on language
@@ -96,7 +114,7 @@ for detailed information:
 Commands
 --------
 
-See :doc:`commands` for a detailed overview.
+See `commands <https://posativ.org/acrylamid/commands.html>`_ for a detailed overview.
 
 ::
 
@@ -120,11 +138,18 @@ See :doc:`commands` for a detailed overview.
       deploy         run a given TASK
 
     All subcommands except `init` require a conf.py file.
+
+Need Help?
+----------
+
+Join ``#acrylamid`` on Freenode_!
+
+.. _Freenode: http://freenode.net/
 """
 
 setup(
     name='acrylamid',
-    version='0.3.2',
+    version='0.3.3',
     author='posativ',
     author_email='info@posativ.org',
     packages=[
@@ -134,7 +159,7 @@ setup(
     package_data={
         'acrylamid.filters': ['hyph/*.txt'],
         'acrylamid.defaults': ['misc/*', 'xhtml/*', 'html5/*']},
-    url='http://pypi.python.org/pypi/acrylamid/',
+    url='https://github.com/posativ/acrylamid/',
     license='BSD revised',
     description='yet another static blog generator',
     long_description=__doc__,

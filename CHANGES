@@ -3,6 +3,23 @@
 Version 0.3
 -----------
 
+### 0.3.3
+
+- new sitemap generator
+- add experimental bash_completion (source from GitHub repository)
+- `acrylamid deploy` now shows available tasks when no argument is given
+- add SSL and start options for reST's YouTube directive
+- new test framework `cram`
+- new API: you can now register callbacks to events (sitemap view
+  and `acrylamid clean` are implemented that way).
+- refactoring and first API docs available under
+  http://posativ.org/acrylamid/ (yes, that's the Werkzeug theme).
+- lazy imports to ease writing custom filters
+- less I/O on cache objects (= speed improvements)
+- fix for invalid cache objects
+- fix unescaped attributes
+- more robust error handling for filters
+
 ### 0.3.2
 
 - use a single, compressed cache file for each entry
