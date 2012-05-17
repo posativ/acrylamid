@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from distutils.core import setup
 
 """Welcome to Acrylamid's Documentation!
 =====================================
@@ -121,26 +122,15 @@ See :doc:`commands` for a detailed overview.
     All subcommands except `init` require a conf.py file.
 """
 
-import os
-import sys
-
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
-
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
-from acrylamid import __version__
-
 setup(
     name='acrylamid',
-    version=__version__,
+    version='0.3.2',
     author='posativ',
     author_email='info@posativ.org',
     packages=[
         'acrylamid', 'acrylamid.filters', 'acrylamid.views', 'acrylamid.lib',
         'acrylamid.defaults', 'acrylamid.tasks'],
+    scripts=['bin/acrylamid'],
     package_data={
         'acrylamid.filters': ['hyph/*.txt'],
         'acrylamid.defaults': ['misc/*', 'xhtml/*', 'html5/*']},
@@ -148,11 +138,6 @@ setup(
     license='BSD revised',
     description='yet another static blog generator',
     long_description=__doc__,
-    entry_points = {
-        'console_scripts': [
-            'acrylamid = acrylamid:Acryl',
-        ]
-     },
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Topic :: Internet",

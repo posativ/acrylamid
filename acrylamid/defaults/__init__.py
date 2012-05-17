@@ -38,8 +38,12 @@ def init(root, theme='html5', overwrite=False):
 
         dest = join(root, directory, basename(path))
         if not isfile(dest) or overwrite == True:
-            shutil.copy(path, dest)
-            log.info('create  %s', dest)
+            try:
+                shutil.copy(path, dest)
+                log.info('create  %s', dest)
+            except IOError as e:
+                log.fatal(str(e))
+
         else:
             log.info('skip  %s already exists', dest)
 
