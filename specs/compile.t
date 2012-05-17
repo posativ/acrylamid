@@ -58,7 +58,7 @@ touch sucks!
 
 Acrylamid should update a file if the content changes!
 
-  $ sleep 0.2
+  $ sleep 1
   $ echo "Foo." >> content/sample-entry.txt
   $ acrylamid compile -C
   skip  output/articles/index.html
