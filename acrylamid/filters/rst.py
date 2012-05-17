@@ -6,7 +6,7 @@
 
 import os
 
-from acrylamid.utils import cached_property
+from acrylamid import log
 from acrylamid.filters import Filter
 from acrylamid.filters.md import get_pygments_style
 
@@ -16,35 +16,15 @@ from docutils.parsers.rst import directives
 class Restructuredtext(Filter):
 
     match = ['restructuredtext', 'rst', 'rest', 'reST', 'reStructuredText']
-    version = '1.0.0'
+    version = '1.0.1'
 
     conflicts = ['markdown', 'plain']
     priority = 70.00
 
     def init(self, conf, env):
 
-        self.failed = []
         self.extensions = {}
         self.ignore = env.options.ignore
-
-    def inject(self):
-
-        return get_pygments_style()
-
-    def transform(self, content, entry, *filters):
-
-        self.filters = filters
-
-        settings = {
-            'initial_header_level': 1,
-            'doctitle_xform': 0
-        }
-
-        parts = self.publish_parts(content, writer_name='html', settings_overrides=settings)
-        return parts['body'].encode('utf-8')
-
-    @cached_property
-    def publish_parts(self):
 
         # -- discover reStructuredText extensions --
         for mem in os.listdir(os.path.dirname(__file__)):
@@ -53,15 +33,22 @@ class Restructuredtext(Filter):
                     mod = __import__(mem.replace('.py', ''))
                     rstx = mod.makeExtension()
                     if isinstance(mod.match, basestring):
-                        self.match.append(mod.match)
-                        self.extensions[mod.__name__] = rstx
-                    else:
-                        for name in mod.match:
-                            self.extensions[name] = rstx
+                        mod.match = [mod.__name__]
+                    for name in mod.match:
+                        directives.register_directive(name, rstx)
                 except (ImportError, Exception), e:
-                    self.failed.append('%r %s: %s' % (mem, e.__class__.__name__, e))
+                    log.warn('%r %s: %s' % (mem, e.__class__.__name__, e))
 
-        for directive, klass in self.extensions.iteritems():
-            directives.register_directive(directive, klass)
+    def inject(self):
 
-        return publish_parts
+        return get_pygments_style()
+
+    def transform(self, content, entry, *filters):
+
+        settings = {
+            'initial_header_level': 1,
+            'doctitle_xform': 0
+        }
+
+        parts = publish_parts(content, writer_name='html', settings_overrides=settings)
+        return parts['body'].encode('utf-8')

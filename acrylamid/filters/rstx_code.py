@@ -7,7 +7,7 @@
 from docutils import nodes
 from docutils.parsers.rst import Directive
 
-match = ['code']
+match = 'code'
 
 
 class Code(Directive):
