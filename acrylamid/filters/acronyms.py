@@ -14,6 +14,26 @@ import re
 from acrylamid import log
 from acrylamid.filters import Filter
 
+from acrylamid.lib import HTMLParser, HTMLParseError
+
+
+class Acrynomify(HTMLParser):
+
+    def __init__(self, html, abbr, repl):
+        self.abbr = abbr
+        self.repl = repl
+
+        HTMLParser.__init__(self, html)
+
+    def handle_data(self, data):
+        """Hyphenate words longer than 10 characters."""
+
+        if any(filter(lambda i: i in self.stack, ['pre', 'code', 'math', 'script'])):
+            return
+
+        data = self.abbr.sub(self.repl, data)
+        self.result.append(data)
+
 
 class Acronyms(Filter):
 
@@ -32,59 +52,36 @@ class Acronyms(Filter):
             global ACRONYMS
             data = ACRONYMS.split('\n')
 
-        acronyms = []
+        acronyms = {}
         for line in data:
             line = line.split("=", 1)
             firstpart = line[0].strip()
 
-            try:
-                firstpartre = re.compile("(\\b" + firstpart + "\\b)")
-            except re.error:
-                log.warn("acronyms: '%s' is not a regular expression")
-                continue
-
             secondpart = line[1].strip()
             secondpart = secondpart.replace("\"", "&quot;")
 
-            if (secondpart.startswith("abbr|") or firstpart.endswith(".")):
-                if secondpart.startswith("abbr|"):
-                    secondpart = secondpart[5:]
-                repl = "<abbr title=\"%s\">\\1</abbr>" % secondpart
-            else:
-                if secondpart.startswith("acronym|"):
-                    secondpart = secondpart[8:]
-                repl = "<abbr title=\"%s\">\\1</abbr>" % secondpart
+            if secondpart.startswith("abbr|"):
+                secondpart = secondpart[5:]
+            elif secondpart.startswith("acronym|"):
+                secondpart = secondpart[8:]
 
-            acronyms.append((firstpartre, repl))
+            acronyms[firstpart] = secondpart
 
         self.acronyms = acronyms
-        self.tag_re = re.compile("<\D.*?>")
-        self.tag_digit_re = re.compile("<\d+?>")
 
     def transform(self, text, entry, *args):
 
-        acrolist = self.acronyms
+        acros = self.acronyms
         if len(args) > 0:
-            acrolist = filter(lambda k: any(k[0].match(v) for v in args), acrolist)
+            acros = dict(filter(lambda k: any(k[0] == v for v in args), acros.items()))
 
-        tags = {}
+        try:
+            abbr = re.compile(r'\b(%s)\b' % '|'.join(acros))
+        except re.error as e:
+            log.warn("acronyms: %s", str(e))
 
-        def matchrepl(matchobj):
-            ret = "<%d>" % len(tags)
-            tags[ret] = matchobj.group(0)
-            return ret
-
-        text = self.tag_re.sub(matchrepl, text)
-
-        for reob, repl in acrolist:
-            text = reob.sub(repl, text)
-
-        def matchrepl(matchobj):
-            return tags[matchobj.group(0)]
-
-        text = self.tag_digit_re.sub(matchrepl, text)
-
-        return text
+        repl = lambda m: '<abbr title="%s">%s</abbr>' % (acros[m.group(0)], m.group(0))
+        return ''.join(Acrynomify(text, abbr, repl).result)
 
 
 ACRONYMS = r"""
