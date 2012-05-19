@@ -15,7 +15,7 @@ from acrylamid.core import cache
 from acrylamid import helpers
 from acrylamid import AcrylamidException
 
-class TestUtils(unittest.TestCase):
+class TestHelpers(unittest.TestCase):
 
     def setUp(self):
         log.init('acrylamid', level=40)
