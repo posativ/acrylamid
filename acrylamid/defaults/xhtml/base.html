@@ -15,13 +15,6 @@
     <link href="{{ env.path + '/' }}" rel="home" />
     <link href="{{ env.path + '/atom/' }}" type="application/atom+xml" rel="alternate" title="Atom Feed" />
     <link href="{{ env.path + '/rss/' }}" type="application/rss+xml" rel="alternate" title="RSS Feed" />
-    {% for asset in env.assets.injected() -%}
-      {%- if 'javascript' in asset.type -%}
-        <script src="{{ env.path + '/' + asset.url.replace('.javascript', '.js') }}"></script>
-      {%- elif 'css' in asset.type -%}
-        <link href="{{ env.path + '/' + asset.url }}" type="{{ asset.type }}" media="all" rel="stylesheet" />
-      {%- endif %}
-    {%- endblock %}
 </head>
 <body>
     <div id="blogheader">
