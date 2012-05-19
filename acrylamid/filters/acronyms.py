@@ -26,19 +26,17 @@ class Acrynomify(HTMLParser):
         HTMLParser.__init__(self, html)
 
     def handle_data(self, data):
-        """Hyphenate words longer than 10 characters."""
-
         if any(filter(lambda i: i in self.stack, ['pre', 'code', 'math', 'script'])):
-            return
-
-        data = self.abbr.sub(self.repl, data)
+            pass
+        else:
+            data = self.abbr.sub(self.repl, data)
         self.result.append(data)
 
 
 class Acronyms(Filter):
 
     match = [re.compile('^Acronyms?$', re.I), 'abbr', 'Abbr']
-    version = '1.0.0'
+    version = '1.0.1'
 
     # after Typography, so CAPS is around ABBR
     priority = 20.0
