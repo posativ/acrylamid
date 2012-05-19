@@ -1,8 +1,9 @@
 .gitignore
 *.pyc
 *.DS_Store
+/.tox/
 MANIFEST
-docs/*build/
-build/
-acrylamid.egg-info/
-src/
+/docs/*build/
+/build/
+/acrylamid.egg-info/
+/src/
