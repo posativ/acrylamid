@@ -1,6 +1,8 @@
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
+import string
+
 from acrylamid import log
 from acrylamid.filters import Filter
 from acrylamid.helpers import system as defaultsystem
@@ -32,6 +34,7 @@ class Jinja2(Filter):
 
         self.jinja2_env = Environment(cache_size=0)
         self.jinja2_env.filters['system'] = system
+        self.jinja2_env.filters['split'] = string.split
 
     def transform(self, content, entry):
 

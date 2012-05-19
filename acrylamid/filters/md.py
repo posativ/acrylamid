@@ -20,6 +20,7 @@ def get_pygments_style():
     fmt = get_formatter_by_name('html', style='trac')
     return {'text/css': '/* Pygments */\n\n' + fmt.get_style_defs('.highlight')}
 
+
 class Markdown(Filter):
 
     match = ['md', 'mkdown', 'markdown', 'Markdown']
