@@ -113,6 +113,19 @@ def filelist(content_dir, entries_ignore=[]):
     return flist
 
 
+class NestedProperties(dict):
+
+    def __setitem__(self, key, value):
+        try:
+            key, other = key.split('.', 1)
+            self.setdefault(key, NestedProperties())[other] = value
+        except ValueError:
+            dict.__setitem__(self, key, value)
+
+    def __getattr__(self, attr):
+        return self[attr]
+
+
 def read(filename, encoding, remap={}):
     """Open and read content using the specified encoding and return position
     where the actual content begins and all collected properties.
@@ -161,7 +174,7 @@ def read(filename, encoding, remap={}):
                 props[to] = props[key]
                 del props[key]
     else:
-        props = {}
+        props = NestedProperties()
         for j, line in enumerate(head):
             if line[0] == '#' or not line.strip():
                 continue
