@@ -239,6 +239,8 @@ summarize
 Summarizes content to make listings of text previews (used in tag/page by default).
 You can customize the ellipsis, CSS-class, link-text and the behaviour how the link
 appears in your :doc:`conf.py`.
+You can override single or all configurations made in :doc:`conf.py` with
+``summarize.maxwords: 10`` and so on in the entry header.
 
 ============  ==================================================
 Requires      <built-in>

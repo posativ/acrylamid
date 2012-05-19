@@ -85,20 +85,35 @@ class Summarize(Filter):
         self.path = env.path
         self.mode = conf.get('summarize_mode', 1)
 
-        ellipsis = conf.get('summarize_ellipsis', '&#8230;')
-        identifier = conf.get('summarize_identifier', 'continue')
-        klass = conf.get('summarize_class', 'continue')
+        self.ellipsis = conf.get('summarize_ellipsis', '&#8230;')
+        self.identifier = conf.get('summarize_identifier', 'continue')
+        self.klass = conf.get('summarize_class', 'continue')
 
-        self.link = '<span>'+ellipsis+'<a href="%s" class="'+klass+'">'+identifier+'</a>.</span>'
+    @property
+    def link(self):
+
+        ellipsis = self.options.get('ellipsis') or self.ellipsis
+        klass = self.options.get('klass') or self.klass
+        identifier = self.options.get('identifier') or self.identifier
+
+        return '<span>'+ellipsis+'<a href="%s" class="'+klass+'">'+identifier+'</a>.</span>'
 
     def transform(self, content, entry, *args):
 
         try:
-            maxwords = int(args[0])
-        except (ValueError, IndexError) as e:
-            if e.__class__.__name__ == 'ValueError':
-                log.warn('Summarize: invalid maxwords argument %r', args[0])
-            maxwords = 100
+            self.options = entry.summarize
+        except AttributeError as e:
+            self.options = {}
+
+        try:
+            maxwords = int(entry.summarize.maxwords)
+        except (AttributeError, KeyError, ValueError) as e:
+            try:
+                maxwords = int(args[0])
+            except (ValueError, IndexError) as e:
+                if e.__class__.__name__ == 'ValueError':
+                    log.warn('Summarize: invalid maxwords argument %r', args[0])
+                maxwords = 100
 
         try:
             X = Summarizer(content, self.path+entry.permalink, self.link, self.mode, maxwords)
