@@ -76,7 +76,7 @@ class Acronyms(Filter):
         try:
             abbr = re.compile(r'\b(%s)\b' % '|'.join(acros))
         except re.error as e:
-            log.warn("acronyms: %s", str(e))
+            log.warn("acronyms: %s", e.message)
 
         repl = lambda m: '<abbr title="%s">%s</abbr>' % (acros[m.group(0)], m.group(0))
 

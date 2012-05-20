@@ -135,11 +135,11 @@ class meta(type):
                     self.initialized = True
                 except ImportError as e:
                     if self.env.options.ignore:
-                        log.warn(str(e))
+                        log.warn(e.message)
                         setattr(cls, 'transform', lambda cls, x, y, *z: x)
                         self.initialized = True
                         return lambda cls, x, y, *z: x
-                    raise AcrylamidException('%s: %s' % (self.__class__.__name__, str(e)))
+                    raise AcrylamidException('ImportError: %s' % e.message)
             return func
 
         init = dct.get('init', lambda s, x, y: None)

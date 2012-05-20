@@ -140,7 +140,7 @@ class FileEntry(BaseEntry):
             i, props = read(filename, self.props['encoding'],
                             remap={'tag': 'tags', 'filter': 'filters', 'static': 'draft'})
         except ValueError as e:
-            raise AcrylamidException(str(e))
+            raise AcrylamidException(e.message)
 
         self.offset = i
         self.props.update(props)

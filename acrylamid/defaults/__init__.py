@@ -42,7 +42,7 @@ def init(root, theme='html5', overwrite=False):
                 shutil.copy(path, dest)
                 log.info('create  %s', dest)
             except IOError as e:
-                log.fatal(str(e))
+                log.fatal(e.message)
 
         else:
             log.info('skip  %s already exists', dest)
