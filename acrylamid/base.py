@@ -10,6 +10,7 @@ import io
 import re
 import sys
 import abc
+import locale
 import traceback
 
 from os.path import join, getmtime
@@ -27,9 +28,9 @@ from acrylamid.helpers import safeslug, expand, md5
 class Date(datetime):
     """A :class:`datetime.datetime` object that returns unicode on ``strftime``."""
 
-    def strftime(self, fmt, encoding='utf-8'):
+    def strftime(self, fmt):
         if sys.version_info < (3, 0):
-            return unicode(datetime.strftime(self, fmt), encoding)
+            return u"" + datetime.strftime(self, fmt).decode(locale.getlocale()[1])
         return datetime.strftime(self, fmt)
 
 
@@ -107,7 +108,7 @@ class BaseEntry(object):
         try:
             return self.props['description']
         except KeyError:
-            return self.source[:50].strip() + '...'
+            return self.source[:50].strip() + u'...'
 
     def __iter__(self):
         for key in self.props:

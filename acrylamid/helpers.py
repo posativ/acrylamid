@@ -11,6 +11,7 @@ import re
 import hashlib
 import subprocess
 
+from unicodedata import normalize
 from collections import defaultdict
 from os.path import join, exists, dirname, basename
 
@@ -23,7 +24,6 @@ from acrylamid.utils import batch
 try:
     import translitcodec
 except ImportError:
-    from unicodedata import normalize
     translitcodec = None
 
 __all__ = ['memoize', 'union', 'mkfile', 'md5', 'expand', 'joinurl',
@@ -93,13 +93,17 @@ def md5(*objs,  **kw):
     :param obj: one or more objects
     :param attr: a getter, defaults to ``lambda o: o.__str__()``"""
 
-    attr = kw.get('attr', lambda o: o.__str__())  # positional arguments before *args issue
+    # positional arguments before *args issue
+    attr = kw.get('attr', lambda o: o.encode('utf-8') if isinstance(o, unicode) else o.__str__())
     h = hashlib.md5()
+
     for obj in objs:
         try:
             h.update(attr(obj))
         except TypeError:  # python3 m(
             h.update(attr(obj).encode('utf-8'))
+        except UnicodeEncodeError:
+            h.update(obj.encode('utf-8'))
 
     return h.hexdigest()
 
@@ -116,7 +120,7 @@ def expand(url, obj):
 
     for k in obj:
         if not k.endswith('/') and (':' + k) in url:
-            url = url.replace(':'+k, str(obj[k]))
+            url = url.replace(':'+k, unicode(obj[k]))
     return url
 
 
@@ -130,7 +134,7 @@ def joinurl(*args):
     r = []
     for i, mem in enumerate(args):
         if i > 0:
-            mem = str(mem).lstrip('/')
+            mem = unicode(mem).lstrip('/')
         r.append(mem)
     return join(*r)
 
@@ -143,12 +147,12 @@ def safeslug(slug):
     if translitcodec:
         slug = slug.encode('translit/long').strip()
     for word in _slug_re.split(slug.lower()):
-        if not translitcodec:
-            word = normalize('NFKD', word).encode('ascii', 'ignore').decode('utf-8').strip()
+        word = normalize('NFKD', word).encode('ascii', 'ignore').decode('utf-8').strip()
+        if translitcodec is None:
             log.once(warn="no 'translitcodec' found, using NFKD algorithm")
         if word and not word[0] in '-:':
             result.append(word)
-    return unicode('-'.join(result))
+    return u'-'.join(result)
 
 
 def paginate(lst, ipp, func=lambda x: x, salt=None, orphans=0):

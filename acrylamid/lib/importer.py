@@ -87,17 +87,18 @@ def rss20(xml):
         return datetime.fromtimestamp(ts)
 
     try:
-        tree = ElementTree.fromstring(xml)
+        tree = ElementTree.fromstring(xml.encode('utf-8'))
     except ElementTree.ParseError:
         raise InvalidSource('no well-formed XML')
     if tree.tag != 'rss' or tree.attrib.get('version') != '2.0':
         raise InvalidSource('no RSS 2.0 feed')
 
     # --- site settings --- #
-    defaults = {}
+    defaults = {'author': None}
     channel = tree.getchildren()[0]
 
-    for k, v in {'title': 'sitename', 'link': 'www_root', 'language': 'lang'}.iteritems():
+    for k, v in {'title': 'sitename', 'link': 'www_root',
+                 'language': 'lang', 'author': 'author'}.iteritems():
         try:
             defaults[v] = channel.find(k).text
         except AttributeError:
@@ -135,7 +136,7 @@ def atom(xml):
         return datetime.fromtimestamp(ts)
 
     try:
-        tree = ElementTree.fromstring(xml)
+        tree = ElementTree.fromstring(xml.encode('utf-8'))
     except ElementTree.ParseError:
         raise InvalidSource('no well-formed XML')
 
@@ -186,11 +187,7 @@ def wp(xml):
     global USED_WORDPRESS
     USED_WORDPRESS = True
 
-    try:
-        from BeautifulSoup import BeautifulStoneSoup
-    except ImportError:
-        raise AcrylamidException('BeautifulSoup is required for WordPress import')
-
+    from BeautifulSoup import BeautifulStoneSoup
     soup = BeautifulStoneSoup(xml)
 
     try:
@@ -229,9 +226,8 @@ def fetch(url, auth=None):
 
     if not (url.startswith('http://') or url.startswith('https://')):
         try:
-            with io.open(url, 'r') as fp:
-                content = fp.read()
-            return content
+            with io.open(url, 'r', encoding='utf-8', errors='replace') as fp:
+                return u''.join(fp.readlines())
         except OSError as e:
             raise AcrylamidException(e.message)
 
@@ -249,7 +245,11 @@ def fetch(url, auth=None):
         passwd = getpass.getpass()
         fetch(url, user + ':' + passwd)
     elif r.getcode() == 200:
-        return r.read()
+        try:
+            enc = re.search('charset=(.+);?', r.headers.get('Content-Type', '')).group(1)
+        except AttributeError:
+            enc = 'utf-8'
+        return u'' + r.read().decode(enc)
 
     raise AcrylamidException('invalid status code %i, aborting.' % r.getcode())
 
@@ -261,8 +261,8 @@ def parse(content):
         try:
             res =  method(content)
             return res.next(), res
-        # except ValueError as e:
-        #     raise AcrylamidException(e.message)
+        except ImportError:
+            log.info('notice  BeautifulSoup is required for WordPress import')
         except InvalidSource as e:
             failed.append(e.message)
     else:
@@ -321,7 +321,7 @@ def build(conf, env, defaults, items, fmt, keep=False, force=False, pandoc=False
             permalink = m.path if m.path != '/' else None
 
         content, fmt = convert(item.get('content', ''), fmt, pandoc)
-        create(defaults, item['title'], item['date'], item['author'], content, fmt,
+        create(defaults, item['title'], item['date'], item.get('author'), content, fmt,
                tags=item.get('tags', None), permalink=permalink if keep else None)
 
     print "\nImport was successful. Edit your conf.py with these new settings:"
