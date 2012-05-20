@@ -59,4 +59,4 @@ class Restructuredtext(Filter):
         }
 
         parts = publish_parts(content, writer_name='html', settings_overrides=settings)
-        return parts['body'].encode('utf-8')
+        return parts['body']

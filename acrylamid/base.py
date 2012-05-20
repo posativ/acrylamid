@@ -24,6 +24,13 @@ from acrylamid.filters import FilterTree
 from acrylamid.helpers import safeslug, expand, md5
 
 
+class Date(datetime):
+    """A :class:`datetime.datetime` object that returns unicode on ``strftime``."""
+
+    def strftime(self, fmt, encoding='utf-8'):
+        return unicode(datetime.strftime(self, fmt), encoding)
+
+
 class BaseEntry(object):
     """An abstract version of what an Entry class should implement."""
 
@@ -168,14 +175,14 @@ class FileEntry(BaseEntry):
 
         if 'date' not in self.props:
             log.warn("using mtime from %r" % self.filename)
-            return datetime.fromtimestamp(self.mtime)
+            return Date.fromtimestamp(self.mtime)
 
         string = re.sub(' +', ' ', self.props['date'])
         formats.insert(0, self.props['date_format'])
 
         for date_format in formats:
             try:
-                return datetime.strptime(string, date_format)
+                return Date.strptime(string, date_format)
             except ValueError:
                 pass
         else:

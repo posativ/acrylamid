@@ -22,9 +22,6 @@ __author__ = 'posativ <info@posativ.org>'
 __url__ = 'https://github.com/posativ/acrylamid/'
 
 import sys
-reload(sys)
-sys.setdefaultencoding('utf-8')
-
 import os
 import time
 import traceback

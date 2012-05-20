@@ -199,10 +199,9 @@ class cache(object):
                     self.objects[path] = set(pickle.load(fp).keys())
             except pickle.PickleError:
                 os.remove(path)
-            except AttributeError:
+            except (AttributeError, EOFError):
                 # this may happen after a refactor
-                log.info('notice  invalid cache objects, recompile everything.' \
-                         + ' This may take a while...')
+                log.info('notice  invalid cache objects')
                 for obj in self._list_dir():
                     cache.remove(obj)
                 break
@@ -294,7 +293,7 @@ class cache(object):
                 cache.remove(path)
                 return default
             with io.open(path, 'rb') as fp:
-                return zlib.decompress(pickle.load(fp)[key])
+                return zlib.decompress(pickle.load(fp)[key]).decode('utf-8')
         except (OSError, KeyError):
             pass
         except (IOError, pickle.PickleError, zlib.error):
@@ -322,7 +321,7 @@ class cache(object):
                 rv = {}
             try:
                 with io.open(path, 'wb') as fp:
-                    rv[key] = zlib.compress(value, 6)
+                    rv[key] = zlib.compress(value.encode('utf-8'), 6)
                     pickle.dump(rv, fp, pickle.HIGHEST_PROTOCOL)
             except (IOError, pickle.PickleError) as e:
                 log.warn('%s: %s' % (e.__class__.__name__, e))
@@ -331,7 +330,7 @@ class cache(object):
                 fd, tmp = tempfile.mkstemp(suffix=self._fs_transaction_suffix,
                                            dir=self.cache_dir)
                 with io.open(fd, 'wb') as fp:
-                    pickle.dump({key: zlib.compress(value, 6)}, fp,
+                    pickle.dump({key: zlib.compress(value.encode('utf-8'), 6)}, fp,
                                 pickle.HIGHEST_PROTOCOL)
                 os.rename(tmp, path)
                 os.chmod(path, self.mode)
