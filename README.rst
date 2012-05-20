@@ -111,7 +111,8 @@ for detailed information:
 Commands
 --------
 
-See :doc:`commands` for a detailed overview.
+See `commands <https://posativ.org/acrylamid/commands.html>`_ for a detailed
+overview.
 
 ::
 
