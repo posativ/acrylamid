@@ -28,7 +28,9 @@ class Date(datetime):
     """A :class:`datetime.datetime` object that returns unicode on ``strftime``."""
 
     def strftime(self, fmt, encoding='utf-8'):
-        return unicode(datetime.strftime(self, fmt), encoding)
+        if sys.version_info < (3, 0):
+            return unicode(datetime.strftime(self, fmt), encoding)
+        return datetime.strftime(self, fmt)
 
 
 class BaseEntry(object):

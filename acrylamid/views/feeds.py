@@ -2,8 +2,9 @@
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 # -*- encoding: utf-8 -*-
 
-from datetime import datetime
 from os.path import exists
+from datetime import datetime
+from itertools import islice
 
 from acrylamid.views import View
 from acrylamid.helpers import joinurl, event, union
@@ -15,13 +16,13 @@ class Feed(View):
 
     def generate(self, request):
 
-        entrylist = filter(lambda e: not e.draft, request['entrylist'])[:self.num_entries]
+        entrylist = filter(lambda e: not e.draft, request['entrylist'])
+        entrylist = list(entrylist)[0:self.num_entries]
         tt = self.env.jinja2.get_template('%s.xml' % self.__class__.__name__.lower())
 
         path = joinurl(self.conf['output_dir'], self.path)
         if not filter(lambda e: path.endswith(e), ['.xml', '.html']):
             path = joinurl(path, 'index.html')
-
 
         if exists(path) and not filter(lambda e: e.has_changed, entrylist):
             if not tt.has_changed:

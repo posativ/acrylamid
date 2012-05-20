@@ -3,8 +3,10 @@
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
-from HTMLParser import HTMLParser as SystemsParser, HTMLParseError
+import sys
+
 from cgi import escape
+from HTMLParser import HTMLParser as DefaultParser, HTMLParseError
 
 
 def format(attrs):
@@ -17,12 +19,20 @@ def format(attrs):
     return ' '.join(res)
 
 
-class HTMLParser(object, SystemsParser):
+if sys.version_info < (3, 0):
+    class WTFMixin(object, DefaultParser):
+        pass
+else:
+    class WTFMixin(DefaultParser):
+        pass
+
+
+class HTMLParser(WTFMixin):
     """A more useful base HTMLParser.  This class contains the processed but untouched
     result in self.result. It is intended to use this class to avoid HTML mess up."""
 
     def __init__(self, html):
-        SystemsParser.__init__(self)
+        DefaultParser.__init__(self)
         self.result = []
         self.stack = []
 

@@ -49,7 +49,7 @@ class Markdown(Filter):
                     else:
                         for name in mod.match:
                             self.extensions[name] = mdx
-                except (ImportError, Exception), e:
+                except (ImportError, Exception) as e:
                     self.failed.append('%r %s: %s' % (mem, e.__class__.__name__, e))
 
     def __contains__(self, key):

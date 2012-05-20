@@ -96,7 +96,10 @@ def md5(*objs,  **kw):
     attr = kw.get('attr', lambda o: o.__str__())  # positional arguments before *args issue
     h = hashlib.md5()
     for obj in objs:
-        h.update(attr(obj))
+        try:
+            h.update(attr(obj))
+        except TypeError:  # python3 m(
+            h.update(attr(obj).encode('utf-8'))
 
     return h.hexdigest()
 
@@ -141,7 +144,7 @@ def safeslug(slug):
         slug = slug.encode('translit/long').strip()
     for word in _slug_re.split(slug.lower()):
         if not translitcodec:
-            word = normalize('NFKD', word).encode('ascii', 'ignore').strip()
+            word = normalize('NFKD', word).encode('ascii', 'ignore').decode('utf-8').strip()
             log.once(warn="no 'translitcodec' found, using NFKD algorithm")
         if word and not word[0] in '-:':
             result.append(word)

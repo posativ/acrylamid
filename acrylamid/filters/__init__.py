@@ -11,6 +11,7 @@ import fnmatch
 
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
+from acrylamid.lib.lazy import _demandmod as LazyModule
 
 
 def get_filters():
@@ -32,6 +33,8 @@ def index_filters(module, conf, env):
 
     cs = [getattr(module, c) for c in dir(module) if not c.startswith('_')]
     for mem in cs:
+        if isinstance(mem, LazyModule):
+            continue  # weird things happen when instance-checking with meta
         if isinstance(mem, meta) and hasattr(mem, 'match'):
             callbacks.append(mem)
 
@@ -94,7 +97,7 @@ def initialize(ext_dir, conf, env, include=[], exclude=[]):
     for mem in ext_list:
         try:
             _module = __import__(mem)
-        except (ImportError, Exception), e:
+        except (ImportError, Exception) as e:
             log.warn('%r %s: %s', mem, e.__class__.__name__, e)
             continue
 
@@ -216,7 +219,7 @@ class FilterList(list):
     def __getitem__(self, item):
 
         try:
-            f = filter(lambda x: item in x.match, self)[0]
+            f = list(filter(lambda x: item in x.match, self))[0]
         except IndexError:
             raise ValueError('%s is not in list' % item)
 

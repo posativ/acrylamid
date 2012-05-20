@@ -170,7 +170,7 @@ def compile(conf, env, force=False, **options):
             found = entry.filters + v.filters + request['conf']['filters']
 
             for fn in found:
-                fx = filter(lambda k: fn == k.name, ns)[0]
+                fx = list(filter(lambda k: fn == k.name, ns))[0]
                 if fx not in flst:
                     flst.append(fx)
 

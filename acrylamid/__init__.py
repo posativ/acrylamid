@@ -35,7 +35,7 @@ from acrylamid.tasks import get_tasks
 from acrylamid.errors import AcrylamidException
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
-sys.path.insert(0, os.path.dirname(__package__))
+sys.path.insert(0, os.path.dirname(__file__))
 
 
 class Environment(dict):
