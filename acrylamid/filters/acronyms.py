@@ -63,7 +63,7 @@ class Acronyms(Filter):
             elif secondpart.startswith("acronym|"):
                 secondpart = secondpart[8:]
 
-            acronyms[firstpart] = secondpart
+            acronyms[re.compile(firstpart)] = secondpart
 
         self.acronyms = acronyms
 
@@ -74,11 +74,21 @@ class Acronyms(Filter):
             acros = dict(filter(lambda k: any(k[0] == v for v in args), acros.items()))
 
         try:
-            abbr = re.compile(r'\b(%s)\b' % '|'.join(acros))
+            abbr = re.compile(r'\b(%s)\b' % '|'.join((pat.pattern for pat in acros)))
         except re.error as e:
             log.warn("acronyms: %s", e.args[0])
 
-        repl = lambda m: '<abbr title="%s">%s</abbr>' % (acros[m.group(0)], m.group(0))
+        def repl(match):
+
+            abbr = match.group(0)
+            desc = acros.get(abbr, None)
+
+            if desc is None:
+                for pat in acros:
+                    if pat.match(abbr):
+                        desc = acros.get(pat)
+                        break
+            return '<abbr title="%s">%s</abbr>' % (desc, abbr)
 
         try:
             return ''.join(Acrynomify(text, abbr, repl).result)
