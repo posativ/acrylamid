@@ -225,14 +225,13 @@ def system(cmd, stdin=None, **kwargs):
 
     :param cmd: command to run (a single string or a list of strings).
     :param stdin: optional string to pass to stdin.
-    :param kwargs: is passed to :class:`subprocess.Popen`.
-    """
+    :param kwargs: is passed to :class:`subprocess.Popen`."""
 
     try:
         if stdin:
             p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                  stdin=subprocess.PIPE, **kwargs)
-            result, err = p.communicate(stdin)
+            result, err = p.communicate(stdin.encode('utf-8'))
         else:
             p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kwargs)
             result, err = p.communicate()
@@ -244,8 +243,8 @@ def system(cmd, stdin=None, **kwargs):
     if err or retcode != 0:
         if not err.strip():
             err = 'process exited with %i.' % retcode
-        raise AcrylamidException(err.strip())
-    return result.strip()
+        raise AcrylamidException(err.strip().decode('utf-8'))
+    return result.strip().decode('utf-8')
 
 
 def metavent(cls, parents, attrs):
