@@ -23,7 +23,7 @@ class TestUtils(unittest.TestCase):
 
     def test_convert(self):
 
-        md = 'Hello *[World](http://example.com/)!*'
+        md = 'Hello _[World](http://example.com/)!_'
         rst = 'Hello *`World <http://example.com/>`_!*'
         html = '<p>Hello <em><a href="http://example.com/">World</a>!</em></p>'
 

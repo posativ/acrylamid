@@ -155,12 +155,16 @@ class Acryl:
             ]
         # --- import params --- #
         elif sys.argv[1] in ('import', ):
-            usage = "%prog " + sys.argv[1] + " [-mk]"
+            usage = "%prog " + sys.argv[1] + " [-fmkp] URL or FILE"
             options = [
-                make_option("-m", dest="import_fmt", default="Markdown",
-                            help="reconvert HTML to MARKUP"),
-                make_option("-k", "--keep-links", dest="keep_links", action="store_true",
-                            help="keep permanent links"),
+                make_option("-f", "--force", dest="force", action="store_true",
+                            help="overwrite existing entries", default=False),
+                make_option("-m", dest="fmt", default="Markdown",
+                            help="reconvert HTML to FMT"),
+                make_option("-k", "--keep-links", dest="keep", action="store_true",
+                            help="keep permanent links", default=False),
+                make_option("-p", "--pandoc", dest="pandoc", action="store_true",
+                            help="use pandoc first", default=False),
             ]
         # --- deploy params --- #
         elif sys.argv[1] in ('deploy', 'dp'):
@@ -277,7 +281,7 @@ class Acryl:
                 log.fatal('import requires a valid URL')
                 sys.exit(1)
             try:
-                commands.importer(conf, env, args[1], **options.__dict__)
+                commands.imprt(conf, env, args[1], **options.__dict__)
             except AcrylamidException as e:
                 log.critical(e.message)
                 sys.exit(1)

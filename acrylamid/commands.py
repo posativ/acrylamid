@@ -279,21 +279,22 @@ def new(conf, env, title, prompt=True):
         raise AcrylamidException('File is empty!')
 
 
-def importer(conf, env, url, **options):
+def imprt(conf, env, url, **options):
     """Subcommand: import -- import entries and settings from an existing RSS/Atom
-    feed.  ``acrylamid import http://example.com/feed/`` should do the job.
+    feed or WordPress dump.  ``acrylamid import http://example.com/feed/`` or any
+    local FILE is fine.
 
-    If ``pandoc`` or ``html2text`` are available, first pandoc and second html2text
-    are used to convert HTML back to Markdown-compatible text.  If you like reST more
-    than Markdown, specify ``--format=rst`` and be sure you have either ``pandoc`` or
-    ``html2rest`` installed on your system.
+    By default we use ``html2text`` (if available) to re-convert to Markdown, with
+    ``-m rst`` you can also re-convert to reST if you have ``html2rest`` installed.
+    As fallback there we have ``pandoc`` but you can use pandoc as first choice with
+    the ``-p`` flag.
 
-    If you don't like any reconversion, simply use ``--format=html``."""
+    If you don't like any reconversion, simply use ``-m html``. This command supports
+    the force flag to override already existing files. Use with care!"""
 
     content = importer.fetch(url, auth=options.get('auth', None))
     defaults, items = importer.parse(content)
-    importer.build(conf, env, defaults, items, fmt=options['import_fmt'],
-                                               keep=options['keep_links'])
+    importer.build(conf, env, defaults, items, **options)
 
 
 def deploy(conf, env, task, *args):
@@ -333,4 +334,4 @@ def deploy(conf, env, task, *args):
             sys.stdout.flush()
 
 
-__all__ = ["compile", "autocompile", "new", "importer", "deploy"]
+__all__ = ["compile", "autocompile", "new", "imprt", "deploy"]

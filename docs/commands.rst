@@ -166,21 +166,19 @@ If you are unsure, wether your pattern works, use -n/--dry-run!
 import
 ------
 
-Acrylamid features a basic RSS, Atom feed importer and also a WordPress Export
-importer to make it more easy to move to Acrylamid. To import a feed, point to
-an URL or local FILE. By default, all HTML is reconversed to Markdown using,
-first pandoc_ if found, then `html2text
-<http://www.aaronsw.com/2002/html2text/>`_ if found, else the plain HTML is
-stored into plaintext files. reStructuredText is also supported by pandoc_ and
-optional by `html2rest <http://pypi.python.org/pypi/html2rest>`_. If you have
-imported your content successfully you get a short hint of what configuration
-you have to edit to.
+Acrylamid features a basic RSS and Atom feed importer as well as a WordPress
+dump importer to make it more easy to move to Acrylamid. To import a feed,
+point to an URL or local FILE. By default, all HTML is reconversed to Markdown
+using, first html2text_ if found then pandoc_ if found, otherwise plain HTML.
+reStructuredText is also supported via html2rest_ and optionally by pandoc_.
 
 Migrating from WordPress is more difficult than an RSS/Atom feed because WP does
 not store a valid HTML content but a pre-HTML state. Thus we fix this with some
 stupid <br />-Tags to convert it back to Markdown/reStructuredText. It is not
 recommended to import WordPress blogs as pure HTML because it does not validate!
 
+.. _html2text: http://www.aaronsw.com/2002/html2text/
+.. _html2rest: http://pypi.python.org/pypi/html2rest
 .. _pandoc: http://johnmacfarlane.net/pandoc/
 
 ::
@@ -204,12 +202,14 @@ recommended to import WordPress blogs as pure HTML because it does not validate!
     which a re-layout of your entries, you can use ``--keep-links`` to use the
     permalink as path.
 
--m, --markup=LANG   reconversion of HTML to LANG, supports every language that
+-f, --force         override existing entries, use with care!
+-m FMT              reconversion of HTML to FMT, supports every language that
                     pandoc supports (if you have pandoc installed). Use "HTML"
                     if you don't whish any reconversion.
 -k, --keep-links    keep original permanent-links and also create content
                     structure in that way. This does *not* work, if you links
                     are like this: ``/?p=23``.
+-p, --pandoc        use pandoc first, then ``html2rest`` or ``html2text``
 
 
 deploy

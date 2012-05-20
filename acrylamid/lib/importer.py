@@ -40,7 +40,7 @@ def unescape(s):
             lambda m: unichr(name2codepoint[m.group(1)]), s)
 
 
-def convert(data, fmt='markdown'):
+def convert(data, fmt='markdown', pandoc=False):
     """Reconversion of HTML to Markdown or reStructuredText.  Defaults to Markdown,
     but can be in fact every format pandoc supports. If pandoc is not available, try
     some specific conversion tools like html2text and html2rest.
@@ -57,7 +57,8 @@ def convert(data, fmt='markdown'):
     else:
         cmds = []
 
-    cmds.insert(0, ['pandoc', '--normalize', '-f', 'html', '-t', fmt, '--strict'])
+    p = ['pandoc', '--normalize', '-f', 'html', '-t', fmt, '--strict']
+    cmds.insert(0, p) if pandoc else cmds.append(p)
 
     if fmt == 'html':
         return data, 'html'
@@ -69,7 +70,7 @@ def convert(data, fmt='markdown'):
 
     for cmd in cmds:
         try:
-            return system(cmd, stdin=str(data.decode('utf-8'))), fmt.lower()
+            return system(cmd, stdin=data), fmt.lower()
         except AcrylamidException as e:
             log.warn(e.message)
         except OSError:
@@ -191,7 +192,11 @@ def wp(xml):
         raise AcrylamidException('BeautifulSoup is required for WordPress import')
 
     soup = BeautifulStoneSoup(xml)
-    items = soup.rss.channel.findAll('item')
+
+    try:
+        items = soup.rss.channel.findAll('item')
+    except AttributeError:
+        raise InvalidSource("no such attribute 'channel'")
 
     # --- site settings --- #
     title = soup.rss.channel.fetch('title')[0].contents[0]
@@ -259,12 +264,12 @@ def parse(content):
         # except ValueError as e:
         #     raise AcrylamidException(e.message)
         except InvalidSource as e:
-            failed.append(str(e))
+            failed.append(e.message)
     else:
-        raise AcrylamidException('unable to parse source, %s' % '; '.join(failed))
+        raise AcrylamidException('unable to parse source')
 
 
-def build(conf, env, defaults, items, fmt, keep=False):
+def build(conf, env, defaults, items, fmt, keep=False, force=False, pandoc=False, **kw):
 
     def create(defaults, title, date, author, content, fmt, permalink=None, tags=None):
 
@@ -291,7 +296,6 @@ def build(conf, env, defaults, items, fmt, keep=False):
             # or reStructuredText/Markdown
             if USED_WORDPRESS and fmt == 'markdown':
                 content = content.replace("\n ", "  \n")
-                content = content.replace("\n", "  \n")
             elif USED_WORDPRESS and fmt == 'rst':
                 content = content.replace('\n ', '\n\n')
             f.write(content+u'\n')
@@ -305,7 +309,7 @@ def build(conf, env, defaults, items, fmt, keep=False):
             pass
 
         filepath = p + '.txt'
-        if isfile(filepath):
+        if isfile(filepath) and not force:
             raise AcrylamidException('Entry already exists %r' % filepath)
         os.rename(tmp, filepath)
         event.create(filepath)
@@ -316,7 +320,7 @@ def build(conf, env, defaults, items, fmt, keep=False):
             m = urlsplit(item['link'])
             permalink = m.path if m.path != '/' else None
 
-        content, fmt = convert(item.get('content', ''), fmt)
+        content, fmt = convert(item.get('content', ''), fmt, pandoc)
         create(defaults, item['title'], item['date'], item['author'], content, fmt,
                tags=item.get('tags', None), permalink=permalink if keep else None)
 
