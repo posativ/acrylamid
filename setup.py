@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import sys
 import re
 
 from distutils.core import setup
@@ -7,6 +8,20 @@ from os.path import join, dirname
 
 version = re.search("__version__ = '([^']+)'",
                     open('acrylamid/__init__.py').read()).group(1)
+
+requires = ['Jinja2>=2.4', 'Markdown>=2.0.1']
+
+if sys.version_info < (3, 0):
+    requires.append('translitcodec>=0.2')
+
+if '--full' in sys.argv:
+    requires.extend([
+        'pygments',
+        'docutils',
+        'smartypants',
+        'asciimathml',
+        'pytextile',
+    ])
 
 setup(
     name='acrylamid',
@@ -36,14 +51,10 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Programming Language :: Python",
     ],
-    install_requires=[
-        'Jinja2>=2.4',
-        'Markdown>=2.0.1',
-        'translitcodec>=0.2'
-    ],
+    install_requires=requires,
     tests_require=[
         'tox',
         'cram',
         'konira'
-    ],
+    ]
 )
