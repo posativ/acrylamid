@@ -98,7 +98,7 @@ class Tag(View):
 
                 if next == 1:
                     next = expand(self.path, {'name': tag}).rstrip('/')
-                elif next > 1:
+                elif next and next > 1:
                     next = expand(self.pagination, {'name': tag, 'num': next})
 
                 if curr == 1:

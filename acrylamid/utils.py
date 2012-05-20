@@ -5,8 +5,11 @@
 #
 # Utilities that do not depend on any further Acrylamid object
 
+from __future__ import unicode_literals
+
 import os
 import io
+import re
 import functools
 
 from fnmatch import fnmatch
@@ -96,6 +99,37 @@ class memoized(object):
    def __get__(self, obj, objtype):
       """Support instance methods."""
       return functools.partial(self.__call__, obj)
+
+
+def execfile(path, ns={}):
+    """A python3 compatible way to use conf.py's with encoding declaration
+    -- based roughly on http://stackoverflow.com/q/436198/5643233#5643233."""
+
+    encre = re.compile(r"^#.*coding[:=]\s*([-\w.]+)")
+
+    with io.open(path, 'r') as fp:
+        try:
+            enc = encre.search(fp.readline()).group(1)
+        except AttributeError:
+            enc = "utf-8"
+        with io.open(path, 'r', encoding=enc) as fp:
+            contents = '\n'.join(fp.readlines()[1:])
+        if not contents.endswith("\n"):
+            # http://bugs.python.org/issue10204
+            contents += "\n"
+        exec contents in ns
+
+
+def batch(iterable, count):
+    """batch a list to N items per slice"""
+    result = []
+    for item in iterable:
+        if len(result) == count:
+            yield result
+            result = []
+        result.append(item)
+    if result:
+        yield result
 
 
 def filelist(content_dir, entries_ignore=[]):

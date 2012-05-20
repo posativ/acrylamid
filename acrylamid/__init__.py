@@ -30,6 +30,7 @@ import signal
 from optparse import OptionParser, make_option, SUPPRESS_HELP
 from textwrap import fill
 from acrylamid import defaults, log, commands
+from acrylamid.utils import execfile
 from acrylamid.tasks import get_tasks
 from acrylamid.errors import AcrylamidException
 
@@ -240,14 +241,14 @@ class Acryl:
             try:
                 commands.compile(conf, env, **options.__dict__)
             except AcrylamidException as e:
-                log.fatal(e.message)
+                log.fatal(e.args[0])
                 sys.exit(1)
 
         elif args[0] in ('new', 'create'):
             try:
                 commands.new(conf, env, title=' '.join(args[1:]), prompt=log.level()<log.WARN)
             except AcrylamidException as e:
-                log.fatal(e.message)
+                log.fatal(e.args[0])
                 sys.exit(1)
 
         elif args[0] in ('srv', 'serve', 'view'):
@@ -272,7 +273,7 @@ class Acryl:
                 commands.autocompile(conf, env, **options.__dict__)
             except (SystemExit, KeyboardInterrupt, Exception) as e:
                 ws.kill_received = True
-                log.error(e.message)
+                log.error(e.args[0])
                 traceback.print_exc(file=sys.stdout)
                 sys.exit(0)
 
@@ -283,7 +284,7 @@ class Acryl:
             try:
                 commands.imprt(conf, env, args[1], **options.__dict__)
             except AcrylamidException as e:
-                log.critical(e.message)
+                log.critical(e.args[0])
                 sys.exit(1)
 
         elif args[0] in ('deploy', 'dp', 'task'):
@@ -292,14 +293,14 @@ class Acryl:
             try:
                 commands.deploy(conf, env, args[1], *args[2:])
             except AcrylamidException as e:
-                log.critical(e.message)
+                log.critical(e.args[0])
                 sys.exit(1)
 
         elif args[0] in tasks:
             try:
                 tasks[args[0]].run(conf, env, args[1:], **options.__dict__)
             except AcrylamidException as e:
-                log.critical(e.message)
+                log.critical(e.args[0])
                 sys.exit(1)
         else:
             log.critical('No such command!')

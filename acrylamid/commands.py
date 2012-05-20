@@ -217,7 +217,7 @@ def autocompile(conf, env, **options):
             try:
                 compile(conf, env, **options)
             except AcrylamidException as e:
-                log.fatal(e.message)
+                log.fatal(e.args[0])
                 pass
             mtime = ntime
         time.sleep(1)

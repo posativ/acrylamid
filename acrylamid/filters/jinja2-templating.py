@@ -26,8 +26,8 @@ class Jinja2(Filter):
             try:
                 return defaultsystem(cmd, shell=True).strip()
             except (OSError, AcrylamidException) as e:
-                log.warn('%s: %s' % (e.__class__.__name__, e.message))
-                return e.message
+                log.warn('%s: %s' % (e.__class__.__name__, e.args[0]))
+                return e.args[0]
 
         self.conf = conf
         self.env = env
@@ -42,5 +42,5 @@ class Jinja2(Filter):
             tt = self.jinja2_env.from_string(content)
             return tt.render(conf=self.conf, env=self.env, entry=entry)
         except (TemplateError, AcrylamidException, OSError, TypeError) as e:
-            log.warn('%s: %s in %s' % (e.__class__.__name__, e.message, entry.filename))
+            log.warn('%s: %s in %s' % (e.__class__.__name__, e.args[0], entry.filename))
             return content

@@ -135,11 +135,11 @@ class meta(type):
                     self.initialized = True
                 except ImportError as e:
                     if self.env.options.ignore:
-                        log.warn(e.message)
+                        log.warn(e.args[0])
                         setattr(cls, 'transform', lambda cls, x, y, *z: x)
                         self.initialized = True
                         return lambda cls, x, y, *z: x
-                    raise AcrylamidException('ImportError: %s' % e.message)
+                    raise AcrylamidException('ImportError: %s' % e.args[0])
             return func
 
         init = dct.get('init', lambda s, x, y: None)
@@ -171,12 +171,14 @@ class Filter(object):
         self.args = args
 
         # precalculate __hash__ because we need it quite often in tree
-        h = hash(fname + repr(args))
-        setattr(self, '__hash__', lambda : h)
+        self.hv = hash(fname + repr(args))
 
     def __repr__(self):
         return "<%s@%s %2.f:%s>" % (self.__class__.__name__, self.version,
                                     self.priority, self.name)
+
+    def __hash__(self):
+        return self.hv
 
     def __eq__(self, other):
         return True if hash(other) == hash(self) else False

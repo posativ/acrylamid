@@ -18,6 +18,7 @@ from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
 from acrylamid.core import cache
+from acrylamid.utils import batch
 
 try:
     import translitcodec
@@ -147,13 +148,13 @@ def safeslug(slug):
     return unicode('-'.join(result))
 
 
-def paginate(list, ipp, func=lambda x: x, salt=None, orphans=0):
+def paginate(lst, ipp, func=lambda x: x, salt=None, orphans=0):
     """Yields a triple ((next, current, previous), list of entries, has
     changed) of a paginated entrylist. It will first filter by the specified
     function, then split the ist into several sublists and check wether the
     list or an entry has changed.
 
-    :param list: the entrylist containing Entry instances.
+    :param lst: the entrylist containing Entry instances.
     :param ipp: items per page
     :param func: filter list of entries by this function
     :param salt: uses as additional identifier in memoize
@@ -166,9 +167,8 @@ def paginate(list, ipp, func=lambda x: x, salt=None, orphans=0):
     (1, 2, None), [entries 12..20]"""
 
     # apply filter function and prepare pagination with ipp
-    res = filter(func, list)
-    res = [res[x*ipp:(x+1)*ipp] for x in range(len(res)/ipp+1)
-           if res[x*ipp:(x+1)*ipp]]
+    res = filter(func, lst)
+    res = list(batch(res, ipp))
 
     if len(res) >= 2 and len(res[-1]) <= orphans:
         res[-2].extend(res[-1])
