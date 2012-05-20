@@ -16,7 +16,6 @@ import re
 import smartypants
 
 from acrylamid.filters import Filter
-from acrylamid.errors import AcrylamidException
 
 mode = "2"  # -- en-dash, --- em-dash
 default = ['amp', 'widont', 'smartypants', 'caps']

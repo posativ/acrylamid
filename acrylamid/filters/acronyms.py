@@ -79,7 +79,12 @@ class Acronyms(Filter):
             log.warn("acronyms: %s", str(e))
 
         repl = lambda m: '<abbr title="%s">%s</abbr>' % (acros[m.group(0)], m.group(0))
-        return ''.join(Acrynomify(text, abbr, repl).result)
+
+        try:
+            return ''.join(Acrynomify(text, abbr, repl).result)
+        except HTMLParseError as e:
+            log.warn('%s: %s in %s' % (e.__class__.__name__, e.msg, entry.filename))
+            return text
 
 
 ACRONYMS = r"""

@@ -181,9 +181,6 @@ class Filter(object):
     def __eq__(self, other):
         return True if hash(other) == hash(self) else False
 
-    def transform(self, text, entry, *args):
-        raise NotImplemented
-
 
 class FilterList(list):
     """a list containing tuples of (filtername, filterfunc, arguments).
@@ -250,7 +247,7 @@ class FilterTree(list):
     def __iter__(self):
         """Iterating over list of filters of given context."""
 
-        raise NotImplemented('XXX get context with some magic')
+        raise NotImplementedError('XXX get context with some magic')
 
     def add(self, lst, context):
         """This adds a list of filters and stores the context and the

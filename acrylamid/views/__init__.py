@@ -98,7 +98,7 @@ def initialize(ext_dir, conf, env):
             _module = __import__(mem)
             #sys.modules[__package__].__dict__[mem] = _module
             index_views(_module, urlmap, conf, env)
-        except (ImportError, Exception), e:
+        except (ImportError, Exception) as e:
             log.error('%r ImportError %r', mem, e)
             traceback.print_exc(file=sys.stdout)
 

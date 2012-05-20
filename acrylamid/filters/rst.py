@@ -7,7 +7,6 @@
 import os
 
 from acrylamid import log
-from acrylamid.errors import AcrylamidException
 from acrylamid.filters import Filter
 from acrylamid.filters.md import get_pygments_style
 

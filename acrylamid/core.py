@@ -8,7 +8,6 @@
 import os
 import io
 import zlib
-import hashlib
 import tempfile
 
 from collections import defaultdict
