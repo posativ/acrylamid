@@ -2,7 +2,7 @@
 
 import re
 
-from acrylamid.filters import FilterList
+from acrylamid.filters import FilterList, FilterTree
 from acrylamid.filters import Filter
 
 
@@ -54,3 +54,37 @@ describe 'FilterList':
         assert x['sp'] == f3
         assert x['spam'] == f3
         assert x['sPaMmEr'] == f3
+
+
+describe 'FilterTree':
+
+    it 'remembers path correctly':
+
+        t = FilterTree()
+        t.add([1, 3, 4, 7], 'foo')
+        assert t.path('foo') == [1, 3, 4, 7]
+
+
+    it 'works as expected':
+
+        t = FilterTree()
+
+        t.add([1, 2, 5], 'foo')
+        t.add([1, 2, 3, 5], 'bar')
+        t.add([7, ], 'baz')
+
+        assert list(t.iter('foo')) == [[1, 2], [5, ]]
+        assert list(t.iter('bar')) == [[1, 2], [3, 5]]
+        assert list(t.iter('baz')) == [[7, ], ]
+
+    it 'handles edge cases':
+
+        t = FilterTree()
+
+        t.add([1, 2], 'foo')
+        t.add([1, 2], 'bar')
+        t.add([2, ], 'baz')
+
+        assert list(t.iter('foo')) == [[1, 2], ]
+        assert list(t.iter('bar')) == [[1, 2], ]
+        assert list(t.iter('baz')) == [[2, ], ]
