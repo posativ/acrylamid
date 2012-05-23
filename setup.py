@@ -10,9 +10,13 @@ version = re.search("__version__ = '([^']+)'",
                     open('acrylamid/__init__.py').read()).group(1)
 
 requires = ['Jinja2>=2.4', 'Markdown>=2.0.1']
+kw = {}
 
 if sys.version_info < (3, 0):
     requires.append('translitcodec>=0.2')
+else:
+    kw['use_2to3'] = True
+    kw['use_2to3_exclude_fixers'] = ['lib2to3.fixes.execfile', ]
 
 if '--full' in sys.argv:
     requires.extend([
@@ -61,5 +65,6 @@ setup(
         'tox',
         'cram',
         'konira'
-    ]
+    ],
+    **kw
 )
