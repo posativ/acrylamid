@@ -1,7 +1,7 @@
 Knowledge base
 ==============
 
-about-page and other static pages
+About Page and Other Static Pages
 *********************************
 
 If you want set up an about page like in WordPress just add permalink
@@ -16,46 +16,83 @@ and ``static=True`` to your YAML::
 A YAML-header like this will hide the entry from the tag/page/article
 views. Save static pages for example to ``content/about.txt`` instead
 of ``content/2011/`` (though this is *not* required).
-
 This will render the entry (processed by entry view and filters) to
 location */about/*.
 
-performance tweaks
+Per-Tag Feed
+************
+
+A single feed pretty easy, just add this into your *conf.py*:
+
+.. code-block:: python
+
+    '/my/feed': {'view': 'feed', 'if': lambda e: 'whatever' in e.tags}
+
+To have a feed for all tags, we must use a little more python. TODO!
+
+Image Gallery
+*************
+
+Acrylamid does not ship an image gallery and will properbly never do -- it's
+too complex to fit to everyones need. But that does not mean, you can not have
+a automated image gallery. You can write:
+
+.. code-block:: html+jinja
+
+    {% set images = "ls output/img/2012/st-petersburg/*.jpg" | cut -d / -f 5"  %}
+    {% for bunch in images | system | split | batch(num) %}
+    <figure>
+      {% for file in bunch %}
+      <a href="/img/2012/st-petersburg/{{ file }}" style="float: left; width: 25%">
+      <img src="/img/2012/st-petersburg/thumbs/{{ file }}" width="150" height="150"
+           alt="{{ file }}"/>
+      </a>
+      {% endfor %}
+    </figure>
+    <br style="clear: both" />
+    {% endfor %}
+
+this into your jinja2-enabled post (= ``filter: jinja2``) and make sure you
+point to your image location. To convert thumbnails from your images, you
+can use `ImageMagick's`_ convert to create 150x150 px thumbnails in *thumbs/*:
+
+.. code-block:: bash
+
+    $ for file in `ls *.jpg`; do
+    >   convert -define jpeg:size=300x300 $file -thumbnail 150x150^ -gravity center -extent 150x150 "thumbs/$file";
+    > done
+
+.. _ImageMagick's: http://www.imagemagick.org/
+
+That will look similar to my blog article about `St. Petersburg <http://blog.posativ.org/2012/impressionen-aus-russland-st-petersburg/>`_.
+
+Performance Tweaks
 ******************
 
-Though acrylamid caches as much as possible, re-generation in worst-case can
-be something like :math:`f(x) = 0.5 + 0.1x` where x is the amount of entries
-processed. :math:`f(x)` returns the computing time if you have expensive
-filters like *hyphenate* or *reStructuredText*.
-On my MacBook (i5 2,4 Ghz) *hyphenate* takes around 257 ms for each language
-just for generating the pattern. To just import *reStructuredText* from
-``docutils`` the interpreter spends 191 ms to compile regular expressions.
-
-If acrylamid is too slow, first thing you can do is to **turn off
-hyphenation**. If a single entry changes (must not be a reStructuredText post)
-it loads at least the default language pattern which adds a huge constant in
-`O-notation <https://en.wikipedia.org/wiki/Big_O_notation>`_. Below a short
-profiling of generation using hyphenate and reST filters.
-
-::
-
-    ncalls  tottime  percall  cumtime  percall filename:lineno(function)
-         1    0.000    0.000    0.685    0.685 acrylamid:7(<module>)
-     14263    0.130    0.000    0.257    0.000 hyphenation.py:45(_insert_pattern)
-     25/23    0.004    0.000    0.244    0.011 {__import__}
-     28848    0.031    0.000    0.201    0.000 re.py:228(_compile)
-         1    0.003    0.003    0.191    0.191 rst.py:7(<module>)
-       174    0.001    0.000    0.161    0.001 sre_compile.py:495(compile)
-
-
-Thus, Markdown instead of reStructuredText as markup language might be faster.
+Markdown instead of reStructuredText as markup language might be faster.
 Another important factor is the typography-filter (disabled by default) which
 consumes about 40% of the whole compilation process. If you don't care about
 web typography, disable this feature gives you a huge performance boost when
 you compile your whole site.
 
-static site search
+A short list from slow filters (slowest to less slower):
+
+1. Typography
+2. Acronyms
+3. reStructuredText
+4. Hyphenation
+
+Though reStructuredText is not *that* slow, it takes about 300 ms just to
+initialize itself. But Typography as well as Acronyms and Hyphenation are
+limited by their underlying library, namely :class:`HTMLParser` and
+:class:`re`.
+
+.. _PCRE: http://www.pcre.org/
+
+Static Site Search
 ******************
+
+.. note:: This does not work with our HTML5 theme (default)
 
 Currently acrylamid has no support for an integrated search based on the
 `sphinx' approach <http://sphinx.pocoo.org/>`_, therefore you can either use

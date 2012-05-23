@@ -48,7 +48,7 @@ features mainly:
 - Markdown extensions and custom reStructuredText directives
 - MathML, modern web-typography and hyphenation using soft-hyphens
 - RSS/Atom/WordPress import, deployment and a handy CLI
-- it's very flexible/configurable and fast
+- it's very flexible/configurable and fast due *incremental rendering*
 
 .. _jinja2: http://jinja.pocoo.org/
 .. _Markdown: http://daringfireball.net/projects/markdown/
