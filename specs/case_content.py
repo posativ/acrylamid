@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import sys; reload(sys)
-sys.setdefaultencoding('utf-8')
-
-import unittest # NOQA
 import tempfile
 import shutil
 import os
@@ -41,9 +37,9 @@ def entry(**kw):
     return '\n'.join(res)
 
 
-class TestSingleEntry(unittest.TestCase):
+describe 'single entry':
 
-    def setUp(self):
+    before all:
 
         self.path = tempfile.mkdtemp(dir='.')
         os.chdir(self.path)
@@ -60,46 +56,46 @@ class TestSingleEntry(unittest.TestCase):
         self.conf['views'] = {'/:year/:slug/': {'view': 'entry'}}
 
 
-    def test_auto_permalink(self):
+    it 'exists at permalink':
         with open('content/bla.txt', 'wb') as fp:
             fp.write(entry())
 
         compile(self.conf, self.env, options)
         assert isfile(join('output/', '2012', 'haensel-and-gretel', 'index.html'))
 
-    def test_custom_permalink(self):
+    it 'also renders to a custom permalink':
         with open('content/bla.txt', 'wb') as fp:
             fp.write(entry(permalink='/about/me.asp'))
 
         compile(self.conf, self.env, options)
         assert isfile(join('output/', 'about', 'me.asp'))
 
-    def test_custom_dir_permalink(self):
+    it 'appends an index.html to custom slash ending permalinks':
         with open('content/bla.txt', 'wb') as fp:
             fp.write(entry(permalink='/about/me/'))
 
         compile(self.conf, self.env, options)
         assert isfile(join('output/', 'about', 'me', 'index.html'))
 
-    def test_content_plain(self):
+    it 'returns plain text':
         with open('content/bla.txt', 'wb') as fp:
             fp.write(entry(permalink='/'))
 
         compile(self.conf, self.env, options)
 
         expected = '# Test\n\nThis is supercalifragilisticexpialidocious.'
-        self.assertEqual(open('output/index.html').read(), expected)
+        assert open('output/index.html').read() == expected
 
-    def test_content_minimal(self):
+    it 'renders Markdown':
         with open('content/bla.txt', 'wb') as fp:
             fp.write(entry(permalink='/', filter='[Markdown]'))
 
         compile(self.conf, self.env, options)
 
         expected = '<h1>Test</h1>\n<p>This is supercalifragilisticexpialidocious.</p>'
-        self.assertEqual(open('output/index.html').read(), expected)
+        assert open('output/index.html').read() == expected
 
-    def test_content_full(self):
+    it 'renders a full filter chain':
         with open('content/bla.txt', 'wb') as fp:
             fp.write(entry(permalink='/', filter='[Markdown, h1, hyphenate]', lang='en'))
 
@@ -107,16 +103,16 @@ class TestSingleEntry(unittest.TestCase):
 
         expected = ('<h2>Test</h2>\n<p>This is su&shy;per&shy;cal&shy;ifrag&shy;'
                     'ilis&shy;tic&shy;ex&shy;pi&shy;ali&shy;do&shy;cious.</p>')
-        self.assertEqual(open('output/index.html').read(), expected)
+        assert open('output/index.html').read() == expected
 
-    def tearDown(self):
+    after all:
         os.chdir('../')
         shutil.rmtree(self.path)
 
 
-class TestMultipleEntries(unittest.TestCase):
+describe 'multiple entries':
 
-    def setUp(self):
+    before all:
 
         self.path = tempfile.mkdtemp(dir='.')
         os.chdir(self.path)
@@ -136,7 +132,7 @@ class TestMultipleEntries(unittest.TestCase):
         self.conf['views'] = {'/:year/:slug/': {'view': 'entry'},
                               '/atom.xml': {'view': 'Atom', 'filters': ['h2', 'summarize+2']}}
 
-    def test_simple_markdown(self):
+    it 'renders Markdown':
         with open('content/foo.txt', 'wb') as fp:
             fp.write(entry(title='Foo'))
         with open('content/bar.txt', 'wb') as fp:
@@ -145,9 +141,9 @@ class TestMultipleEntries(unittest.TestCase):
         compile(self.conf, self.env, options)
 
         expected = '<h2>Test</h2>\n<p>This is supercalifragilisticexpialidocious.</p>'
-        self.assertEqual(open('output/2012/foo/index.html').read(), expected)
-        self.assertEqual(open('output/2012/bar/index.html').read(), expected)
+        assert open('output/2012/foo/index.html').read() == expected
+        assert open('output/2012/bar/index.html').read() == expected
 
-    def tearDown(self):
+    after all:
         os.chdir('../')
         shutil.rmtree(self.path)
