@@ -53,7 +53,7 @@ def union(*args, **kwargs):
     return d
 
 
-def mkfile(content, path, ctime=0.0, force=False, dryrun=False, **kwargs):
+def mkfile(content, path, ctime=0.0, force=False, dryrun=False, **kw):
     """Creates entry in filesystem. Overwrite only if content differs.
 
     :param content: rendered html/xml to write
@@ -156,7 +156,9 @@ def safeslug(slug):
 
 
 def paginate(lst, ipp, func=lambda x: x, salt=None, orphans=0):
-    """Yields a triple ((next, current, previous), list of entries, has
+    """paginate(lst, ipp, func=lambda x: x, salt=None, orphans=0)
+
+    Yields a triple ((next, current, previous), list of entries, has
     changed) of a paginated entrylist. It will first filter by the specified
     function, then split the ist into several sublists and check wether the
     list or an entry has changed.

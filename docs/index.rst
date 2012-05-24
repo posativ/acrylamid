@@ -104,8 +104,7 @@ Filters
 You can apply various filter to a single entry, to a specific view or globally
 and Acrylamid resolves it automatically (some filters conflict with others so
 you can for example apply *Markdown* as global filter but render some entries
-with reStructuredText). Currently supported by acrylamid, see
-`docs/filters.rst <http://acrylamid.readthedocs.org/en/latest/filters.html>`_
+with reStructuredText). Currently supported by acrylamid, see :doc:`filters`
 for detailed information:
 
 - **Markdown**: rendering Markdown (+asciimathml, pygments, built-in extensions)

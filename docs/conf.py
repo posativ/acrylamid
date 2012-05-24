@@ -33,7 +33,6 @@ html_static_path = ['_static']
 
 htmlhelp_basename = 'acrylamiddoc'
 
-
 # -- Options for LaTeX output --------------------------------------------------
 
 latex_documents = [
