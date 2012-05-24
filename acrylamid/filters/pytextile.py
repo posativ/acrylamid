@@ -18,8 +18,11 @@ class PyTextile(Filter):
     conflicts = ['Markdown', 'reStructuredText', 'HTML', 'Pandoc']
     priority = 70.0
 
-    def transform(self, text, entry, *args):
+    def init(self, conf, env):
 
         if textile is None:
             raise ImportError('Textile: PyTextile not available')
+
+    def transform(self, text, entry, *args):
+
         return textile(text)

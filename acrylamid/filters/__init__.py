@@ -189,7 +189,7 @@ class Filter(object):
     .. attribute:: priority
 
        A filter chain is sorted by priority, so if you do textual modification
-       you should have a priority ≥ 50.0 (default for Markdown, reST and so
+       you should have a priority ≥ 70.0 (default for Markdown, reST and so
        on).
 
     .. attribute:: match
@@ -212,7 +212,7 @@ class Filter(object):
        you may also check explicitly for ImportErrors from a statement
        like ``import foo`` that will not throw an :doc:`ImportError` because
        we delay the actual import. Just make write ``foo.bar`` in :doc:`init`
-       and when it throws an ImportError, it will automatically handled.
+       and when it throws an ImportError, it is automatically handled.
 
        Have a look at ``acrylamid.filters.md.py`` or ``acrylamid.filters.typography``
        for example implementations.
