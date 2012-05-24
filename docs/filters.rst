@@ -209,6 +209,23 @@ Arguments     First argument is the FORMAT like Markdown,
 ============  ==================================================
 
 
+Discount
+--------
+
+`Discount`__ -- a C implementation of John Gruber's Markdown including definition
+lists, pseudo protocols and `Smartypants`__ (makes typography_ obsolete).
+
+__ http://www.pell.portland.or.us/~orc/Code/discount/#smartypants
+__ http://www.pell.portland.or.us/~orc/Code/discount/
+
+
+============  =========================================================
+Requires      `discount <https://github.com/trapeze/python-discount>`_
+Aliases       Discount, discount
+Conflicts     reStructuredText, Markdown, Pandoc, PyTextile, Typography
+============  =========================================================
+
+
 HTML
 ----
 
