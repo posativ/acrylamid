@@ -37,6 +37,8 @@ class Markdown(Filter):
         self.failed = []
         self.ignore = env.options.ignore
 
+        markdown.Markdown  # raises ImportError eventually
+
         # -- discover markdown extensions --
         for mem in os.listdir(os.path.dirname(__file__)):
             if mem.startswith('mdx_') and mem.endswith('.py'):

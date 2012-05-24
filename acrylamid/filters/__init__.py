@@ -8,6 +8,7 @@ import sys
 import os
 import glob
 import fnmatch
+import traceback
 
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
@@ -142,6 +143,7 @@ class meta(type):
                         setattr(cls, 'transform', lambda cls, x, y, *z: x)
                         self.initialized = True
                         return lambda cls, x, y, *z: x
+                    traceback.print_exc(file=sys.stdout)
                     raise AcrylamidException('ImportError: %s' % e.args[0])
             return func
 
