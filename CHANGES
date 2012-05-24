@@ -3,6 +3,15 @@
 Version 0.3
 -----------
 
+### 0.3.4
+
+- per entry settings for summarize filter
+- add split filter to jinja filter
+- fix a block when importing something
+- unicode awareness
+- experimental python 3 support (!)
+- new filter: Discount – a faster Markdown implementation
+
 ### 0.3.3
 
 - new sitemap generator
