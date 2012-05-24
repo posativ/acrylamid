@@ -217,22 +217,23 @@ deploy
 
 With ``acrylamid deploy TASK`` you can run single commands, e.g. push just
 generated content to your server. Write new tasks into the DEPLOYMENT dict
-inside your ``conf.py`` like this:
+inside your ``conf.py`` like this. You can invoke *ls*, *echo* and *deploy* as
+TASK.
 
-::
+.. code-block:: python
 
     DEPLOYMENT = {
-        "ls": "ls",
-        "echo": "echo %s",
-        "blog": "rsync -av --delete %s www@server:~/blog.example.org/"
+        "ls": "ls $OUTPUT_DIR",
+        "echo": "echo '$OUTPUT_DIR'",
+        "upload": "rsync -av --delete $OUTPUT_DIR www@server:~/blog.example.org/"
     }
 
-Now, you can invoke *ls*, *echo* and *blog* as TASK. This example config shows
-you all possibilities to create a scripts. A plain ``ls`` is internally
-extended to ``ls %s`` where ``%s`` is substituted with the current
-``OUTPUT_DIR``-variable as you can see in the second task). The third task is
-simple command to deploy your blog directly to your server -- notice the
-substitution variable can be anywhere.
+The first task will print out a file listing from your output directory. The
+command is pure shell, you could also use ``$HOME`` as variable. The most
+configuration parameters are added to the execution environment. The second
+task marks the substitution string as non-substituable and you'll get the
+variable itself. The last task is a simple command to deploy your blog
+directly to your server.
 
 ::
 
@@ -244,8 +245,8 @@ substitution variable can be anywhere.
     tag
 
     $> acrylamid dp echo
-        execute echo output/
-    output/
+        execute echo '$OUTPUT_DIR'
+    $OUTPUT_DIR
 
     $> acrylamid deploy blog
         execute rsync -av --delete output/ www@server:~/blog.example.org/

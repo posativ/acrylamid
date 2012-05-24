@@ -167,9 +167,6 @@ class Acryl:
                 make_option("-p", "--pandoc", dest="pandoc", action="store_true",
                             help="use pandoc first", default=False),
             ]
-        # --- deploy params --- #
-        elif sys.argv[1] in ('deploy', 'dp'):
-            usage = "%prog " + sys.argv[1] + " [TASK]"
         # --- tasks from acrylamid.tasks --- #
         else:
             tasks = get_tasks()
@@ -283,15 +280,6 @@ class Acryl:
                 sys.exit(1)
             try:
                 commands.imprt(conf, env, args[1], **options.__dict__)
-            except AcrylamidException as e:
-                log.critical(e.args[0])
-                sys.exit(1)
-
-        elif args[0] in ('deploy', 'dp', 'task'):
-            if len(args) <= 1:
-                args.append(None)
-            try:
-                commands.deploy(conf, env, args[1], *args[2:])
             except AcrylamidException as e:
                 log.critical(e.args[0])
                 sys.exit(1)

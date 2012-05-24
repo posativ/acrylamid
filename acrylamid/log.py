@@ -6,6 +6,7 @@
 import sys
 import os
 import logging
+import warnings
 from logging import INFO, WARN, DEBUG
 from acrylamid.errors import AcrylamidException
 
@@ -117,6 +118,9 @@ def init(name, level, colors=True):
     skip = logger.skip
     debug = logger.debug
 
+    warnings.resetwarnings()
+    warnings.showwarning = showwarning
+
 
 def setLevel(level):
     global logger
@@ -175,6 +179,10 @@ def once(args=[], **kwargs):
     elif key not in STORE:
         globals()[log](msg, *args)
         STORE.append(key)
+
+
+def showwarning(msg, cat, path, lineno):
+    print '%s: %s' % (cat().__class__.__name__, msg)
 
 
 __all__ = ['fatal', 'warn', 'info', 'skip', 'debug', 'error',
