@@ -21,5 +21,5 @@ class PyTextile(Filter):
     def transform(self, text, entry, *args):
 
         if textile is None:
-            raise AcrylamidException('Textile: PyTextile not available')
+            raise ImportError('Textile: PyTextile not available')
         return textile(text)

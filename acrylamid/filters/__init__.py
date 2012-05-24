@@ -159,6 +159,77 @@ class meta(type):
 
 
 class Filter(object):
+    """All text transformation is done via filters. A filter takes some text and
+    returns it modified or untouched. Per default custom filters are stored in
+    ``filters/`` directory inside your blog. On startup, Acrylamid will parse this
+    plugin, report accidential syntax errors and uses this filter if required.
+
+    .. code-block:: python
+
+        from acrylamid.filters import Filter
+
+        class Example(Filter):
+
+            match = ['keyword', 'another']
+
+            def transform(self, content, entry, *args):
+                return content
+
+    This is a minimal filter implementation that does nothing but returning
+    the content that you can apply with ``filter: keyword``. A Filter may
+    provide an :func:`init` that gets called once before we apply
+    :func:`transform` to the content.
+
+    .. attribute:: version
+
+       Current version of this filter. If you made fundamental changes to your
+       filter you can increment the version and all cached entries using that
+       filter will recompile automatically on next run.
+
+    .. attribute:: priority
+
+       A filter chain is sorted by priority, so if you do textual modification
+       you should have a priority ≥ 50.0 (default for Markdown, reST and so
+       on).
+
+    .. attribute:: match
+
+       A list of strings or regular expressions (mixed works too) that will
+       match this filter and uses this in the rendering process.
+
+    .. attribute:: conflicts
+
+       A list of strings (no regular expressions!) that describe conflicting
+       :doc:`filters`. For example conflicts Markdown with ``['rst', 'plain',
+       'textile']``. It is sufficient that one filter provides conflicting
+       filters.
+
+    .. method:: init(self, conf, env)
+
+       At demand initialization. A filter gets only initialized when he's
+       actually used. This part is executed only once before :doc:`transform`
+       and should be used to import plugins or set some constants. Note that
+       you may also check explicitly for ImportErrors from a statement
+       like ``import foo`` that will not throw an :doc:`ImportError` because
+       we delay the actual import. Just make write ``foo.bar`` in :doc:`init`
+       and when it throws an ImportError, it will automatically handled.
+
+       Have a look at ``acrylamid.filters.md.py`` or ``acrylamid.filters.typography``
+       for example implementations.
+
+       :param conf: :doc:`conf.py` dictionary
+       :param env: environment dictionary
+
+    .. method:: transform(self, content, entry, *args)
+
+       Modify the content and return it. Each continuous transformation is
+       automatically saved to disk (= caching). Don't import modules here,
+       use module space or :func:`init` for that.
+
+       :param content: a text you can modify
+       :param entry: current :class:`base.Entry`
+       :param args: a list of additional arguments
+    """
 
     __metaclass__ = meta
 
