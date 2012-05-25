@@ -60,26 +60,20 @@ to render MathML and finally smartypants for nicer typography.
 
 Get acrylamid, edit *conf.py* and *layouts/* and compile with:
 
-.. raw:: html
+::
 
-    <pre>
-    $ acrylamid init myblog
-      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/output/conf.py
+    $> acrylamid init myblog
+        create  myblog/conf.py
         ...
-    $ cd myblog/
-    $ acrylamid compile && acrylamid view
-       <span class="ansi1 ansi32">   create</span>  [0.06s] output/articles/index.html
-       <span class="ansi1 ansi32">   create</span>  [0.44s] output/2012/die-verwandlung/index.html
-       <span class="ansi1 ansi32">   create</span>  [0.00s] output/index.html
-       <span class="ansi1 ansi32">   create</span>  [0.00s] output/tag/die-verwandlung/index.html
-       <span class="ansi1 ansi32">   create</span>  [0.00s] output/tag/franz-kafka/index.html
-       <span class="ansi1 ansi32">   create</span>  [0.03s] output/atom/index.html
-       <span class="ansi1 ansi32">   create</span>  [0.03s] output/rss/index.html
-       <span class="ansi1 ansi32">   create</span>  [0.00s] output/sitemap.xml
-    Blog compiled in 0.61s
-     * Running on http://127.0.0.1:8000/
-    </pre>
-
+    $> cd myblog/
+    $> acrylamid compile && acrylamid view
+          warn  using mtime from <fileentry f'content/sample entry.txt'>
+        create  '/articles/index.html', written to output/articles/index.html
+        create  'Die Verwandlung', written to output/2011/die-verwandlung/index.html
+        create  '/atom/index.html', written to output/atom/index.html
+        create  '/rss/index.html', written to output/rss/index.html
+        create  '/', written to output/index.html
+       * Running on http://127.0.0.1:8000/
 
 Real World Examples?
 ********************
@@ -95,7 +89,8 @@ Filters
 You can apply various filter to a single entry, to a specific view or globally
 and Acrylamid resolves it automatically (some filters conflict with others so
 you can for example apply *Markdown* as global filter but render some entries
-with reStructuredText). Currently supported by acrylamid, see :doc:`filters`
+with reStructuredText). Currently supported by acrylamid, see
+`docs/filters.rst <http://acrylamid.readthedocs.org/en/latest/filters.html>`_
 for detailed information:
 
 - **Markdown**: rendering Markdown (+asciimathml, pygments, built-in extensions)
@@ -116,7 +111,8 @@ for detailed information:
 Commands
 --------
 
-See `commands <https://posativ.org/acrylamid/commands.html>`_ for a detailed overview.
+See `commands <https://posativ.org/acrylamid/commands.html>`_ for a detailed
+overview.
 
 ::
 

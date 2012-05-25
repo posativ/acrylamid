@@ -18,14 +18,14 @@ basic structure, type into the terminal:
 
     <pre>
     $ acrylamid init tutorial
-      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/output/style.css
-      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/layouts/base.html
-      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/layouts/main.html
-      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/layouts/entry.html
-      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/layouts/articles.html
-      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/layouts/rss.xml
-      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/layouts/atom.xml
-      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/content/sample-entry.txt
+       <span class="ansi1 ansi32">   create</span>  tutorial/output/style.css
+       <span class="ansi1 ansi32">   create</span>  tutorial/layouts/base.html
+       <span class="ansi1 ansi32">   create</span>  tutorial/layouts/main.html
+       <span class="ansi1 ansi32">   create</span>  tutorial/layouts/entry.html
+       <span class="ansi1 ansi32">   create</span>  tutorial/layouts/articles.html
+       <span class="ansi1 ansi32">   create</span>  tutorial/layouts/rss.xml
+       <span class="ansi1 ansi32">   create</span>  tutorial/layouts/atom.xml
+       <span class="ansi1 ansi32">   create</span>  tutorial/content/sample-entry.txt
     Created your fresh new blog at 'tutorial'. Enjoy!
     </pre>
 
