@@ -7,6 +7,7 @@ Testing `acrylamid init` in different ways:
 Setup in current directory?
 
   $ acrylamid init -C .
+  create  ./conf.py
   create  ./output/style.css
   create  ./layouts/base.html
   create  ./layouts/main.html
@@ -21,6 +22,7 @@ Now set up in a given directory:
 
   $ rm -rf ./output ./layouts ./content conf.py
   $ acrylamid init -C foo
+  create  foo/conf.py
   create  foo/output/style.css
   create  foo/layouts/base.html
   create  foo/layouts/main.html

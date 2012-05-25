@@ -110,6 +110,7 @@ def init(root, theme='html5', overwrite=False):
 
     with io.open(join(root, 'conf.py'), 'w') as fp:
         fp.write(confstring)
+        log.info('create  %s', join(root, 'conf.py'))
 
     for path in files:
         if filter(lambda k: path.endswith(k), ('.html', '.xml')):
