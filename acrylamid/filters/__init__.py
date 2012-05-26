@@ -214,7 +214,7 @@ class Filter(object):
        we delay the actual import. Just make write ``foo.bar`` in :doc:`init`
        and when it throws an ImportError, it is automatically handled.
 
-       Have a look at ``acrylamid.filters.md.py`` or ``acrylamid.filters.typography``
+       Have a look at ``acrylamid/filters/md.py`` or ``acrylamid/filters/typography.py``
        for example implementations.
 
        :param conf: :doc:`conf.py` dictionary

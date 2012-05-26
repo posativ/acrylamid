@@ -12,28 +12,27 @@ Filters
 
 .. autoclass:: acrylamid.filters.Filter()
 
+
 Views
 -----
 
-.. note:: TODO
-
-.. code-block:: python
-
-    from acrylamid.views import View
-
-    class Articles(View):
-
-        def init(self, key=value):
-            pass
-
-        def context(self, env, request):
-            return env
-
-        def generate(self, request):
-            pass
+.. autoclass:: acrylamid.views.View()
 
 
 Layout
 ------
 
-.. note:: TODO
+Acrylamid depends deeply on the popular Jinja2 template engine written in
+*pure* python. To work with Acrylamid each template you get from the
+environment object has a special attribute called ``has_changed`` and
+indicates over the whole compilation process if this template has changed
+or not. If a template inherits a template, we also check wether this has
+changed and so on.
+
+This allows us to write a simple statement wether we may skip a page or
+need to re-render it.
+
+.. todo:: make templates configurable
+
+- Jinja2 API docs
+- Jinja2 Designer Docs

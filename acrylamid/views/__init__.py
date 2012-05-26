@@ -104,6 +104,104 @@ def initialize(ext_dir, conf, env):
 
 
 class View(object):
+    """A view generally takes a template and generates HTML/XML or other
+    kinds of text. It may filter a list of entries by a given attribute,
+    apply per view specific filters, handle path routes.
+
+    .. code-block:: python
+
+        from acrylamid.views import View
+
+        class Raw(View):
+
+            def init(self, **kw):
+                pass
+
+            def context(self, env, request):
+                return env
+
+            def generate(self, request):
+                yield 'Hello World', '/output/hello.txt'
+
+    Above implements a minimal view that outputs text to a given path to
+    :func:`acrylamid.helpers.mkfile` that handles directory creation and
+    event handling. Note, that a view must implement a *skip*-mechanism
+    by itself. If you :func:`acrylamid.helpers.paginate` you get a
+    ``has_changed`` for the current list of entries and you only need
+    to check wether the template has changed::
+
+        from os.path import join
+
+        if exists(path) and not has_changed and not tt.has_changed:
+            event.skip(path)
+            continue
+
+    See the source of acrylamid's built-in views that all have implemented
+    skipping. If you skip over entries you can take full advantage of lazy
+    evaluation (no need to initialize filters, recompile/load from cache).
+
+    A valid view only requires a :func:`generate` method.
+
+    .. attribute:: conf
+
+       Acrylamid configuration.
+
+    .. attribute:: env
+
+       Acrylamid environment.
+
+    .. attribute:: priority
+
+       From 0.0 to 100.0, by default 50.0. Useful if you want to run a view
+       at first or at last.
+
+    .. attribute:: filters
+
+       A list of filters you applied to this view in your :doc:`conf.py`,
+       default list is empty.
+
+    .. attribute:: condition
+
+       A filtering condition from :doc:`conf.py` that gets always applied,
+       defaults to no filtering.
+
+    .. attribute:: path
+
+       The key to which you assign a configuration dict.
+
+    .. method:: init(self, **kwargs)
+
+       Initializing the view with configuration parameters. You can also load
+       jinja templates here.
+
+       :param kw: custom key/value pair from :doc:`conf.py` is available in here.
+
+    .. method:: context(self, env, request)
+
+       Add shared environment varialbes for all views, e.g. jinja2 filters and
+       objects. You must return the environment.
+
+       :param env: environment object
+       :param request: reqest dictionary
+
+    .. method:: generate(self, request)
+
+       Render template and yield final output with full qualified path. If you don't
+       generate output, raise :class:`StopIteration`. Make use of :mod:`acrylamid.helpers`
+       especially :func:`acrylamid.helpers.expand`, :func:`acrylamid.helpers.joinurl`
+       and :func:`acrylamid.helpers.union`.
+
+       Load a template from ``env.jinja2`` and check wether it has changed::
+
+           >>> tt = self.env.jinja2.get_template('articles.html')
+           >>> print tt.has_changed
+           True
+
+       If you skip over an entry make sure you :func:`acrylamid.helpers.event.skip` it,
+       so Acrylamid can track this file to include it into your sitemap or won't wipe
+       it during clean up.
+
+       :param request: request dictionary"""
 
     _filters = []
     priority = 50.0
