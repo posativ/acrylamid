@@ -202,7 +202,10 @@ def compile(conf, env, force=False, **options):
     # remove abandoned cache files
     cache.shutdown()
 
-    log.info('Blog compiled in %.2fs' % (time.time() - ctime))
+    # print a short summary
+    log.info('%i new, %i updated, %i skipped [%.2fs]', event.count('create'),
+             event.count('update'), event.count('identical') + event.count('skip'),
+             time.time() - ctime)
 
 
 def autocompile(conf, env, **options):

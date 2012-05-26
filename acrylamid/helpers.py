@@ -266,7 +266,8 @@ def metavent(cls, parents, attrs):
         def dec(cls, path, *args, **kwargs):
             for callback in  cls.callbacks[name]:
                 callback(path, *args, **kwargs)
-            cls.called.add(name)
+            if name in ('create', 'update', 'remove', 'skip', 'identical'):
+                attrs['counter'][name] += 1
             return func(cls, path, *args, **kwargs)
         dec.__doc__ = func.__doc__  # sphinx
         return dec
@@ -288,15 +289,15 @@ class event:
 
     .. Note:: This class is a singleton and should not be initialized
 
-    .. attribute:: called
+    .. method:: count(event)
 
-         A set of events like ``set(['create', 'skip'])`` that have been called
-         during the rendering processs. When a event occurs it's directly added
-         into ``called``."""
+       :param event: count calls of this particular event
+       :type event: string"""
 
     __metaclass__ = metavent
+
     callbacks = defaultdict(list)
-    called = set([])
+    counter = defaultdict(int)
 
     def __init__(self):
         raise TypeError("You can't construct event.")
@@ -311,6 +312,9 @@ class event:
 
         for item in to:
             event.callbacks[item].append(callback)
+
+    def count(self, event):
+        return self.counter.get(event, 0)
 
     def create(self, path, ctime=None):
         """:param path: path\n:param ctime: computing time"""

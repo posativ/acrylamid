@@ -10,7 +10,7 @@ import warnings
 from logging import INFO, WARN, DEBUG
 from acrylamid.errors import AcrylamidException
 
-SKIP = 15
+SKIP = 10
 STORE = []
 logger = fatal = critical = warn = warning = info = skip = debug = error = None
 
@@ -92,7 +92,7 @@ class SkipHandler(logging.Logger):
         logging.Logger.__init__(self, name, level)
 
     def skip(self, msg, *args, **kwargs):
-        self.log(15, msg, *args, **kwargs)
+        self.log(10, msg, *args, **kwargs)
 
 
 def init(name, level, colors=True):
