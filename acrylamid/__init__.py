@@ -123,8 +123,8 @@ class Acryl:
             usage = "%prog " + sys.argv[1] + " [args]"
             epilog = ("Takes all leading [args] as title or prompt if none given. creates "
                       "a new entry based on your PERMALINK_FORMAT and opens it with your "
-                      "favourite EDITOR.")
-            epilog = fill(epilog)+'\n'
+                      "favourite $EDITOR.")
+            epilog = fill(epilog, 67)+'\n'
         # --- gen params --- #
         elif sys.argv[1] in ('compile', 'co', 'generate', 'gen'):
             usage = "%prog " + sys.argv[1] + " [-fn]"
