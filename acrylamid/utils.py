@@ -73,6 +73,12 @@ class cached_property(object):
         return value
 
 
+class classproperty(property):
+    # via http://stackoverflow.com/a/1383402
+    def __get__(self, cls, owner):
+        return self.fget.__get__(None, owner)()
+
+
 class memoized(object):
    """Decorator. Caches a function's return value each time it is called.
    If called later with the same arguments, the cached value is returned

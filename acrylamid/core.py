@@ -16,7 +16,7 @@ from os.path import join, exists, getmtime
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
-from acrylamid.utils import memoized
+from acrylamid.utils import memoized, classproperty
 
 from jinja2 import FileSystemLoader, meta
 
@@ -360,3 +360,13 @@ class cache(object):
             return getmtime(path)
         except OSError:
             return default
+
+    @classproperty
+    @classmethod
+    def size(self):
+        res = 0
+        for (path, dirs, files) in os.walk(self.cache_dir):
+            for file in files:
+                filename = os.path.join(path, file)
+                res += os.path.getsize(filename)
+        return res
