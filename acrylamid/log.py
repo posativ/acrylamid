@@ -9,6 +9,7 @@ import logging
 import warnings
 from logging import INFO, WARN, DEBUG
 from acrylamid.errors import AcrylamidException
+from acrylamid.colors import bold, red, green, yellow, white, black
 
 SKIP = 15
 STORE = []
@@ -54,31 +55,22 @@ class ANSIFormatter(logging.Formatter):
     If log level is greater than logging.WARN the level name is printed red underlined.
     """
 
-    # $color + BOLD
-    BLACK = '\033[1;30m%s\033[0m'
-    RED = '\033[1;31m%s\033[0m'
-    GREEN = '\033[1;32m%s\033[0m'
-    YELLOW = '\033[1;33m%s\033[0m'
-    GREY = '\033[1;37m%s\033[0m'
-    RED_UNDERLINE = '\033[4;31m%s\033[0m'
-
     def __init__(self, fmt='[%(levelname)s] %(name)s: %(message)s'):
         logging.Formatter.__init__(self, fmt)
 
     def format(self, record):
 
-        keywords = {'skip': self.BLACK, 'create': self.GREEN, 'identical': self.BLACK,
-                    'update': self.YELLOW, 're-initialized': self.YELLOW,
-                    'remove': self.BLACK, 'notice': self.BLACK, 'execute': self.BLACK}
+        keywords = {'create': green, 'update': yellow, 'skip': black, 'identical': black,
+            're-initialized': yellow, 'remove': black, 'notice': black, 'execute': black}
 
         if record.levelno in (SKIP, INFO):
             for item in keywords:
                 if record.msg.startswith(item):
                     record.msg = record.msg.replace(item, ' '*2 + \
-                                    keywords[item] % item.rjust(9))
+                                    keywords[item](bold(item.rjust(9))))
         elif record.levelno >= logging.WARN:
             record.levelname = record.levelname.replace('WARNING', 'WARN')
-            record.msg = ''.join([' '*2, self.RED % record.levelname.lower().rjust(9),
+            record.msg = ''.join([' '*2, u"" + red(bold(record.levelname.lower().rjust(9))),
                                   '  ', record.msg])
 
         return logging.Formatter.format(self, record)

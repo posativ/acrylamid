@@ -35,6 +35,9 @@ class ANSIString(object):
     def __add__(self, other):
         return unicode.__add__(unicode(self), other)
 
+    def __radd__(self, other):
+        return other + unicode(self)
+
 
 normal = lambda obj: ANSIString(obj, style=0)
 bold   = lambda obj: ANSIString(obj, style=1)
