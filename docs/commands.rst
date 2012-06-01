@@ -283,3 +283,23 @@ acrylamid's flags you can also apply opts and long-opts:
     content/
     output/
     </pre>
+
+info
+----
+
+Prints a short summary about your blog and lists recent entries (drafted entries are grey).
+
+.. raw:: html
+
+    <pre>
+    $ acrylamid info -2
+    acrylamid <span style="color: #0000aa">0.3.4</span>, cache size: <span style="color: #0000aa">1.24</span> mb
+
+       <span style="color: #00aa00">13 hours ago</span> Linkschleuder #24
+       <span style="color: #00aa00">14 hours ago</span> <span style="color: #888888">About Python Packages</span>
+
+    <span style="color: #0000aa">157</span> published, <span style="color: #0000aa">2</span> drafted articles
+    last compilation at <span style="color: #0000aa">01. June 2012, 10:41</span>
+    </pre>
+
+-2   a git-like digit to show the last N articles. Defaults to 5.

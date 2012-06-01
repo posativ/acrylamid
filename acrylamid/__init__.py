@@ -105,6 +105,7 @@ class Acryl:
                       "  clean   (rm)   remove abandoned files\n"
                       "  import         import content from URL\n"
                       "  deploy         run a given TASK\n"
+                      "  info           short summary\n"
                       "\nAll subcommands except `init` require a conf.py file.\n")
 
         # --- init params --- #
