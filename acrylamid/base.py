@@ -68,8 +68,16 @@ class BaseEntry(object):
         return self.date.month
 
     @property
+    def zmonth(self):
+        return '%02d' % self.month
+
+    @property
     def day(self):
         return self.date.day
+
+    @property
+    def zday(self):
+        return '%02d' % self.day
 
     @property
     def tags(self):
