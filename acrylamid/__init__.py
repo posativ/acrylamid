@@ -235,7 +235,7 @@ class Acryl:
         # -- run -- #
 
         if args[0] in ('gen', 'generate', 'co', 'compile'):
-            log.setLevel(options.verbosity-5)
+            log.setLevel(options.verbosity)
             try:
                 commands.compile(conf, env, **options.__dict__)
             except AcrylamidException as e:

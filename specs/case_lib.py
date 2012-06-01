@@ -30,7 +30,7 @@ describe 'internal HTMLParser':
         for ex in examples:
             assert f(ex) == ex
 
-    if 'handles startend tags correctly':
+    it 'handles startend tags correctly':
 
         for ex in ['<br />',  '<link id="foo" attr="bar"/>']:
             assert f(ex) == ex
