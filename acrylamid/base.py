@@ -68,7 +68,7 @@ class BaseEntry(object):
         return self.date.month
 
     @property
-    def zero_padded_month(self):
+    def zmonth(self):
         return '%02d' % self.month
 
     @property
@@ -76,7 +76,7 @@ class BaseEntry(object):
         return self.date.day
 
     @property
-    def zero_padded_day(self):
+    def zday(self):
         return '%02d' % self.day
 
     @property

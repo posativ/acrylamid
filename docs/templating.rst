@@ -78,14 +78,14 @@ entry
 :month:
     entry's month (Integer)
 
-:zero_padded_month:
+:zmonth:
     zero padded month number of the entry, e.g. "05" for May and "11"
     for November (String)
 
 :day:
     entry's day (Integer)
 
-:zero_padded_day:
+:zday:
     zero padded day number of the entry, e.g. "04", "17" (String)
 
 :filters:
