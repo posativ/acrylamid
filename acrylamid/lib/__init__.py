@@ -8,6 +8,8 @@ import sys
 from cgi import escape
 from HTMLParser import HTMLParser as DefaultParser, HTMLParseError
 
+from acrylamid.lib.async import ThreadPool, Worker
+
 
 def format(attrs):
     res = []
@@ -63,4 +65,4 @@ class HTMLParser(WTFMixin):
         self.result.append('&#' + char + ';')
 
 
-__all__ = ['HTMLParser', 'HTMLParseError']
+__all__ = ['HTMLParser', 'HTMLParseError', 'ThreadPool', 'Worker']
