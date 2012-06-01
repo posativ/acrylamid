@@ -1,3 +1,5 @@
+# -*- encoding: utf-8 -*-
+#
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
@@ -8,12 +10,10 @@ from time import localtime, strftime
 from os.path import join, getmtime
 from optparse import make_option, SUPPRESS_HELP
 
-from acrylamid import log, utils
-from acrylamid.errors import AcrylamidException
-
+from acrylamid import utils
 from acrylamid.core import cache
 from acrylamid.base import Entry
-from acrylamid.commands import initialize
+from acrylamid.colors import white, blue, green
 
 aliases = ('info', )
 usage = "%prog " + sys.argv[1]
@@ -24,23 +24,6 @@ def count(option, opt, value, parser, result=[]):
 
 option = lambda i: make_option('-%i' % (i), action="callback", callback=count, help=SUPPRESS_HELP)
 options = [option(i) for i in range(10)]
-
-# TODO: provide a ``from acrylamid import colors`` defining those functions (unicode, type aware)
-
-def blue(text):
-	return '\033[0;34m' + str(text) + '\033[0m'
-
-
-def green(text):
-	return '\033[0;32m' + str(text) + '\033[0m'
-
-
-def white(text):
-	return '\033[0;37m' + str(text) + '\033[0m'
-
-
-def red(text):
-	return '\033[0;31m' + str(text) + '\033[0m'
 
 
 def ago(date, now=datetime.datetime.now()):
@@ -83,7 +66,6 @@ def run(conf, env, args, options):
     except AttributeError:
         limit = 5
 
-    request = initialize(conf, env)
     entrylist = sorted([Entry(e, conf) for e in utils.filelist(conf['content_dir'],
                             conf.get('entries_ignore', []))], key=lambda k: k.date, reverse=True)
 
