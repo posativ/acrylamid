@@ -286,7 +286,7 @@ class Acryl:
 
         elif args[0] in tasks:
             try:
-                tasks[args[0]].run(conf, env, args[1:], **options.__dict__)
+                tasks[args[0]].run(conf, env, args[1:], options)
             except AcrylamidException as e:
                 log.critical(e.args[0])
                 sys.exit(1)

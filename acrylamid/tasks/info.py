@@ -78,7 +78,10 @@ def ago(date, now=datetime.datetime.now()):
 def run(conf, env, args, options):
     """Subcommand: info -- a short overview of a blog."""
 
-    limit = int(''.join(options.get('max', '5')))
+    try:
+        limit = int(''.join(options.max))
+    except AttributeError:
+        limit = 5
 
     request = initialize(conf, env)
     entrylist = sorted([Entry(e, conf) for e in utils.filelist(conf['content_dir'],

@@ -13,7 +13,7 @@ aliases = ('deploy', 'dp')
 usage = "%prog " + sys.argv[1] + " [TASK]"
 options = []
 
-def run(conf, env, args, **options):
+def run(conf, env, args, options):
     """Subcommand: deploy -- run the shell command specified in
     DEPLOYMENT[task] using Popen. Each string value from :doc:`conf.py` is
     added to the execution environment. Every argument after ``acrylamid

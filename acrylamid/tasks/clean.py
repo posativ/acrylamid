@@ -48,7 +48,7 @@ def excluded(conf, root, path, excl_files):
         return False
 
 
-def run(conf, env, args, force=False, dryrun=True, **options):
+def run(conf, env, args, options):
     """Attention: this function may eat your data!  Every create, changed
     or skip event call tracks automatically files. After generation,
     ``acrylamid clean`` will call this function and remove untracked files.
@@ -63,6 +63,9 @@ def run(conf, env, args, force=False, dryrun=True, **options):
     :param force: remove all tracked files, too
     :param dryrun: don't delete, just show what would have been done
     """
+    force=options.force
+    dryrun=options.dryrun
+
     # we don't bother the user here
     log.setLevel(env.options.verbosity+5)
     env.options.ignore = True
