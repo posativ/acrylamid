@@ -5,4 +5,4 @@
 
 
 class AcrylamidException(Exception):
-	pass
+    pass
