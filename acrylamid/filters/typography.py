@@ -30,9 +30,6 @@ class Typography(Filter):
 
     def init(self, conf, env):
 
-        smartypants.educateDashes = new_dashes
-        smartypants.educateDashesOldSchool = new_dashes
-
         self.ignore = env.options.ignore
         self.filters = {'amp': amp, 'widont': widont, 'caps': caps,
                         'initial_quotes': initial_quotes, 'number_suffix': number_suffix,
@@ -52,13 +49,6 @@ class Typography(Filter):
                     content = self.filters[x](content)
 
         return content
-
-
-def new_dashes(str):
-    # patching something-- to return something-- not something&#8212.
-    str = re.sub(r"""(\s)--""", r"""\1&#8211;""", str)   # en (yes, backwards)
-    str = re.sub(r"""(\s)---""", r"""\1&#8212;""", str)  # em (yes, backwards)
-    return str
 
 
 def amp(text, autoescape=None):
