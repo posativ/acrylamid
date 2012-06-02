@@ -33,10 +33,20 @@ translitcodec are not must-have dependency).
     Avoid removing ``translitcodec`` egg after you started writing your blog. It
     might break all your permanent links.
 
-If you  want a full featured installation::
+Additional Supported Modules
+----------------------------
 
-    $> easy_install -U docutils pygments asciimathml smartypants
+- ``docutils`` for reStructuredText support
+- ``textile`` for Textile support
+- ``pygments`` for syntax highlighting
+- ``asciimathml`` to write AsciiMathML in Markdown
+- ``smartypants`` for nicer typography
+- ``pyyaml`` to use the official YAML parser
 
+Windows
+*******
+
+Not supported currently.
 
 Python 3
 ********
