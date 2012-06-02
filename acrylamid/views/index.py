@@ -10,19 +10,30 @@ from acrylamid.helpers import union, joinurl, event, paginate, expand, link
 
 
 class Index(View):
+    """Creates nicely paged listing of your posts. First page renders to ``route``
+    (defaults to */*) with a recent list of your (e.g. summarized) articles. Other
+    pages enumerate to the variable ``pagination`` (*/page/:num/* per default).
 
-    def init(self, items_per_page=10, pagination='/page/:num/'):
+
+    .. code-block:: python
+
+        '/' : {
+            'view': 'index',
+            'template': 'main.html',
+            'pagination': '/page/:num',
+            'items_per_page': 10
+        }
+    """
+
+    def init(self, template='main.html', items_per_page=10, pagination='/page/:num/'):
+        self.template = template
         self.items_per_page = items_per_page
         self.pagination = pagination
 
     def generate(self, request):
-        """Creates nicely paged listing of your posts.  First page is the
-        index.hml used to have this nice url: http://yourblog.com/ with a recent
-        list of your (e.g. summarized) Posts. Other pages are enumerated to /page/n+1
-        """
 
         ipp = self.items_per_page
-        tt = self.env.jinja2.get_template('main.html')
+        tt = self.env.jinja2.get_template(self.template)
 
         entrylist = [entry for entry in request['entrylist'] if not entry.draft]
         paginator = paginate(entrylist, ipp, orphans=self.conf['default_orphans'])

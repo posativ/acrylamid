@@ -38,7 +38,14 @@ class Map(object):
 
 class Sitemap(View):
     """Create an XML-Sitemap where permalinks have the highest priority (1.0) and do never
-    change and all other ressources have a changefreq of weekly."""
+    change and all other ressources have a changefreq of weekly.
+
+    .. code-block:: python
+
+        '/sitemap.xml': {
+            'view': 'Sitemap'
+        }
+    """
 
     priority = 0.0
 

@@ -31,50 +31,18 @@ To make the next section more easier to read, we define "/path/" as route,
 Built-in Views
 **************
 
-Articles
---------
+.. autoclass:: acrylamid.views.articles.Articles()
 
-- `Articles Example <http://blog.posativ.org/articles/>`_
+.. autoclass:: acrylamid.views.entry.Entry()
 
-Creates a single page overview of all articles in the form of (year) date and
-title. This view uses *articles.html* as jinja2 template to function.
+.. autoclass:: acrylamid.views.index.Index()
 
-The default configuration outputs this to */articles/* and is (currently)
-hardcoded into *base.html*.
+.. autoclass:: acrylamid.views.tag.Tag()
 
-Entry
------
+.. autoclass:: acrylamid.views.sitemap.Sitemap()
 
-- `Entry Example <http://blog.posativ.org/2012/nginx/>`_
 
-The entry view renders an post to a unique location and should be used as
-permalink URL. The url is user configurable using the ``PERMALINK_FORMAT``
-variable and defaults to */:year/:slug/(index.html)*.
-
-This view takes no other arguments and uses *main.html* and *entry.html* as
-template.
-
-Index
------
-
-Creates nicely paged listing of your posts. First page renders to ``route``
-(defaults to */*) with a recent list of your (e.g. summarized) articles. Other
-pages enumerate to the variable ``pagination`` (*/page/:num/* per default).
-
-The Index view uses *main.html* and *entry.html* as template and yields
-``items_per_page`` items per page (default: 10).
-
-Tag
----
-
-Same behaviour like Index except ``route`` that defaults to */tag/:name/* and
-``pagination`` that defaults to */tag/:name/:num/* where :name is the current
-tag identifier.
-
-To create a tag cloud head over to :doc:`conf.py`.
-
-Feed
-----
+.. note:: TODO: Feeds!
 
 
 

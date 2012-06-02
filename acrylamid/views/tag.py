@@ -45,8 +45,16 @@ class Tagcloud:
 
 
 class Tag(View):
+    """Same behaviour like Index except ``route`` that defaults to */tag/:name/* and
+    ``pagination`` that defaults to */tag/:name/:num/* where :name is the current
+    tag identifier.
 
-    def init(self, items_per_page=10, pagination='/tag/:name/:num/'):
+    To create a tag cloud head over to :doc:`conf.py`.
+    """
+
+
+    def init(self, template='main.html', items_per_page=10, pagination='/tag/:name/:num/'):
+        self.template = template
         self.items_per_page = items_per_page
         self.pagination = pagination
 
@@ -83,7 +91,7 @@ class Tag(View):
         """Creates paged listing by tag."""
 
         ipp = self.items_per_page
-        tt = self.env.jinja2.get_template('main.html')
+        tt = self.env.jinja2.get_template(self.template)
 
         entrylist = [entry for entry in request['entrylist'] if not entry.draft]
 

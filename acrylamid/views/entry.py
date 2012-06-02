@@ -9,11 +9,31 @@ from acrylamid.errors import AcrylamidException
 
 
 class Entry(View):
-    """Creates single full-length entry."""
+    """Creates single full-length entry
+    (`Example <http://blog.posativ.org/2012/nginx/>`_).
+
+    To enable Entry view, add this to your :doc:`conf.py`:
+
+    .. code-block:: python
+
+        '/:year/:slug/': {
+            'view': 'entry',
+            'template': 'main.html'  # default, includes entry.html
+        }
+
+    The entry view renders an post to a unique location and should be used as
+    permalink URL. The url is user configurable using the ``PERMALINK_FORMAT``
+    variable and defaults to */:year/:slug/(index.html)*.
+
+    This view takes no other arguments and uses *main.html* and *entry.html* as
+    template."""
+
+    def init(self, template='main.html'):
+        self.template = template
 
     def generate(self, request):
 
-        tt = self.env.jinja2.get_template('main.html')
+        tt = self.env.jinja2.get_template(self.template)
 
         entrylist = request['entrylist']
         pathes = dict()

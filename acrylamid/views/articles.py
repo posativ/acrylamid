@@ -10,14 +10,39 @@ from os.path import exists
 
 
 class Articles(View):
-    """Generates a overview of all articles."""
+    """Generates an overview of all articles using *layouts/articles.html* as
+    default jinja2 template (`Example <http://blog.posativ.org/articles/>`_).
+
+    To enable Articles view, add:
+
+    .. code-block:: python
+
+        '/articles/' : {
+            'view': 'articles',
+            'template': 'articles.html'  # default
+        }
+
+    to your :doc:`conf.py` where */articles/* is the default URL for this view.
+
+    We filter articles that are drafts and add them to the *articles*
+    dictionary using ``(entry.year, entry.month)`` as key. During templating
+    we sort all keys by value, hence we get a listing of years > months > entries.
+
+    Variables available during Templating:
+
+    - *articles* containing the articles
+    - *num_entries* count of articles
+    - *conf*, *env*"""
+
+    def init(self, template='articles.html'):
+        self.template = template
 
     def generate(self, request):
 
         entrylist = sorted((e for e in request['entrylist'] if not e.draft),
                         key=lambda k: k.date, reverse=True)
 
-        tt = self.env.jinja2.get_template('articles.html')
+        tt = self.env.jinja2.get_template(self.template)
         path = joinurl(self.conf['output_dir'], self.path, 'index.html')
 
         hv = md5(*entrylist, attr=lambda o: o.md5)
