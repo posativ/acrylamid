@@ -20,17 +20,15 @@
     {% for entry in env.entrylist %}
         {% include 'entry.html' %}
     {% endfor %}
-    {% if env.type in ['tag', 'index'] %}
-        {% if env.prev %}
-            <a href="{{ env.path ~ env.prev ~ '/' }}" class="page floatright">
-            Previous »
-            </a>
-        {% endif %}
-        {% if env.next is not none %}
-            <a href="{{ env.path ~ env.next ~ '/' }}" class="page floatleft">
-            « Next
-            </a>
-        {% endif %}
+    {% if env.prev is not none %}
+        <a href="{{ env.path ~ env.prev ~ '/' }}" class="page floatright">
+        {{ env.prev.title }}
+        </a>
+    {% endif %}
+    {% if env.next is not none %}
+        <a href="{{ env.path ~ env.next ~ '/' }}" class="page floatleft">
+        {{ env.next.title }}
+        </a>
     {%- endif  %}
 {% endblock %}
 

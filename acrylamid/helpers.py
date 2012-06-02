@@ -100,10 +100,8 @@ def md5(*objs, **kw):
     for obj in objs:
         try:
             h.update(attr(obj))
-        except TypeError:  # python3 m(
+        except (TypeError, UnicodeEncodeError):
             h.update(attr(obj).encode('utf-8'))
-        except UnicodeEncodeError:
-            h.update(obj.encode('utf-8'))
 
     return h.hexdigest()
 
@@ -225,6 +223,21 @@ def escape(string):
         else:
             return '\"' + string + '\"'
     return string
+
+
+def link(title, href=None, entry=None):
+    """Return a link struct, that contains title and optionally href. If only
+    title is given, we use title as href too.  It provides a __unicode__ to
+    be compatible with older templates (≤ 0.3.4).
+
+    :param title: link title and href if no href is given
+    :param href: href"""
+
+    return type('Link', (object, ), {
+        'title': title,
+        'href': title if href is None else href,
+        '__unicode__': lambda cls: cls.href,
+    })()
 
 
 def system(cmd, stdin=None, **kwargs):

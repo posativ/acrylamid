@@ -1,11 +1,12 @@
+# # -*- encoding: utf-8 -*-
+#
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
-# -*- encoding: utf-8 -*-
 
 from os.path import exists
 
 from acrylamid.views import View
-from acrylamid.helpers import union, joinurl, event, paginate, expand
+from acrylamid.helpers import union, joinurl, event, paginate, expand, link
 
 
 class Index(View):
@@ -29,13 +30,17 @@ class Index(View):
         for (next, curr, prev), entries, has_changed in paginator:
             # curr = current page, next = newer pages, prev = older pages
 
-            if next is not None:
-                next = self.path.rstrip('/') if next == 1 \
-                           else expand(self.pagination, {'num': next})
+            next = None if next is None \
+                else link(u'« Next', self.path.rstrip('/')) if next == 1 \
+                    else link(u'« Next', expand(self.pagination, {'num': next}))
 
-            curr = self.path if curr == 1 else expand(self.pagination, {'num': curr})
-            prev = None if prev is None else expand(self.pagination, {'num': prev})
-            path = joinurl(self.conf['output_dir'], curr, 'index.html')
+            curr = link(curr, self.path) if curr == 1 \
+                else link(expand(self.pagination, {'num': curr}))
+
+            prev = None if prev is None \
+               else link(u'Previous »', expand(self.pagination, {'num': prev}))
+
+            path = joinurl(self.conf['output_dir'], curr.href, 'index.html')
 
             if exists(path) and not has_changed and not tt.has_changed:
                 event.skip(path)
