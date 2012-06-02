@@ -3,7 +3,7 @@
 import re
 
 from acrylamid.filters import FilterList, FilterTree
-from acrylamid.filters import Filter
+from acrylamid.filters import Filter, disable
 
 
 def build(name, **kw):
@@ -54,6 +54,20 @@ describe 'FilterList':
         assert x['sp'] == f3
         assert x['spam'] == f3
         assert x['sPaMmEr'] == f3
+
+
+describe 'disable filter':
+
+    it 'works':
+
+        f1 = build('F1', match=['Foo'], conflicts=['Bar'])
+        f2 = disable(f1)
+
+        assert hash(f1) != hash(f2)
+        assert f1.match != f2.match
+
+        assert f1.name == f2.name
+        assert f1.conflicts == f2.conflicts
 
 
 describe 'FilterTree':

@@ -77,7 +77,7 @@ def initialize(ext_dir, conf, env, include=[], exclude=[]):
         for mem in ext_dir:
             files = glob.glob(os.path.join(mem, "*.py"))
             files = [get_name(f) for f in files
-                                    if pattern(get_name(f), include, exclude)]
+                if pattern(get_name(f), include, exclude)]
             ext_list += files
 
         return sorted(ext_list)
@@ -148,7 +148,7 @@ class meta(type):
             return func
 
         init = dct.get('init', lambda s, x, y: None)
-        transform = lambda cls, x, y, *z: initialize(cls, dct['transform'])(cls, x, y, *z)
+        transform = lambda cls, x, y, *z: initialize(cls, dct.get('transform', bases[0].transform))(cls, x, y, *z)
 
         super(meta, cls).__init__(name, bases, dct)
         setattr(cls, 'init', init)
@@ -247,7 +247,7 @@ class Filter(object):
         self.args = args
 
         # precalculate __hash__ because we need it quite often in tree
-        self.hv = hash(fname + repr(args))
+        self.hv = hash(self.__class__.__name__ + repr(args))
 
     def __repr__(self):
         return "<%s@%s %2.f:%s>" % (self.__class__.__name__, self.version,
@@ -258,6 +258,19 @@ class Filter(object):
 
     def __eq__(self, other):
         return True if hash(other) == hash(self) else False
+
+
+def disable(fx):
+    """Disable :class:`Filter` safely."""
+
+    newfx = type(str(fx.__class__.__name__), (Filter, ), {
+        '__hash__': lambda cls: hash(fx.name),
+        'match': [fx.__class__.__name__],
+        'conflicts': fx.conflicts,
+        'transform': lambda cls, x, y, *z: x
+    })
+
+    return newfx(fx.conf, fx.env, fx.name)
 
 
 class FilterList(list):

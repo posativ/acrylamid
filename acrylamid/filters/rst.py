@@ -19,6 +19,7 @@ except ImportError:
     publish_parts = None  # NOQA
     directives = None  # NOQA
 
+
 class Restructuredtext(Filter):
 
     match = ['restructuredtext', 'rst', 'rest', 'reST', 'reStructuredText']

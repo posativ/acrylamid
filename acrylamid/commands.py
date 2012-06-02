@@ -12,9 +12,11 @@ import codecs
 import tempfile
 import subprocess
 
-from os.path import join, dirname, getmtime, isfile
 from urlparse import urlsplit
 from datetime import datetime
+from collections import defaultdict
+from os.path import join, dirname, getmtime, isfile
+
 from jinja2 import Environment, FileSystemBytecodeCache
 
 from acrylamid import log
@@ -127,8 +129,8 @@ def compile(conf, env, force=False, **options):
                                                              conf.get('entries_ignore', []))],
                        key=lambda k: k.date, reverse=True)
 
-    # here we store all found filter
-    ns = set()
+    # here we store all found filter and their aliases
+    ns = defaultdict(set)
 
     # get available filter list, something like with obj.get-function
     # list = [<class head_offset.Headoffset at 0x1014882c0>, <class html.HTML at 0x101488328>,...]
@@ -149,15 +151,14 @@ def compile(conf, env, force=False, **options):
             # initialize the filter with its function name and arguments
             fx = aflist[fname](conf, env, val, *fargs)
             if val.startswith('no'):
-                fx.transform = lambda x, y, *z: x
-                fx.__hash__ = lambda : 0
+                fx = filters.disable(fx)
         except ValueError:
             try:
                 fx = aflist[val.split('+')[:1][0]](conf, env, val, *fargs)
             except ValueError:
                 raise AcrylamidException('no such filter: %s' % val)
 
-        ns.add(fx)
+        ns[fx].add(val)
 
     for entry in entrylist:
         for v in _views:
@@ -169,7 +170,7 @@ def compile(conf, env, force=False, **options):
             found = entry.filters + v.filters + request['conf']['filters']
 
             for fn in found:
-                fx = list(filter(lambda k: fn == k.name, ns))[0]
+                fx, _ = filter(lambda k: fn in k[1], ns.iteritems())[0]
                 if fx not in flst:
                     flst.append(fx)
 

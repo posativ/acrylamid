@@ -175,6 +175,7 @@ def once(args=[], **kwargs):
 
 
 def showwarning(msg, cat, path, lineno):
+    print path + ':%i' % lineno
     print '%s: %s' % (cat().__class__.__name__, msg)
 
 
