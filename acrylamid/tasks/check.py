@@ -130,7 +130,7 @@ def validate(paths, jobs):
 
     try:
         pool.wait_completion()
-    except KeyboardInterrupt: # I believe, this will not work properly, but it's a try
+    except KeyboardInterrupt:
         sys.exit(1)
 
 

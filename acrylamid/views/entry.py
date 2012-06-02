@@ -7,6 +7,7 @@ from acrylamid.views import View
 from acrylamid.helpers import expand, union, joinurl, event
 from acrylamid.errors import AcrylamidException
 
+
 class Entry(View):
     """Creates single full-length entry."""
 

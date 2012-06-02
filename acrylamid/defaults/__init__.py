@@ -62,7 +62,7 @@ def init(root, theme='html5', overwrite=False):
 
     # restore a given file from defaults
     # XXX restore folders, too
-    if filter(lambda p: basename(p) == basename(root) , files):
+    if filter(lambda p: basename(p) == basename(root), files):
 
         for path in files:
             if basename(path) == basename(root):

@@ -62,7 +62,6 @@ def initialize(conf, env):
         log.warn('no `www_root` specified, using localhost:8000')
         conf['www_root'] = 'http://localhost:8000/'
 
-
     env['protocol'], env['netloc'], env['path'], x, y = urlsplit(conf['www_root'])
 
     # take off the trailing slash for www_root and path

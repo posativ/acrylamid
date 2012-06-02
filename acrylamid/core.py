@@ -23,7 +23,7 @@ from jinja2 import FileSystemLoader, meta
 try:
     import cPickle as pickle
 except ImportError:
-    import pickle
+    import pickle  # NOQA
 
 __all__ = ['ExtendedFileSystemLoader', 'Memory', 'cache']
 

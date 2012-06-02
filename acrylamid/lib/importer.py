@@ -140,7 +140,6 @@ def atom(xml):
     except ElementTree.ParseError:
         raise InvalidSource('no well-formed XML')
 
-
     if not tree.tag.endswith('/2005/Atom}feed'):
         raise InvalidSource('no Atom feed')
 
@@ -259,8 +258,8 @@ def parse(content):
     failed = []
     for method in (wp, rss20, atom):
         try:
-            res =  method(content)
-            return res.next(), res
+            res = method(content)
+            return next(res), res
         except ImportError:
             log.info('notice  BeautifulSoup is required for WordPress import')
         except InvalidSource as e:

@@ -8,7 +8,7 @@ from acrylamid.filters import Filter
 try:
     from discount import Markdown
 except ImportError:
-    Markdown = None
+    Markdown = None  # NOQA
 
 
 class Discount(Filter):

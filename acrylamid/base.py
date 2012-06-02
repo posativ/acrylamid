@@ -180,7 +180,7 @@ class FileEntry(BaseEntry):
         # https://github.com/ametaireau/pelican/blob/master/pelican/utils.py
         formats = ['%Y-%m-%d %H:%M', '%Y/%m/%d %H:%M',
                    '%Y-%m-%d', '%Y/%m/%d',
-                   '%d-%m-%Y', '%Y-%d-%m', # Weird ones
+                   '%d-%m-%Y', '%Y-%d-%m',  # Weird ones
                    '%d/%m/%Y', '%d.%m.%Y',
                    '%d.%m.%Y %H:%M', '%Y-%m-%d %H:%M:%S']
 

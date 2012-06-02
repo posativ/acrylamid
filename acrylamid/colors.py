@@ -39,15 +39,9 @@ class ANSIString(object):
         return other + unicode(self)
 
 
-normal = lambda obj: ANSIString(obj, style=0)
-bold   = lambda obj: ANSIString(obj, style=1)
-underline = lambda obj: ANSIString(obj, style=2)
+notmal, bold, underline = [lambda obj, x=x: ANSIString(obj, style=x)
+    for x in range(0, 3)]
 
-black  = lambda obj: ANSIString(obj, color=30)
-red    = lambda obj: ANSIString(obj, color=31)
-green  = lambda obj: ANSIString(obj, color=32)
-yellow = lambda obj: ANSIString(obj, color=33)
-blue   = lambda obj: ANSIString(obj, color=34)
-magenta= lambda obj: ANSIString(obj, color=35)
-cyan   = lambda obj: ANSIString(obj, color=36)
-white  = lambda obj: ANSIString(obj, color=37)
+black, red, green, yellow, blue, \
+magenta, cyan, white = [lambda obj, y=y: ANSIString(obj, color=y)
+    for y in range(30, 38)]

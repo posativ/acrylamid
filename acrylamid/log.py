@@ -9,7 +9,7 @@ import logging
 import warnings
 from logging import INFO, WARN, DEBUG
 from acrylamid.errors import AcrylamidException
-from acrylamid.colors import bold, red, green, yellow, white, black
+from acrylamid.colors import bold, red, green, yellow, black
 
 SKIP = 15
 STORE = []
@@ -24,7 +24,8 @@ def currentframe():
     except:
         return sys.exc_info()[2].tb_frame.f_back
 
-if hasattr(sys, '_getframe'): currentframe = lambda: sys._getframe(3)
+if hasattr(sys, '_getframe'):
+    currentframe = lambda: sys._getframe(3)
 # done filching
 
 
@@ -34,7 +35,7 @@ class TerminalHandler(logging.StreamHandler):
 
     def __init__(self):
         logging.StreamHandler.__init__(self)
-        self.stream = None # reset it; we are not going to use it anyway
+        self.stream = None  # reset it; we are not going to use it anyway
 
     def emit(self, record):
         if record.levelno >= logging.WARN:

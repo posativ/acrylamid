@@ -4,7 +4,6 @@
 
 from os.path import exists
 from datetime import datetime
-from itertools import islice
 
 from acrylamid.views import View
 from acrylamid.helpers import joinurl, event, union

@@ -24,7 +24,7 @@ from acrylamid.utils import batch
 try:
     import translitcodec
 except ImportError:
-    translitcodec = None
+    translitcodec = None  # NOQA
 
 __all__ = ['memoize', 'union', 'mkfile', 'md5', 'expand', 'joinurl',
            'safeslug', 'paginate', 'escape', 'system', 'event']
@@ -86,7 +86,7 @@ def mkfile(content, path, ctime=0.0, force=False, dryrun=False, **kw):
         event.create(path=path, ctime=ctime)
 
 
-def md5(*objs,  **kw):
+def md5(*objs, **kw):
     """A multifunctional hash function that can take one or more objects
     and a getter from which you want calculate the MD5 sum.
 
@@ -263,6 +263,7 @@ def metavent(cls, parents, attrs):
     def intercept(func):
         """decorator which calls callback registered to this method."""
         name, doc = func.func_name, func.__doc__
+
         def dec(cls, path, *args, **kwargs):
             for callback in  cls.callbacks[name]:
                 callback(path, *args, **kwargs)

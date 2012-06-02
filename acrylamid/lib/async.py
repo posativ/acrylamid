@@ -7,6 +7,7 @@ from threading import Thread
 
 class Worker(Thread):
     """Thread executing tasks from a given tasks queue"""
+
     def __init__(self, tasks):
         Thread.__init__(self)
         self.tasks = tasks
@@ -16,7 +17,8 @@ class Worker(Thread):
     def run(self):
         while True:
             func, args, kargs = self.tasks.get()
-            try: func(*args, **kargs)
+            try:
+                func(*args, **kargs)
             except Exception, e:
                 print e.__class__.__name__, e
             self.tasks.task_done()
@@ -24,9 +26,11 @@ class Worker(Thread):
 
 class ThreadPool:
     """Pool of threads consuming tasks from a queue"""
+
     def __init__(self, num_threads):
         self.tasks = Queue(num_threads)
-        for _ in range(num_threads): Worker(self.tasks)
+        for _ in range(num_threads):
+            Worker(self.tasks)
 
     def add_task(self, func, *args, **kargs):
         """Add a task to the queue"""

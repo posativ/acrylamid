@@ -16,8 +16,8 @@ try:
     from docutils.core import publish_parts
     from docutils.parsers.rst import directives
 except ImportError:
-    publish_parts = None
-    directives = None
+    publish_parts = None  # NOQA
+    directives = None  # NOQA
 
 class Restructuredtext(Filter):
 

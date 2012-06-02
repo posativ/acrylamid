@@ -8,7 +8,8 @@ from threading import Thread
 import os
 import SimpleHTTPServer
 import SocketServer
-import posixpath, urllib
+import posixpath
+import urllib
 
 
 class ReuseAddressServer(SocketServer.TCPServer):
@@ -31,8 +32,8 @@ class AcrylServe(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
         """
         # abandon query parameters
-        path = path.split('?',1)[0]
-        path = path.split('#',1)[0]
+        path = path.split('?', 1)[0]
+        path = path.split('#', 1)[0]
         path = posixpath.normpath(urllib.unquote(path))
         words = path.split('/')
         words = filter(None, words)
@@ -40,7 +41,8 @@ class AcrylServe(SimpleHTTPServer.SimpleHTTPRequestHandler):
         for word in words:
             drive, word = os.path.splitdrive(word)
             head, word = os.path.split(word)
-            if word in (os.curdir, os.pardir): continue
+            if word in (os.curdir, os.pardir):
+                continue
             path = os.path.join(path, word)
         return path
 

@@ -18,9 +18,11 @@ from acrylamid.colors import white, blue, green
 aliases = ('info', )
 usage = "%prog " + sys.argv[1]
 
+
 def count(option, opt, value, parser, result=[]):
     result.append(str(opt).strip('-'))
     parser.values.max = result
+
 
 option = lambda i: make_option('-%i' % (i), action="callback", callback=count, help=SUPPRESS_HELP)
 options = [option(i) for i in range(10)]

@@ -2,12 +2,11 @@
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
 from acrylamid.filters import Filter
-from acrylamid.errors import AcrylamidException
 
 try:
     from textile import textile
 except ImportError:
-    textile = None
+    textile = None  # NOQA
 
 
 class PyTextile(Filter):

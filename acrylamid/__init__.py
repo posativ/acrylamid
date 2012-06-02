@@ -62,8 +62,6 @@ class Acryl:
         """Sets configuration and environment and creates the Request
         object"""
 
-        global sys
-
         usage = "usage: %prog <subcommand> [options] [args]"
         epilog = None
 

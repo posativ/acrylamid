@@ -27,8 +27,10 @@ These imports will not be delayed:
 import __builtin__
 _origimport = __import__
 
+
 class _demandmod(object):
     """module demand-loader and proxy"""
+
     def __init__(self, name, globals, locals):
         if '.' in name:
             head, rest = name.split('.', 1)
@@ -38,13 +40,16 @@ class _demandmod(object):
             after = []
         object.__setattr__(self, "_data", (head, globals, locals, after))
         object.__setattr__(self, "_module", None)
+
     def _extend(self, name):
         """add to the list of submodules to load"""
         self._data[3].append(name)
+
     def _load(self):
         if not self._module:
             head, globals, locals, after = self._data
             mod = _origimport(head, globals, locals)
+
             # load submodules
             def subload(mod, p):
                 h, t = p, None
@@ -67,16 +72,20 @@ class _demandmod(object):
         if self._module:
             return "<proxied module '%s'>" % self._data[0]
         return "<unloaded module '%s'>" % self._data[0]
+
     def __call__(self, *args, **kwargs):
         raise TypeError("%s object is not callable" % repr(self))
+
     def __getattribute__(self, attr):
         if attr in ('_data', '_extend', '_load', '_module'):
             return object.__getattribute__(self, attr)
         self._load()
         return getattr(self._module, attr)
+
     def __setattr__(self, attr, val):
         self._load()
         setattr(self._module, attr, val)
+
 
 def _demandimport(name, globals=None, locals=None, fromlist=None, level=None):
     if not locals or fromlist == ('*',):
@@ -84,7 +93,7 @@ def _demandimport(name, globals=None, locals=None, fromlist=None, level=None):
         return _origimport(name, globals, locals, fromlist)
     elif not fromlist:
         # import a [as b]
-        if '.' in name: # a.b
+        if '.' in name:  # a.b
             base, rest = name.split('.', 1)
             # email.__init__ loading email.mime
             if globals and globals.get('__name__', None) == base:
