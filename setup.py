@@ -63,7 +63,6 @@ setup(
     install_requires=requires,
     tests_require=[
         'tox',
-        'konira',
         'cram'
     ],
     **kw

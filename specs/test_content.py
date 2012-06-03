@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import unittest
 import tempfile
 import shutil
 import os
@@ -37,11 +38,12 @@ def entry(**kw):
     return '\n'.join(res)
 
 
-describe 'single entry':
+class SingleEntry(unittest.TestCase):
 
-    before all:
-
+    @classmethod
+    def setup_class(self):
         self.path = tempfile.mkdtemp(dir='.')
+
         os.chdir(self.path)
         os.mkdir('content/')
         os.mkdir('layouts/')
@@ -55,29 +57,33 @@ describe 'single entry':
         self.conf['filters'] = ['HTML']
         self.conf['views'] = {'/:year/:slug/': {'view': 'entry'}}
 
+    @classmethod
+    def teardown_class(self):
+        os.chdir('../')
+        shutil.rmtree(self.path)
 
-    it 'exists at permalink':
+    def test_exists_at_permalink(self):
         with open('content/bla.txt', 'wb') as fp:
             fp.write(entry())
 
         compile(self.conf, self.env, options)
         assert isfile(join('output/', '2012', 'haensel-and-gretel', 'index.html'))
 
-    it 'also renders to a custom permalink':
+    def test_renders_custom_permalink(self):
         with open('content/bla.txt', 'wb') as fp:
             fp.write(entry(permalink='/about/me.asp'))
 
         compile(self.conf, self.env, options)
         assert isfile(join('output/', 'about', 'me.asp'))
 
-    it 'appends an index.html to custom slash ending permalinks':
+    def test_appends_index(self):
         with open('content/bla.txt', 'wb') as fp:
             fp.write(entry(permalink='/about/me/'))
 
         compile(self.conf, self.env, options)
         assert isfile(join('output/', 'about', 'me', 'index.html'))
 
-    it 'returns plain text':
+    def test_plaintext(self):
         with open('content/bla.txt', 'wb') as fp:
             fp.write(entry(permalink='/'))
 
@@ -86,7 +92,7 @@ describe 'single entry':
         expected = '# Test\n\nThis is supercalifragilisticexpialidocious.'
         assert open('output/index.html').read() == expected
 
-    it 'renders Markdown':
+    def test_markdown(self):
         with open('content/bla.txt', 'wb') as fp:
             fp.write(entry(permalink='/', filter='[Markdown]'))
 
@@ -95,7 +101,7 @@ describe 'single entry':
         expected = '<h1>Test</h1>\n<p>This is supercalifragilisticexpialidocious.</p>'
         assert open('output/index.html').read() == expected
 
-    it 'renders a full filter chain':
+    def test_fullchain(self):
         with open('content/bla.txt', 'wb') as fp:
             fp.write(entry(permalink='/', filter='[Markdown, h1, hyphenate]', lang='en'))
 
@@ -105,16 +111,13 @@ describe 'single entry':
                     'ilis&shy;tic&shy;ex&shy;pi&shy;ali&shy;do&shy;cious.</p>')
         assert open('output/index.html').read() == expected
 
-    after all:
-        os.chdir('../')
-        shutil.rmtree(self.path)
 
+class MultipleEntries(unittest.TestCase):
 
-describe 'multiple entries':
-
-    before all:
-
+    @classmethod
+    def setup_class(self):
         self.path = tempfile.mkdtemp(dir='.')
+
         os.chdir(self.path)
         os.mkdir('content/')
         os.mkdir('layouts/')
@@ -132,7 +135,12 @@ describe 'multiple entries':
         self.conf['views'] = {'/:year/:slug/': {'view': 'entry'},
                               '/atom.xml': {'view': 'Atom', 'filters': ['h2', 'summarize+2']}}
 
-    it 'renders Markdown':
+    @classmethod
+    def teardown_class(self):
+        os.chdir('../')
+        shutil.rmtree(self.path)
+
+    def test_markdown(self):
         with open('content/foo.txt', 'wb') as fp:
             fp.write(entry(title='Foo'))
         with open('content/bar.txt', 'wb') as fp:
@@ -143,7 +151,3 @@ describe 'multiple entries':
         expected = '<h2>Test</h2>\n<p>This is supercalifragilisticexpialidocious.</p>'
         assert open('output/2012/foo/index.html').read() == expected
         assert open('output/2012/bar/index.html').read() == expected
-
-    after all:
-        os.chdir('../')
-        shutil.rmtree(self.path)

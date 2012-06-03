@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 
+import unittest
+
 from acrylamid.lib import HTMLParser
 f = lambda x: ''.join(HTMLParser(x).result)
 
-describe 'internal HTMLParser':
 
-    it 'handles start tags correctly':
+class  TestHTMLParser(unittest.TestCase):
+
+    def test_starttag(self):
 
         examples = [
             '<p></p>',
@@ -17,10 +20,10 @@ describe 'internal HTMLParser':
         for ex in examples:
             assert f(ex) == ex
 
-    it 'does not touch data':
+    def test_data(self):
         assert f('<p>Data!1</p>') == '<p>Data!1</p>'
 
-    it 'handles end tag correctly':
+    def test_endtag(self):
 
         examples = [
             '<p></p></p>',
@@ -30,16 +33,16 @@ describe 'internal HTMLParser':
         for ex in examples:
             assert f(ex) == ex
 
-    it 'handles startend tags correctly':
+    def test_startendtag(self):
 
         for ex in ['<br />',  '<link id="foo" attr="bar"/>']:
             assert f(ex) == ex
 
-    it 'keeps entitiyrefs':
+    def test_entityrefs(self):
 
         assert f('<span>&amp;</span>') == '<span>&amp;</span>'
         assert f('<span>&foo;</span>') == '<span>&foo;</span>'
 
-    it 'keeps charrefs':
+    def test_charrefs(self):
 
         assert f('<span>&#1234;</span>') == '<span>&#1234;</span>'

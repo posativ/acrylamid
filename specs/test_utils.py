@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
+import unittest
+
 from acrylamid.utils import NestedProperties
 
-describe "Nested Properties":
 
-    it "works as expected":
+class TestNestedProperties(unittest.TestCase):
+
+    def test_works(self):
 
         dct = NestedProperties()
         dct['hello.world'] = 1

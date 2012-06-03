@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import konira
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
+
 import tempfile
 
 from datetime import datetime
@@ -24,13 +28,14 @@ def create(path, **kwargs):
         fp.write('---\n')
 
 
-describe 'Entry':
+class TestEntry(unittest.TestCase):
 
-    before all:
+    @classmethod
+    def setup_class(self):
         fd, path = tempfile.mkstemp(suffix='.txt')
         self.path = path
 
-    it "handles dates":
+    def test_dates(self):
 
         create(self.path, date='13.02.2011, 15:36', title='bla')
         date = Entry(self.path, conf).date
@@ -40,7 +45,7 @@ describe 'Entry':
         assert date.day == 13
         assert date == datetime(year=2011, month=2, day=13, hour=15, minute=36)
 
-    it "should parse alternate date format strings":
+    def test_alternate_dates(self):
 
         create(self.path, date='1.2.2034', title='bla')
         date = Entry(self.path, conf).date
@@ -50,12 +55,13 @@ describe 'Entry':
         assert date.day == 1
         assert date == datetime(year=2034, month=2, day=1)
 
-    it "raises an exception on invalid date strings":
+    def test_invalid_dates(self):
 
         create(self.path, date='unparsable', title='bla')
-        raises AcrylamidException: Entry(self.path, conf).date
+        with self.assertRaises(AcrylamidException):
+            Entry(self.path, conf).date
 
-    it "has a permalink property":
+    def test_permalink(self):
 
         create(self.path, title='foo')
         entry = Entry(self.path, conf)
@@ -72,7 +78,7 @@ describe 'Entry':
 
         assert entry.permalink == '/2012/foo/'
 
-    it "handles tags":
+    def test_tags(self):
 
         create(self.path, title='foo', tags='Foo')
         assert Entry(self.path, conf).tags == ['Foo']
@@ -80,7 +86,7 @@ describe 'Entry':
         create(self.path, title='foo', tags='[Foo, Bar]')
         assert Entry(self.path, conf).tags == ['Foo', 'Bar']
 
-    it "remaps deprecated keys":
+    def test_deprecated_keys(self):
 
         create(self.path, title='foo', tag=None, filter=None)
         entry = Entry(self.path, conf)
@@ -88,7 +94,7 @@ describe 'Entry':
         assert 'tags' in entry
         assert 'filters' in entry
 
-    it "can has also custom key value pairs":
+    def test_custom_values(self):
 
         create(self.path, title='foo', image='/img/test.png')
         entry = Entry(self.path, conf)
@@ -96,7 +102,7 @@ describe 'Entry':
         assert 'image' in entry
         assert entry.image == '/img/test.png'
 
-    it "defines fallbacks":
+    def test_fallbacks(self):
 
         create(self.path, title='Bla')
         entry = Entry(self.path, conf)

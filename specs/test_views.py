@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
+import unittest
+
 from acrylamid.views import tag
 
 
-describe "Tags":
+class TestTag(unittest.TestCase):
 
-    it "produces a tag cloud":
+    def test_cloud(self):
 
         tags = {'foo': range(1), 'bar': range(2)}
         cloud = tag.Tagcloud(tags, steps=4, max_items=100, start=0)

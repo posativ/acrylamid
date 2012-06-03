@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
+
 import shutil
-import konira
 
 from acrylamid import log
 from acrylamid.core import cache
@@ -9,16 +13,18 @@ from acrylamid import helpers
 from acrylamid import AcrylamidException
 
 
-describe 'Helpers':
+class Helpers(unittest.TestCase):
 
-    before all:
+    @classmethod
+    def setup_class(self):
         log.init('acrylamid', level=40)
         cache.init()
 
-    after all:
+    @classmethod
+    def teardown_class(self):
         shutil.rmtree(cache.cache_dir)
 
-    it 'safeslug':
+    def test_safeslug(self):
 
         examples = (('This is a Test', 'this-is-a-test'),
                     ('this is a test', 'this-is-a-test'),
@@ -43,7 +49,7 @@ describe 'Helpers':
         helpers.translitcodec = None
         assert helpers.safeslug(u'Hänsel und Gretel') == 'hansel-und-gretel'
 
-    it 'joinurl':
+    def test_joinurl(self):
 
         examples = ((['hello', 'world'], 'hello/world'),
                     (['/hello', 'world'], '/hello/world'),
@@ -54,13 +60,13 @@ describe 'Helpers':
         for value, expected in examples:
             assert helpers.joinurl(*value) == expected
 
-    it 'expands':
+    def test_expand(self):
 
         assert helpers.expand('/:foo/:bar/', {'foo': 1, 'bar': 2}) == '/1/2/'
         assert helpers.expand('/:foo/:spam/', {'foo': 1, 'bar': 2}) == '/1/:spam/'
         assert helpers.expand('/:foo/', {'bar': 2}) == '/:foo/'
 
-    it 'paginates':
+    def test_paginate(self):
 
         class X(str):  # dummy class
             has_changed = True
@@ -99,15 +105,14 @@ describe 'Helpers':
         assert list(helpers.paginate([X('1'), X('2'), X('3')], 3, orphans=1)) == \
             [((None, 1, None), [X('1'), X('2'), X('3')], True)]
 
-    it 'escapes':
+    def test_escape(self):
 
         assert helpers.escape('Hello World') == 'Hello World'
         assert helpers.escape('Hello: World') == '"Hello: World"'
         assert helpers.escape('Hello\'s World') == '"Hello\'s World"'
         assert helpers.escape('Hello "World"') == "'Hello \"World\"'"
 
-
-    it 'systems':
+    def test_system(self):
 
         examples = ((['echo', 'ham'], None, 'ham'),
                     ('bc', '1 + 1\n', '2'),
@@ -115,5 +120,8 @@ describe 'Helpers':
         for cmd, stdin, expected in examples:
             assert helpers.system(cmd, stdin) == expected
 
-        raises AcrylamidException: helpers.system('bc', '1+1')
-        raises OSError: helpers.system('foo', None)
+        with self.assertRaises(AcrylamidException):
+            helpers.system('bc', '1+1')
+
+        with self.assertRaises(OSError):
+            helpers.system('foo', None)

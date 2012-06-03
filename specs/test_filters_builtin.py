@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import unittest
+
 from acrylamid import log, defaults, Environment
 from acrylamid.filters import initialize, get_filters
 
@@ -21,9 +23,9 @@ class Entry(object):
         self.lang = lang
 
 
-describe "Hyphenation":
+class Hyphenation(unittest.TestCase):
 
-    it "hyphenates":
+    def test_hyphenate(self):
 
         hyph = get_filters()['Hyphenate'](conf, env, 'Hyphenate')
 
@@ -40,7 +42,7 @@ describe "Hyphenation":
         # test unsupported
         assert hyph.transform('Flugzeug', Entry('foo'), '8') == 'Flugzeug'
 
-    it "builds us pattern":
+    def test_build_pattern(self):
 
         # short term
         build('en')
@@ -48,18 +50,20 @@ describe "Hyphenation":
         hyphenate = build('en_US')
         assert hyphenate('Airplane') == ['Air', 'plane']
 
-describe "Jinja2":
 
-    it "works":
+class Jinja2(unittest.TestCase):
+
+    def test_works(self):
 
         jinja2 = get_filters()['Jinja2'](conf, env, 'Jinja2')
 
         assert jinja2.transform('{{ entry.lang }}', Entry('de')) == 'de'
         assert jinja2.transform("{{ 'which which' | system }}", None) == '/usr/bin/which'
 
-describe "Summarize":
 
-    it "works":
+class Summarize(unittest.TestCase):
+
+    def test_works(self):
 
         summarize = get_filters()['summarize'](conf, env, 'summarize')
         examples = [('Hello World', 'Hello World'),

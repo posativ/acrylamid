@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import unittest
 import re
 
 from acrylamid.filters import FilterList, FilterTree
@@ -10,9 +11,9 @@ def build(name, **kw):
     return type(name, (Filter, ), kw)({}, {}, name)
 
 
-describe 'FilterList':
+class TestFilterlist(unittest.TestCase):
 
-    it 'works with plain strings':
+    def test_plain_strings(self):
 
         f1 = build('F1', match=['foo', 'bar'], conflicts=['spam'])
         f2 = build('F2', match=['spam'])
@@ -24,7 +25,7 @@ describe 'FilterList':
         assert f2 in x
         assert f3 not in x
 
-    it 'matches also with a regular expression':
+    def test_regex_strings(self):
 
         f1 = build('F1', match=['foo', 'bar'], conflicts=['spam'])
         f2 = build('F2', match=[re.compile('^spam$')])
@@ -36,7 +37,7 @@ describe 'FilterList':
         assert f2 in x
         assert f3 not in x
 
-    it 'conflicts within a match already in the list':
+    def test_conflicts(self):
 
         f1 = build('F1', match=['foo', 'bar'], conflicts=['spam'])
         f4 = build('F4', match=['baz'], conflicts=['foo'])
@@ -46,7 +47,7 @@ describe 'FilterList':
         assert f1 in x
         assert f4 in x
 
-    it 'we can access filters by name':
+    def test_access_by_name(self):
 
         f3 = build('F3', match=[re.compile('^sp', re.I)])
         x = FilterList([f3])
@@ -55,10 +56,7 @@ describe 'FilterList':
         assert x['spam'] == f3
         assert x['sPaMmEr'] == f3
 
-
-describe 'disable filter':
-
-    it 'works':
+    def test_disable(self):
 
         f1 = build('F1', match=['Foo'], conflicts=['Bar'])
         f2 = disable(f1)
@@ -70,16 +68,16 @@ describe 'disable filter':
         assert f1.conflicts == f2.conflicts
 
 
-describe 'FilterTree':
+class TestFilterTree(unittest.TestCase):
 
-    it 'remembers path correctly':
+    def test_path(self):
 
         t = FilterTree()
         t.add([1, 3, 4, 7], 'foo')
         assert t.path('foo') == [1, 3, 4, 7]
 
 
-    it 'works as expected':
+    def test_works(self):
 
         t = FilterTree()
 
@@ -91,7 +89,7 @@ describe 'FilterTree':
         assert list(t.iter('bar')) == [[1, 2], [3, 5]]
         assert list(t.iter('baz')) == [[7, ], ]
 
-    it 'handles edge cases':
+    def test_edge_cases(self):
 
         t = FilterTree()
 
