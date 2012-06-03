@@ -1,7 +1,7 @@
+# -*- encoding: utf-8 -*-
+#
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
-#
-# -*- encoding: utf-8 -*-
 
 import math
 import random
@@ -10,7 +10,7 @@ from os.path import exists
 from collections import defaultdict
 
 from acrylamid.views import View
-from acrylamid.helpers import union, joinurl, safeslug, event, paginate, expand
+from acrylamid.helpers import union, joinurl, safeslug, event, paginate, expand, link
 
 
 class Tagcloud:
@@ -104,18 +104,15 @@ class Tag(View):
 
                 # e.g.: curr = /page/3, next = /page/2, prev = /page/4
 
-                if next == 1:
-                    next = expand(self.path, {'name': tag}).rstrip('/')
-                elif next and next > 1:
-                    next = expand(self.pagination, {'name': tag, 'num': next})
+                next = None if next is None \
+                else link(u'« Next', expand(self.path, {'name': tag}).rstrip('/')) if next == 1 \
+                    else link(u'« Next', expand(self.pagination, {'name': tag, 'num': next}))
 
-                if curr == 1:
-                    curr = expand(self.path, {'name': tag})
-                elif curr > 1:
-                    curr = expand(self.pagination, {'num': curr, 'name': tag})
+                curr = link(curr, expand(self.path, {'name': tag})) if curr == 1 \
+                    else link(expand(self.pagination, {'num': curr, 'name': tag}))
 
-                if prev is not None:
-                    prev = expand(self.pagination, {'name': tag, 'num': prev})
+                prev = None if prev is None \
+                    else link(u'Previous »', expand(self.pagination, {'name': tag, 'num': prev}))
 
                 path = joinurl(self.conf['output_dir'], curr, 'index.html')
 
