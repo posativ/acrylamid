@@ -3,8 +3,8 @@
 import sys
 import re
 
-from distutils.core import setup
 from os.path import join, dirname
+from setuptools import setup, find_packages
 
 version = re.search("__version__ = '([^']+)'",
                     open('acrylamid/__init__.py').read()).group(1)
@@ -12,11 +12,11 @@ version = re.search("__version__ = '([^']+)'",
 requires = ['Jinja2>=2.4', 'Markdown>=2.0.1']
 kw = {}
 
-if sys.version_info < (3, 0):
-    requires.append('translitcodec>=0.2')
-else:
-    kw['use_2to3'] = True
+if sys.version_info[0] >= 3:
+    kw["use_2to3"] = True
     kw['use_2to3_exclude_fixers'] = ['lib2to3.fixes.execfile', ]
+else:
+    requires.append('translitcodec>=0.2')
 
 if '--full' in sys.argv:
     requires.extend([
@@ -32,13 +32,8 @@ setup(
     version=version,
     author='posativ',
     author_email='info@posativ.org',
-    packages=[
-        'acrylamid', 'acrylamid.filters', 'acrylamid.views', 'acrylamid.lib',
-        'acrylamid.defaults', 'acrylamid.tasks'],
-    scripts=['bin/acrylamid'],
-    package_data={
-        'acrylamid.filters': ['hyph/*.txt'],
-        'acrylamid.defaults': ['misc/*', 'xhtml/*', 'html5/*']},
+    packages=find_packages(),
+    include_package_data=True,
     url='https://github.com/posativ/acrylamid/',
     license='BSD revised',
     description='yet another static blog generator',
@@ -65,5 +60,9 @@ setup(
         'tox',
         'cram'
     ],
+    entry_points={
+        'console_scripts':
+            ['acrylamid = acrylamid:Acryl']
+    },
     **kw
 )

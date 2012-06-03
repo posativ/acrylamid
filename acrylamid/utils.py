@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 #
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.

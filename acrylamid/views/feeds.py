@@ -1,6 +1,8 @@
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
+#
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
-# -*- encoding: utf-8 -*-
 
 from os.path import exists
 from datetime import datetime

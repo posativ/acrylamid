@@ -1,7 +1,10 @@
+#!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 #
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
+
+import sys
 
 
 class ANSIString(object):
@@ -30,7 +33,9 @@ class ANSIString(object):
         return '\033[%i;%im' % (self.style, self.color) + self.obj + '\033[0m'
 
     def __str__(self):
-        return unicode(self).decode('utf-8')
+        if sys.version_info < (3, 0):
+            return unicode(self).encode('utf-8')
+        return self.__unicode__()
 
     def __add__(self, other):
         return unicode.__add__(unicode(self), other)

@@ -7,7 +7,7 @@ import os
 
 from os.path import join, isfile, isdir
 
-from acrylamid import Environment, log
+from acrylamid import Environment, log, helpers
 from acrylamid.commands import initialize, compile
 from acrylamid.defaults import conf
 
@@ -48,7 +48,7 @@ class SingleEntry(unittest.TestCase):
         os.mkdir('content/')
         os.mkdir('layouts/')
 
-        with open('layouts/main.html', 'wb') as fp:
+        with open('layouts/main.html', 'w') as fp:
             fp.write('{{ env.entrylist[0].content }}\n')
 
         self.conf = conf
@@ -62,29 +62,30 @@ class SingleEntry(unittest.TestCase):
         os.chdir('../')
         shutil.rmtree(self.path)
 
+    @unittest.skipIf(helpers.translitcodec is None, 'no translitcodec available')
     def test_exists_at_permalink(self):
-        with open('content/bla.txt', 'wb') as fp:
+        with open('content/bla.txt', 'w') as fp:
             fp.write(entry())
 
         compile(self.conf, self.env, options)
         assert isfile(join('output/', '2012', 'haensel-and-gretel', 'index.html'))
 
     def test_renders_custom_permalink(self):
-        with open('content/bla.txt', 'wb') as fp:
+        with open('content/bla.txt', 'w') as fp:
             fp.write(entry(permalink='/about/me.asp'))
 
         compile(self.conf, self.env, options)
         assert isfile(join('output/', 'about', 'me.asp'))
 
     def test_appends_index(self):
-        with open('content/bla.txt', 'wb') as fp:
+        with open('content/bla.txt', 'w') as fp:
             fp.write(entry(permalink='/about/me/'))
 
         compile(self.conf, self.env, options)
         assert isfile(join('output/', 'about', 'me', 'index.html'))
 
     def test_plaintext(self):
-        with open('content/bla.txt', 'wb') as fp:
+        with open('content/bla.txt', 'w') as fp:
             fp.write(entry(permalink='/'))
 
         compile(self.conf, self.env, options)
@@ -93,7 +94,7 @@ class SingleEntry(unittest.TestCase):
         assert open('output/index.html').read() == expected
 
     def test_markdown(self):
-        with open('content/bla.txt', 'wb') as fp:
+        with open('content/bla.txt', 'w') as fp:
             fp.write(entry(permalink='/', filter='[Markdown]'))
 
         compile(self.conf, self.env, options)
@@ -102,7 +103,7 @@ class SingleEntry(unittest.TestCase):
         assert open('output/index.html').read() == expected
 
     def test_fullchain(self):
-        with open('content/bla.txt', 'wb') as fp:
+        with open('content/bla.txt', 'w') as fp:
             fp.write(entry(permalink='/', filter='[Markdown, h1, hyphenate]', lang='en'))
 
         compile(self.conf, self.env, options)
@@ -122,10 +123,10 @@ class MultipleEntries(unittest.TestCase):
         os.mkdir('content/')
         os.mkdir('layouts/')
 
-        with open('layouts/main.html', 'wb') as fp:
+        with open('layouts/main.html', 'w') as fp:
             fp.write('{{ env.entrylist[0].content }}\n')
 
-        with open('layouts/atom.xml', 'wb') as fp:
+        with open('layouts/atom.xml', 'w') as fp:
             fp.write("{% for entry in env.entrylist %}\n{{ entry.content ~ '\n' }}\n{% endfor %}")
 
         self.conf = conf
@@ -141,9 +142,9 @@ class MultipleEntries(unittest.TestCase):
         shutil.rmtree(self.path)
 
     def test_markdown(self):
-        with open('content/foo.txt', 'wb') as fp:
+        with open('content/foo.txt', 'w') as fp:
             fp.write(entry(title='Foo'))
-        with open('content/bar.txt', 'wb') as fp:
+        with open('content/bar.txt', 'w') as fp:
             fp.write(entry(title='Bar'))
 
         compile(self.conf, self.env, options)

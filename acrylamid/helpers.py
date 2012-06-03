@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 #
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
@@ -15,7 +16,7 @@ from unicodedata import normalize
 from collections import defaultdict
 from os.path import join, exists, dirname, basename
 
-from acrylamid import log
+from acrylamid import log, PY3
 from acrylamid.errors import AcrylamidException
 
 from acrylamid.core import cache
@@ -146,7 +147,7 @@ def safeslug(slug):
         slug = slug.encode('translit/long').strip()
     for word in _slug_re.split(slug.lower()):
         word = normalize('NFKD', word).encode('ascii', 'ignore').decode('utf-8').strip()
-        if translitcodec is None:
+        if not PY3 and translitcodec is None:
             log.once(warn="no 'translitcodec' found, using NFKD algorithm")
         if word and not word[0] in '-:':
             result.append(word)
@@ -236,7 +237,7 @@ def link(title, href=None, entry=None):
     return type('Link', (object, ), {
         'title': title,
         'href': title if href is None else href,
-        '__unicode__': lambda cls: cls.href,
+        '__str__' if PY3 else '__unicode__': lambda cls: cls.href,
     })()
 
 

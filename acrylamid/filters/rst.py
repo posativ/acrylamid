@@ -46,7 +46,7 @@ class Restructuredtext(Filter):
                         mod.match = [mod.__name__]
                     for name in mod.match:
                         directives.register_directive(name, rstx)
-                except (ImportError, Exception), e:
+                except (ImportError, Exception) as e:
                     traceback.print_exc(file=sys.stdout)
                     log.warn('%r %s: %s' % (mem, e.__class__.__name__, e))
 

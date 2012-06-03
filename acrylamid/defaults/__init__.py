@@ -18,15 +18,18 @@ from os.path import exists, isfile, isdir, join, dirname, basename
 log = logging.getLogger('acrylamid.defaults')
 
 
-def md5(fp):
-    h = hashlib.md5()
+def same(f, o):
+    """Check whether two files are the same."""
+
+    fp = io.open(f, 'rb')
+    op = io.open(o, 'rb')
+
     while True:
-        chunks = fp.read(128)
-        if chunks:
-            h.update(chunks)
-        else:
+        c, k = fp.read(128), op.read(128)
+        if not c or not k:
             break
-    return h.digest()
+        if c != k:
+            break
 
 
 def init(root, theme='html5', overwrite=False):
@@ -68,7 +71,7 @@ def init(root, theme='html5', overwrite=False):
             if basename(path) == basename(root):
                 break
         if isfile(root):
-            if md5(open(path)) == md5(open(root)):
+            if same(path) == same(root):
                 log.info('skip  %s is identical', root)
                 sys.exit(0)
             if overwrite or raw_input('re-initialize %r? [yn]: ' % root) == 'y':
@@ -125,7 +128,7 @@ def init(root, theme='html5', overwrite=False):
 
 def check_conf(conf):
     """Rudimentary conf checking.  Currently every *_dir except
-    `ext_dir` (it's a list of dirs) is checked wether it exists."""
+    `ext_dir` (it's a list of dirs) is checked whether it exists."""
 
     def check(value):
         if os.path.exists(value):

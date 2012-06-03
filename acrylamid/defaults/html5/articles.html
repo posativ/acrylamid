@@ -6,7 +6,7 @@
 <article>
   <table id="arc">
   {% set year = -1 %}
-  {% for key, months in articles.iteritems() | sort(reverse=True) %}
+  {% for key, months in articles.items() | sort(reverse=True) %}
     <tr>
         {% if year != key[0] %}
           {% set year = key[0] %}

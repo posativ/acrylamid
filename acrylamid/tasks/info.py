@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 #
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
@@ -77,7 +78,7 @@ def run(conf, env, args, options):
     print
 
     for entry in entrylist[:limit]:
-        print '  ', green(ago(entry.date).ljust(12)),
+        print '  ', green(ago(entry.date).ljust(13)),
         print white(entry.title) if entry.draft else entry.title
 
     print

@@ -4,6 +4,8 @@
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
+from __future__ import unicode_literals
+
 from docutils import nodes
 from docutils.parsers.rst import directives, Directive
 
@@ -58,7 +60,7 @@ class Pygments(Directive):
         formatter = HtmlFormatter(noclasses=False)
         if 'linenos' in self.options:
             formatter.linenos = 2
-        parsed = highlight(u'\n'.join(self.content), lexer, formatter)
+        parsed = highlight('\n'.join(self.content), lexer, formatter)
         return [nodes.raw('', parsed, format='html')]
 
 

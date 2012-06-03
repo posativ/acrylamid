@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 #
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
@@ -112,7 +113,7 @@ def init(name, level, colors=True):
     debug = logger.debug
 
     warnings.resetwarnings()
-    warnings.showwarning = showwarning
+    warnings.showwarning = showwarning if level == DEBUG else lambda *x: None
 
 
 def setLevel(level):

@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
+#
 # demandimport.py - global demand-loading of modules for Mercurial
 #
 # Copyright 2006, 2007 Matt Mackall <mpm@selenic.com>

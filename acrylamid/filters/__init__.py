@@ -10,7 +10,7 @@ import glob
 import fnmatch
 import traceback
 
-from acrylamid import log
+from acrylamid import log, PY3
 from acrylamid.errors import AcrylamidException
 from acrylamid.lib.lazy import _demandmod as LazyModule
 
@@ -97,7 +97,11 @@ def initialize(ext_dir, conf, env, include=[], exclude=[]):
     ext_list = get_extension_list(ext_dir, include, exclude)
     for mem in ext_list:
         try:
-            _module = __import__(mem)
+            if PY3:
+                from importlib import import_module
+                _module = import_module('.' + mem, package='acrylamid.filters')
+            else:
+                _module = __import__(mem)
         except (ImportError, Exception) as e:
             log.warn('%r %s: %s', mem, e.__class__.__name__, e)
             continue

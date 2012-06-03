@@ -24,6 +24,7 @@ class Helpers(unittest.TestCase):
     def teardown_class(self):
         shutil.rmtree(cache.cache_dir)
 
+    @unittest.skipIf(helpers.translitcodec is None, 'no translitcodec available')
     def test_safeslug(self):
 
         examples = (('This is a Test', 'this-is-a-test'),
@@ -34,9 +35,6 @@ class Helpers(unittest.TestCase):
 
         for value, expected in examples:
             assert helpers.safeslug(value) == expected
-
-        if not helpers.translitcodec:
-            raise ImportError('this test requires `translitcodec`')
 
         examples = ((u'Hänsel und Gretel', 'haensel-und-gretel'),
                     (u'fácil € ☺', 'facil-eur'))

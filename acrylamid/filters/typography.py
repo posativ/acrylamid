@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
+#
 # License: New BSD Style
 #
 # [typography.py][1] is a set of filters enhancing written text output. As the

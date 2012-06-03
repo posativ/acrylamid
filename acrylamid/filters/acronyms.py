@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
+#
 # Copyright (c) 2010, 2011 Will Kahn-Greene
 #
 # Pyblosxom is distributed under the MIT license.  See the file

@@ -22,6 +22,8 @@ __author__ = 'posativ <info@posativ.org>'
 __url__ = 'https://github.com/posativ/acrylamid/'
 
 import sys
+PY3 = sys.version_info[0] == 3
+
 import os
 import time
 import traceback

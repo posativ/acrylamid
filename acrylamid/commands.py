@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 #
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
@@ -170,7 +171,7 @@ def compile(conf, env, force=False, **options):
             found = entry.filters + v.filters + request['conf']['filters']
 
             for fn in found:
-                fx, _ = filter(lambda k: fn in k[1], ns.iteritems())[0]
+                fx, _ = next((k for k in ns.iteritems() if fn in k[1]))
                 if fx not in flst:
                     flst.append(fx)
 

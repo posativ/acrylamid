@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
+#
 # Copyright 2012 sebix <szebi@gmx.at>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
