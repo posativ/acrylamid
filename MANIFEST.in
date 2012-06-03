@@ -1,0 +1,5 @@
+include README.rst
+recursive-include acrylamid/filters/hyph *.txt
+recursive-include acrylamid/defaults/misc *
+recursive-include acrylamid/defaults/xhtml *
+recursive-include acrylamid/defaults/html5 *
