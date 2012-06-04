@@ -35,7 +35,7 @@ class Jinja2(Filter):
 
         self.jinja2_env = Environment(cache_size=0)
         self.jinja2_env.filters['system'] = system
-        self.jinja2_env.filters['split'] = str.split
+        self.jinja2_env.filters['split'] = unicode.split
 
     def transform(self, content, entry):
 
