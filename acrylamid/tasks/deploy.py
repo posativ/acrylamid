@@ -6,7 +6,6 @@
 
 import sys
 import os
-import warnings
 import subprocess
 
 from acrylamid import log
@@ -38,14 +37,13 @@ def run(conf, env, args, options):
     cmd += ' ' + ' '.join(args)
 
     if '%s' in cmd:
-        warnings.warn('replace substitution variable with $OUTPUT_DIR',
-                      category=DeprecationWarning)
+        log.warn("'%s' syntax is deprecated, use $OUTPUT_DIR variable.")
         cmd = cmd.replace('%s', '$OUTPUT_DIR')
 
     env = os.environ
     env.update(dict([(k.upper(), v) for k, v in conf.items() if isinstance(v, basestring)]))
 
-    log.info('execute %s', cmd)
+    log.info('execute  %s', cmd)
     p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     while True:
