@@ -7,10 +7,13 @@
 # name says, it adds specific typography things documented in the definitions
 # itself and [smartypants][2].
 #
-# The typography.py filter comes with two options: `mode` and `default`.
-# ``mode`` sets the `smartypants_attributes` as documented in [2]. `default`
-# is a list of filters that will be always applied if `match` is invoked +
-# everything you specify as additional arguments.
+# The typography.py filter comes with two options: ``mode`` and ``default``.
+# ``TYPOGRAPHY_MODE`` sets the `smartypants_attributes` as documented in [2].
+# ``default`` (hard-coded) is a list of filters that will be always applied
+# if *typopgraphy* is invoked + everything you specify in the additional arguments.
+#
+# typopgraphy.py offers a custom mode, "a", that don't educate dashes when written
+# without space like *--bare* or *foo--* using mode "2".
 #
 # [1]: https://github.com/mintchaos/typogrify
 # [2]: http://web.chad.org/projects/smartypants.py/
@@ -20,18 +23,24 @@ import smartypants
 
 from acrylamid.filters import Filter
 
-mode = "2"  # -- en-dash, --- em-dash
-default = ['amp', 'widont', 'smartypants', 'caps']
-
 
 class Typography(Filter):
 
     match = [re.compile('^(T|t)ypo(graphy)?$'), 'smartypants']
-    version = '1.0.0'
+    version = '1.0.1'
 
     priority = 25.0
 
     def init(self, conf, env):
+
+        mode = conf.get("typography_mode", "2")  # -- en-dash, --- em-dash
+        default = ['amp', 'widont', 'smartypants', 'caps']
+
+        if mode == "a":
+            smartypants.educateDashes = new_dashes
+            smartypants.educateDashesOldSchool = new_dashes
+
+            mode = "2"
 
         self.ignore = env.options.ignore
         self.filters = {'amp': amp, 'widont': widont, 'caps': caps,
@@ -52,6 +61,13 @@ class Typography(Filter):
                     content = self.filters[x](content)
 
         return content
+
+
+def new_dashes(str):
+    # patching something-- to return something-- not something&#8212.
+    str = re.sub(r"""(\s)--""", r"""\1&#8211;""", str)   # en (yes, backwards)
+    str = re.sub(r"""(\s)---""", r"""\1&#8212;""", str)  # em (yes, backwards)
+    return str
 
 
 def amp(text, autoescape=None):

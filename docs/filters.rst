@@ -305,8 +305,19 @@ and & (ampersand) to render an italic styled ampersand. See the `original
 project <https://code.google.com/p/typogrify/>`_ for more information.
 
 By default *amp*, *widont*, *smartypants*, *caps* are applied. *all*, *typo*
-and *typogrify* applying "widont, smartypants, caps, amp, initial_quotes". All
-filters are applied in the order as they are written down.
+and *typogrify* applyies *widont*, *smartypants*, *caps*, *amp*, *initial_quotes*.
+All filters are applied in the order as they are written down.
+
+.. code-block:: python
+
+    TYPOGRAPHY_MODE = "2"  # in your conf.oy
+
+`Smarty Pants`_ has modes that let you customize the modification. See `their
+options`_ for reference. Acrylamid adds a custom mode ``"a"`` that behaves like
+``"2"`` but does not educate dashes like ``--bare`` or ``bare--``.
+
+.. _Smarty Pants: http://web.chad.org/projects/smartypants.py/
+.. _their options: http://web.chad.org/projects/smartypants.py/#options
 
 ============  ==================================================
 Requires      `smartypants <https://code.google.com/p/typogrify/>`_
