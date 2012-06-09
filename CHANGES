@@ -3,6 +3,22 @@
 Version 0.3
 -----------
 
+### 0.3.5
+
+- new command `acrylamid check` W3C compliance and validates external
+  links, closes #32
+- new command `acrylamid info` showing version, cache size and latest
+  articles and number of drafted and published writings.
+- add previous and next relations to single entry, closes #29
+- entry has now zero-padded day and month, thanks to Mark, #37
+- default smartypants behaviour is now unmodified, custom changes
+  require TYPOGRAPHY_MODE = "a", see #36 (thanks to Mark)
+- compilation summary and hide skip/identical by default
+- deployments are now executed in a real shell environment
+- verified python 3 support XXX
+- templates are now configurable per view, #24
+- few bugfixes to core that induces new compilation :-/
+
 ### 0.3.4
 
 - per entry settings for summarize filter
