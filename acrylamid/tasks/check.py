@@ -13,24 +13,10 @@ import urllib2
 import collections
 
 from urllib import quote
-from optparse import make_option
 
 from acrylamid import utils, helpers, lib
+from acrylamid.tasks import register, argument
 from acrylamid.colors import green, yellow, red, blue, white
-
-aliases = ('check', )
-usage = "%prog " + sys.argv[1] + " [-r] [-sw]\n" + \
- "       %prog " + sys.argv[1] + " [-r] [-lj]"
-options = [
-    make_option("-s", type=float, default=0.2, dest="sleep",
-                help="seconds between requests (default 0.2)"),
-    make_option("-w", action="store_true", default=False, dest="warn", help="show W3C warnings"),
-    make_option("-l", "--links", action="store_true", default=False, dest="links",
-                help="validate links"),
-    make_option("-j", "--jobs", dest="jobs", type=int, default=10, help="N parallel requests"),
-    make_option("-r", "--random", dest="random", action="store_true", default=False,
-                help="random order")
-]
 
 
 def w3c(paths, conf, warn=False, sleep=0.2):
@@ -135,7 +121,7 @@ def validate(paths, jobs):
         sys.exit(1)
 
 
-def run(conf, env, args, options):
+def run(conf, env, options):
     """Subcommand: check -- run W3C over generated output and check destination
     of linked items"""
 
@@ -148,3 +134,18 @@ def run(conf, env, args, options):
         validate(paths, options.jobs)
     else:
         w3c(paths, conf, warn=options.warn, sleep=options.sleep)
+
+
+arguments = [
+    argument("-r", "--random", dest="random", action="store_true", default=False,
+        help="random order"),
+    argument("-s", type=float, default=0.2, dest="sleep",
+        help="seconds between requests (default 0.2)"),
+    argument("-w", action="store_true", default=False, dest="warn",
+        help="show W3C warnings"),
+    argument("-l", "--links", action="store_true", default=False, dest="links",
+        help="validate links"),
+    argument("-j", "--jobs", dest="jobs", type=int, default=10, help="N parallel requests"),
+]
+
+register(['check'], arguments, "run W3C or validate links", func=run)

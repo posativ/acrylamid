@@ -6,34 +6,33 @@
 
 import sys
 import os
+import argparse
 import subprocess
 
 from acrylamid import log
+from acrylamid.tasks import register, argument
 from acrylamid.errors import AcrylamidException
 
-aliases = ('deploy', 'dp')
-usage = "%prog " + sys.argv[1] + " [TASK]"
-options = []
 
-def run(conf, env, args, options):
+def run(conf, env, options):
     """Subcommand: deploy -- run the shell command specified in
     DEPLOYMENT[task] using Popen. Each string value from :doc:`conf.py` is
     added to the execution environment. Every argument after ``acrylamid
     deploy task ARG1 ARG2`` is appended to cmd."""
 
-    if len(args) < 1:
+    if options.task is None:
         for task in conf.get('deployment', {}).keys():
             print >>sys.stdout, task
         sys.exit(0)
 
-    task, args = args[0], args[1:]
+    task, args = options.task, options.args
     cmd = conf.get('deployment', {}).get(task, None)
 
     if not cmd:
         raise AcrylamidException('no tasks named %r in conf.py' % task)
 
     # apply ARG1 ARG2 ... and -v --long-args to the command, e.g.:
-    # $> acrylamid deploy task arg1 -- -b --foo
+    # $> acrylamid deploy task arg1 -b --foo
     cmd += ' ' + ' '.join(args)
 
     if '%s' in cmd:
@@ -53,3 +52,7 @@ def run(conf, env, args, options):
         if output != '':
             sys.stdout.write(output)
             sys.stdout.flush()
+
+
+arguments = [argument("task", nargs="?"), argument("args", nargs=argparse.REMAINDER)]
+register(['deploy', 'dp'], arguments=arguments, help="run TASK", func=run)
