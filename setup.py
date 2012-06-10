@@ -18,6 +18,9 @@ if sys.version_info[0] >= 3:
 else:
     requires.append('translitcodec>=0.2')
 
+if sys.version_info < (2, 7):
+    requires.append('argparse')
+
 if '--full' in sys.argv:
     requires.extend([
         'pygments',

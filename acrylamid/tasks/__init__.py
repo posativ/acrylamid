@@ -6,25 +6,51 @@
 import sys
 import glob
 import traceback
+import argparse
 
 from os.path import dirname, basename, join
 sys.path.insert(0, dirname(__file__))
 
+# we get them from acrylamid/__init__.py
+subparsers, default = None, None
 
-def get_tasks(ext_dir='tasks/'):
+# here we collect aliases to their function
+collected = {}
 
-    tasks = dict()
-    files = glob.glob(join(dirname(__file__), "*.py"))
 
-    for mem in [basename(x).replace('.py', '') for x in files]:
-        if mem.startswith('_'):
+def initialize(_subparsers, _default, ext_dir='tasks/'):
+
+    global subparsers, default
+    subparsers, default = _subparsers, _default
+
+    for mem in glob.glob(join(dirname(__file__), "*.py")):
+        if mem.startswith('__'):
             continue
         try:
-            _module = __import__(mem)
-            tasks[mem] = _module
-            for alias in _module.aliases:
-                tasks[alias] = _module
-        except (ImportError, Exception):
+            mem = __import__(basename(mem).rsplit('.', 1)[0])
+        except Exception:
             traceback.print_exc(file=sys.stdout)
 
-    return tasks
+
+def register(aliases, arguments=[], help=argparse.SUPPRESS, func=lambda *z: None, parents=True):
+
+    global subparsers, default, collected
+
+    if isinstance(aliases, basestring):
+        aliases = [aliases, ]
+
+    parser = subparsers.add_parser(
+        aliases[0],
+        help=help,
+        parents=[default] if parents else [])
+
+    for arg in arguments:
+        parser.add_argument(*arg.args, **arg.kwargs)
+
+    for alias in aliases:
+        subparsers._name_parser_map[alias] = parser
+        collected[alias] = func
+
+
+def argument(*args, **kwargs):
+    return type('Argument', (object, ), {'args': args, 'kwargs': kwargs})

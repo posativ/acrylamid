@@ -3,29 +3,29 @@
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
-import sys
 import datetime
+import argparse
 
 from time import localtime, strftime
 from os.path import join, getmtime
-from optparse import make_option, SUPPRESS_HELP
 
 from acrylamid import utils
+from acrylamid.tasks import register, argument
 from acrylamid.core import cache
 from acrylamid.base import Entry
 from acrylamid.colors import white, blue, green
 
-aliases = ('info', )
-usage = "%prog " + sys.argv[1]
+
+class Gitlike(argparse.Action):
+
+    def __call__(self, parser, namespace, values, option_string=None):
+
+        namespace.max = 10 * namespace.max + int(option_string.strip('-'))
 
 
-def count(option, opt, value, parser, result=[]):
-    result.append(str(opt).strip('-'))
-    parser.values.max = result
-
-
-option = lambda i: make_option('-%i' % (i), action="callback", callback=count, help=SUPPRESS_HELP)
-options = [option(i) for i in range(10)]
+option = lambda i: argument('-%i' % i, action=Gitlike, help=argparse.SUPPRESS,
+    nargs=0, dest="max", default=0)
+arguments = [option(i) for i in range(10)]
 
 
 def ago(date, now=datetime.datetime.now()):
@@ -60,16 +60,12 @@ def ago(date, now=datetime.datetime.now()):
     return str(days/365) + " years ago"
 
 
-def run(conf, env, args, options):
+def run(conf, env, options):
     """Subcommand: info -- a short overview of a blog."""
 
-    try:
-        limit = int(''.join(options.max))
-    except AttributeError:
-        limit = 5
-
+    limit = options.max if options.max > 0 else 5
     entrylist = sorted([Entry(e, conf) for e in utils.filelist(conf['content_dir'],
-                            conf.get('entries_ignore', []))], key=lambda k: k.date, reverse=True)
+        conf.get('entries_ignore', []))], key=lambda k: k.date, reverse=True)
 
     print
     print 'acrylamid', blue(env['version']) + ',',
@@ -86,3 +82,6 @@ def run(conf, env, args, options):
 
     time = localtime(getmtime(join(conf.get('cache_dir', '.cache/'), 'info')))
     print 'last compilation at %s' % blue(strftime('%d. %B %Y, %H:%M', time))
+
+
+register('info', arguments=arguments, help="short summary", func=run)

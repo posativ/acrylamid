@@ -271,9 +271,8 @@ directly to your server.
     total size is 13017005  speedup is 660.06
     </pre>
 
-It's also possible to pass additional commands to these tasks. Every argument
-after the task identifier is passed to and using ``--`` as delimiter for
-acrylamid's flags you can also apply opts and long-opts:
+It's also possible to pass additional commands to tasks. Every argument and
+flag/option after the task identifier is passed to:
 
 .. raw:: html
 

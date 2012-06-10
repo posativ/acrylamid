@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest  # NOQA
+
 import tempfile
 import shutil
 import os
