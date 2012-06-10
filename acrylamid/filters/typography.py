@@ -32,14 +32,14 @@ class Typography(Filter):
 
     def init(self, conf, env):
 
-        mode = conf.get("typography_mode", "2")  # -- en-dash, --- em-dash
-        default = ['amp', 'widont', 'smartypants', 'caps']
+        self.mode = conf.get("typography_mode", "2")  # -- en-dash, --- em-dash
+        self.default = ['amp', 'widont', 'smartypants', 'caps']
 
-        if mode == "a":
+        if self.mode == "a":
             smartypants.educateDashes = new_dashes
             smartypants.educateDashesOldSchool = new_dashes
 
-            mode = "2"
+            self.mode = "2"
 
         self.ignore = env.options.ignore
         self.filters = {'amp': amp, 'widont': widont, 'caps': caps,
@@ -53,9 +53,9 @@ class Typography(Filter):
             return typogrify(content)
 
         for x in ['amp', 'widont', 'smartypants', 'caps', 'initial_quotes', 'number_suffix']:
-            if x in default + list(args):
+            if x in self.default + list(args):
                 if x == 'smartypants':
-                    content = self.filters[x](content, mode)
+                    content = self.filters[x](content, self.mode)
                 else:
                     content = self.filters[x](content)
 
@@ -301,4 +301,4 @@ def typogrify(content):
            caps(
            smartypants.smartyPants(
            widont(
-           amp(content)), mode))))
+           amp(content)), "2"))))
