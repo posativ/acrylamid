@@ -9,10 +9,13 @@ import argparse
 import subprocess
 
 from acrylamid import log
-from acrylamid.tasks import register, argument
+from acrylamid.tasks import argument, task
 from acrylamid.errors import AcrylamidException
 
+arguments = [argument("task", nargs="?"), argument("args", nargs=argparse.REMAINDER)]
 
+
+@task(['deploy', 'dp'], arguments, help="run task")
 def run(conf, env, options):
     """Subcommand: deploy -- run the shell command specified in
     DEPLOYMENT[task] using Popen. Each string value from :doc:`conf.py` is
@@ -51,7 +54,3 @@ def run(conf, env, options):
         if output != '':
             sys.stdout.write(output)
             sys.stdout.flush()
-
-
-arguments = [argument("task", nargs="?"), argument("args", nargs=argparse.REMAINDER)]
-register(['deploy', 'dp'], arguments=arguments, help="run TASK", func=run)

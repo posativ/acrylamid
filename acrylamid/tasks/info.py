@@ -10,7 +10,7 @@ from time import localtime, strftime
 from os.path import join, getmtime
 
 from acrylamid import utils
-from acrylamid.tasks import register, argument
+from acrylamid.tasks import task, argument
 from acrylamid.core import cache
 from acrylamid.base import Entry
 from acrylamid.colors import white, blue, green
@@ -60,6 +60,7 @@ def ago(date, now=datetime.datetime.now()):
     return str(days/365) + " years ago"
 
 
+@task('info', arguments=arguments, help="short summary")
 def run(conf, env, options):
     """Subcommand: info -- a short overview of a blog."""
 
@@ -82,6 +83,3 @@ def run(conf, env, options):
 
     time = localtime(getmtime(join(conf.get('cache_dir', '.cache/'), 'info')))
     print 'last compilation at %s' % blue(strftime('%d. %B %Y, %H:%M', time))
-
-
-register('info', arguments=arguments, help="short summary", func=run)

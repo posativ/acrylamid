@@ -2,6 +2,8 @@
 #
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
+#
+# acrylamid.tasks can add additional tasks to argument parser and execution
 
 import sys
 import glob
@@ -33,6 +35,15 @@ def initialize(_subparsers, _default, ext_dir='tasks/'):
 
 
 def register(aliases, arguments=[], help=argparse.SUPPRESS, func=lambda *z: None, parents=True):
+    """Add a task to a new subcommand parser, that integrates into `acrylamid --help`.
+
+    :param aliases: a string or list of names for this task, the first is shown in ``--help``
+    :param arguments: a list of :func:`argument`
+    :param help: short help about this command
+    :param func: function to run when the user chooses this task
+    :param parents: inherit default options like ``--verbose``
+    :type parents: True or False
+    """
 
     global subparsers, default, collected
 
@@ -52,5 +63,31 @@ def register(aliases, arguments=[], help=argparse.SUPPRESS, func=lambda *z: None
         collected[alias] = func
 
 
+class task(object):
+    """A decorator to ease task creation.
+
+    .. code-block:: python
+
+        @task("hello", help="say hello")
+        def hello(conf, env, options):
+
+            print 'Hello World!'
+    """
+
+    def __init__(self, *args, **kwargs):
+
+        self.args = args
+        self.kwargs = kwargs
+
+    def __call__(self, func):
+
+        self.kwargs['func'] = func
+        register(*self.args, **self.kwargs)
+
+
 def argument(*args, **kwargs):
+    """A :func:`make_option`-like wrapper, use it to create your arguments::
+
+        arguments = [argument('-i', '--ini', nargs="+", default=0)]"""
+
     return type('Argument', (object, ), {'args': args, 'kwargs': kwargs})
