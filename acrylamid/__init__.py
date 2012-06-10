@@ -38,6 +38,26 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 sys.path.append(os.path.dirname(__file__))
 
 
+class AcrylFormatter(argparse.HelpFormatter):
+    """Remove {a,b,c,d,e,...} subcommand listing from help."""
+
+    def _metavar_formatter(self, action, default_metavar):
+        if action.metavar is not None:
+            result = action.metavar
+        elif action.choices is not None:
+            result = ''
+        else:
+            result = default_metavar
+
+        def format(tuple_size):
+            if isinstance(result, tuple):
+                return result
+            else:
+                return (result, ) * tuple_size
+
+        return format
+
+
 class Environment(dict):
 
     def __getattribute__(self, attr):
@@ -54,28 +74,40 @@ class Environment(dict):
 
 
 def Acryl():
-    """The main function that dispatches the CLI."""
+    """The main function that dispatches the CLI.  We use :class:`AcrylFormatter`
+    as custom help formatter that ommits the useless list of available subcommands
+    and their aliases.
 
-    default = argparse.ArgumentParser(add_help=False)
-    default.add_argument("-v", "--verbose", action="store_const", dest="verbosity",
-        help="more verbose", const=log.SKIP, default=log.INFO)
-    default.add_argument("-q", "--quiet", action="store_const", dest="verbosity",
-        help="less verbose", const=log.WARN)
-    default.add_argument("-C", "--no-color", action="store_false", dest="colors",
-        help="disable color", default=True)
+    All flags from acrylamid --help are also available in subcommands altough not
+    explicitely printed in their help."""
 
     parser = argparse.ArgumentParser(
         epilog = "All subcommands except `init` require a conf.py file.",
-        parents=[default]
+        parents=[], formatter_class=AcrylFormatter
     )
-
+    parser.add_argument("-v", "--verbose", action="store_const", dest="verbosity",
+        help="more verbose", const=log.SKIP, default=log.INFO)
+    parser.add_argument("-q", "--quiet", action="store_const", dest="verbosity",
+        help="less verbose", const=log.WARN)
+    parser.add_argument("-C", "--no-color", action="store_false", dest="colors",
+        help="disable color", default=True)
     parser.add_argument("--version", action="version",
         version=colors.blue('acrylamid ') + __version__)
 
     subparsers = parser.add_subparsers(dest="parser")
 
+    # a repeat yourself of default arguments but not visible on subcommand --help
+    default = argparse.ArgumentParser(add_help=False)
+    default.add_argument("-v", "--verbose", action="store_const", dest="verbosity",
+        help=argparse.SUPPRESS, const=log.SKIP, default=log.INFO)
+    default.add_argument("-q", "--quiet", action="store_const", dest="verbosity",
+        help=argparse.SUPPRESS, const=log.WARN)
+    default.add_argument("-C", "--no-color", action="store_false", dest="colors",
+        help=argparse.SUPPRESS, default=True)
+
     # --- init params --- #
-    init = subparsers.add_parser('init', help='initializes base structure in DIR', parents=[default])
+    init = subparsers.add_parser('init', help='initializes base structure in DIR',
+        parents=[default, ])
     init.add_argument("dest", metavar="DEST|FILE", nargs="?")
     init.add_argument("-f", "--force", action="store_true", dest="force",
         help="don't ask, just overwrite", default=False)
@@ -139,6 +171,7 @@ def Acryl():
     # initialize other tasks
     tasks.initialize(subparsers, default)
 
+    # parse args
     options = parser.parse_args()
 
     # initialize colored logger
