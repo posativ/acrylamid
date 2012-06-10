@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 #
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py

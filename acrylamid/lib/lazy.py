@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 #
 # demandimport.py - global demand-loading of modules for Mercurial
