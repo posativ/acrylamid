@@ -15,9 +15,10 @@ Version 0.3
   require TYPOGRAPHY_MODE = "a", see #36 (thanks to Mark)
 - compilation summary and hide skip/identical by default
 - deployments are now executed in a real shell environment
-- verified python 3 support XXX
+- verified python 3 support (via p3test.sh)
 - templates are now configurable per view, #24
-- few bugfixes to core that induces new compilation :-/
+- use argparse instead of optparse
+- few bugfixes to core that induces new compilation :/
 
 ### 0.3.4
 

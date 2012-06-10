@@ -56,7 +56,7 @@ def convert(data, fmt='markdown', pandoc=False):
     else:
         cmds = []
 
-    p = ['pandoc', '--normalize', '-f', 'html', '-t', fmt, '--strict']
+    p = ['pandoc', '--normalize', '-f', 'html', '-t', fmt, '--strict', '--no-wrap']
     cmds.insert(0, p) if pandoc else cmds.append(p)
 
     if fmt == 'html':
@@ -71,7 +71,7 @@ def convert(data, fmt='markdown', pandoc=False):
         try:
             return system(cmd, stdin=data), fmt.lower()
         except AcrylamidException as e:
-            log.warn(e.message)
+            log.warn(e.args[0])
         except OSError:
             pass
     else:
@@ -227,7 +227,7 @@ def fetch(url, auth=None):
             with io.open(url, 'r', encoding='utf-8', errors='replace') as fp:
                 return u''.join(fp.readlines())
         except OSError as e:
-            raise AcrylamidException(e.message)
+            raise AcrylamidException(e.args[0])
 
     req = Request(url)
     if auth:
@@ -262,7 +262,7 @@ def parse(content):
         except ImportError:
             log.info('notice  BeautifulSoup is required for WordPress import')
         except InvalidSource as e:
-            failed.append(e.message)
+            failed.append(e.args[0])
     else:
         raise AcrylamidException('unable to parse source')
 

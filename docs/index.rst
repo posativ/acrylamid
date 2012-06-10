@@ -135,24 +135,28 @@ See :doc:`commands` for a detailed overview.
 
 ::
 
-    %> acrylamid --help
-    Usage: acrylamid <subcommand> [options] [args]
+    $ acrylamid --help
+    usage: acrylamid [-h] [-v] [-q] [-C] [--version]  ...
 
-    Options:
-      -q, --quiet    less verbose
-      -v, --verbose  more verbose
-      -h, --help     show this help message and exit
-      --version      print version details
+    positional arguments:
 
-    Commands:
-      init           initializes base structure in DIR
-      create  (new)  creates a new entry
-      compile (co)   compile blog
-      view           fire up built-in webserver
-      autocompile    automatic compilation and serving (short aco)
-      clean   (rm)   remove abandoned files
-      import         import content from URL
-      deploy         run a given TASK
+        init          initializes base structure in DIR
+        compile       compile blog
+        view          fire up built-in webserver
+        autocompile   automatic compilation and serving
+        import        import content from URL or FILE
+        new           create a new entry
+        check         run W3C or validate links
+        clean         remove abandoned files
+        deploy        run task
+        info          short summary
+
+    optional arguments:
+      -h, --help      show this help message and exit
+      -v, --verbose   more verbose
+      -q, --quiet     less verbose
+      -C, --no-color  disable color
+      --version       show program's version number and exit
 
     All subcommands except `init` require a conf.py file.
 
