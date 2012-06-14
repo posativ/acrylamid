@@ -28,8 +28,9 @@ class Markdown(Filter):
     conflicts = ['rst', 'plain']
     priority = 70.0
 
-    extensions = dict((x, x) for x in ['abbr', 'fenced_code', 'footnotes',
-                                       'headerid', 'tables', 'codehilite'])
+    extensions = dict((x, x) for x in ['abbr', 'fenced_code', 'footnotes', 'headerid',
+        'tables', 'codehilite', 'def_list', 'extra', 'smart_strong', 'nl2br',
+        'sane_lists', 'wikilink', 'attr_list'])
 
     def init(self, conf, env):
 
