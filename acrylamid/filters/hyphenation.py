@@ -5,7 +5,7 @@
 from acrylamid.filters import Filter
 from acrylamid.filters import log
 from acrylamid.utils import cached_property
-from acrylamid.lib import HTMLParser, HTMLParseError
+from acrylamid.lib.html import HTMLParser, HTMLParseError
 
 import re
 import os

@@ -16,7 +16,7 @@ import re
 from acrylamid import log
 from acrylamid.filters import Filter
 
-from acrylamid.lib import HTMLParser, HTMLParseError
+from acrylamid.lib.html import HTMLParser, HTMLParseError
 
 
 class Acrynomify(HTMLParser):
