@@ -7,24 +7,25 @@
 # This software may be used and distributed according to the terms
 # of the GNU General Public License, incorporated herein by reference.
 
-'''
-demandimport - automatic demandloading of modules
 
-To enable this module, do:
+"""
+Lazy Import
+~~~~~~~~~~~
 
-  import demandimport; demandimport.enable()
-
-Imports of the following forms will be demand-loaded:
+Two switches that enable/disable automatic demandloading of modules. Imports
+of the following forms will be demand-loaded::
 
   import a, b.c
   import a.b as c
   from a import b,c # a will be loaded immediately
 
-These imports will not be delayed:
+These imports will not be delayed::
 
   from a import *
   b = __import__(a)
-'''
+
+This is dark magic, currently only used for lazy import in filters as there have been
+mysterious exceptions in the jinja2 templating engine when enabled for views as well."""
 
 import __builtin__
 _origimport = __import__
@@ -125,10 +126,13 @@ def _demandimport(name, globals=None, locals=None, fromlist=None, level=None):
 
 
 def enable():
-    "enable global demand-loading of modules"
+    "Enable global demand-loading of modules."
     __builtin__.__import__ = _demandimport
 
 
 def disable():
-    "disable global demand-loading of modules"
+    "Disable global demand-loading of modules."
     __builtin__.__import__ = _origimport
+
+
+__all__ = ["enable", "disable"]

@@ -13,9 +13,12 @@ import collections
 
 from urllib import quote
 
-from acrylamid import utils, helpers, lib
+from acrylamid import utils, helpers
 from acrylamid.tasks import register, argument
 from acrylamid.colors import green, yellow, red, blue, white
+
+from acrylamid.lib.async import Threadpool
+from acrylamid.lib.requests import get, head, HTTPError, URLError
 
 
 def w3c(paths, conf, warn=False, sleep=0.2):
@@ -26,23 +29,16 @@ def w3c(paths, conf, warn=False, sleep=0.2):
     :param warn: don't handle warnings as success when set
     :param sleep: sleep between requests (be nice to their API)"""
 
-    def head(url):
-        req = urllib2.Request(url)
-        req.get_method = lambda : 'HEAD'
-
-        resp = urllib2.urlopen(req)
-        hdrs = dict(line.strip().split(': ', 1) for line in resp.headers.headers)
-        return resp.code, hdrs
-
     for path in paths:
         url = path[len(conf['output_dir'])-1:]
 
-        code, headers = head("http://validator.w3.org/check?uri=" + \
-                             helpers.joinurl(conf['www_root'], quote(url)))
+        resp = head("http://validator.w3.org/check?uri=" + \
+            helpers.joinurl(conf['www_root'], quote(url)))
+        headers = dict(line.strip().split(': ', 1) for line in resp.headers.headers)
 
         print url.rstrip('index.html'),
 
-        if code != 200:
+        if resp.code != 200:
             print red('not 200 Ok!')
             continue
 
@@ -73,22 +69,22 @@ def validate(paths, jobs):
     ahref = re.compile(r'<a [^>]*href="([^"]+)"[^>]*>.*?</a>')
     visited, urls = set(), collections.defaultdict(list)
 
-    def head(url, path, method='HEAD', redirected=False):
+    def check(url, path):
         """A HEAD request to URL.  If HEAD is not allowed, we try GET."""
 
-        req = urllib2.Request(url,
-                  headers={'User-Agent': "Mozilla/5.0 Gecko/20120427 Firefox/15.0"})
-        req.get_method = lambda : method
-
         try:
-            urllib2.urlopen(req, timeout=10)
-        except urllib2.HTTPError as e:
-            if e.code == 405 and not redirected:  # not allowed
-                head(url, path, 'GET', True)
+            get(url, timeout=10)
+        except HTTPError as e:
+            if e.code == 405:
+                try:
+                    get(url, path, 'GET', True)
+                except URLError as e:
+                    print '  ' + yellow(e.reason), url
+                    print white('  -- ' + path)
             else:
                 print '  ' + red(e.code), url
                 print white('  -- ' + path)
-        except urllib2.URLError as e:
+        except URLError as e:
             print '  ' + yellow(e.reason), url
             print white('  -- ' + path)
 
@@ -109,10 +105,10 @@ def validate(paths, jobs):
     print "Trying", blue(len(visited)), "links..."
     print
 
-    pool = lib.ThreadPool(jobs)
+    pool = Threadpool(jobs)
     for path in urls:
         for url in urls[path]:
-            pool.add_task(head, *[url, path])
+            pool.add_task(check, *[url, path])
 
     try:
         pool.wait_completion()

@@ -176,3 +176,4 @@ API Reference
    api/core
    api/base
    api/helpers
+   api/lib

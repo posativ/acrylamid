@@ -3,6 +3,24 @@
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
 # via http://code.activestate.com/recipes/577187-python-thread-pool/
 
+"""
+Asynchronous Tasks
+~~~~~~~~~~~~~~~~~~
+
+A simple thread pool implementation, that can be used for parallel I/O.
+
+Example usage::
+
+    >>> def takes(long=10):
+    ...     sleep(long)
+    ...
+    >>> pool = ThreadPool(5)
+    >>> for x in range(10):
+    ...     pool.add_task(takes, x)
+    >>> pool.wait_completion()
+
+You can't retrieve the return values, just wait until they finish."""
+
 from Queue import Queue
 from threading import Thread
 
@@ -26,8 +44,9 @@ class Worker(Thread):
             self.tasks.task_done()
 
 
-class ThreadPool:
-    """Pool of threads consuming tasks from a queue"""
+class Threadpool:
+    """Initialize pool with number of workers, that run a function with
+    given arguments and catch all exceptions."""
 
     def __init__(self, num_threads):
         self.tasks = Queue(num_threads)

@@ -3,6 +3,12 @@
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
+"""
+Internal Webserver
+~~~~~~~~~~~~~~~~~~
+
+Launch a dumb webserver as thread."""
+
 from threading import Thread
 import os
 import SimpleHTTPServer
@@ -47,12 +53,15 @@ class AcrylServe(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
 
 class Webserver(Thread):
-    """A single-threaded webserver to serve while generation."""
+    """A single-threaded webserver to serve while generation.
 
-    def __init__(self, port=8000, www_root='.'):
+    :param port: port to listen on
+    :param root: serve this directory under /"""
+
+    def __init__(self, port=8000, root='.'):
         Thread.__init__(self)
         Handler = AcrylServe
-        Handler.www_root = www_root
+        Handler.www_root = root
         Handler.log_error = lambda x, *y: None
         Handler.log_message = lambda x, *y: None
         self.httpd = ReuseAddressServer(("", port), Handler)

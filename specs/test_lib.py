@@ -2,7 +2,7 @@
 
 import unittest
 
-from acrylamid.lib import HTMLParser
+from acrylamid.lib.html import HTMLParser
 f = lambda x: ''.join(HTMLParser(x).result)
 
 
