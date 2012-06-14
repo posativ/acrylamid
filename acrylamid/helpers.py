@@ -47,7 +47,7 @@ def union(*args, **kwargs):
 
     d = args[0]
     for dikt in args[1:]:
-        d.update(dict)
+        d.update(dikt)
 
     d.update(kwargs)
     return d
