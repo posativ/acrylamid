@@ -34,7 +34,6 @@ def w3c(paths, conf, warn=False, sleep=0.2):
 
         resp = head("http://validator.w3.org/check?uri=" + \
             helpers.joinurl(conf['www_root'], quote(url)))
-        headers = dict(line.strip().split(': ', 1) for line in resp.headers.headers)
 
         print url.rstrip('index.html'),
 
@@ -42,19 +41,20 @@ def w3c(paths, conf, warn=False, sleep=0.2):
             print red('not 200 Ok!')
             continue
 
-        if headers['X-W3C-Validator-Status'] == "Abort":
+        headers = resp.info()
+        if headers['x-w3c-validator-status'] == "Abort":
             print red("Abort")
-        elif headers['X-W3C-Validator-Status'] == 'Valid':
-            if int(headers['X-W3C-Validator-Warnings']) == 0:
+        elif headers['x-w3c-validator-status'] == 'Valid':
+            if int(headers['x-w3c-validator-warnings']) == 0:
                 print green('Ok')
             else:
                 if warn:
-                    print yellow(headers['X-W3C-Validator-Warnings'] + ' warns')
+                    print yellow(headers['x-w3c-validator-warnings'] + ' warns')
                 else:
                     print green('Ok')
         else:
-            res = headers['X-W3C-Validator-Errors'] + ' errors, ' + \
-                  headers['X-W3C-Validator-Warnings'] + ' warns'
+            res = headers['x-w3c-validator-errors'] + ' errors, ' + \
+                  headers['x-w3c-validator-warnings'] + ' warns'
             print red(res)
 
         time.sleep(sleep)

@@ -81,7 +81,6 @@ def Acryl():
     explicitely printed in their help."""
 
     parser = argparse.ArgumentParser(
-        epilog = "All subcommands except `init` require a conf.py file.",
         parents=[], formatter_class=AcrylFormatter
     )
     parser.add_argument("-v", "--verbose", action="store_const", dest="verbosity",
