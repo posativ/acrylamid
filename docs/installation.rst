@@ -43,6 +43,14 @@ Additional Supported Modules
 - ``smartypants`` for nicer typography
 - ``pyyaml`` to use the official YAML parser
 
+Asian/Russian Users
+-------------------
+
+If you write in your native language, you have to install ``unidecode`` for
+ASCII transcription of your characters. This is only required for the safe
+slug to your post.
+
+
 Windows
 *******
 

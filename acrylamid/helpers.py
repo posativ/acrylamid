@@ -26,6 +26,11 @@ try:
 except ImportError:
     translitcodec = None  # NOQA
 
+try:
+    from unidecode import unidecode
+except ImportError:
+    unidecode = None  # NOQA
+
 __all__ = ['memoize', 'union', 'mkfile', 'md5', 'expand', 'joinurl',
            'safeslug', 'paginate', 'escape', 'system', 'event']
 
@@ -143,11 +148,15 @@ def safeslug(slug):
 
     result = []
     if translitcodec:
-        slug = slug.encode('translit/long').strip()
+        slug = u"" + slug.encode('translit/long').strip()
+    if unidecode:
+        slug = u"" + unidecode(slug)
     for word in _slug_re.split(slug.lower()):
         word = normalize('NFKD', word).encode('ascii', 'ignore').decode('utf-8').strip()
         if not PY3 and translitcodec is None:
             log.once(warn="no 'translitcodec' found, using NFKD algorithm")
+        if not word.isalnum():
+            log.once(warn="no 'unidecode' found, string is unsafe")
         if word and not word[0] in '-:':
             result.append(word)
     return u'-'.join(result)

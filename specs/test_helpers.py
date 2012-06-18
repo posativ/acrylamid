@@ -47,6 +47,18 @@ class Helpers(unittest.TestCase):
         helpers.translitcodec = None
         assert helpers.safeslug(u'Hänsel und Gretel') == 'hansel-und-gretel'
 
+    @unittest.skipIf(helpers.unidecode is None, 'no unidecode available')
+    def test_safeslugwithrussian(self):
+
+        examples = [(u'Nothing happens', 'nothing-happens'),
+                    (u'русский', 'russkii')]
+
+        for value, expected in examples:
+            assert helpers.safeslug(value) == expected
+
+        helpers.unidecode = None
+        assert helpers.safeslug(u'русский') == ''
+
     def test_joinurl(self):
 
         examples = ((['hello', 'world'], 'hello/world'),

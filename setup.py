@@ -28,6 +28,7 @@ if '--full' in sys.argv:
         'smartypants',
         'asciimathml',
         'pytextile',
+        'unidecode'
     ])
 
 setup(
