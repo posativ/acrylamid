@@ -90,22 +90,30 @@ Gruber <http://freewisdom.org/projects/python-markdown/>`_ and all it's
 Here's an online service converting Markdown to HTML and providing a handy
 cheat sheet: `Dingus <http://daringfireball.net/projects/markdown/dingus>`_.
 
-Acrylamid features an AsciiMathML_ extension. The aliases are: *asciimathml*,
-*mathml* and *math* and requires the ``python-asciimathml`` package. *Note* put
-your formula into single dollar signs like ``$a+b^2$``!
+Acrylamid features few AsciiMathML_ extension:
+
+- inline math via AsciiMathML_. The aliases are: *asciimathml*, *mathml* and *math*
+  and require the ``python-asciimathml`` package. *Note* put your formula into single
+  dollar signs like ``$a+b^2$``!
+- super_ und subscript_ via *sup* or *superscript* as well as *sub* or *subscript*.
+  The syntax for subscript is ``H~2~O`` and for superscript ``a^2^``.
+- `deletion and insertion`_ syntax via *delins*. The syntax is ``~~old~~`` and ``++new``.
 
 .. _available extensions: http://www.freewisdom.org/projects/python-markdown/Available_Extensions
 .. _codehilite: http://freewisdom.org/projects/python-markdown/CodeHilite
 .. _pygments: http://pygments.org/
 .. _AsciiMathML: https://github.com/favalex/python-asciimathml
+.. _super: https://github.com/sgraber/markdown.superscript
+.. _subscript: https://github.com/sgraber/markdown.subscript
+.. _deletion and insertion: https://github.com/aleray/mdx_del_ins
 
-============  ==================================================
+============  ====================================================
 Requires      ``markdown`` or (``python-markdown``) -- already
               as a dependency implicitly installed
 Aliases       md, mkdown, markdown
 Conflicts     HTML, reStructuredText, Pandoc
-Arguments     asciimathml (mathml, math), <built-in extensions>
-============  ==================================================
+Arguments     asciimathml, sub, sup, delins, <built-in extensions>
+============  ====================================================
 
 
 reStructuredText
