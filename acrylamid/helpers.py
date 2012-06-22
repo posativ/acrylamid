@@ -155,8 +155,6 @@ def safeslug(slug):
         word = normalize('NFKD', word).encode('ascii', 'ignore').decode('utf-8').strip()
         if not PY3 and translitcodec is None:
             log.once(warn="no 'translitcodec' found, using NFKD algorithm")
-        if not word.isalnum():
-            log.once(warn="no 'unidecode' found, string is unsafe")
         if word and not word[0] in '-:':
             result.append(word)
     return u'-'.join(result)
