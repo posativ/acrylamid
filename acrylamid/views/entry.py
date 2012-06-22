@@ -35,7 +35,7 @@ class Entry(View):
 
     def generate(self, request):
 
-        tt = self.env.jinja2.get_template(self.template)
+        tt = self.env.tt.fromfile(self.template)
 
         entrylist = request['entrylist']
         pathes = dict()

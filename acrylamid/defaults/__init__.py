@@ -179,7 +179,9 @@ conf = default = {
 
     'filters': ['markdown+codehilite(css_class=highlight)', 'hyphenate'],
     'views': {
-    }
+    },
+
+    'tt': 'acrylamid.templates.jinja2.Environment',
 }
 
 

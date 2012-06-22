@@ -18,76 +18,12 @@ from acrylamid.errors import AcrylamidException
 
 from acrylamid.utils import memoized, classproperty
 
-from jinja2 import FileSystemLoader, meta
-
 try:
     import cPickle as pickle
 except ImportError:
     import pickle  # NOQA
 
-__all__ = ['ExtendedFileSystemLoader', 'Memory', 'cache']
-
-
-class ExtendedFileSystemLoader(FileSystemLoader):
-    """A custom :class:`jinja2.FileSystemLoader` to work with Acrylamid's
-    caching requirements. Jinja2 does track template changes using the
-    modification timestamp of the compiled but we need template dependencies
-    as well as consistent has_changed values over the whole compilation
-    process."""
-
-    # remember already resolved templates
-    resolved = {}
-
-    def load(self, environment, name, globals=None):
-        """patched `load` to add a has_changed attribute providing information
-        whether the template or its parents have changed."""
-
-        def resolve(parent):
-            """We check whether any dependency (extend-block) has changed and
-            update the bucket -- recursively. Returns True if the template
-            itself or any parent template has changed. Otherwise False."""
-
-            if parent in self.resolved:
-                return self.resolved[parent]
-
-            source, filename, uptodate = self.get_source(environment, parent)
-            bucket = bcc.get_bucket(environment, parent, filename, source)
-            p = bcc._get_cache_filename(bucket)
-            has_changed = getmtime(filename) > getmtime(p) if exists(p) else True
-
-            if has_changed:
-                # updating cached template if timestamp has changed
-                code = environment.compile(source, parent, filename)
-                bucket.code = code
-                bcc.set_bucket(bucket)
-
-                self.resolved[parent] = True
-                return True
-
-            ast = environment.parse(source)
-            for name in meta.find_referenced_templates(ast):
-                rv = resolve(name)
-                if rv:
-                    # XXX double-return to break this recursion?
-                    return True
-
-        if globals is None:
-            globals = {}
-
-        source, filename, uptodate = self.get_source(environment, name)
-
-        bcc = environment.bytecode_cache
-        bucket = bcc.get_bucket(environment, name, filename, source)
-        has_changed = bool(resolve(name))
-
-        code = bucket.code
-        if code is None:
-            code = environment.compile(source, name, filename)
-
-        tt = environment.template_class.from_code(environment, code,
-                                                  globals, uptodate)
-        tt.has_changed = has_changed
-        return tt
+__all__ = ['Memory', 'cache']
 
 
 class Memory(dict):

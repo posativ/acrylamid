@@ -17,15 +17,13 @@ from datetime import datetime
 from collections import defaultdict
 from os.path import join, dirname, getmtime, isfile
 
-from jinja2 import Environment, FileSystemBytecodeCache
-
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
 from acrylamid import filters, views, utils, helpers
 from acrylamid.lib import lazy, importer
 from acrylamid.base import Entry
-from acrylamid.core import cache, ExtendedFileSystemLoader
+from acrylamid.core import cache
 from acrylamid.helpers import event, escape
 
 
@@ -38,9 +36,12 @@ def initialize(conf, env):
     cache.init(conf.get('cache_dir', None))
 
     # set up templating environment
-    env['jinja2'] = Environment(loader=ExtendedFileSystemLoader(conf['layout_dir']),
-                                bytecode_cache=FileSystemBytecodeCache(cache.cache_dir))
-    env['jinja2'].filters.update({'safeslug': helpers.safeslug, 'tagify': lambda x: x})
+    tt = utils.import_object(conf['tt'])()
+    env['tt'] = tt
+
+    tt.init(conf['layout_dir'], cache.cache_dir)
+    tt.register('safeslug', helpers.safeslug)
+    tt.register('tagify', lambda x: x)
 
     # try language set in LANG, if set correctly use it
     try:

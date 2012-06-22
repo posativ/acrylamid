@@ -171,13 +171,13 @@ class View(object):
     .. method:: init(self, **kwargs)
 
        Initializing the view with configuration parameters. You can also load
-       jinja templates here.
+       jinja/other templates here.
 
        :param kw: custom key/value pair from :doc:`conf.py` is available in here.
 
     .. method:: context(self, env, request)
 
-       Add shared environment varialbes for all views, e.g. jinja2 filters and
+       Add shared environment varialbes for all views, e.g. template filters and
        objects. You must return the environment.
 
        :param env: environment object
@@ -190,9 +190,9 @@ class View(object):
        especially :func:`acrylamid.helpers.expand`, :func:`acrylamid.helpers.joinurl`
        and :func:`acrylamid.helpers.union`.
 
-       Load a template from ``env.jinja2`` and check wether it has changed::
+       Load a template from ``env.tt`` and check wether it has changed::
 
-           >>> tt = self.env.jinja2.get_template('articles.html')
+           >>> tt = self.env.tt.fromfile('articles.html')
            >>> print tt.has_changed
            True
 
