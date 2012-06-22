@@ -127,8 +127,7 @@ def compile(conf, env, force=False, **options):
 
     # list of Entry-objects reverse sorted by date.
     entrylist = sorted([Entry(e, conf) for e in utils.filelist(conf['content_dir'],
-                                                             conf.get('entries_ignore', []))],
-                       key=lambda k: k.date, reverse=True)
+        conf.get('entries_ignore', [])) if utils.istext(e)], key=lambda k: k.date, reverse=True)
 
     # here we store all found filter and their aliases
     ns = defaultdict(set)
@@ -216,7 +215,7 @@ def autocompile(conf, env, **options):
     mtime = -1
 
     while True:
-        ntime = max(getmtime(e) for e in utils.filelist(conf['content_dir']))
+        ntime = max(getmtime(e) for e in utils.filelist(conf['content_dir']) if utils.istext(e))
         if mtime != ntime:
             try:
                 compile(conf, env, **options)

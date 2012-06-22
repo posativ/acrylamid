@@ -10,10 +10,11 @@ import tempfile
 from datetime import datetime
 
 from acrylamid import log, errors
-from acrylamid.helpers import escape
-from acrylamid.base import Entry
-from acrylamid.defaults import conf
 from acrylamid.errors import AcrylamidException
+
+from acrylamid.readers import Entry
+from acrylamid.helpers import escape
+from acrylamid.defaults import conf
 
 log.init('acrylamid', level=40)
 

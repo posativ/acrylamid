@@ -7,17 +7,13 @@
 
 from __future__ import unicode_literals
 
+import sys
 import os
 import io
 import re
 import functools
 
 from fnmatch import fnmatch
-
-try:
-    import yaml
-except ImportError:
-    yaml = None  # NOQA
 
 
 # Borrowed from werkzeug._internal
@@ -168,75 +164,12 @@ class NestedProperties(dict):
     def __getattr__(self, attr):
         return self[attr]
 
-
-def read(filename, encoding, remap={}):
-    """Open and read content using the specified encoding and return position
-    where the actual content begins and all collected properties.
-
-    If ``pyyaml`` is available we use this parser but we provide a dumb
-    fallback parser that can handle simple assigments in YAML.
-
-    :param filename: path to an existing text file
-    :param encoding: encoding of this file
-    :param remap: remap deprecated/false-written YAML keywords
-    """
-
-    def distinguish(value):
-        if value == '':
-            return None
-        elif value.isdigit():
-            return int(value)
-        elif value.lower() in ['true', 'false']:
-            return True if value.capitalize() == 'True' else False
-        elif value[0] == '[' and value[-1] == ']':
-            return list([unicode(x.strip())
-                for x in value[1:-1].split(',') if x.strip()])
-        else:
-            return unicode(value.strip('"').strip("'"))
-
-    head = []
-    i = 0
-
-    with io.open(filename, 'r', encoding=encoding, errors='replace') as f:
-        while True:
-            line = f.readline(); i += 1
-            if i == 1 and line.startswith('---'):
-                pass
-            elif i > 1 and not line.startswith('---'):
-                head.append(line)
-            elif i > 1 and line.startswith('---'):
-                break
-
-    if head and yaml:
-        try:
-            props = yaml.load(''.join(head))
-        except yaml.YAMLError as e:
-            raise ValueError('YAMLError: %s' % str(e))
-        for key, to in remap.iteritems():
-            if key in props:
-                props[to] = props[key]
-                del props[key]
-    else:
-        props = NestedProperties()
-        for j, line in enumerate(head):
-            if line[0] == '#' or not line.strip():
-                continue
-            try:
-                key, value = [x.strip() for x in line.split(':', 1)]
-                if key in remap:
-                    key = remap[key]
-            except ValueError:
-                raise ValueError('%s:%i ValueError: %s\n%s' %
-                    (filename, j, line.strip('\n'),
-                    ("Either your YAML is malformed or our naïve parser is to dumb \n"
-                     "to read it. Revalidate your YAML or install PyYAML parser with \n"
-                     "> easy_install -U pyyaml")))
-            props[key] = distinguish(value)
-
-    if 'title' not in props:
-        raise ValueError('No title given in %r' % filename)
-
-    return i, props
+    def update(self, dikt, **kw):
+        if hasattr(dikt, 'keys'):
+            for k in dikt:
+                self[k] = dikt[k]
+        for k in kw:
+            self[k] = kw[k]
 
 
 def import_object(name):
@@ -246,3 +179,32 @@ def import_object(name):
     parts = name.split('.')
     obj = __import__('.'.join(parts[:-1]), None, None, [parts[-1]], 0)
     return getattr(obj, parts[-1])
+
+
+# A function that takes an integer in the 8-bit range and returns a
+# single-character byte object in py3 / a single-character string in py2.
+int2byte = (lambda x: bytes((x,))) if sys.version_info > (3, 0) else chr
+
+def istext(path, blocksize=512, chars=(
+    b''.join(int2byte(i) for i in range(32, 127)) + b'\n\r\t\f\b')):
+    """Uses heuristics to guess whether the given file is text or binary,
+    by reading a single block of bytes from the file. If more than 30% of
+    the chars in the block are non-text, or there are NUL ('\x00') bytes in
+    the block, assume this is a binary file.
+
+    -- via http://eli.thegreenplace.net/2011/10/19/perls-guess-if-file-is-text-or-binary-implemented-in-python/"""
+
+    with open(path, 'rb') as fp:
+        block = fp.read(blocksize)
+    if b'\x00' in block:
+        # Files with null bytes are binary
+        return False
+    elif not block:
+        # An empty file is considered a valid text file
+        return True
+
+    # Use translate's 'deletechars' argument to efficiently remove all
+    # occurrences of chars from the block
+    nontext = block.translate(None, chars)
+    return float(len(nontext)) / len(block) <= 0.30
+

@@ -66,7 +66,7 @@ def run(conf, env, options):
 
     limit = options.max if options.max > 0 else 5
     entrylist = sorted([Entry(e, conf) for e in utils.filelist(conf['content_dir'],
-        conf.get('entries_ignore', []))], key=lambda k: k.date, reverse=True)
+        conf.get('entries_ignore', [])) if utils.istext(e)], key=lambda k: k.date, reverse=True)
 
     print
     print 'acrylamid', blue(env['version']) + ',',

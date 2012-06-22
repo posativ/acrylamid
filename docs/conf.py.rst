@@ -147,6 +147,9 @@ Miscellaneous
 ================================================    =====================================================
 Variable name (default value)                       Description
 ================================================    =====================================================
+`METASTYLE` (*not set*)                             With ``native`` you can Acrylamid parse Markdown's
+                                                    native meta data section if the filename ends with
+                                                    ``.md`` or ``.mkdown``.
 `DISQUS_SHORTNAME` (*not set*)                      Enables `Disqus <https://disqus.com/>`_ integration
                                                     with your site identifier [#]_.
 `DEFAULT_ORPHANS` (``0``)                           The minimum number of articles allowed on the last

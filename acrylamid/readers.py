@@ -19,10 +19,15 @@ from datetime import datetime
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
-from acrylamid.utils import cached_property, read
+from acrylamid.utils import cached_property, NestedProperties
 from acrylamid.core import cache
 from acrylamid.filters import FilterTree
 from acrylamid.helpers import safeslug, expand, md5
+
+try:
+    import yaml
+except ImportError:
+    yaml = None  # NOQA
 
 
 class Date(datetime):
@@ -139,22 +144,32 @@ class BaseEntry(object):
 
 class FileEntry(BaseEntry):
 
-    def __init__(self, filename, conf):
+    def __init__(self, path, conf):
 
-        self.filename = filename
-        self.mtime = os.path.getmtime(filename)
-        self.props = dict((k, v) for k, v in conf.iteritems()
-                        if k in ['author', 'lang', 'encoding', 'date_format',
-                                 'permalink_format', 'email'])
+        self.filename = path
+        self.mtime = os.path.getmtime(path)
+        self.props = NestedProperties((k, v) for k, v in conf.iteritems()
+            if k in ['author', 'lang', 'encoding', 'date_format', 'permalink_format', 'email'])
 
-        try:
-            i, props = read(filename, self.props['encoding'],
-                            remap={'tag': 'tags', 'filter': 'filters', 'static': 'draft'})
-        except ValueError as e:
-            raise AcrylamidException(e.args[0])
+        native = conf.get('metastyle', '').lower() == 'native'
+
+        with io.open(path, 'r', encoding=conf['encoding'], errors='replace') as fp:
+
+            if native and any(filter(lambda ext: path.endswith(ext), ['.md', '.mkdown'])):
+                i, meta = markdownstyle(fp)
+            # elif native and any(filter(lambda ext: path.endswith(ext), ['.rst', '.rest'])):
+            #     i, meta = reststyle(fp)
+            else:
+                i, meta = yamlstyle(fp)
+
+        # remap singular -> plural
+        for key, to in {'tag': 'tags', 'filter': 'filters', 'static': 'draft'}.iteritems():
+            if key in meta:
+                meta[to] = meta[key]
+                del meta[key]
 
         self.offset = i
-        self.props.update(props)
+        self.props.update(meta)
 
         fx = self.props.get('filters', [])
         if isinstance(fx, basestring):
@@ -243,6 +258,112 @@ class FileEntry(BaseEntry):
     @has_changed.setter
     def has_changed(self, value):
         self._has_changed = value
+
+
+def distinguish(value):
+    """Convert :param value: to None, Int, Bool, a List or String.
+    """
+    if value == '':
+        return None
+    elif value.isdigit():
+        return int(value)
+    elif value.lower() in ['true', 'false']:
+        return True if value.capitalize() == 'True' else False
+    elif value[0] == '[' and value[-1] == ']':
+        return list([unicode(x.strip())
+            for x in value[1:-1].split(',') if x.strip()])
+    else:
+        return unicode(value.strip('"').strip("'"))
+
+
+def markdownstyle(fileobj):
+    """Parse Markdown Metadata without converting the source code. Mostly copy&paste
+    from the 'meta' extension but slighty modified to fit to Acrylamid: we try to parse
+    a value into a python value (via :func:`distinguish`)."""
+
+    # -- from markdown.extensions.meta
+    meta_re = re.compile(r'^[ ]{0,3}(?P<key>[A-Za-z0-9_-.]+):\s*(?P<value>.*)')
+    meta_more_re = re.compile(r'^[ ]{4,}(?P<value>.*)')
+
+    i = 0
+    meta, key = {}, None
+
+    while True:
+        line = fileobj.readline(); i += 1
+        if not line.strip() and i == 1:
+            raise AcrylamidException("no meta information in %r found" % fileobj.name)
+        if not line.strip():
+            break  # blank line - done
+        m1 = meta_re.match(line)
+        if m1:
+            key = m1.group('key').lower().strip()
+            value = distinguish(m1.group('value').strip())
+            try:
+                meta[key].append(value)
+            except KeyError:
+                meta[key] = [value]
+        else:
+            m2 = meta_more_re.match(line)
+            if m2 and key:
+                # Add another line to existing key
+                meta[key].append(m2.group('value').strip())
+            else:
+                i -= 1
+                break  # no meta data - done
+
+    for key, values in meta.iteritems():
+        if key not in ('tag', 'tags') and len(values) == 1:
+            meta[key] = values[0]
+
+    return i, meta
+
+
+def yamlstyle(fileobj):
+    """Open and read content using the specified encoding and return position
+    where the actual content begins and all collected properties.
+
+    If ``pyyaml`` is available we use this parser but we provide a dumb
+    fallback parser that can handle simple assigments in YAML.
+
+    :param fileobj: fileobj with correct encoding
+    """
+
+    head = []
+    i = 0
+
+    while True:
+        line = fileobj.readline(); i += 1
+        if i == 1 and line.startswith('---'):
+            pass
+        elif i > 1 and not line.startswith('---'):
+            head.append(line)
+        elif i > 1 and line.startswith('---') or not line:
+            break
+
+    if yaml:
+        try:
+            return i, yaml.load(''.join(head))
+        except yaml.YAMLError as e:
+            raise AcrylamidException('YAMLError: %s' % str(e))
+    else:
+        props = {}
+        for j, line in enumerate(head):
+            if line[0] == '#' or not line.strip():
+                continue
+            try:
+                key, value = [x.strip() for x in line.split(':', 1)]
+            except ValueError:
+                raise ValueError('%s:%i ValueError: %s\n%s' %
+                    (fileobj.name, j, line.strip('\n'),
+                    ("Either your YAML is malformed or our naïve parser is to dumb \n"
+                     "to read it. Revalidate your YAML or install PyYAML parser with \n"
+                     "> easy_install -U pyyaml")))
+            props[key] = distinguish(value)
+
+    if 'title' not in props:
+        raise AcrylamidException('No title given in %r' % fileobj.name)
+
+    return i, props
 
 
 class Entry(FileEntry):
