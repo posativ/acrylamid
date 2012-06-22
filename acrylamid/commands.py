@@ -22,8 +22,8 @@ from acrylamid.errors import AcrylamidException
 
 from acrylamid import filters, views, utils, helpers
 from acrylamid.lib import lazy, importer
-from acrylamid.base import Entry
 from acrylamid.core import cache
+from acrylamid.readers import Entry
 from acrylamid.helpers import event, escape
 
 

@@ -10,10 +10,10 @@ from time import localtime, strftime
 from os.path import join, getmtime
 
 from acrylamid import utils
-from acrylamid.tasks import task, argument
 from acrylamid.core import cache
-from acrylamid.base import Entry
+from acrylamid.tasks import task, argument
 from acrylamid.colors import white, blue, green
+from acrylamid.readers import Entry
 
 
 class Gitlike(argparse.Action):

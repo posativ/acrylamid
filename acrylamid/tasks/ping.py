@@ -10,9 +10,9 @@ from urlparse import urlparse
 
 from acrylamid.tasks import task, argument
 
-from acrylamid.base import Entry
 from acrylamid.utils import filelist
 from acrylamid.errors import AcrylamidException
+from acrylamid.readers import Entry
 from acrylamid.helpers import memoize, joinurl
 from acrylamid.commands import initialize
 

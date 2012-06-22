@@ -230,7 +230,7 @@ class Filter(object):
        use module space or :func:`init` for that.
 
        :param content: a text you can modify
-       :param entry: current :class:`base.Entry`
+       :param entry: current :class:`readers.Entry`
        :param args: a list of additional arguments
     """
 

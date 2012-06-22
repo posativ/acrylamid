@@ -23,7 +23,7 @@ from os.path import join, dirname, isfile
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
-from acrylamid.base import Entry
+from acrylamid.readers import Entry
 from acrylamid.helpers import event, escape, system
 
 # no joke
