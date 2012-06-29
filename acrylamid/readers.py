@@ -282,7 +282,7 @@ def markdownstyle(fileobj):
     a value into a python value (via :func:`distinguish`)."""
 
     # -- from markdown.extensions.meta
-    meta_re = re.compile(r'^[ ]{0,3}(?P<key>[A-Za-z0-9_-.]+):\s*(?P<value>.*)')
+    meta_re = re.compile(r'^[ ]{0,3}(?P<key>[A-Za-z0-9._-]+):\s*(?P<value>.*)')
     meta_more_re = re.compile(r'^[ ]{4,}(?P<value>.*)')
 
     i = 0
