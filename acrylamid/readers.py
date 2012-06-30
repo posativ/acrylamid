@@ -137,7 +137,7 @@ class BaseEntry(object):
         try:
             return self.props[attr]
         except KeyError:
-            raise AttributeError
+            raise AttributeError(attr)
 
     __getitem__ = lambda self, attr: getattr(self, attr)
 
@@ -157,8 +157,8 @@ class FileEntry(BaseEntry):
 
             if native and any(filter(lambda ext: path.endswith(ext), ['.md', '.mkdown'])):
                 i, meta = markdownstyle(fp)
-            # elif native and any(filter(lambda ext: path.endswith(ext), ['.rst', '.rest'])):
-            #     i, meta = reststyle(fp)
+            elif native and any(filter(lambda ext: path.endswith(ext), ['.rst', '.rest'])):
+                i, meta = reststyle(fp)
             else:
                 i, meta = yamlstyle(fp)
 
@@ -263,6 +263,10 @@ class FileEntry(BaseEntry):
 def distinguish(value):
     """Convert :param value: to None, Int, Bool, a List or String.
     """
+
+    if not isinstance(value, unicode):
+        return value
+
     if value == '':
         return None
     elif value.isdigit():
@@ -290,10 +294,10 @@ def markdownstyle(fileobj):
 
     while True:
         line = fileobj.readline(); i += 1
-        if not line.strip() and i == 1:
-            raise AcrylamidException("no meta information in %r found" % fileobj.name)
-        if not line.strip():
+
+        if line.strip() == '':
             break  # blank line - done
+
         m1 = meta_re.match(line)
         if m1:
             key = m1.group('key').lower().strip()
@@ -308,12 +312,69 @@ def markdownstyle(fileobj):
                 # Add another line to existing key
                 meta[key].append(m2.group('value').strip())
             else:
-                i -= 1
                 break  # no meta data - done
+
+    if not meta:
+        raise AcrylamidException("no meta information in %r found" % fileobj.name)
 
     for key, values in meta.iteritems():
         if key not in ('tag', 'tags') and len(values) == 1:
             meta[key] = values[0]
+
+    return i, meta
+
+
+def reststyle(fileobj):
+    """Parse metadata from reStructuredText document when the first two lines are
+    valid reStructuredText headlines followed by metadata fields.
+
+    -- http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#field-lists"""
+
+    import docutils
+    from docutils.core import publish_doctree
+
+    title = fileobj.readline().strip('\n')
+    dash = fileobj.readline().strip('\n')
+
+    if not title or not dash:
+        raise AcrylamidException('No title given in %r' % fileobj.name)
+
+    if len(dash) != len(title) or dash.count(dash[0]) != len(dash):
+        raise AcrylamidException('title line does not match second line %r' % fileobj.name)
+
+    i = 2
+    meta = []
+
+    while True:
+        line = fileobj.readline(); i += 1
+
+        if not line.strip() and i == 3:
+            continue
+        elif not line.strip():
+            break  # blank line - done
+        else:
+            meta.append(line)
+
+    document = publish_doctree(''.join(meta))
+    meta = dict(title=title)
+
+    for docinfo in document.traverse(docutils.nodes.docinfo):
+        for element in docinfo.children:
+            if element.tagname == 'field':  # custom fields
+                name_elem, body_elem = element.children
+                name = name_elem.astext()
+                value = body_elem.astext()
+            else:  # standard fields (e.g. filters)
+                name = element.tagname
+                value = element.astext()
+            name = name.lower()
+
+            if '\n\n' in value:
+                value = value.split('\n\n')  # Y U NO DETECT UR LISTS?
+            elif '\n' in value:
+                value = value.replace('\n', ' ')  # linebreaks in wrapped sentences
+
+            meta[name] = distinguish(value.split('\n\n') if '\n\n' in value else value)
 
     return i, meta
 
@@ -333,7 +394,9 @@ def yamlstyle(fileobj):
 
     while True:
         line = fileobj.readline(); i += 1
-        if i == 1 and line.startswith('---'):
+        if not line.strip() and i == 1:
+            raise AcrylamidException("no meta information in %r found" % fileobj.name)
+        elif i == 1 and line.startswith('---'):
             pass
         elif i > 1 and not line.startswith('---'):
             head.append(line)
