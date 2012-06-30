@@ -394,10 +394,8 @@ def yamlstyle(fileobj):
 
     while True:
         line = fileobj.readline(); i += 1
-        if not line.strip() and i == 1:
+        if i == 1 and not line.startswith('---'):
             raise AcrylamidException("no meta information in %r found" % fileobj.name)
-        elif i == 1 and line.startswith('---'):
-            pass
         elif i > 1 and not line.startswith('---'):
             head.append(line)
         elif i > 1 and line.startswith('---') or not line:

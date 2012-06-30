@@ -126,8 +126,19 @@ def compile(conf, env, force=False, **options):
         cache.clear()
 
     # list of Entry-objects reverse sorted by date.
-    entrylist = sorted([Entry(e, conf) for e in utils.filelist(conf['content_dir'],
-        conf.get('entries_ignore', [])) if utils.istext(e)], key=lambda k: k.date, reverse=True)
+    entrylist = []
+
+    # collect and skip over malformed entries
+    for path in utils.filelist(conf['content_dir'], conf.get('entries_ignore', [])):
+        if not utils.istext(path):
+            continue
+        try:
+            entrylist.append(Entry(path, conf))
+        except (ValueError, AcrylamidException) as e:
+            raise AcrylamidException('%s: %s' % (path, e.args[0]))
+
+    # sort by date, reverse
+    entrylist.sort(key=lambda k: k.date, reverse=True)
 
     # here we store all found filter and their aliases
     ns = defaultdict(set)
