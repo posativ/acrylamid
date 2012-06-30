@@ -50,8 +50,8 @@ class Entry(View):
                 p = joinurl(p, 'index.html')
 
             if p in pathes:
-                raise AcrylamidException("title collision %r in %r" % (entry.permalink,
-                                                                       entry.filename))
+                raise AcrylamidException("title collision %r in %r with %r" %
+                    (entry.permalink, entry.filename, pathes[p].filename))
             pathes[p] = entry
 
         has_changed = False
