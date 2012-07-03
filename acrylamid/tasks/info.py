@@ -9,11 +9,10 @@ import argparse
 from time import localtime, strftime
 from os.path import join, getmtime
 
-from acrylamid import utils
+from acrylamid import readers
 from acrylamid.core import cache
 from acrylamid.tasks import task, argument
 from acrylamid.colors import white, blue, green
-from acrylamid.readers import Entry
 
 
 class Gitlike(argparse.Action):
@@ -65,8 +64,7 @@ def run(conf, env, options):
     """Subcommand: info -- a short overview of a blog."""
 
     limit = options.max if options.max > 0 else 5
-    entrylist = sorted([Entry(e, conf) for e in utils.filelist(conf['content_dir'],
-        conf.get('entries_ignore', [])) if utils.istext(e)], key=lambda k: k.date, reverse=True)
+    entrylist = readers.load(conf)
 
     print
     print 'acrylamid', blue(env['version']) + ',',

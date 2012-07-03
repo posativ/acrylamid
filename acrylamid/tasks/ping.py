@@ -9,13 +9,9 @@ import re
 from urlparse import urlparse
 
 from acrylamid.tasks import task, argument
-
-from acrylamid.utils import filelist
 from acrylamid.errors import AcrylamidException
-from acrylamid.readers import Entry
-from acrylamid.helpers import memoize, joinurl
-from acrylamid.commands import initialize
 
+from acrylamid import readers, helpers
 from acrylamid.lib.requests import head, URLError, HTTPError
 
 arguments = [
@@ -52,13 +48,10 @@ def pingback(src, dest):
 def run(conf, env, options):
     """Subcommand: ping -- notify external ressources via Pingback etc."""
 
-    initialize(conf, env)  # we access the cache, so we must initialize first
-
-    entrylist = sorted([Entry(e, conf) for e in filelist(conf['content_dir'],
-        conf.get('entries_ignore', []))], key=lambda k: k.date, reverse=True)
+    entrylist = readers.load(conf)
     entrylist = [entry for entry in entrylist if not entry.draft]
 
-    print joinurl(conf['www_root'], entrylist[0].permalink)
+    print helpers.joinurl(conf['www_root'], entrylist[0].permalink)
 
     links = re.findall('https?://[^ ]+', entrylist[0].source)
     print links

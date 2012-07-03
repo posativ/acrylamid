@@ -137,8 +137,8 @@ def batch(iterable, count):
         yield result
 
 
-def filelist(content_dir, entries_ignore=[]):
-    """Gathering all entries in content_dir except entries_ignore via fnmatch."""
+def filelist(content_dir, ignore=[]):
+    """Gathering all entries in content_dir except ignore via fnmatch."""
 
     flist = []
     for root, dirs, files in os.walk(content_dir):
@@ -146,7 +146,7 @@ def filelist(content_dir, entries_ignore=[]):
             if f[0] == '.':
                 continue
             path = os.path.join(root, f)
-            fn = filter(lambda p: fnmatch(path, os.path.join(content_dir, p)), entries_ignore)
+            fn = filter(lambda p: fnmatch(path, os.path.join(content_dir, p)), ignore)
             if not fn:
                 flist.append(path)
     return flist

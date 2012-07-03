@@ -20,10 +20,9 @@ from os.path import join, dirname, getmtime, isfile
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
-from acrylamid import filters, views, utils, helpers
+from acrylamid import readers, filters, views, utils, helpers
 from acrylamid.lib import lazy, importer
 from acrylamid.core import cache
-from acrylamid.readers import Entry
 from acrylamid.helpers import event, escape
 
 
@@ -121,24 +120,12 @@ def compile(conf, env, force=False, **options):
     # populate env and corrects some conf things
     request = initialize(conf, env)
 
+    # load entries
+    entrylist = readers.load(conf)
+
     if force:
         # acrylamid compile -f
         cache.clear()
-
-    # list of Entry-objects reverse sorted by date.
-    entrylist = []
-
-    # collect and skip over malformed entries
-    for path in utils.filelist(conf['content_dir'], conf.get('entries_ignore', [])):
-        if not utils.istext(path):
-            continue
-        try:
-            entrylist.append(Entry(path, conf))
-        except (ValueError, AcrylamidException) as e:
-            raise AcrylamidException('%s: %s' % (path, e.args[0]))
-
-    # sort by date, reverse
-    entrylist.sort(key=lambda k: k.date, reverse=True)
 
     # here we store all found filter and their aliases
     ns = defaultdict(set)
@@ -255,7 +242,7 @@ def new(conf, env, title, prompt=True):
         f.write(u'date: %s\n' % datetime.now().strftime(conf['date_format']))
         f.write(u'---\n\n')
 
-    entry = Entry(tmp, conf)
+    entry = readers.Entry(tmp, conf)
     p = join(conf['content_dir'], dirname(entry.permalink)[1:])
 
     try:

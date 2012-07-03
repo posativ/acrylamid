@@ -19,7 +19,7 @@ from datetime import datetime
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
-from acrylamid.utils import cached_property, NestedProperties
+from acrylamid.utils import cached_property, NestedProperties, filelist, istext
 from acrylamid.core import cache
 from acrylamid.filters import FilterTree
 from acrylamid.helpers import safeslug, expand, md5
@@ -28,6 +28,34 @@ try:
     import yaml
 except ImportError:
     yaml = None  # NOQA
+
+
+def load(conf):
+    """Load and parse textfiles from content directory and optionally filter by an
+    ignore pattern. Filenames ending with a known binary extension such as audio,
+    video or images are ignored. If not blacklisted open the file end check if it
+    :func:`utils.istext`.
+
+    This function is *not* exception-tolerant. If Acrylamid could not handle a file
+    it will raise an exception.
+
+    It returns a list of entries sorted by date reverse (newest comes first).
+
+    :param conf: configuration with CONTENT_DIR and CONTENT_IGNORE set"""
+
+    # list of Entry-objects reverse sorted by date.
+    entrylist = []
+
+    # collect and skip over malformed entries
+    for path in filelist(conf['content_dir'], conf.get('content_ignore', [])):
+        if any(filter(lambda ext: path.endswith(ext), ['.txt', '.rst', '.md'])) or istext(path):
+            try:
+                entrylist.append(Entry(path, conf))
+            except (ValueError, AcrylamidException) as e:
+                raise AcrylamidException('%s: %s' % (path, e.args[0]))
+
+    # sort by date, reverse
+    return sorted(entrylist, key=lambda k: k.date, reverse=True)
 
 
 class Date(datetime):
