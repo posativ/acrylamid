@@ -302,3 +302,14 @@ Prints a short summary about your blog and lists recent entries (drafted entries
     </pre>
 
 -2   a git-like digit to show the last N articles. Defaults to 5.
+
+ping
+----
+
+Send Pingbacks to other blogs (still experimental) with one command. Without any arguments the
+newest article is submitted to any referenced url that supports Pingback.
+
+-a, --all             ping all entries (default: only the newest)
+-2                    a git-like digit to ping the newest N articles. Defaults to 1.
+-n, --dry-run         show what would have been pingbacked
+-j JOBS, --jobs JOBS  N parallel requests
