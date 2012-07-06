@@ -50,6 +50,9 @@ def register(aliases, arguments=[], help=argparse.SUPPRESS, func=lambda *z: None
     if isinstance(aliases, basestring):
         aliases = [aliases, ]
 
+    if aliases[0] in collected:
+        return
+
     parser = subparsers.add_parser(
         aliases[0],
         help=help,

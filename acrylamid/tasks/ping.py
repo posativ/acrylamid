@@ -23,6 +23,8 @@ from acrylamid.lib.async import Threadpool
 arguments = [
     argument("-a", "--all", dest="all", action="store_true", default=False,
         help="ping all entries (default: only the newest)"),
+    argument("-p", dest="file", type=str, default=None, help="ping specific article"),
+
     argument("-n", "--dry-run", dest="dryrun", action='store_true',
              help="show what would have been pingbacked", default=False),
     argument("-j", "--jobs", dest="jobs", type=int, default=10, help="N parallel requests"),
@@ -62,6 +64,12 @@ def run(conf, env, options):
     """Subcommand: ping -- notify external ressources via Pingback etc."""
 
     entrylist = [entry for entry in readers.load(conf) if not entry.draft]
+
+    if options.file:
+        try:
+            entrylist = [filter(lambda e: e.filename == options.file, entrylist)[0]]
+        except IndexError:
+            raise AcrylamidException("no such post!")
 
     # XXX we should search for actual hrefs not random grepping, but this
     # requires access to the cache at non-runtime which is unfortunately
