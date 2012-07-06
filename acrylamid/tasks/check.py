@@ -8,7 +8,6 @@ import io
 import re
 import time
 import random
-import urllib2
 import collections
 
 from urllib import quote

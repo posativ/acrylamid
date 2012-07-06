@@ -10,7 +10,6 @@ import os
 import io
 import shutil
 import logging
-import hashlib
 
 from os.path import exists, isfile, isdir, join, dirname, basename
 

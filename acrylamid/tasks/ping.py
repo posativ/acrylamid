@@ -16,7 +16,7 @@ from urlparse import urlparse
 
 from acrylamid.tasks import task, argument
 from acrylamid.errors import AcrylamidException
-from acrylamid.colors import blue, bold
+from acrylamid.colors import blue, green, bold
 
 from acrylamid import readers, helpers, log
 from acrylamid.tasks.info import option
@@ -26,7 +26,7 @@ from acrylamid.lib.async import Threadpool
 try:
     import twitter
 except ImportError:
-    twitter = None
+    twitter = None  # NOQA
 
 arguments = [
     argument("service", nargs="?", type=str, choices=["twitter", "back"],
@@ -59,8 +59,8 @@ def pingback(src, dest, dryrun=False):
         server_url = r.info().get('X-Pingback', '') or search_link(r.read(512 * 1024))
         if server_url:
 
-            print "Pingback", colors.blue(urlparse(server_url).netloc),
-            print "from", colors.green(''.join(urlparse(src)[1:3])) + "."
+            print "Pingback", blue(urlparse(server_url).netloc),
+            print "from", green(''.join(urlparse(src)[1:3])) + "."
 
             if not dryrun:
                 server = xmlrpclib.ServerProxy(server_url)

@@ -20,10 +20,7 @@ A simple wrapper around urllib2.
 
     Same like :func:`head` but for GET."""
 
-from urllib import quote
 from urllib2 import Request, urlopen, HTTPError, URLError
-
-from acrylamid.helpers import union
 
 
 def proto(method, url, **hdrs):
