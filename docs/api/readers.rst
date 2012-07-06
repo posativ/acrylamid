@@ -1,7 +1,9 @@
-============
-Base Objects
-============
+==============
+Reader Objects
+==============
 
-.. autoclass:: acrylamid.base.Entry
+.. automethod:: acrylamid.readers.load
+
+.. autoclass:: acrylamid.readers.Entry
    :members:
    :inherited-members:

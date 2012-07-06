@@ -174,6 +174,6 @@ API Reference
    :maxdepth: 2
 
    api/core
-   api/base
+   api/readers
    api/helpers
    api/lib

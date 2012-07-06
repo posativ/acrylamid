@@ -7,6 +7,7 @@
 
 import sys
 import re
+import os
 import urlparse
 import xmlrpclib
 
@@ -21,6 +22,9 @@ from acrylamid.lib.requests import head, URLError, HTTPError
 from acrylamid.lib.async import Threadpool
 
 arguments = [
+    argument("service", nargs="?", type=str, choices=["twitter", "back"],
+        default="back", help="ping service (default: back)"),
+
     argument("-a", "--all", dest="all", action="store_true", default=False,
         help="ping all entries (default: only the newest)"),
     argument("-p", dest="file", type=str, default=None, help="ping specific article"),
@@ -57,6 +61,32 @@ def pingback(src, dest, dryrun=False):
 
     except xmlrpclib.ProtocolError as e:
         raise AcrylamidException(e.args[0])
+
+
+def twitter():
+
+    import twitter
+
+    CONSUMER_KEY = 'ShUqv0JkccHF2abLvWWzXg'
+    CONSUMER_SECRET = '6k1GaHkeBzFUCIozKjjKS0IgtKItO7cH5ii7BsM0jPg'
+    TWITTER_CREDS = os.path.expanduser('.twitter_oauth')
+    if not os.path.exists(TWITTER_CREDS):
+        twitter.oauth_dance("Acrylamid", CONSUMER_KEY, CONSUMER_SECRET,
+                    TWITTER_CREDS)
+
+    oauth_token, oauth_token_secret = twitter.read_token_file(TWITTER_CREDS)
+
+    try:
+        t = twitter.Twitter(auth=twitter.OAuth(
+            oauth_token, oauth_token_secret, CONSUMER_KEY, CONSUMER_SECRET))
+
+        tags = [x.replace(u' ', u'_') for x in entry.tags]
+        tags = u"#" + u" #".join(tags)
+        tweet = u"New Blog Post: {0} {1}{2} {3}".format(entry.title, kw['conf']['www_root'], entry.permalink, tags)
+        t.statuses.update(status=tweet.encode('utf8'))
+        print(tweet.encode('utf8'))
+    except Exception as e:
+        print(e)
 
 
 @task('ping', arguments, "notify ressources")
