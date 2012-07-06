@@ -8,18 +8,25 @@
 import sys
 import re
 import os
-import urlparse
+import json
 import xmlrpclib
 
+from textwrap import wrap
 from urlparse import urlparse
 
 from acrylamid.tasks import task, argument
 from acrylamid.errors import AcrylamidException
+from acrylamid.colors import blue, bold
 
-from acrylamid import readers, helpers, colors
+from acrylamid import readers, helpers, log
 from acrylamid.tasks.info import option
 from acrylamid.lib.requests import head, URLError, HTTPError
 from acrylamid.lib.async import Threadpool
+
+try:
+    import twitter
+except ImportError:
+    twitter = None
 
 arguments = [
     argument("service", nargs="?", type=str, choices=["twitter", "back"],
@@ -63,30 +70,35 @@ def pingback(src, dest, dryrun=False):
         raise AcrylamidException(e.args[0])
 
 
-def twitter():
+def tweet(entry, conf, dryrun=False):
+    """Send a tweet with the title, link and tags from an entry. The first time you
+    need to authorize Acrylamid but than it works without any interaction."""
 
-    import twitter
+    key = "6k00FRe6w4SZfqEzzzyZVA"
+    secret = "fzRfQcqQX4gcZziyLeoI5wSbnFb7GGj2oEh10hnjPUo"
 
-    CONSUMER_KEY = 'ShUqv0JkccHF2abLvWWzXg'
-    CONSUMER_SECRET = '6k1GaHkeBzFUCIozKjjKS0IgtKItO7cH5ii7BsM0jPg'
-    TWITTER_CREDS = os.path.expanduser('.twitter_oauth')
-    if not os.path.exists(TWITTER_CREDS):
-        twitter.oauth_dance("Acrylamid", CONSUMER_KEY, CONSUMER_SECRET,
-                    TWITTER_CREDS)
+    creds = os.path.expanduser('~/.twitter_oauth')
+    if not os.path.exists(creds):
+        twitter.oauth_dance("Acrylamid", key, secret, creds)
 
-    oauth_token, oauth_token_secret = twitter.read_token_file(TWITTER_CREDS)
+    oauth_token, oauth_token_secret = twitter.read_token_file(creds)
+    t = twitter.Twitter(auth=twitter.OAuth(oauth_token, oauth_token_secret, key, secret))
 
-    try:
-        t = twitter.Twitter(auth=twitter.OAuth(
-            oauth_token, oauth_token_secret, CONSUMER_KEY, CONSUMER_SECRET))
+    tweet = u"New Blog Entry: {0} {1} {2}".format(entry.title,
+        helpers.joinurl(conf['www_root'], entry.permalink),
+        ' '.join([u'#' + helpers.safeslug(tag) for tag in entry.tags]))
 
-        tags = [x.replace(u' ', u'_') for x in entry.tags]
-        tags = u"#" + u" #".join(tags)
-        tweet = u"New Blog Post: {0} {1}{2} {3}".format(entry.title, kw['conf']['www_root'], entry.permalink, tags)
-        t.statuses.update(status=tweet.encode('utf8'))
-        print(tweet.encode('utf8'))
-    except Exception as e:
-        print(e)
+    print '     ', bold(blue("tweet ")),
+    print '\n'.join(wrap(tweet.encode('utf8'), subsequent_indent=' '*13))
+
+    if not dryrun:
+        try:
+            t.statuses.update(status=tweet.encode('utf8'))
+        except twitter.api.TwitterError as e:
+            try:
+                log.warn("%s" % json.loads(e.response_data)['error'])
+            except (ValueError, TypeError):
+                log.warn("Twitter: something went wrong...")
 
 
 @task('ping', arguments, "notify ressources")
@@ -100,6 +112,16 @@ def run(conf, env, options):
             entrylist = [filter(lambda e: e.filename == options.file, entrylist)[0]]
         except IndexError:
             raise AcrylamidException("no such post!")
+
+    if options.service == 'twitter':
+
+        if twitter is None:
+            raise AcrylamidException("'twitter' egg not found")
+
+        for entry in entrylist if options.all else entrylist[:options.max or 1]:
+            tweet(entry, conf, options.dryrun)
+
+        sys.exit(0)
 
     # XXX we should search for actual hrefs not random grepping, but this
     # requires access to the cache at non-runtime which is unfortunately
