@@ -208,3 +208,23 @@ def istext(path, blocksize=512, chars=(
     nontext = block.translate(None, chars)
     return float(len(nontext)) / len(block) <= 0.30
 
+
+class Bunch(dict):
+    """A dictionary that provides attribute-style access."""
+
+    __getitem__ = dict.__getitem__
+
+    def __getattr__(self, name):
+        try:
+            return self[name]
+        except KeyError:
+            raise AttributeError(name)
+
+    __setattr__ = dict.__setitem__
+
+    def __delattr__(self, name):
+        try:
+            del self[name]
+        except KeyError:
+            raise AttributeError(name)
+

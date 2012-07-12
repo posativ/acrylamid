@@ -30,7 +30,7 @@ import traceback
 import signal
 
 from acrylamid import defaults, log, commands, colors, tasks
-from acrylamid.utils import execfile
+from acrylamid.utils import execfile, Bunch
 from acrylamid.errors import AcrylamidException
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -189,7 +189,7 @@ def Acryl():
         sys.exit(0)
 
     # -- teh real thing -- #
-    conf = defaults.conf
+    conf = Bunch(defaults.conf)
 
     try:
         ns = dict([(k.upper(), v) for k, v in defaults.conf.iteritems()])
