@@ -57,11 +57,10 @@ def init(root, theme='html5', engine='jinja2', overwrite=False):
     dirs = ['%(content_dir)s/', '%(layout_dir)s/', '%(output_dir)s/', '.cache/']
 
     files = [p % {'engine': engine, 'theme': theme} for p in [
-        '%(engine)s/%(theme)s/style.css', '%(engine)s/%(theme)s/base.html',
-        '%(engine)s/%(theme)s/main.html', '%(engine)s/%(theme)s/entry.html',
-        '%(engine)s/%(theme)s/articles.html',
+        '%(engine)s/%(theme)s/base.html', '%(engine)s/%(theme)s/main.html',
+        '%(engine)s/%(theme)s/entry.html', '%(engine)s/%(theme)s/articles.html',
         '%(engine)s/rss.xml', '%(engine)s/atom.xml',
-        'misc/sample-entry.txt']]
+        'misc/%(theme)s/style.css', 'misc/sample-entry.txt']]
     files = [join(dirname(__file__), path) for path in files]
 
     # restore a given file from defaults
