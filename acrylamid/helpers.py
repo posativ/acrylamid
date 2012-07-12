@@ -15,6 +15,9 @@ from unicodedata import normalize
 from collections import defaultdict
 from os.path import join, exists, dirname, basename
 
+from wsgiref.handlers import format_date_time
+from time import mktime
+
 from acrylamid import log, PY3
 from acrylamid.errors import AcrylamidException
 
@@ -35,6 +38,10 @@ __all__ = ['memoize', 'union', 'mkfile', 'md5', 'expand', 'joinurl',
            'safeslug', 'paginate', 'escape', 'system', 'event']
 
 _slug_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
+
+
+def rfc822(x):
+    return format_date_time(mktime(x.timetuple()))
 
 
 def memoize(key, value=None):

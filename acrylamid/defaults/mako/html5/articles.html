@@ -1,6 +1,6 @@
 <%inherit file="base.html" />
 
-<%block name="title">${ conf['sitename'] } – Artikelübersicht</%block>
+<%block name="title">${ conf.sitename } – Artikelübersicht</%block>
 
 <%block name="content">
 <article>
@@ -17,8 +17,8 @@
         <td></td>
     </tr>
     % for entry in months:
-      <tr><th>${ entry['date'].day }</th>
-          <td><a href="${ entry['permalink'] }">${ entry['title'] }</a></td>
+      <tr><th>${ entry.date.day }</th>
+          <td><a href="${ entry.permalink }">${ entry.title }</a></td>
       </tr>
     % endfor
   % endfor

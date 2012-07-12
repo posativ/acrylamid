@@ -13,7 +13,9 @@ class Environment(AbstractEnvironment):
 
     def init(self, layoutdir, cachedir):
         self.mako = TemplateLookup(directories=[layoutdir],
-            module_directory=cachedir, default_filters=['unicode'],
+            module_directory=cachedir,
+            imports=['from acrylamid.helpers import rfc822'],
+            default_filters=None,
             input_encoding='utf-8')
         return
 
