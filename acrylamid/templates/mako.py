@@ -5,6 +5,8 @@
 
 from __future__ import absolute_import
 
+import os, stat
+
 from acrylamid.templates import AbstractEnvironment, AbstractTemplate
 from mako.lookup import TemplateLookup
 
@@ -35,7 +37,7 @@ class Template(AbstractTemplate):
         # we inject the filter functions as top-level objects into the template,
         # that's probably the only way that works with Mako
         kw.update(self.filters)
-        return self.template.render(**kw)
+        return self.template.render_unicode(**kw)
         # For debugging template compilation:
         # TODO: Integrate this with acrylamid somehow
         #from mako import exceptions as mako_exceptions
@@ -45,6 +47,11 @@ class Template(AbstractTemplate):
         #    print mako_exceptions.text_error_template().render()
         #    return unicode(mako_exceptions.html_error_template().render())
 
+    @property
     def has_changed(self):
-        # TODO: Dummy function
-        return True
+        # inspired by mako.lookup.TemplateLookup._check
+        template_stat = os.stat(self.template.filename)
+        if self.template.last_modified < template_stat[stat.ST_MTIME]:
+            return True
+        else:
+            return False
