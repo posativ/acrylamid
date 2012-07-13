@@ -30,7 +30,7 @@ import traceback
 import signal
 
 from acrylamid import defaults, log, commands, colors, tasks
-from acrylamid.utils import execfile
+from acrylamid.utils import execfile, Bunch
 from acrylamid.errors import AcrylamidException
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -112,7 +112,11 @@ def Acryl():
     init.add_argument("--xhtml", action="store_const", dest="theme", const="xhtml",
         help="use XHTML theme", default="html5")
     init.add_argument("--html5", action="store_const", dest="theme", const="html5",
-        help="use HTML5 theme")
+        help="use HTML5 theme (default)")
+    init.add_argument("--mako", action="store_const", dest="engine", const="mako",
+        help="use the Mako template engine")
+    init.add_argument("--jinja2", action="store_const", dest="engine", const="jinja2",
+        help="use the Jinja2 template engine (default)", default="jinja2")
 
     # --- gen params --- #
     generate = subparsers.add_parser('compile', help='compile blog', parents=[default])
@@ -181,11 +185,11 @@ def Acryl():
     # -- init -- #
     # TODO: acrylamid init --layout_dir=somedir to overwrite defaults
     if options.parser in ('init', ):
-        defaults.init(options.dest if options.dest else '.', options.theme, options.force)
+        defaults.init(options.dest if options.dest else '.', options.theme, options.engine, options.force)
         sys.exit(0)
 
     # -- teh real thing -- #
-    conf = defaults.conf
+    conf = Bunch(defaults.conf)
 
     try:
         ns = dict([(k.upper(), v) for k, v in defaults.conf.iteritems()])

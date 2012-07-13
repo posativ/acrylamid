@@ -30,7 +30,7 @@ def same(f, o):
             break
 
 
-def init(root, theme='html5', overwrite=False):
+def init(root, theme='html5', engine='jinja2', overwrite=False):
     """Subcommand: init -- creates the base structure of an Acrylamid blog
     or restores individual files."""
 
@@ -56,9 +56,11 @@ def init(root, theme='html5', overwrite=False):
 
     dirs = ['%(content_dir)s/', '%(layout_dir)s/', '%(output_dir)s/', '.cache/']
 
-    files = [p % theme for p in [
-        '%s/style.css', '%s/base.html', '%s/main.html', '%s/entry.html',
-        '%s/articles.html']] + ['misc/rss.xml', 'misc/atom.xml', 'misc/sample-entry.txt']
+    files = [p % {'engine': engine, 'theme': theme} for p in [
+        '%(engine)s/%(theme)s/base.html', '%(engine)s/%(theme)s/main.html',
+        '%(engine)s/%(theme)s/entry.html', '%(engine)s/%(theme)s/articles.html',
+        '%(engine)s/rss.xml', '%(engine)s/atom.xml',
+        'misc/%(theme)s/style.css', 'misc/sample-entry.txt']]
     files = [join(dirname(__file__), path) for path in files]
 
     # restore a given file from defaults
@@ -80,11 +82,15 @@ def init(root, theme='html5', overwrite=False):
             log.info('create %s' % root)
         sys.exit(0)
 
+    config = confstring + '''
+TT = 'acrylamid.templates.%s.Environment'
+''' % engine
+
     # re-initialize conf.py
     if root == 'conf.py':
         if overwrite or raw_input('re-initialize %r? [yn]: ' % root) == 'y':
             with io.open('conf.py', 'w') as fp:
-                fp.write(confstring)
+                fp.write(config)
             log.info('re-initialized %s' % root)
         sys.exit(0)
 
@@ -110,7 +116,7 @@ def init(root, theme='html5', overwrite=False):
             os.mkdir(directory)
 
     with io.open(join(root, 'conf.py'), 'w') as fp:
-        fp.write(confstring)
+        fp.write(config)
         log.info('create  %s', join(root, 'conf.py'))
 
     for path in files:
