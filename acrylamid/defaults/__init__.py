@@ -16,20 +16,6 @@ from os.path import exists, isfile, isdir, join, dirname, basename
 log = logging.getLogger('acrylamid.defaults')
 
 
-def same(f, o):
-    """Check whether two files are the same."""
-
-    fp = io.open(f, 'rb')
-    op = io.open(o, 'rb')
-
-    while True:
-        c, k = fp.read(128), op.read(128)
-        if not c or not k:
-            break
-        if c != k:
-            break
-
-
 def init(root, theme='html5', engine='jinja2', overwrite=False):
     """Subcommand: init -- creates the base structure of an Acrylamid blog
     or restores individual files."""
@@ -70,13 +56,9 @@ def init(root, theme='html5', engine='jinja2', overwrite=False):
         for path in files:
             if basename(path) == basename(root):
                 break
-        if isfile(root):
-            if same(path) == same(root):
-                log.info('skip  %s is identical', root)
-                sys.exit(0)
-            if overwrite or raw_input('re-initialize %r? [yn]: ' % root) == 'y':
-                shutil.copy(path, root)
-                log.info('re-initialized %s' % root)
+        if isfile(root) and (overwrite or raw_input('re-initialize %r? [yn]: ' % root) == 'y'):
+            shutil.copy(path, root)
+            log.info('re-initialized %s' % root)
         else:
             shutil.copy(path, root)
             log.info('create %s' % root)
