@@ -190,9 +190,9 @@ class View(object):
        especially :func:`acrylamid.helpers.expand`, :func:`acrylamid.helpers.joinurl`
        and :func:`acrylamid.helpers.union`.
 
-       Load a template from ``env.tt`` and check wether it has changed::
+       Load a template from ``env.engine`` and check wether it has changed::
 
-           >>> tt = self.env.tt.fromfile('articles.html')
+           >>> tt = self.env.engine.fromfile('articles.html')
            >>> print tt.has_changed
            True
 

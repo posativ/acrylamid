@@ -35,7 +35,7 @@ class Entry(View):
 
     def generate(self, request):
 
-        tt = self.env.tt.fromfile(self.template)
+        tt = self.env.engine.fromfile(self.template)
 
         entrylist = request['entrylist']
         pathes = dict()

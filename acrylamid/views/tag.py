@@ -75,7 +75,7 @@ class Tag(View):
             for tag in e.tags:
                 tags[tag.lower()].append(e)
 
-        env.tt.register('tagify', tagify)
+        env.engine.register('tagify', tagify)
         env.tag_cloud = Tagcloud(tags, self.conf['tag_cloud_steps'],
                                        self.conf['tag_cloud_max_items'],
                                        self.conf['tag_cloud_start_index'],
@@ -91,7 +91,7 @@ class Tag(View):
         """Creates paged listing by tag."""
 
         ipp = self.items_per_page
-        tt = self.env.tt.fromfile(self.template)
+        tt = self.env.engine.fromfile(self.template)
 
         entrylist = [entry for entry in request['entrylist'] if not entry.draft]
 

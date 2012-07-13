@@ -35,12 +35,11 @@ def initialize(conf, env):
     cache.init(conf.get('cache_dir', None))
 
     # set up templating environment
-    tt = utils.import_object(conf['tt'])()
-    env['tt'] = tt
+    env.engine = utils.import_object(conf['engine'])()
 
-    tt.init(conf['layout_dir'], cache.cache_dir)
-    tt.register('safeslug', helpers.safeslug)
-    tt.register('tagify', lambda x: x)
+    env.engine.init(conf['layout_dir'], cache.cache_dir)
+    env.engine.register('safeslug', helpers.safeslug)
+    env.engine.register('tagify', lambda x: x)
 
     # try language set in LANG, if set correctly use it
     try:

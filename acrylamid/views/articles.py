@@ -42,7 +42,7 @@ class Articles(View):
         entrylist = sorted((e for e in request['entrylist'] if not e.draft),
                         key=lambda k: k.date, reverse=True)
 
-        tt = self.env.tt.fromfile(self.template)
+        tt = self.env.engine.fromfile(self.template)
         path = joinurl(self.conf['output_dir'], self.path, 'index.html')
 
         hv = md5(*entrylist, attr=lambda o: o.md5)

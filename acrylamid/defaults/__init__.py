@@ -164,7 +164,7 @@ conf = default = {
     'views': {
     },
 
-    'tt': 'acrylamid.templates.jinja2.Environment',
+    'engine': 'acrylamid.templates.jinja2.Environment',
 }
 
 
@@ -210,7 +210,7 @@ VIEWS = {
     #                  'view': 'entry'}
 }
 
-TT = 'acrylamid.templates.%(engine)s.Environment'
+ENGINE = 'acrylamid.templates.%(engine)s.Environment'
 PERMALINK_FORMAT = '/:year/:slug/index.html'
 DATE_FORMAT = '%%d.%%m.%%Y, %%H:%%M'
 """.strip()
