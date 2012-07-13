@@ -43,7 +43,7 @@ def init(root, theme='html5', engine='jinja2', overwrite=False):
                 shutil.copy(path, dest)
                 log.info('create  %s', dest)
             except IOError as e:
-                log.fatal(e.args[0])
+                log.fatal(unicode(e))
 
         else:
             log.info('skip  %s already exists', dest)
@@ -82,15 +82,11 @@ def init(root, theme='html5', engine='jinja2', overwrite=False):
             log.info('create %s' % root)
         sys.exit(0)
 
-    config = confstring + '''
-TT = 'acrylamid.templates.%s.Environment'
-''' % engine
-
     # re-initialize conf.py
     if root == 'conf.py':
         if overwrite or raw_input('re-initialize %r? [yn]: ' % root) == 'y':
             with io.open('conf.py', 'w') as fp:
-                fp.write(config)
+                fp.write(confstring % {'engine': engine})
             log.info('re-initialized %s' % root)
         sys.exit(0)
 
@@ -116,7 +112,7 @@ TT = 'acrylamid.templates.%s.Environment'
             os.mkdir(directory)
 
     with io.open(join(root, 'conf.py'), 'w') as fp:
-        fp.write(config)
+        fp.write(confstring % {'engine': engine})
         log.info('create  %s', join(root, 'conf.py'))
 
     for path in files:
@@ -232,6 +228,7 @@ VIEWS = {
     #                  'view': 'entry'}
 }
 
+TT = 'acrylamid.templates.%(engine)s.Environment'
 PERMALINK_FORMAT = '/:year/:slug/index.html'
-DATE_FORMAT = '%d.%m.%Y, %H:%M'
+DATE_FORMAT = '%%d.%%m.%%Y, %%H:%%M'
 """.strip()
