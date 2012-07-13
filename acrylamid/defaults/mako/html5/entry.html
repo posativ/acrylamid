@@ -14,9 +14,8 @@
         % endif
         % if 'tag' in env.views and entry.tags:
             <p>tagged as
-                % for link in entry.tags:
-                ##TODO: link | tagify
-                    <a href="${ env.path + link }">${ link }</a>
+                % for link in tagify(entry.tags):
+                    <a href="${ env.path + link.href }">${ link.title }</a>
                     % if loop.reverse_index > 1:
                     ,
                     % elif loop.reverse_index == 1:

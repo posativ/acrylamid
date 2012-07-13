@@ -14,25 +14,27 @@ class Environment(AbstractEnvironment):
     def init(self, layoutdir, cachedir):
         self.mako = TemplateLookup(directories=[layoutdir],
             module_directory=cachedir,
-            imports=['from acrylamid.helpers import rfc822'],
-            default_filters=None,
             input_encoding='utf-8')
+        self.filters = {}
         return
 
     def register(self, name, func):
-        # TODO: Don't know how to do that in mako
-        return
+        self.filters[name] = func
 
     def fromfile(self, path):
-        return Template(self.mako.get_template(path))
+        return Template(self.mako.get_template(path), self.filters)
 
 
 class Template(AbstractTemplate):
 
-    def __init__(self, template):
+    def __init__(self, template, filters={}):
         self.template = template
+        self.filters = filters
 
     def render(self, **kw):
+        # we inject the filter functions as top-level objects into the template,
+        # that's probably the only way that works with Mako
+        kw.update(self.filters)
         return self.template.render(**kw)
         # For debugging template compilation:
         # TODO: Integrate this with acrylamid somehow
