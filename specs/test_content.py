@@ -11,7 +11,7 @@ import os
 
 from os.path import join, isfile, isdir
 
-from acrylamid import Environment, log, helpers
+from acrylamid import utils, log, helpers
 from acrylamid.commands import initialize, compile
 from acrylamid.defaults import conf
 
@@ -56,7 +56,7 @@ class SingleEntry(unittest.TestCase):
             fp.write('{{ env.entrylist[0].content }}\n')
 
         self.conf = conf
-        self.env = Environment({'options': options})
+        self.env = utils.Struct({'options': options})
 
         self.conf['filters'] = ['HTML']
         self.conf['views'] = {'/:year/:slug/': {'view': 'entry'}}
@@ -134,7 +134,7 @@ class MultipleEntries(unittest.TestCase):
             fp.write("{% for entry in env.entrylist %}\n{{ entry.content ~ '\n' }}\n{% endfor %}")
 
         self.conf = conf
-        self.env = Environment({'options': options})
+        self.env = utils.Struct({'options': options})
 
         self.conf['filters'] = ['Markdown', 'h1']
         self.conf['views'] = {'/:year/:slug/': {'view': 'entry'},

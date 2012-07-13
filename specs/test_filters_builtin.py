@@ -2,13 +2,13 @@
 
 import unittest
 
-from acrylamid import log, defaults, Environment
+from acrylamid import log, defaults, utils
 from acrylamid.filters import initialize, get_filters
 
 log.init('foo', 35)
 
 conf = {'lang': 'en'}
-env = Environment({'path': '', 'options': type('X', (), {'ignore': False})})
+env = utils.Struct({'path': '', 'options': type('X', (), {'ignore': False})})
 initialize([], conf, env)
 
 # now we have filters in path

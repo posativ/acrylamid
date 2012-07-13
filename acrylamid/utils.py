@@ -209,7 +209,7 @@ def istext(path, blocksize=512, chars=(
     return float(len(nontext)) / len(block) <= 0.30
 
 
-class Bunch(dict):
+class Struct(dict):
     """A dictionary that provides attribute-style access."""
 
     __getitem__ = dict.__getitem__

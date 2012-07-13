@@ -30,7 +30,7 @@ import traceback
 import signal
 
 from acrylamid import defaults, log, commands, colors, tasks
-from acrylamid.utils import execfile, Bunch
+from acrylamid.utils import execfile, Struct
 from acrylamid.errors import AcrylamidException
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -55,21 +55,6 @@ class AcrylFormatter(argparse.HelpFormatter):
                 return (result, ) * tuple_size
 
         return format
-
-
-class Environment(dict):
-
-    def __getattribute__(self, attr):
-        try:
-            return getattr(super(Environment, self), attr)
-        except AttributeError:
-            try:
-                return self[attr]
-            except KeyError:
-                raise AttributeError
-
-    def __setattribute__(self, attr, value):
-        self[attr] = value
 
 
 def Acryl():
@@ -179,7 +164,7 @@ def Acryl():
     # initialize colored logger
     log.init('acrylamid', level=options.verbosity, colors=options.colors)
 
-    env = Environment({'version': __version__, 'author': __author__, 'url': __url__})
+    env = Struct({'version': __version__, 'author': __author__, 'url': __url__})
     env['options'] = options
 
     # -- init -- #
@@ -189,7 +174,7 @@ def Acryl():
         sys.exit(0)
 
     # -- teh real thing -- #
-    conf = Bunch(defaults.conf)
+    conf = Struct(defaults.conf)
 
     try:
         ns = dict([(k.upper(), v) for k, v in defaults.conf.iteritems()])
