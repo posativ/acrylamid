@@ -28,7 +28,7 @@ Acrylamid is a mixture of `nanoc <http://nanoc.stoneship.org/>`_, `Pyblosxom
 features mainly:
 
 - blog articles, static pages, tags, RSS/Atom feeds and an article overview
-- theming support (using jinja2_) and support for jinja2 directly in postings
+- theming support (using jinja2_ or mako_) and support for jinja2 directly in postings
 - Markdown_, reStructuredText_, textile_ and pandoc_
 - Markdown extensions and custom reStructuredText directives
 - MathML, modern web-typography and hyphenation using soft-hyphens
@@ -36,6 +36,7 @@ features mainly:
 - it's very flexible/configurable and fast due *incremental rendering*
 
 .. _jinja2: http://jinja.pocoo.org/
+.. _mako: http://www.makotemplates.org/
 .. _Markdown: http://daringfireball.net/projects/markdown/
 .. _reStructuredText: http://docutils.sourceforge.net/rst.html
 .. _textile: https://en.wikipedia.org/wiki/Textile_%28markup_language%29
@@ -78,9 +79,10 @@ Get acrylamid, edit *conf.py* and *layouts/* and compile with:
 Real World Examples?
 ********************
 
-- sources from my personal blog:
+- sources from my `personal blog <http://blog.posativ.org/>`_:
   `/posativ/blog.posativ.org <https://github.com/posativ/blog.posativ.org/>`_.
-- sebix' (contributer) sources: `/sebix/sebix.github.com-sources <https://github.com/sebix/sebix.github.com-sources>`_.
+- sebix' (contributer) `blog <http://sebix.github.com/>`_ sources:
+  `/sebix/sebix.github.com-sources <https://github.com/sebix/sebix.github.com-sources>`_.
 
 
 Filters
@@ -131,6 +133,7 @@ overview.
         clean         remove abandoned files
         deploy        run task
         info          short summary
+        ping          notify ressources
 
     optional arguments:
       -h, --help      show this help message and exit

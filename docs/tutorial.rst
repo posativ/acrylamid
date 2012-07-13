@@ -232,6 +232,33 @@ correctly.
 Customizing the Layout
 ----------------------
 
+You'll find all templates inside the (wait for it) template directory::
+
+    $ ls layouts/
+    articles.html  atom.xml  base.html  entry.html  main.html  rss.xml
+
+Most of them are self-explanatory and described in your used :doc:`views`. Basically all
+HTML templates are derived from ``base.html`` which gives us the skeleton where we can
+derieve an article view as well as the blog blog posts.
+
+.. note::
+
+    Did you about the ``--mako`` flag that initializes all templates with a Mako analogon?
+    Just create your blog like this: ``acrylamid init --mako``. Unfortunately you can't mix
+    different tempating engines.
+
+To edit a layout, just open and change something. Acrylamid automatically detects changes
+(even in parent layouts) and re-renders the blog.
+
+You can also apply a different layout to a view, like so:
+
+.. code-block:: python
+
+    '/:year/:slug/': {
+        'view': 'entry',
+        'template': 'other.html'
+    }
+
 Writing Entries in reStructuredText
 -----------------------------------
 

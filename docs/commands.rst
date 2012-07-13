@@ -20,9 +20,11 @@ This initializes the base structure of an Acrylamid blog, thus it should be
 the first command you'll execute. In addition to initialization it also can
 restore changed/deleted files if you specify the complete path as argument.
 
--f, --force       don't ask, just overwrite
---html5           use HTML5 layout (default)
---xhtml           use legacy XHTML 1.1 layout
+-f, --force  don't ask, just overwrite
+--xhtml      use XHTML theme
+--html5      use HTML5 theme (default)
+--mako       use the Mako template engine
+--jinja2     use the Jinja2 template engine (default)
 
 .. raw:: html
 
