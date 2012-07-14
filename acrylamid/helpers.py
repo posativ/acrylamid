@@ -280,6 +280,9 @@ def metavent(cls, parents, attrs):
     """Add classmethod to each callable, track given methods and intercept
     methods with callbacks added to cls.callbacks"""
 
+    # intercept these event
+    events = ('create', 'update', 'remove', 'skip', 'identical')
+
     def intercept(func):
         """decorator which calls callback registered to this method."""
         name, doc = func.func_name, func.__doc__
@@ -287,7 +290,7 @@ def metavent(cls, parents, attrs):
         def dec(cls, path, *args, **kwargs):
             for callback in  cls.callbacks[name]:
                 callback(path, *args, **kwargs)
-            if name in ('create', 'update', 'remove', 'skip', 'identical'):
+            if name in events:
                 attrs['counter'][name] += 1
             return func(cls, path, *args, **kwargs)
         dec.__doc__ = func.__doc__  # sphinx
@@ -295,8 +298,9 @@ def metavent(cls, parents, attrs):
 
     for name, func in attrs.items():
         if not name.startswith('_') and callable(func):
-            func = intercept(func)
-            attrs[name] = classmethod(intercept(func))
+            if name in events:
+                func = intercept(func)
+            attrs[name] = classmethod(func)
 
     return type(cls, parents, attrs)
 
@@ -336,6 +340,10 @@ class event:
 
     def count(self, event):
         return self.counter.get(event, 0)
+
+    def reset(self):
+        for key in self.counter:
+            self.counter[key] = 0
 
     def create(self, path, ctime=None):
         """:param path: path\n:param ctime: computing time"""

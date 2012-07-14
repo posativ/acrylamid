@@ -212,13 +212,16 @@ def autocompile(conf, env, **options):
     mtime = -1
 
     while True:
-        ntime = max(getmtime(e) for e in utils.filelist(conf['content_dir']) if utils.istext(e))
+        ntime = max(
+            max(getmtime(e) for e in utils.filelist(conf['content_dir']) if utils.istext(e)),
+            max(getmtime(p) for p in utils.filelist(conf['layout_dir'])))
         if mtime != ntime:
             try:
                 compile(conf, env, **options)
             except AcrylamidException as e:
                 log.fatal(e.args[0])
                 pass
+            event.reset()
             mtime = ntime
         time.sleep(1)
 
