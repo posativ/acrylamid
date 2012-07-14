@@ -16,7 +16,7 @@
 # those of the authors and should not be interpreted as representing official
 # policies, either expressed or implied, of posativ <info@posativ.org>.
 
-__version__ = '0.3.5'
+__version__ = '0.4.0'
 __author__ = 'posativ <info@posativ.org>'
 __url__ = 'https://github.com/posativ/acrylamid/'
 
