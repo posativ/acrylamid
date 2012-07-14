@@ -1,5 +1,9 @@
 include README.rst
 recursive-include acrylamid/filters/hyph *.txt
 recursive-include acrylamid/defaults/misc *
-recursive-include acrylamid/defaults/xhtml *
-recursive-include acrylamid/defaults/html5 *
+recursive-include acrylamid/defaults/jinja2 *
+recursive-include acrylamid/defaults/jinja2/xhtml *
+recursive-include acrylamid/defaults/jinja2/html5 *
+recursive-include acrylamid/defaults/mako *
+recursive-include acrylamid/defaults/mako/xhtml *
+recursive-include acrylamid/defaults/mako/html5 *
