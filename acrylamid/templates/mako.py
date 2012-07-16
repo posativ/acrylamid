@@ -16,6 +16,11 @@ class Environment(AbstractEnvironment):
     def init(self, layoutdir, cachedir):
         self.mako = TemplateLookup(directories=[layoutdir],
             module_directory=cachedir,
+            # similar to mako.template.Template.__init__ but with
+            # leading cache_ for the acrylamid cache
+            modulename_callable=lambda filename, uri:\
+                os.path.join(os.path.abspath(cachedir), 'cache_' +
+                    os.path.normpath(uri.lstrip('/')) + '.py'),
             input_encoding='utf-8')
         self.filters = {}
         return
