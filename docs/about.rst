@@ -42,9 +42,11 @@ Thanks to
 - sebix_ <szebi@gmx.at> who forced me to make docs and work with linux' locale
   and also supplied the *textile* and *metalogo* filter.
 - moschlar_ who implemented Mako templating
+- 0x1cedd1ce_ for his code to ping to Twitter
 
 .. _sebix: http://sebix.github.com/
 .. _moschlar: http://www.moritz-schlarb.de/
+.. _0x1cedd1ce: http://0x1cedd1ce.freeunix.net/
 
 Ideas
 *****
