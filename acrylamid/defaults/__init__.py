@@ -98,7 +98,7 @@ def init(root, theme='html5', engine='jinja2', overwrite=False):
         log.info('create  %s', join(root, 'conf.py'))
 
     for path in files:
-        if filter(lambda k: path.endswith(k), ('.html', '.xml')):
+        if path.endswith(('.html', '.xml')):
             create(default['layout_dir'], path)
         elif path.endswith('.txt'):
             create(default['content_dir'], path)

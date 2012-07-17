@@ -21,7 +21,7 @@ class Feed(View):
         tt = self.env.engine.fromfile('%s.xml' % self.__class__.__name__.lower())
 
         path = joinurl(self.conf['output_dir'], self.path)
-        if not filter(lambda e: path.endswith(e), ['.xml', '.html']):
+        if not path.endswith(('.xml', '.html')):
             path = joinurl(path, 'index.html')
 
         if exists(path) and not filter(lambda e: e.has_changed, entrylist):

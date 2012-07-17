@@ -95,7 +95,7 @@ def validate(paths, jobs):
 
         for match in ahref.finditer(data):
             a = match.group(1)
-            if a.startswith('http://') or a.startswith('https://'):
+            if a.startswith(('http://', 'https://')):
                 if a not in visited:
                     visited.add(a)
                     urls[path].append(a)

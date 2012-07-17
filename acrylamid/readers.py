@@ -48,7 +48,7 @@ def load(conf):
 
     # collect and skip over malformed entries
     for path in filelist(conf['content_dir'], conf.get('content_ignore', [])):
-        if any(filter(lambda ext: path.endswith(ext), ['.txt', '.rst', '.md'])) or istext(path):
+        if path.endswith(('.txt', '.rst', '.md')) or istext(path):
             try:
                 entrylist.append(Entry(path, conf))
             except (ValueError, AcrylamidException) as e:
@@ -183,9 +183,9 @@ class FileEntry(BaseEntry):
 
         with io.open(path, 'r', encoding=conf['encoding'], errors='replace') as fp:
 
-            if native and any(filter(lambda ext: path.endswith(ext), ['.md', '.mkdown'])):
+            if native and path.endswith(('.md', '.mkdown')):
                 i, meta = markdownstyle(fp)
-            elif native and any(filter(lambda ext: path.endswith(ext), ['.rst', '.rest'])):
+            elif native and path.endswith(('.rst', '.rest')):
                 i, meta = reststyle(fp)
             else:
                 i, meta = yamlstyle(fp)
