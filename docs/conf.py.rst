@@ -73,9 +73,9 @@ Variable name (default value)                       Description
 `WWW_ROOT` (``'http://localhost:8000'``)            Your actual website link where you host this blog.
                                                     It's used to build absolute urls (required for disqus
                                                     and feeds).
-`CONTENT_DIR`(``content/``)                         Directoy where you write your posts to.
-`LAYOUT_DIR` (``layouts/``)                         Directoy where you place your jinja2 templates.
-`OUTPUT_DIR` (``output/``)                          Directoy where the output goes to.
+`CONTENT_DIR`(``content/``)                         Directory where you write your posts to.
+`LAYOUT_DIR` (``layouts/``)                         Directory where you place your jinja2 templates.
+`OUTPUT_DIR` (``output/``)                          Directory where the output goes to.
 `FILTERS_DIR` (*not set*)                           If you want add your own filters, create a directory,
                                                     put your filters into and add this directory to conf.
 `VIEWS_DIR` (*not set*)                             Like above but for custom views.
