@@ -31,12 +31,16 @@ python script and therefore must be valid python code!):
         '/articles/': {'view': 'articles'},
     }
 
+    ENGINE =  'acrylamid.templates.jinja2.Environment'
     PERMALINK_FORMAT = '/:year/:slug/index.html'
     DATE_FORMAT = '%d.%m.%Y, %H:%M'
 
 Each key-value pair (except views [#]_) is available during :doc:`templating`.
-Acrylamid uses `jinja2 <http://jinja.pocoo.org/docs/>`_, see their `Template
-Designer Documentation <http://jinja.pocoo.org/docs/templates/>`_ for details.
+
+See the respective documentation for your templating engine for more details on
+how to use the templating languages:
+`jinja2 Template Designer Documentation <http://jinja.pocoo.org/docs/templates/>`_,
+`Mako Documentation <http://docs.makotemplates.org/en/latest/index.html>`_.
 
 All the settings identifiers must be set in caps, otherwise they will not be
 processed. This file is processed within a namespace that contains default
@@ -85,6 +89,19 @@ Variable name (default value)                       Description
 
     ``["markdown+codehilite(css_class=highlight)", "hyphenate"]``
 
+
+Templating Engine
+-----------------
+
+=======================================================    =====================================================
+Variable name (default value)                              Description
+=======================================================    =====================================================
+`ENGINE` (``'acrylamid.templates.jinja2.Environment'``)    The full (importable) name of the Environment class
+                                                           (see `acrylamid.templates.AbstractEnvironment`) for
+                                                           your templating engine (currently, acrylamid supports
+                                                           `jinja2 <http://jinja.pocoo.org/>`_ and
+                                                           `Mako <http://www.makotemplates.org/>`_).
+=======================================================    =====================================================
 
 URL Settings
 ------------
