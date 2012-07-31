@@ -25,10 +25,16 @@ Initialization
   - read all existing cache objects keys
   - load memorized keys
 
-- create our Jinja2 environment using our custom ``core.ExtendedFileSystemLoader`` that
-  can give us persistent information if a template has changed in this run. Jinja2 is
-  using the same cache directory but filename suffixes.
-- add internal filters like ``helpers.safeslug`` and ``helpers.tagify`` to jinja2 environment
+- create an environment for our templating engine
+  using the same cache directory
+
+  - for Jinja2, we use a custom ``core.ExtendedFileSystemLoader`` that
+    can give us persistent information if a template has changed in this run.
+  - for Mako, we just exploit Mako's internal mechanism to check for changed templates.
+    We also substitute the function that generates the cached template's filenames
+    so that we can leave them when we shutdown the cache.
+
+- add internal filters like ``helpers.safeslug`` and ``helpers.tagify`` to the templating environment
 - setup locale
 - remove trailing slash from *www_root* and *path*
 - get filters and views (not initializing them)
