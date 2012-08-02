@@ -5,16 +5,84 @@
 
 from __future__ import absolute_import
 
-import os, stat
+import os
+import io
+import re
+import posixpath
+
+from os.path import getmtime, isfile, basename
 
 from acrylamid.templates import AbstractEnvironment, AbstractTemplate
 from mako.lookup import TemplateLookup
+from mako import exceptions
+
+class ExtendedLookup(TemplateLookup):
+
+    inherits = re.compile(r'\<%inherit file="([^"]+)" /\>')
+    includes = re.compile(r'\<%namespace file="([^"]+)" import="[^"]+" /\>')
+
+    # remember already resolved templates
+    resolved = {}
+
+    def get_template(self, uri):
+        """This is stolen and truncated from mako.lookup:TemplateLookup."""
+
+        u = re.sub(r'^\/+', '', uri)
+        for dir in self.directories:
+            filename = posixpath.normpath(posixpath.join(dir, u))
+            if os.path.isfile(filename):
+                return self._load(filename, uri)
+        else:
+            raise exceptions.TopLevelLookupException(
+                                "Cant locate template for uri %r" % uri)
+
+    def _load(self, filename, uri):
+
+        def resolve(uri):
+            """Check whether any referenced template has changed -- recursively."""
+
+            if uri in self.resolved:
+                return self.resolved[uri]
+
+            filename = posixpath.normpath(posixpath.join(self.directories[0], uri))
+            p = self.modulename_callable(filename, uri)
+            has_changed = getmtime(filename) > getmtime(p) if isfile(p) else True
+
+            if has_changed:
+                self.resolved[uri] = True
+                return True
+
+            with io.open(filename) as fp:
+                source = fp.read()
+
+            for match in self.inherits.finditer(source):
+                if resolve(match.group(1)):
+                    return True
+
+            for match in self.includes.finditer(source):
+                if resolve(match.group(1)):
+                    return True
+
+            return False
+
+        try:
+            template = self._collection[uri]
+        except KeyError:
+            template = super(ExtendedLookup, self)._load(filename, uri)
+
+        try:
+            template.has_changed = resolve(basename(template.filename))
+        except (OSError, IOError):
+            raise exceptions.TemplateLookupException(
+                                "Can't locate template for uri %r" % uri)
+        return template
 
 
 class Environment(AbstractEnvironment):
 
     def init(self, layoutdir, cachedir):
-        self.mako = TemplateLookup(directories=[layoutdir],
+        self.mako = ExtendedLookup(
+            directories=[layoutdir],
             module_directory=cachedir,
             # similar to mako.template.Template.__init__ but with
             # leading cache_ for the acrylamid cache
@@ -54,9 +122,4 @@ class Template(AbstractTemplate):
 
     @property
     def has_changed(self):
-        # inspired by mako.lookup.TemplateLookup._check
-        template_stat = os.stat(self.template.filename)
-        if self.template.last_modified < template_stat[stat.ST_MTIME]:
-            return True
-        else:
-            return False
+        return self.template.has_changed
