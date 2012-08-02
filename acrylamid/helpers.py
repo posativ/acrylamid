@@ -244,6 +244,8 @@ def link(title, href=None, entry=None):
         'title': title,
         'href': title if href is None else href,
         '__str__' if PY3 else '__unicode__': lambda cls: cls.href,
+        '__add__': lambda self, other: unicode(self) + other,
+        '__radd__': lambda self, other: other + unicode(self)
     })()
 
 
