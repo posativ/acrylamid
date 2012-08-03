@@ -6,6 +6,7 @@
 import os
 import io
 import re
+import shutil
 import tempfile
 import getpass
 
@@ -309,7 +310,10 @@ def build(conf, env, defaults, items, fmt, keep=False, force=False, pandoc=False
         filepath = p + '.txt'
         if isfile(filepath) and not force:
             raise AcrylamidException('Entry already exists %r' % filepath)
-        os.rename(tmp, filepath)
+        try:
+            os.rename(tmp, filepath)
+        except OSError:  # different filesystem
+            shutil.copy(tmp, filepath)
         event.create(filepath)
 
     for item in items:
