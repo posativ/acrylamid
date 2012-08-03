@@ -14,12 +14,13 @@ import locale
 import traceback
 
 from os.path import join, getmtime
+from fnmatch import fnmatch
 from datetime import datetime
 
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
-from acrylamid.utils import cached_property, NestedProperties, filelist, istext
+from acrylamid.utils import cached_property, NestedProperties, istext
 from acrylamid.core import cache
 from acrylamid.filters import FilterTree
 from acrylamid.helpers import safeslug, expand, md5
@@ -56,6 +57,47 @@ def load(conf):
 
     # sort by date, reverse
     return sorted(entrylist, key=lambda k: k.date, reverse=True)
+
+
+def ignored(cwd, path, patterns, dest):
+    """Test wether a path is excluded by the user. The ignore syntax is
+    similar to Git: a path with a leading slash means absolute position
+    (relative to output root), path with trailing slash marks a directory
+    and everything else is just relative fnmatch.
+
+    :param cwd: current directory
+    :param path: current path
+    :param excl_files: a list of patterns
+    :param dest: destination directory
+    """
+
+    for pattern in patterns:
+        if pattern.startswith('/'):
+            if fnmatch(join(cwd, path), join(dest, pattern[1:])):
+                return True
+        elif fnmatch(path, pattern):
+            return True
+    else:
+        return False
+
+
+def filelist(directory, patterns=[]):
+    """Gathering all entries in directory except ignored."""
+
+    flist = []
+    for root, dirs, files in os.walk(directory):
+        for f in files:
+            if f[0] == '.':
+                continue
+            path = os.path.join(root, f)
+            if not ignored(root, path, patterns, directory):
+                flist.append(path)
+
+        # don't visit excluded dirs
+        for dir in dirs[:]:
+            if ignored(root, dir+'/', patterns, directory):
+                dirs.remove(dir)
+    return flist
 
 
 class Date(datetime):

@@ -6,9 +6,8 @@
 import os
 
 from os.path import join
-from fnmatch import fnmatch
 
-from acrylamid import log, commands
+from acrylamid import log, commands, readers
 from acrylamid.tasks import task, argument
 from acrylamid.helpers import event
 
@@ -25,26 +24,6 @@ arguments = [
 def track(path, **kw):
     global tracked
     tracked.add(path)
-
-
-def excluded(conf, root, path, excl_files):
-    """Test wether a path is excluded by the user. The ignore syntax is
-    similar to Git: a path with a leading slash means absolute position
-    (relative to output root), path with trailing slash marks a directory
-    and everything else is just relative fnmatch.
-
-    :param root: current directory
-    :param path: current path
-    :param excl_files: a list of patterns
-    """
-    for pattern in excl_files:
-        if pattern.startswith('/'):
-            if fnmatch(join(root, path), join(conf['output_dir'], pattern[1:])):
-                return True
-        elif fnmatch(path, pattern):
-            return True
-    else:
-        return False
 
 
 @task(['clean', 'rm'], arguments, help="remove abandoned files")
@@ -81,7 +60,7 @@ def run(conf, env, options):
     global tracked
     for root, dirs, files in os.walk(conf['output_dir'], topdown=True):
         found = set([join(root, p) for p in files
-                     if not excluded(conf, root, p, conf['output_ignore'])])
+                     if not readers.ignored(root, p, conf['output_ignore'], conf['output_dir'])])
 
         for i, p in enumerate(found.difference(tracked)):
             if not dryrun:
@@ -96,7 +75,7 @@ def run(conf, env, options):
 
         # don't visit excluded dirs
         for dir in dirs[:]:
-            if excluded(conf, root, dir+'/', conf['output_ignore']):
+            if readers.ignored(root, dir+'/', conf['output_ignore'], conf['output_dir']):
                 dirs.remove(dir)
 
     # remove empty directories

@@ -6,9 +6,9 @@
 import os
 import io
 import re
+import shutil
 import tempfile
 import getpass
-import shutil
 
 from base64 import b64encode
 from datetime import datetime
