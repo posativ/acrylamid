@@ -238,6 +238,8 @@ class FileEntry(BaseEntry):
                 meta[to] = meta[key]
                 del meta[key]
 
+        meta['title'] = unicode(meta['title'])  # YAML can convert 42 to an int
+
         self.offset = i
         self.props.update(meta)
 
