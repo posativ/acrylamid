@@ -175,14 +175,21 @@ Variable name (default value)                       Description
 `SUMMARIZE_MODE` (``1``)                            Mode *0* this injects the link to the end of the
                                                     current tag, *1* after some black-listed tags and
                                                     *2* after all tags as standalone link.
-`SUMMARIZE_ELLIPSIS` (``&#8230;``)                  Ellipsis (defaults to three typographical dots, …)
-`SUMMARIZE_IDENTIFIER` (``weiterlesen``)            The text inside the continue reading link.
-`SUMMARIZE_CLASS` (``continue``)                    CSS-class used in ``<a>``-Tag.
+`SUMMARIZE_LINK` (|link|)                           Simple string template for the continue reading link.
+                                                    Default uses an ellipsis (three typographical dots,
+                                                    …), a link with the css class ``continue`` and the
+                                                    text ``continue`` and a single dot afterwards.
+                                                    This string must contain one ``%s`` where the link
+                                                    address will be inserted.
 ================================================    =====================================================
 
 .. [#] Note, disqus only knows a given URL. If you change the title of an entry
    and you don't setup recirect codes or leave the original url by setting
    ``permalink: /2011/a-title/``, you'll lose your disqus comments for this thread.
+
+.. |link| replace::
+
+       ``'<span>&#8230;<a href="%s" class="continue">continue</a>.</span>'``
 
 
 Tag cloud
