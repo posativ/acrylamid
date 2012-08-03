@@ -8,6 +8,7 @@ import io
 import re
 import tempfile
 import getpass
+import shutil
 
 from base64 import b64encode
 from datetime import datetime
@@ -309,7 +310,7 @@ def build(conf, env, defaults, items, fmt, keep=False, force=False, pandoc=False
         filepath = p + '.txt'
         if isfile(filepath) and not force:
             raise AcrylamidException('Entry already exists %r' % filepath)
-        os.rename(tmp, filepath)
+        shutil.move(tmp, filepath)
         event.create(filepath)
 
     for item in items:

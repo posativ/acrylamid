@@ -9,6 +9,7 @@ import os
 import io
 import zlib
 import tempfile
+import shutil
 
 from collections import defaultdict
 from os.path import join, exists, getmtime
@@ -271,7 +272,7 @@ class cache(object):
                 with io.open(fd, 'wb') as fp:
                     pickle.dump({key: zlib.compress(value.encode('utf-8'), 6)}, fp,
                                 pickle.HIGHEST_PROTOCOL)
-                os.rename(tmp, path)
+                shutil.move(tmp, path)
                 os.chmod(path, self.mode)
             except (IOError, OSError, pickle.PickleError, zlib.error) as e:
                 log.warn('%s: %s' % (e.__class__.__name__, e))
