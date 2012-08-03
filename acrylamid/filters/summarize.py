@@ -87,18 +87,12 @@ class Summarize(Filter):
         self.path = env.path
         self.mode = conf.get('summarize_mode', 1)
 
-        self.ellipsis = conf.get('summarize_ellipsis', '&#8230;')
-        self.identifier = conf.get('summarize_identifier', 'continue')
-        self.klass = conf.get('summarize_class', 'continue')
+        self.summarize_link =  conf.get('summarize_link',
+            '<span>&#8230;<a href="%s" class="continue">continue</a>.</span>')
 
     @property
     def link(self):
-
-        ellipsis = self.options.get('ellipsis') or self.ellipsis
-        klass = self.options.get('klass') or self.klass
-        identifier = self.options.get('identifier') or self.identifier
-
-        return '<span>'+ellipsis+'<a href="%s" class="'+klass+'">'+identifier+'</a>.</span>'
+        return self.options.get('link') or self.summarize_link
 
     def transform(self, content, entry, *args):
 
