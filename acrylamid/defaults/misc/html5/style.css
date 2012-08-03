@@ -186,26 +186,3 @@ object[type="application/x-shockwave-flash"], iframe.video {
 .shadow { box-shadow: 0px 0px 4px black }
 .floatright { float: right }
 .floatleft { float: left }
-
-/***** LaTeX *****/
-.latex {
-  font-family: Times, "Times New Roman", serif;	
-  letter-spacing: 1px;
-}
-
-.latex sup {
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-size: 0.85em;
-  vertical-align: 0.15em;
-  margin-left: -0.36em;
-  margin-right: -0.15em;
-}
-
-.latex sub {
-  text-transform: uppercase;
-  vertical-align: -0.5ex;
-  margin-left: -0.1667em;
-  margin-right: -0.125em;
-  font-size: 1em;
-}
