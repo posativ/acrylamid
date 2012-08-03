@@ -11,6 +11,7 @@ import locale
 import codecs
 import tempfile
 import subprocess
+import shutil
 
 from urlparse import urlsplit
 from datetime import datetime
@@ -255,7 +256,7 @@ def new(conf, env, title, prompt=True):
     filepath = p + '.txt'
     if isfile(filepath):
         raise AcrylamidException('Entry already exists %r' % filepath)
-    os.rename(tmp, filepath)
+    shutil.move(tmp, filepath)
     event.create(filepath)
 
     if datetime.now().hour == 23 and datetime.now().minute > 45:
