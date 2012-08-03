@@ -68,6 +68,7 @@ Variable name (default value)                       Description
 `ENCODING` (``'utf-8'``)                            Default encoding of your text files, only global.
 `OUTPUT_IGNORE` (|ignored|)                         A list of filename/directory-patterns which
                                                     Acrylamid should ignore.
+`CONTENT_IGNORE` (*not set*)                        (same as ``OUTPUT_IGNORE`` but for ``CONTENT_DIR``)
 `FILTERS` (|filter|)                                Global list of filters.
 `VIEWS` (see example conf.py)                       Dictionary of views set in conf.py.
 `WWW_ROOT` (``'http://localhost:8000'``)            Your actual website link where you host this blog.

@@ -12,7 +12,7 @@ import collections
 
 from urllib import quote
 
-from acrylamid import utils, helpers
+from acrylamid import readers, helpers
 from acrylamid.tasks import register, argument
 from acrylamid.colors import green, yellow, red, blue, white
 
@@ -119,7 +119,7 @@ def run(conf, env, options):
     """Subcommand: check -- run W3C over generated output and check destination
     of linked items"""
 
-    paths = [path for path in utils.filelist(conf['output_dir']) if path.endswith('.html')]
+    paths = [path for path in readers.filelist(conf['output_dir']) if path.endswith('.html')]
 
     if options.random:
         random.shuffle(paths)

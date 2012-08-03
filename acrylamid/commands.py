@@ -213,8 +213,8 @@ def autocompile(conf, env, **options):
 
     while True:
         ntime = max(
-            max(getmtime(e) for e in utils.filelist(conf['content_dir']) if utils.istext(e)),
-            max(getmtime(p) for p in utils.filelist(conf['layout_dir'])))
+            max(getmtime(e) for e in readers.filelist(conf['content_dir']) if utils.istext(e)),
+            max(getmtime(p) for p in readers.filelist(conf['layout_dir'])))
         if mtime != ntime:
             try:
                 compile(conf, env, **options)
