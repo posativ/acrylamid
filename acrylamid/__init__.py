@@ -165,7 +165,9 @@ def Acryl():
     log.init('acrylamid', level=options.verbosity, colors=options.colors)
 
     env = Struct({'version': __version__, 'author': __author__, 'url': __url__})
+
     env['options'] = options
+    env['globals'] = Struct()
 
     # -- init -- #
     # TODO: acrylamid init --layout_dir=somedir to overwrite defaults

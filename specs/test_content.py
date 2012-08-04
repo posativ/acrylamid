@@ -56,7 +56,7 @@ class SingleEntry(unittest.TestCase):
             fp.write('{{ env.entrylist[0].content }}\n')
 
         self.conf = conf
-        self.env = utils.Struct({'options': options})
+        self.env = utils.Struct({'options': options, 'globals': utils.Struct()})
 
         self.conf['filters'] = ['HTML']
         self.conf['views'] = {'/:year/:slug/': {'view': 'entry'}}
@@ -134,7 +134,7 @@ class MultipleEntries(unittest.TestCase):
             fp.write("{% for entry in env.entrylist %}\n{{ entry.content ~ '\n' }}\n{% endfor %}")
 
         self.conf = conf
-        self.env = utils.Struct({'options': options})
+        self.env = utils.Struct({'options': options, 'globals': utils.Struct()})
 
         self.conf['filters'] = ['Markdown', 'h1']
         self.conf['views'] = {'/:year/:slug/': {'view': 'entry'},

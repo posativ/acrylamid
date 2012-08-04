@@ -45,6 +45,9 @@ protocol and count of entries.
 :entrylist:
     A list of all processed FileEntry-objects.
 
+:globals.entrylist:
+    All entries processed by Acrylamid.
+
 :num_entries:
     Count of all entries, only available in page/articles/index-view.
 

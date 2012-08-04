@@ -120,8 +120,9 @@ def compile(conf, env, force=False, **options):
     # populate env and corrects some conf things
     request = initialize(conf, env)
 
-    # load entries
+    # load entries and store them in env
     entrylist = readers.load(conf)
+    env.globals['entrylist'] = entrylist
 
     if force:
         # acrylamid compile -f
