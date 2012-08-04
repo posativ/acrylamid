@@ -232,11 +232,10 @@ def autocompile(ws, conf, env, **options):
             log.info(' * Restarting due to change in %s' % (CONF_PY))
             # Kill the webserver
             ws.shutdown()
-            if not 'force' in options:
-                # Force recompilation, since no template changed
-                sys.argv.append("--force")
+            # Force compilation since no template was changed
+            argv = sys.argv if options['force'] else sys.argv[:] + ["--force"]
             # Restart acrylamid
-            os.execvp(sys.argv[0], sys.argv)
+            os.execvp(sys.argv[0], argv)
 
         time.sleep(1)
 
