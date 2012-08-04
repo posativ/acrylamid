@@ -206,11 +206,14 @@ def compile(conf, env, force=False, **options):
              time.time() - ctime)
 
 
-def autocompile(conf, env, **options):
+def autocompile(ws, conf, env, **options):
     """Subcommand: autocompile -- automatically re-compiles when something in
     content-dir has changed and parallel serving files."""
 
+    CONF_PY = './conf.py'
+
     mtime = -1
+    cmtime = getmtime(CONF_PY)
 
     while True:
         ntime = max(
@@ -224,6 +227,17 @@ def autocompile(conf, env, **options):
                 pass
             event.reset()
             mtime = ntime
+
+        if cmtime != getmtime(CONF_PY):
+            log.info(' * Restarting due to change in %s' % (CONF_PY))
+            # Kill the webserver
+            ws.shutdown()
+            if not 'force' in options:
+                # Force recompilation, since no template changed
+                sys.argv.append("--force")
+            # Restart acrylamid
+            os.execvp(sys.argv[0], sys.argv)
+
         time.sleep(1)
 
 
