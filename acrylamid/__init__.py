@@ -230,7 +230,7 @@ def Acryl():
         log.info(' * Running on http://127.0.0.1:%i/' % options.port)
 
         try:
-            commands.autocompile(conf, env, **options.__dict__)
+            commands.autocompile(ws, conf, env, **options.__dict__)
         except (SystemExit, KeyboardInterrupt, Exception) as e:
             ws.kill_received = True
             log.error(e.args[0])

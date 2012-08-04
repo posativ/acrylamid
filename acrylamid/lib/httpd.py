@@ -75,3 +75,8 @@ class Webserver(Thread):
     def run(self):
         self.httpd.serve_forever()
         self.join(1)
+
+    def shutdown(self):
+        """"Sets kill_recieved and closes the server socket."""
+        self.kill_received = True
+        self.httpd.socket.close()
