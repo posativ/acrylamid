@@ -246,6 +246,9 @@ def new(conf, env, title, prompt=True):
     ``acrylamid new My fresh new Entry`` or interactively via ``acrylamid new``
     and the file will be created using the preferred permalink format."""
 
+    # we need the actual defaults values
+    initialize(conf, env)
+
     fd, tmp = tempfile.mkstemp(suffix='.txt', dir='.cache/')
     editor = os.getenv('VISUAL') if os.getenv('VISUAL') else os.getenv('EDITOR')
 

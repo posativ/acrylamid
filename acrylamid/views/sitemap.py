@@ -63,19 +63,30 @@ class Sitemap(View):
         self.files = set([])
         self.has_changed = False
 
-        permalink = self.conf['permalink_format']
-        for pat, repl in [(':year', '\d+'), (':month', '\d+'), (':day', '\d+'), (':[^/]+', '\S+')]:
-            permalink = re.sub(pat, repl, permalink)
-
-        # we rank full entries higher
-        self.regex = re.compile(joinurl(self.conf['www_root'], permalink))
-
         # track output files
         event.register(track, to=['create', 'update', 'skip', 'identical'])
         event.register(changed, to=['create', 'update', 'identical'])
 
+    def context(self, env, request):
+
+        patterns = dict()
+        replacements = [(':year', '\d+'), (':month', '\d+'), (':day', '\d+'), (':[^/]+', '\S+')]
+
+        for fmt in ('entry_permalink', 'page_permalink'):
+            permalink = self.conf[fmt]
+            for pat, repl in replacements:
+                permalink = re.sub(pat, repl, permalink)
+
+                # we rank full entries higher
+                patterns[fmt] = re.compile(joinurl(re.escape(self.conf['www_root']), permalink))
+
+        self.isfullentry = lambda url: patterns['entry_permalink'].match(url) or \
+                                       patterns['page_permalink'].match(url)
+
     def generate(self, request):
 
+        drafted = set([joinurl(self.conf['output_dir'], e.permalink, 'index.html')
+                    for e in request['entrylist'] + request['pages'] if e.draft])
         path = joinurl(self.conf['output_dir'], self.path)
         sm = Map()
 
@@ -84,9 +95,12 @@ class Sitemap(View):
             raise StopIteration
 
         for fname in self.files:
+            if fname in drafted:
+                continue
+
             url = join(self.conf['www_root'], fname.replace(self.conf['output_dir'], ''))
 
-            if self.regex.match(url):
+            if self.isfullentry(url):
                 sm.add(url.rstrip('index.html'), getmtime(fname), priority=1.0)
             else:
                 sm.add(url.rstrip('index.html'), getmtime(fname), changefreq='weekly')
