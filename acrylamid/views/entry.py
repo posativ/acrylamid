@@ -3,7 +3,8 @@
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
-from os.path import exists
+import os
+from os.path import isfile
 
 from acrylamid.views import View
 from acrylamid.helpers import expand, union, joinurl, event, link, memoize, md5
@@ -38,44 +39,46 @@ class Entry(View):
         tt = self.env.engine.fromfile(self.template)
 
         entrylist = request['entrylist']
-        pathes = dict()
-
-        for entry in entrylist:
-            if entry.permalink != expand(self.path, entry):
-                p = joinurl(self.conf['output_dir'], entry.permalink)
-            else:
-                p = joinurl(self.conf['output_dir'], expand(self.path, entry))
-
-            if p.endswith('/'):
-                p = joinurl(p, 'index.html')
-
-            if p in pathes:
-                raise AcrylamidException("title collision %r in %r with %r" %
-                    (entry.permalink, entry.filename, pathes[p].filename))
-            pathes[p] = entry
+        pathes = set()
 
         has_changed = False
-        hv = md5(*entrylist, attr=lambda e: e.permalink)
+        hv = md5(*entrylist, attr=lambda e: e.permalink)  # detect changes in prev and next
 
         if memoize('entry-permalinks') != hv:
             memoize('entry-permalinks', hv)
             has_changed = True
 
-        pathes = sorted(pathes.iteritems(), key=lambda k: k[1].date, reverse=True)
-        for i, (path, entry) in enumerate(pathes):
+        for i, entry in enumerate(entrylist):
+            if entry.permalink != expand(self.path, entry):
+                path = joinurl(self.conf['output_dir'], entry.permalink)
+            else:
+                path = joinurl(self.conf['output_dir'], expand(self.path, entry))
 
-            next = None if i == 0 else link(entrylist[i-1].title,
+            if path.endswith('/'):
+                path = joinurl(path, 'index.html')
+
+            if isfile(path) and path in pathes:
+                try:
+                    os.remove(path)
+                finally:
+                    f = lambda e: e is not entry and e.permalink == entry.permalink
+                    raise AcrylamidException("title collision %r in %r with %r." %
+                        (entry.permalink, entry.filename, filter(f, entrylist)[0].filename))
+
+            ext = None if i == 0 else link(entrylist[i-1].title,
                                             entrylist[i-1].permalink.rstrip('/'),
                                             entrylist[i-1])
-            prev = None if i == len(pathes) - 1 else link(entrylist[i+1].title,
+            prev = None if i == len(entrylist) - 1 else link(entrylist[i+1].title,
                                                           entrylist[i+1].permalink.rstrip('/'),
                                                           entrylist[i+1])
+            # detect collisions
+            pathes.add(path)
 
-            if exists(path) and not any([has_changed, entry.has_changed, tt.has_changed]):
+            if isfile(path) and not any([has_changed, entry.has_changed, tt.has_changed]):
                 event.skip(path)
                 continue
 
             html = tt.render(conf=self.conf, entry=entry, env=union(self.env,
-                             entrylist=[entry], type='entry', prev=prev, next=next))
+                             entrylist=[entry], type='entry', prev=prev, next=ext))
 
             yield html, path
