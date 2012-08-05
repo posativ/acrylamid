@@ -69,6 +69,9 @@ protocol and count of entries.
 entry
 *****
 
+:type:
+    either ``"entry"`` or ``"page"``
+
 :permalink:
     actual permanent link
 

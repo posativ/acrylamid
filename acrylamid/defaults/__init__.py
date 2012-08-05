@@ -165,6 +165,8 @@ conf = default = {
     },
 
     'engine': 'acrylamid.templates.jinja2.Environment',
+    'entry_permalink': None,
+    'page_permalink': None,
 }
 
 
@@ -197,6 +199,9 @@ VIEWS = {
     '/sitemap.xml': {'view': 'sitemap'},
 
     # Here are some more examples
+
+    # # '/:slug/' is a slugified url of your static page's title
+    # '/:slug/': {'view': 'page'}
 
     # # '/atom/full/' will give you a _complete_ feed of all your entries
     # '/atom/full/': {'filters': 'h2', 'view': 'atom', 'num_entries': 1000},

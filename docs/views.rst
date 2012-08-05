@@ -37,6 +37,8 @@ Built-in Views
 
 .. autoclass:: acrylamid.views.index.Index()
 
+.. autoclass:: acrylamid.views.page.Page()
+
 .. autoclass:: acrylamid.views.tag.Tag()
 
 .. autoclass:: acrylamid.views.sitemap.Sitemap()

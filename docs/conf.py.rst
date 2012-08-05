@@ -109,12 +109,13 @@ URL Settings
 
 When it comes to URLs, Acrylamid follows two simple rules: always add a
 *index.html* to an URL with trailing slash. Secondly: substitution variables
-begin with a double dash and then the wished property:
+begin with a double dash and then the wished attribute:
 
 - ``/2012/hello-world/`` gets a ``index.html`` as filename for nice URLs
 - ``/atom/index.html`` gets not touched anywhere and uses ``index.html``
   as filename.
-- ``/page/:num/`` gets expanded to ``/page/2/index.html`` if ``num = 2``.
+- ``/page/:num/`` gets expanded to ``/page/2/index.html`` if ``num = 2``,
+  see :doc:`views` for details.
 
 Use :doc:`views` and :doc:`templating` as reference guide for all possible
 variable name substitutions in a current view.
@@ -122,7 +123,13 @@ variable name substitutions in a current view.
 ================================================    =====================================================
 Variable name (default value)                       Description
 ================================================    =====================================================
-`PERMALINK_FORMAT` (``'/:year/:slug/'``)            A (substitution) string where we save this URL
+`ENTRY_PERMALINK` (*not set*)                       A substitution string where all entries were saved
+                                                    to By default you don’t need to set this parameter
+                                                    because it takes the route where the view is entry
+                                                    But if your url routes for the entry view are
+                                                    ambiguous, set this parameter.
+`PAGE_PERMALINK` (*not set*)                        Same for ENTRY_PERMALINK but for static pages and the
+                                                    static view.
 ================================================    =====================================================
 
 Date format and locale

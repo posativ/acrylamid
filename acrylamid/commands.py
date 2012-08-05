@@ -91,6 +91,16 @@ def initialize(conf, env):
     views.initialize(conf["views_dir"], conf, env)
     env['views'] = dict([(v.view, v) for v in views.get_views()])
 
+    entryfmt, pagefmt = '/:year/:slug/', '/:slug/'
+    for view in views.get_views():
+        if view.view == 'entry':
+            entryfmt = view.path
+        if view.view == 'page':
+            pagefmt = view.path
+
+    conf['entry_permalink'] = conf['entry_permalink'] or entryfmt
+    conf['page_permalink'] = conf['page_permalink'] or pagefmt
+
     return {'conf': conf, 'env': env}
 
 
@@ -120,9 +130,10 @@ def compile(conf, env, force=False, **options):
     # populate env and corrects some conf things
     request = initialize(conf, env)
 
-    # load entries and store them in env
-    entrylist = readers.load(conf)
+    # load pages/entries and store them in env
+    entrylist, pages = readers.load(conf)
     env.globals['entrylist'] = entrylist
+    env.globals['pages'] = pages
 
     if force:
         # acrylamid compile -f
@@ -139,7 +150,7 @@ def compile(conf, env, force=False, **options):
     _views = views.get_views()
 
     # filters found in all entries, views and conf.py
-    found = sum((x.filters for x in entrylist+_views), []) + request['conf']['filters']
+    found = sum((x.filters for x in entrylist+pages+_views), []) + request['conf']['filters']
 
     for val in found:
         # first we for `no` and get the function name and arguments
@@ -159,7 +170,7 @@ def compile(conf, env, force=False, **options):
 
         ns[fx].add(val)
 
-    for entry in entrylist:
+    for entry in entrylist + pages:
         for v in _views:
 
             # a list that sorts out conflicting and duplicated filters
@@ -180,7 +191,8 @@ def compile(conf, env, force=False, **options):
     # lets offer a last break to populate tags or so
     # XXX this API component needs a review
     for v in _views:
-        env = v.context(env, {'entrylist': filter(v.condition, entrylist)})
+        env = v.context(env, {'entrylist': filter(v.condition, entrylist),
+                              'pages': pages})
 
     # now teh real thing!
     for v in _views:
@@ -188,10 +200,11 @@ def compile(conf, env, force=False, **options):
         # XXX the entry should automatically determine its caller (using
         # some sys magic to recursively check wether the calling class is
         # derieved from `View`.)
-        for entry in entrylist:
+        for entry in entrylist + pages:
             entry.context = v.__class__.__name__
 
         request['entrylist'] = filter(v.condition, entrylist)
+        request['pages'] = pages
         tt = time.time()
 
         for html, path in v.generate(request):

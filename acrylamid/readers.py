@@ -40,23 +40,28 @@ def load(conf):
     This function is *not* exception-tolerant. If Acrylamid could not handle a file
     it will raise an exception.
 
-    It returns a list of entries sorted by date reverse (newest comes first).
+    It returns a tuple containing the list of entries sorted by date reverse (newest
+    comes first) and other pages (unsorted).
 
     :param conf: configuration with CONTENT_DIR and CONTENT_IGNORE set"""
 
     # list of Entry-objects reverse sorted by date.
-    entrylist = []
+    entrylist, pages = [], []
 
     # collect and skip over malformed entries
     for path in filelist(conf['content_dir'], conf.get('content_ignore', [])):
         if path.endswith(('.txt', '.rst', '.md')) or istext(path):
             try:
-                entrylist.append(Entry(path, conf))
+                entry = Entry(path, conf)
+                if entry.type == 'entry':
+                    entrylist.append(entry)
+                else:
+                    pages.append(entry)
             except (ValueError, AcrylamidException) as e:
                 raise AcrylamidException('%s: %s' % (path, e.args[0]))
 
     # sort by date, reverse
-    return sorted(entrylist, key=lambda k: k.date, reverse=True)
+    return (sorted(entrylist, key=lambda k: k.date, reverse=True), pages)
 
 
 def ignored(cwd, path, patterns, dest):
@@ -134,6 +139,15 @@ class BaseEntry(object):
     def has_changed(self):
         return
 
+    def gettype(self):
+        """="Type of this entry. Can be either ``'entry'`` or ``'page'``"""
+        return self._type
+    def settype(self, value):
+        if value not in ('entry', 'page'):
+            raise ValueError("item type must be 'entry' or 'page'")
+        self._type = value
+    type = property(gettype, settype, doc=gettype.__doc__)
+
     @property
     def year(self):
         return self.date.year
@@ -153,6 +167,14 @@ class BaseEntry(object):
     @property
     def zday(self):
         return '%02d' % self.day
+
+    def getfilters(self):
+        return self._filters
+    def setfilters(self, filters):
+        if isinstance(filters, basestring):
+            filters = [filters]
+        self._filters = FilterTree(filters)
+    filters = property(getfilters, setfilters)
 
     @property
     def tags(self):
@@ -183,7 +205,7 @@ class BaseEntry(object):
         try:
             return self.props['permalink']
         except KeyError:
-            return expand(self.props['permalink_format'].rstrip('index.html'), self)
+            return expand(self.props['%s_permalink' % self.type].rstrip('index.html'), self)
 
     @property
     def description(self):
@@ -219,7 +241,8 @@ class FileEntry(BaseEntry):
         self.filename = path
         self.mtime = os.path.getmtime(path)
         self.props = NestedProperties((k, v) for k, v in conf.iteritems()
-            if k in ['author', 'lang', 'encoding', 'date_format', 'permalink_format', 'email'])
+            if k in ['author', 'lang', 'encoding', 'email',
+                     'date_format', 'entry_permalink', 'page_permalink'])
 
         native = conf.get('metastyle', '').lower() == 'native'
 
@@ -235,18 +258,15 @@ class FileEntry(BaseEntry):
         meta['title'] = unicode(meta['title'])  # YAML can convert 42 to an int
 
         self.offset = i
+        self.type = meta.get('type', 'entry')
         self.props.update(meta)
 
         # redirect singular -> plural
-        for key, to in {'tag': 'tags', 'filter': 'filters', 'static': 'draft'}.iteritems():
+        for key, to in {'tag': 'tags', 'filter': 'filters'}.iteritems():
             if key in self.props:
                 self.props.redirect(key, to)
 
-        fx = self.props.get('filters', [])
-        if isinstance(fx, basestring):
-            fx = [fx]
-
-        self.filters = FilterTree(fx)
+        self.filters = self.props.get('filters', [])
 
     def __repr__(self):
         return "<FileEntry f'%s'>" % self.filename
@@ -271,7 +291,8 @@ class FileEntry(BaseEntry):
                    '%d.%m.%Y %H:%M', '%Y-%m-%d %H:%M:%S']
 
         if 'date' not in self.props:
-            log.warn("using mtime from %r" % self.filename)
+            if self.type == 'entry':
+                log.warn("using mtime from %r" % self.filename)
             return Date.fromtimestamp(self.mtime)
 
         string = re.sub(' +', ' ', self.props['date'])

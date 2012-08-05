@@ -4,20 +4,21 @@ Knowledge base
 About Page and Other Static Pages
 *********************************
 
-If you want set up an about page like in WordPress just add permalink
-and ``static=True`` to your YAML::
+If you want set up an about page like in WordPress just change the type
+to ``page``:
 
     ---
-    title: About Me
-    static: True
-    permalink: /about/
+    title: About
+    type: page
     ---
 
-A YAML-header like this will hide the entry from the tag/page/article
-views. Save static pages for example to ``content/about.txt`` instead
-of ``content/2011/`` (though this is *not* required).
-This will render the entry (processed by entry view and filters) to
-location */about/*.
+and add this to your configuration:
+
+.. code-block:: python
+
+    '/:slug/': {'view': 'page'},
+
+You can still customize the permalink with the ``permalink: /path/``.
 
 Per-Tag Feed
 ************

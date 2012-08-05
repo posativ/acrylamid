@@ -25,8 +25,8 @@ class Entry(View):
         }
 
     The entry view renders an post to a unique location and should be used as
-    permalink URL. The url is user configurable using the ``PERMALINK_FORMAT``
-    variable and defaults to */:year/:slug/(index.html)*.
+    permalink URL. The url is user configurable, but may be overwritten by
+    setting ``ENTRY_PERMALINK`` explicitly to a URL in your configuration.
 
     This view takes no other arguments and uses *main.html* and *entry.html* as
     template."""
