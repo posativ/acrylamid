@@ -232,16 +232,15 @@ class FileEntry(BaseEntry):
             else:
                 i, meta = yamlstyle(fp)
 
-        # remap singular -> plural
-        for key, to in {'tag': 'tags', 'filter': 'filters', 'static': 'draft'}.iteritems():
-            if key in meta:
-                meta[to] = meta[key]
-                del meta[key]
-
         meta['title'] = unicode(meta['title'])  # YAML can convert 42 to an int
 
         self.offset = i
         self.props.update(meta)
+
+        # redirect singular -> plural
+        for key, to in {'tag': 'tags', 'filter': 'filters', 'static': 'draft'}.iteritems():
+            if key in self.props:
+                self.props.redirect(key, to)
 
         fx = self.props.get('filters', [])
         if isinstance(fx, basestring):

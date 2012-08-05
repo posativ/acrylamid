@@ -29,3 +29,15 @@ class TestNestedProperties(unittest.TestCase):
         assert dct.hello.world == 1
 
         assert dct.hello.foreigner == 2
+
+    def test_redirects(self):
+
+        dct = NestedProperties()
+        alist = [1, 2, 3]
+
+        dct['foo'] = alist
+        dct.redirect('foo', 'baz')
+
+        assert 'foo' in dct
+        assert 'baz' in dct
+        assert dct['baz'] == alist

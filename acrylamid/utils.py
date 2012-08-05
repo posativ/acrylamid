@@ -136,6 +136,11 @@ def batch(iterable, count):
 
 class NestedProperties(dict):
 
+    def __init__(self, *args, **kwargs):
+
+        self.redirects = dict()
+        dict.__init__(self, *args, **kwargs)
+
     def __setitem__(self, key, value):
         try:
             key, other = key.split('.', 1)
@@ -144,7 +149,16 @@ class NestedProperties(dict):
             dict.__setitem__(self, key, value)
 
     def __getattr__(self, attr):
-        return self[attr]
+        try:
+            return self[attr]
+        except KeyError:
+            return self[self.redirects[attr]]
+
+    def __contains__(self, key):
+
+        if key in self.redirects:
+            key = self.redirects[key]
+        return dict.__contains__(self, key)
 
     def update(self, dikt, **kw):
         if hasattr(dikt, 'keys'):
@@ -152,6 +166,12 @@ class NestedProperties(dict):
                 self[k] = dikt[k]
         for k in kw:
             self[k] = kw[k]
+
+    def redirect(self, old, new):
+
+        self[new] = self[old]
+        del self[old]
+        self.redirects[old] = new
 
 
 def import_object(name):
