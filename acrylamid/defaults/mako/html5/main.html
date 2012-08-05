@@ -21,12 +21,12 @@
     % for entry in env.entrylist:
         ${block_entry(entry)}
     % endfor
-    % if env.prev is not UNDEFINED and env.prev is not None:
+    % if env.prev is not None:
         <a href="${ env.path + env.prev + '/' }" class="page floatright">
         ${ env.prev.title }
         </a>
     % endif
-    % if env.next is not UNDEFINED and env.next is not None:
+    % if env.next is not None:
         <a href="${ env.path + env.next + '/' }" class="page floatleft">
         ${ env.next.title }
         </a>

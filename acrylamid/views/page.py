@@ -66,6 +66,7 @@ class Page(View):
                 continue
 
             html = tt.render(conf=self.conf, page=page, entry=page,
-                             env=union(self.env, type='page'))
+                             env=union(self.env, type='page', entrylist=[page],
+                                prev=None, next=None, ))  # backward compatibility
 
             yield html, path

@@ -20,12 +20,12 @@
     {% for entry in env.entrylist %}
         {% include 'entry.html' %}
     {% endfor %}
-    {% if env.prev is defined and env.prev is not none %}
+    {% if env.prev is not none %}
         <a href="{{ env.path ~ env.prev ~ '/' }}" class="page floatright">
         {{ env.prev.title }}
         </a>
     {% endif %}
-    {% if env.next is defined and env.next is not none %}
+    {% if env.next is not none %}
         <a href="{{ env.path ~ env.next ~ '/' }}" class="page floatleft">
         {{ env.next.title }}
         </a>
