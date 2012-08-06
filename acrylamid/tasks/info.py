@@ -64,7 +64,7 @@ def run(conf, env, options):
     """Subcommand: info -- a short overview of a blog."""
 
     limit = options.max if options.max > 0 else 5
-    entrylist = readers.load(conf)
+    entrylist, pages = readers.load(conf)
 
     print
     print 'acrylamid', blue(env['version']) + ',',

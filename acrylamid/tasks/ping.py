@@ -18,7 +18,7 @@ from acrylamid.tasks import task, argument
 from acrylamid.errors import AcrylamidException
 from acrylamid.colors import blue, green, bold
 
-from acrylamid import readers, helpers, log
+from acrylamid import readers, commands, helpers, log
 from acrylamid.tasks.info import option
 from acrylamid.lib.requests import head, URLError, HTTPError
 from acrylamid.lib.async import Threadpool
@@ -105,7 +105,8 @@ def tweet(entry, conf, dryrun=False):
 def run(conf, env, options):
     """Subcommand: ping -- notify external ressources via Pingback etc."""
 
-    entrylist = [entry for entry in readers.load(conf) if not entry.draft]
+    commands.initialize(conf, env)
+    entrylist = [entry for entry in readers.load(conf)[0] if not entry.draft]
 
     if options.file:
         try:
