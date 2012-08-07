@@ -313,7 +313,7 @@ def new(conf, env, title, prompt=True):
         raise AcrylamidException('File is empty!')
 
 
-def imprt(conf, env, url, **options):
+def imprt(conf, env, options):
     """Subcommand: import -- import entries and settings from an existing RSS/Atom
     feed or WordPress dump.  ``acrylamid import http://example.com/feed/`` or any
     local FILE is fine.
@@ -326,9 +326,12 @@ def imprt(conf, env, url, **options):
     If you don't like any reconversion, simply use ``-m html``. This command supports
     the force flag to override already existing files. Use with care!"""
 
-    content = importer.fetch(url, auth=options.get('auth', None))
+    # we need the actual defaults values for permalink format
+    initialize(conf, env)
+
+    content = importer.fetch(options.src, auth=options.__dict__.get('auth', None))
     defaults, items = importer.parse(content)
-    importer.build(conf, env, defaults, items, **options)
+    importer.build(conf, env, defaults, items, options)
 
 
 __all__ = ["compile", "autocompile", "new", "imprt"]

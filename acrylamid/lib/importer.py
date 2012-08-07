@@ -268,7 +268,7 @@ def parse(content):
         raise AcrylamidException('unable to parse source')
 
 
-def build(conf, env, defaults, items, fmt, keep=False, force=False, pandoc=False, **kw):
+def build(conf, env, defaults, items, options):
 
     def create(defaults, title, date, author, content, fmt, permalink=None, tags=None):
 
@@ -288,6 +288,8 @@ def build(conf, env, defaults, items, fmt, keep=False, force=False, pandoc=False
                 f.write(u'tags: [%s]\n' % ', '.join(tags))
             if permalink:
                 f.write(u'permalink: %s\n' % permalink)
+            for arg in options.args:
+                f.write(arg.strip() + u'\n')
             f.write(u'---\n\n')
 
             # this are fixes for WordPress because they don't save HTML but a
@@ -308,20 +310,20 @@ def build(conf, env, defaults, items, fmt, keep=False, force=False, pandoc=False
             pass
 
         filepath = p + '.txt'
-        if isfile(filepath) and not force:
+        if isfile(filepath) and not options.force:
             raise AcrylamidException('Entry already exists %r' % filepath)
         shutil.move(tmp, filepath)
         event.create(filepath)
 
     for item in items:
 
-        if keep:
+        if options.keep:
             m = urlsplit(item['link'])
             permalink = m.path if m.path != '/' else None
 
-        content, fmt = convert(item.get('content', ''), fmt, pandoc)
+        content, fmt = convert(item.get('content', ''), options.fmt, options.pandoc)
         create(defaults, item['title'], item['date'], item.get('author'), content, fmt,
-               tags=item.get('tags', None), permalink=permalink if keep else None)
+               tags=item.get('tags', None), permalink=permalink if options.keep else None)
 
     print "\nImport was successful. Edit your conf.py with these new settings:"
     for key, value in defaults.iteritems():

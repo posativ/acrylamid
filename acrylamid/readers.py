@@ -5,6 +5,8 @@
 #
 # This module currently contains the FileEntry, Entry and abstract BaseEntry class
 
+from __future__ import unicode_literals
+
 import os
 import io
 import re
@@ -506,7 +508,7 @@ def yamlstyle(fileobj):
             try:
                 key, value = [x.strip() for x in line.split(':', 1)]
             except ValueError:
-                raise ValueError('%s:%i ValueError: %s\n%s' %
+                raise AcrylamidException('%s:%i ValueError: %s\n%s' %
                     (fileobj.name, j, line.strip('\n'),
                     ("Either your YAML is malformed or our naïve parser is to dumb \n"
                      "to read it. Revalidate your YAML or install PyYAML parser with \n"

@@ -139,7 +139,9 @@ def Acryl():
     importer.add_argument("-k", "--keep-links", dest="keep", action="store_true",
         help="keep permanent links", default=False)
     importer.add_argument("-p", "--pandoc", dest="pandoc", action="store_true",
-        help="use pandoc first", default=False),
+        help="use pandoc first", default=False)
+    importer.add_argument("-a", dest="args", nargs="+", action="store", type=str,
+        help="add argument to header section", default=[])
 
     for alias in ('co', 'gen', 'generate'):
         subparsers._name_parser_map[alias] = generate
@@ -241,7 +243,7 @@ def Acryl():
 
     elif options.parser in ('import', ):
         try:
-            commands.imprt(conf, env, options.src, **options.__dict__)
+            commands.imprt(conf, env, options)
         except AcrylamidException as e:
             log.critical(e.args[0])
             sys.exit(1)
