@@ -81,6 +81,20 @@ class Environment(AbstractEnvironment):
         self.jinja2 = J2Environemnt(loader=ExtendedFileSystemLoader(layoutdir),
                                     bytecode_cache=FileSystemBytecodeCache(cachedir))
 
+        # jinja2 is stupid and can't import any module during runtime
+        import time, datetime, urllib
+
+        for module in (time, datetime, urllib):
+            self.jinja2.globals[module.__name__] = module
+
+        for module in (time, datetime, urllib):
+            for name in dir(module):
+                if name.startswith('_'):
+                    continue
+
+                if callable(getattr(module, name)):
+                    self.jinja2.filters[module.__name__ + '.' + name] = getattr(module, name)
+
     def register(self, name, func):
         self.jinja2.filters[name] = func
 
