@@ -78,7 +78,10 @@ class Summarize(unittest.TestCase):
                     ('Hello<br />', 'Hello<br />'),
                     ('<p>Hello World, you have<br /> to <br /> click<br /> this<br /> link...</p>',
                      '<p>Hello World, you have<br /> to <span>&#8230;<a href="/foo/" '+ \
-                     'class="continue">continue</a>.</span></p>')]
+                     'class="continue">continue</a>.</span></p>'),
+                    ('Hello World, you have to click this link because',
+                     'Hello World, you have to <span>&#8230;<a href="/foo/" '+ \
+                     'class="continue">continue</a>.</span>')]
 
         for text, result in examples:
             assert summarize.transform(text, Entry(), '5') == result

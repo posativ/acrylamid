@@ -38,6 +38,12 @@ class Summarizer(HTMLParser):
                 self.result.append(' '.join(words[:self.maxwords - self.words]) + ' ')
             self.words += ws
 
+        if self.words >= self.maxwords and not self.stack:
+            # weird markup, mostly from WordPress. Just append link and break
+            if self.mode > -1:
+                self.result.append(self.link % self.href)
+                self.mode = -1
+
     def handle_endtag(self, tag):
         # If we are behind the word limit, append out link in various modes, else append tag
         if self.words < self.maxwords:
@@ -80,7 +86,7 @@ class Summarize(Filter):
     """Summarizes content up to `maxwords` (defaults to 100)."""
 
     match = ['summarize', 'sum']
-    version = '1.0.0'
+    version = '1.0.1'
 
     def init(self, conf, env):
 
