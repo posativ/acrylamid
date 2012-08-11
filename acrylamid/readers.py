@@ -207,7 +207,7 @@ class BaseEntry(object):
         try:
             return self.props['permalink']
         except KeyError:
-            return expand(rchop(self.props['%s_permalink' % self.type], 'index.html')), self)
+            return expand(rchop(self.props['%s_permalink' % self.type], 'index.html'), self)
 
     @property
     def description(self):
