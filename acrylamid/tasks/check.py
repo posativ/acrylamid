@@ -34,7 +34,7 @@ def w3c(paths, conf, warn=False, sleep=0.2):
         resp = head("http://validator.w3.org/check?uri=" + \
             helpers.joinurl(conf['www_root'], quote(url)))
 
-        print url.rstrip('index.html'),
+        print helpers.rchop(url, 'index.html'),
 
         if resp.code != 200:
             print red('not 200 Ok!')

@@ -25,7 +25,7 @@ from acrylamid.errors import AcrylamidException
 from acrylamid.utils import cached_property, NestedProperties, istext
 from acrylamid.core import cache
 from acrylamid.filters import FilterTree
-from acrylamid.helpers import safeslug, expand, md5
+from acrylamid.helpers import safeslug, expand, md5, rchop
 
 try:
     import yaml
@@ -207,7 +207,7 @@ class BaseEntry(object):
         try:
             return self.props['permalink']
         except KeyError:
-            return expand(self.props['%s_permalink' % self.type].rstrip('index.html'), self)
+            return expand(rchop(self.props['%s_permalink' % self.type], 'index.html')), self)
 
     @property
     def description(self):
