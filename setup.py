@@ -9,7 +9,7 @@ from setuptools import setup, find_packages
 version = re.search("__version__ = '([^']+)'",
                     open('acrylamid/__init__.py').read()).group(1)
 
-requires = ['Jinja2>=2.4', 'Markdown>=2.0.1']
+requires = ['Jinja2>=2.4', 'Markdown>=2.0.1', 'Mako']
 kw = {}
 
 if sys.version_info[0] >= 3:
