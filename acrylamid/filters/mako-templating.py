@@ -8,8 +8,12 @@ from acrylamid.filters import Filter
 from acrylamid.helpers import system as defaultsystem
 from acrylamid.errors import AcrylamidException
 
-from mako.template import Template
-from mako.exceptions import MakoException
+try:
+    from mako.template import Template
+    from mako.exceptions import MakoException
+except ImportError:
+    Template = None  # NOQA
+    MakoException = None  # NOQA
 
 
 class Mako(Filter):
@@ -22,6 +26,9 @@ class Mako(Filter):
     priority = 90.0
 
     def init(self, conf, env, *args):
+
+        if not Mako or not MakoException:
+            raise ImportError('reStructuredText: No module named docutils')
 
         def system(cmd):
             try:
