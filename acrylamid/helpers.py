@@ -32,7 +32,7 @@ except ImportError:
     unidecode = None  # NOQA
 
 __all__ = ['memoize', 'union', 'mkfile', 'md5', 'expand', 'joinurl',
-           'safeslug', 'paginate', 'escape', 'system', 'event']
+           'safeslug', 'paginate', 'escape', 'system', 'event', 'rchop']
 
 _slug_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
 
@@ -372,3 +372,14 @@ class event:
     def remove(self, path):
         """:param path: path"""
         log.info("remove  %s", path)
+
+
+def rchop(original_string, substring):
+    """Return the given string after chopping of a substring from the end.
+
+    :param original_string: the original string
+    :param substring: the substring to chop from the end
+    """
+    if original_string.endswith(substring):
+        return original_string[:-len(substring)]
+    return original_string

@@ -10,7 +10,7 @@ from time import strftime, gmtime
 from os.path import join, getmtime, exists
 
 from acrylamid.views import View
-from acrylamid.helpers import event, joinurl
+from acrylamid.helpers import event, joinurl, rchop
 
 
 class Map(object):
@@ -100,9 +100,10 @@ class Sitemap(View):
 
             url = join(self.conf['www_root'], fname.replace(self.conf['output_dir'], ''))
 
+            clean_url = rchop(url, 'index.html')
             if self.isfullentry(url):
-                sm.add(url.rstrip('index.html'), getmtime(fname), priority=1.0)
+                sm.add(clean_url, getmtime(fname), priority=1.0)
             else:
-                sm.add(url.rstrip('index.html'), getmtime(fname), changefreq='weekly')
+                sm.add(clean_url, getmtime(fname), changefreq='weekly')
 
         yield sm.read(), path
