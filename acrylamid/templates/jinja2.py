@@ -87,11 +87,9 @@ class Environment(AbstractEnvironment):
         for module in (time, datetime, urllib):
             self.jinja2.globals[module.__name__] = module
 
-        for module in (time, datetime, urllib):
             for name in dir(module):
                 if name.startswith('_'):
                     continue
-
                 if callable(getattr(module, name)):
                     self.jinja2.filters[module.__name__ + '.' + name] = getattr(module, name)
 

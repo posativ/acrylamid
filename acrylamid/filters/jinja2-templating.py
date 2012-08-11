@@ -32,9 +32,22 @@ class Jinja2(Filter):
         self.conf = conf
         self.env = env
 
+        # jinja2 is stupid and can't import any module
+        import time, datetime, urllib
+
         self.jinja2_env = Environment(cache_size=0)
         self.jinja2_env.filters['system'] = system
         self.jinja2_env.filters['split'] = unicode.split
+        self.jinja2_env.filters.update({
+            'time': time, 'datetime': datetime, 'urllib': urllib,
+            })
+
+        for module in (time, datetime, urllib):
+            for name in dir(module):
+                if name.startswith('_'):
+                    continue
+
+                self.jinja2_env.filters[module.__name__ + '.' + name] = getattr(module, name)
 
     def transform(self, content, entry):
 
