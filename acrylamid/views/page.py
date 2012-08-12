@@ -5,10 +5,11 @@
 #
 # XXX much copy'n'paste from entry.py, make it less repeat yourself
 
+import os
 from os.path import isfile
 
 from acrylamid.views import View
-from acrylamid.helpers import expand, union, joinurl, event, link, memoize, md5
+from acrylamid.helpers import expand, union, joinurl, event
 from acrylamid.errors import AcrylamidException
 
 

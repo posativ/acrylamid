@@ -93,7 +93,7 @@ class Sitemap(View):
         for v in 'entry', 'tag', 'index':
             try:
                 self.views.append(views.pop(views.index(v)))
-            except IndexError:
+            except ValueError:
                 pass
         self.views.extend(views)
 
