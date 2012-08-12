@@ -135,6 +135,9 @@ def compile(conf, env, force=False, **options):
     env.globals['entrylist'] = entrylist
     env.globals['pages'] = pages
 
+    # XXX translations should be moved out of core
+    env.globals['translations'] = translations = []
+
     if force:
         # acrylamid compile -f
         cache.clear()
@@ -191,8 +194,8 @@ def compile(conf, env, force=False, **options):
     # lets offer a last break to populate tags or so
     # XXX this API component needs a review
     for v in _views:
-        env = v.context(env, {'entrylist': filter(v.condition, entrylist),
-                              'pages': pages})
+        env = v.context(env, {'entrylist': entrylist, 'pages': pages,
+                              'translations': translations})
 
     # now teh real thing!
     for v in _views:
@@ -200,11 +203,11 @@ def compile(conf, env, force=False, **options):
         # XXX the entry should automatically determine its caller (using
         # some sys magic to recursively check wether the calling class is
         # derieved from `View`.)
-        for entry in entrylist + pages:
+        for entry in entrylist + pages + translations:
             entry.context = v.__class__.__name__
 
+        request['pages'], request['translations'] = pages, translations
         request['entrylist'] = filter(v.condition, entrylist)
-        request['pages'] = pages
         tt = time.time()
 
         for html, path in v.generate(request):

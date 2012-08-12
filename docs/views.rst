@@ -37,12 +37,13 @@ Built-in Views
 
 .. autoclass:: acrylamid.views.index.Index()
 
-.. autoclass:: acrylamid.views.page.Page()
+.. autoclass:: acrylamid.views.entry.Page()
 
 .. autoclass:: acrylamid.views.tag.Tag()
 
-.. autoclass:: acrylamid.views.sitemap.Sitemap()
+.. autoclass:: acrylamid.views.entry.Translation()
 
+.. autoclass:: acrylamid.views.sitemap.Sitemap()
 
 .. note:: TODO: Feeds!
 
