@@ -217,6 +217,10 @@ class BaseEntry(object):
         except KeyError:
             return self.source[:50].strip() + u'...'
 
+    def hasproperty(self, prop):
+        """Test whether BaseEntry has prop in `self.props`."""
+        return prop in self.props
+
     def __iter__(self):
         for key in self.props:
             yield key

@@ -49,7 +49,7 @@ class Entry(View):
             has_changed = True
 
         for i, entry in enumerate(entrylist):
-            if entry.permalink != expand(self.path, entry):
+            if entry.hasproperty('permalink'):
                 path = joinurl(self.conf['output_dir'], entry.permalink)
             else:
                 path = joinurl(self.conf['output_dir'], expand(self.path, entry))
