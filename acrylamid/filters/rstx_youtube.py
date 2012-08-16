@@ -36,6 +36,7 @@ class YouTube(Directive):
         'align': align,
         'start': int,
         'ssl': directives.flag,
+        'privacy': directives.flag
     }
     has_content = False
 
@@ -48,14 +49,16 @@ class YouTube(Directive):
         }
 
         uri = ('https://' if 'ssl' in self.options else 'http://') \
-              + 'www.youtube-nocookie.com/embed/' + self.arguments[0]
+              + ('www.youtube-nocookie.com' if 'privacy' in
+                  self.options else 'www.youtube.com') \
+              + '/embed/' + self.arguments[0]
         self.options['uri'] = uri
         self.options['align'] = alignments[self.options.get('align', 'center')]
         self.options.setdefault('width', '680px')
         self.options.setdefault('height', '382px')
         self.options.setdefault('border', 0)
         self.options.setdefault('start', 0)
-
+    
         YT_EMBED = """<iframe width="%(width)s" height="%(height)s" src="%(uri)s" \
                       frameborder="%(border)s" style="display: block; margin: %(align)s;" \
                       start="%(start)i" class="video" allowfullscreen></iframe>"""
