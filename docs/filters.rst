@@ -168,6 +168,7 @@ directives, acrylamid offers three additional one:
          :align: center
          :height: 1280
          :width: 720
+         :privacy:
          :ssl:
 
 ============  ==================================================

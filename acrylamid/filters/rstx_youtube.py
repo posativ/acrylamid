@@ -24,6 +24,7 @@ class YouTube(Directive):
            :align: center
            :height: 1280
            :width: 720
+           :privacy:
            :ssl:
     """
 
@@ -58,7 +59,7 @@ class YouTube(Directive):
         self.options.setdefault('height', '382px')
         self.options.setdefault('border', 0)
         self.options.setdefault('start', 0)
-    
+
         YT_EMBED = """<iframe width="%(width)s" height="%(height)s" src="%(uri)s" \
                       frameborder="%(border)s" style="display: block; margin: %(align)s;" \
                       start="%(start)i" class="video" allowfullscreen></iframe>"""
