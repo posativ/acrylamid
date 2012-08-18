@@ -122,14 +122,14 @@ def run(conf, env, options):
         for entry in entrylist if options.all else entrylist[:options.max or 1]:
             tweet(entry, conf, options.dryrun)
 
-        sys.exit(0)
+        return
 
     # XXX we should search for actual hrefs not random grepping, but this
     # requires access to the cache at non-runtime which is unfortunately
     # not possible yet.
 
     patterns = [
-        re.compile(r'(?<=\n)\[.*?\]:\s?([a-z0-9].+)'),  # markdown
+        re.compile(r'(?<=\n)\[.*?\]:\s?(https?://.+)$'),  # markdown
         re.compile(r'(?<=\n)\.\.\s+[^:]+:\s+(https?://.+)$'),  # docutils
     ]
 
