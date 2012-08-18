@@ -220,7 +220,7 @@ The default theme does not support tag clouds, but it is fairly easy to add:
 .. code-block:: html+jinja
 
     <ul>
-    {% for tag in tag_cloud %}
+    {% for tag in env.tag_cloud %}
         <li class="tag-{{ tag.step }}"><a href="/tag/{{ tag.name | safeslug }}/">{{ tag.name }}</a></li>
     {% endfor %}
     </ul>

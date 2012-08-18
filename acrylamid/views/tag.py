@@ -71,9 +71,18 @@ class Tag(View):
             return [Link(t, href(t)) for t in tags]
 
         tags = defaultdict(list)
+        tmap = defaultdict(int)
+
         for e in request['entrylist']:
             for tag in e.tags:
                 tags[tag.lower()].append(e)
+                tmap[tag] += 1
+
+        # map tags to the most counted tag name
+        for name in tags.keys()[:]:
+            key = max([(tmap[key], key) for key in tmap if key.lower() == name])[1]
+            rv = tags.pop(key.lower())
+            tags[key] = rv
 
         env.engine.register('tagify', tagify)
         env.tag_cloud = Tagcloud(tags, self.conf['tag_cloud_steps'],
