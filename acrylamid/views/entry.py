@@ -119,7 +119,7 @@ class Entry(Base):
             entrylist[i+1].permalink.rstrip('/'), entrylist[i+1])
 
 
-class Page(View):
+class Page(Base):
     """Creates a static page
 
     To enable Entry view, add this to your :doc:`conf.py`:
@@ -140,7 +140,7 @@ class Page(View):
 
     @property
     def type(self):
-        return 'page'
+        return 'pages'
 
 
 class Translation(Base):
