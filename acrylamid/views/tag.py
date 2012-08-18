@@ -26,8 +26,8 @@ class Tagcloud:
 
     def __init__(self, tags, steps=4, max_items=100, start=0, shuffle=False):
 
-        lst = sorted([(k, len(v)) for k, v in tags.iteritems()], key=lambda k: k[1],
-                  reverse=True)[:max_items]
+        lst = sorted([(k, len(v)) for k, v in tags.iteritems()],
+            key=lambda x: x[0])[:max_items]
         # stolen from pelican/generators.py:286
         max_count = max(lst, key=lambda k: k[1])[1] if lst else None
         self.lst = [(tag,
