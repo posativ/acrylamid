@@ -181,7 +181,7 @@ class Filter(object):
     This is a minimal filter implementation that does nothing but returning
     the content that you can apply with ``filter: keyword``. A Filter may
     provide an :func:`init` that gets called once before we apply
-    :method:`transform` to the content.
+    :func:`transform` to the content.
 
     .. attribute:: version
 
@@ -210,11 +210,11 @@ class Filter(object):
     .. method:: init(self, conf, env)
 
        At demand initialization. A filter gets only initialized when he's
-       actually used. This part is executed only once before :method:`transform`
+       actually used. This part is executed only once before :func:`transform`
        and should be used to import plugins or set some constants. Note that you
        may also check explicitly for ImportErrors from a statement like ``import
        foo`` that will not throw an :class:`ImportError` because we delay the
-       actual import. Just make write ``foo.bar`` in :method:`init` and when it
+       actual import. Just make write ``foo.bar`` in :func:`init` and when it
        throws an ImportError, it is automatically handled.
 
        Have a look at ``acrylamid/filters/md.py`` or ``acrylamid/filters/typography.py``
@@ -227,7 +227,7 @@ class Filter(object):
 
        Modify the content and return it. Each continuous transformation is
        automatically saved to disk (= caching). Don't import modules here,
-       use module space or :method:`init` for that.
+       use module space or :func:`init` for that.
 
        :param content: a text you can modify
        :param entry: current :class:`readers.Entry`

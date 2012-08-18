@@ -26,7 +26,7 @@ def index_views(module, urlmap, conf, env):
     """Stupid an naïve try getting attribute specified in `views` in
     various flavours and fail silent.
 
-    We remove already mapped urls and pop views'name from kwargs to
+    We remove already mapped urls and pop views' name from kwargs to
     avoid the practical worst-case O(m*n), m=num rules, n=num modules.
 
     Views are stored into module-global variable `callbacks` and can be
