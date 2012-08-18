@@ -111,11 +111,11 @@ class Entry(Base):
         return False
 
     def next(self, entrylist, i):
-        return None if i == 0 else link(entrylist[i-1].title,
+        return None if i == 0 else link(u"« " + entrylist[i-1].title,
             entrylist[i-1].permalink.rstrip('/'), entrylist[i-1])
 
     def prev(self, entrylist, i):
-        return None if i == len(entrylist) - 1 else link(entrylist[i+1].title,
+        return None if i == len(entrylist) - 1 else link(entrylist[i+1].title + u" »",
             entrylist[i+1].permalink.rstrip('/'), entrylist[i+1])
 
 
