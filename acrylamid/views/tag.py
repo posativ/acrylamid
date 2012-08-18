@@ -121,7 +121,7 @@ class Tag(View):
                     continue
 
                 html = tt.render(conf=self.conf, env=union(self.env, entrylist=entries,
-                                type='tag', prev=prev, curr=curr, next=next,
+                                type='tag', prev=prev, curr=curr, next=next, tag=tag,
                                 items_per_page=ipp, num_entries=len(entrylist)))
 
                 yield html, path
