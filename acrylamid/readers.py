@@ -196,7 +196,10 @@ class BaseEntry(object):
     @property
     def slug(self):
         """ascii safe entry title"""
-        return safeslug(self.title)
+        slug = self.props.get('slug', None)
+        if not slug:
+            slug = safeslug(self.title)
+        return slug
 
     @cached_property
     def permalink(self):
