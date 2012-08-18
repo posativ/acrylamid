@@ -24,6 +24,8 @@ You can't retrieve the return values, just wait until they finish."""
 from Queue import Queue
 from threading import Thread
 
+from acrylamid import log
+
 
 class Worker(Thread):
     """Thread executing tasks from a given tasks queue"""
@@ -39,8 +41,8 @@ class Worker(Thread):
             func, args, kargs = self.tasks.get()
             try:
                 func(*args, **kargs)
-            except Exception, e:
-                print e.__class__.__name__, e
+            except Exception as e:
+                log.warn('%s: %s' % (e.__class__.__name__, unicode(e)))
             self.tasks.task_done()
 
 
