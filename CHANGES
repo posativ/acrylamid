@@ -1,5 +1,31 @@
 # Acrylamid Changelog
 
+Version 0.4
+-----------
+
+### 0.4.0
+
+.. Released on August, 31th 2012 [TBD]
+
+- add Mako as second templating engine of choice, #39
+- new subcommand `acrylamid ping` for PingBack and Twitter announces
+- add superscript, subscript and delins extensions to md
+- add compatibility for russion and asian characters to ASCII
+  via unidecode
+- opt-in for native markdown and reStructuredText metadata style
+- add new kind of entry -- page -- that should be used for static sites
+- add support for translations, #22
+- add new Mako filter
+- add ability to add custom lines to entry header on import
+- rename `ENTRIES_IGNORE` to `CONTENT_IGNORE`, a list of gitlike patterns
+- new `SUMMARIZE_LINK` for continue reading link instead of the old three
+  `SUMMARIZE_*` variables to allow more customization, #45
+- fix CSS in the metalogo filter to not affect the line height
+- fix an issue where /tmp is on another partition (often on Linux)
+- fix `acrylamid autocompile` to detect layout and conf.py changes, #48
+- fix sitemap view to not include drafted items
+- tons of other fixes (thanks to @markvl and @moschlar)
+
 Version 0.3
 -----------
 
@@ -18,7 +44,7 @@ Version 0.3
 - verified python 3 support (via p3test.sh)
 - templates are now configurable per view, #24
 - use argparse instead of optparse
-- few bugfixes to core that induces new compilation :/
+- few bugfixes to core (that induces new compilation :-/)
 
 ### 0.3.4
 
@@ -32,7 +58,7 @@ Version 0.3
 ### 0.3.3
 
 - new sitemap generator
-- add experimental bash_completion (source from GitHub repository)
+- add experimental bash_completion (source it from GitHub repository)
 - `acrylamid deploy` now shows available tasks when no argument is given
 - add SSL and start options for reST's YouTube directive
 - new test framework `cram`
@@ -42,7 +68,7 @@ Version 0.3
   http://posativ.org/acrylamid/ (yes, that's the Werkzeug theme).
 - lazy imports to ease writing custom filters
 - less I/O on cache objects (= speed improvements)
-- fix for invalid cache objects
+- fix invalid cache objects
 - fix unescaped attributes
 - more robust error handling for filters
 
@@ -94,8 +120,6 @@ Released on April, 1th 2012 [Aprilscherz]
 - sub-uri support
 - some unit tests
 - speed improvements
-
-.. 176 commits, 66 files changed, 5384 insertions(+), 1870 deletions(-)
 
 Version 0.2
 -----------
