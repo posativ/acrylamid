@@ -14,11 +14,23 @@ from urllib import quote
 from xml.sax.saxutils import unescape
 
 from acrylamid import readers, helpers
-from acrylamid.tasks import register, argument
+from acrylamid.tasks import task, argument
 from acrylamid.colors import green, yellow, red, blue, white
 
 from acrylamid.lib.async import Threadpool
 from acrylamid.lib.requests import get, head, HTTPError, URLError
+
+arguments = [
+    argument("action", nargs="?", choices=["W3C", "links"], default="W3C",
+        help="check action (default: W3C compatibility)"),
+    argument("-r", "--random", dest="random", action="store_true", default=False,
+        help="random order"),
+    argument("-s", type=float, default=0.2, dest="sleep",
+        help="seconds between requests (default 0.2)"),
+    argument("-w", action="store_true", default=False, dest="warn",
+        help="show W3C warnings"),
+    argument("-j", "--jobs", dest="jobs", type=int, default=10, help="N parallel requests"),
+]
 
 
 def w3c(paths, conf, warn=False, sleep=0.2):
@@ -116,6 +128,7 @@ def validate(paths, jobs):
         sys.exit(1)
 
 
+@task('check', arguments, "run W3C or validate links")
 def run(conf, env, options):
     """Subcommand: check -- run W3C over generated output and check destination
     of linked items"""
@@ -125,22 +138,7 @@ def run(conf, env, options):
     if options.random:
         random.shuffle(paths)
 
-    if options.links:
-        validate(paths, options.jobs)
-    else:
+    if options.action == 'W3C':
         w3c(paths, conf, warn=options.warn, sleep=options.sleep)
-
-
-arguments = [
-    argument("-r", "--random", dest="random", action="store_true", default=False,
-        help="random order"),
-    argument("-s", type=float, default=0.2, dest="sleep",
-        help="seconds between requests (default 0.2)"),
-    argument("-w", action="store_true", default=False, dest="warn",
-        help="show W3C warnings"),
-    argument("-l", "--links", action="store_true", default=False, dest="links",
-        help="validate links"),
-    argument("-j", "--jobs", dest="jobs", type=int, default=10, help="N parallel requests"),
-]
-
-register(['check'], arguments, "run W3C or validate links", func=run)
+    else:
+        validate(paths, options.jobs)
