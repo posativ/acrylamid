@@ -11,6 +11,7 @@ import random
 import collections
 
 from urllib import quote
+from xml.sax.saxutils import unescape
 
 from acrylamid import readers, helpers
 from acrylamid.tasks import register, argument
@@ -107,7 +108,7 @@ def validate(paths, jobs):
     pool = Threadpool(jobs)
     for path in urls:
         for url in urls[path]:
-            pool.add_task(check, *[url, path])
+            pool.add_task(check, *[unescape(url), path])
 
     try:
         pool.wait_completion()
