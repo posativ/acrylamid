@@ -18,7 +18,7 @@ class Feed(View):
 
         entrylist = filter(lambda e: not e.draft, request['entrylist'])
         entrylist = list(entrylist)[0:self.num_entries]
-        tt = self.env.engine.fromfile('%s.xml' % self.__class__.__name__.lower())
+        tt = self.env.engine.fromfile('%s.xml' % self.type)
 
         path = joinurl(self.conf['output_dir'], self.path)
         if not path.endswith(('.xml', '.html')):
@@ -40,6 +40,7 @@ class Atom(Feed):
 
     def init(self, num_entries=25):
         self.num_entries = num_entries
+        self.type = 'atom'
 
 
 class RSS(Feed):
@@ -51,3 +52,4 @@ class RSS(Feed):
 
         self.num_entries = num_entries
         self.env.engine.register('rfc822', lambda x: format_date_time(mktime(x.timetuple())))
+        self.type = 'rss'
