@@ -194,6 +194,9 @@ VIEWS = {
     '/atom/': {'filters': ['h2', 'nohyphenate'], 'view': 'atom'},
     '/rss/': {'filters': ['h2', 'nohyphenate'], 'view': 'rss'},
 
+    '/tag/:name/atom/': {'filters': ['h2', 'nohyphenate'], 'view': 'AtomPerTag'},
+    '/tag/:name/rss/': {'filters': ['h2', 'nohyphenate'], 'view': 'RssPerTag'},
+
     '/articles/': {'view': 'articles'},
 
     '/sitemap.xml': {'view': 'sitemap'},
