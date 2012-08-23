@@ -17,7 +17,7 @@
         % endif
         <language>${ conf.lang }</language>
         <pubDate>${ env.updated | n, rfc822 }</pubDate>
-        <docs>${ conf.www_root + env.views['rss'].path }</docs>
+        <docs>${ conf.www_root + env.path }</docs>
         <generator>acrylamid ${ env.version }</generator>
         % if 'atom' in env.views:
             <atom:link href="${ conf.www_root + env.views['atom'].path }" rel="self" type="application/rss+xml" />
