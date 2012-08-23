@@ -28,8 +28,8 @@ python script and therefore must be valid python code!):
         '/atom/': {'filters': ['h2', 'nohyphenate'], 'view': 'atom'},
         '/rss/': {'filters': ['h2', 'nohyphenate'], 'view': 'rss'},
 
-        '/tag/:name/atom/': {'filters': ['h2', 'nohyphenate'], 'view': 'AtomPerTag'},
-        '/tag/:name/rss/': {'filters': ['h2', 'nohyphenate'], 'view': 'RssPerTag'},
+        '/tag/:name/atom/': {'filters': ['h2', 'nohyphenate'], 'view': 'atompertag'},
+        '/tag/:name/rss/': {'filters': ['h2', 'nohyphenate'], 'view': 'rsspertag'},
 
         '/articles/': {'view': 'articles'},
     }

@@ -35,20 +35,30 @@ def index_views(module, urlmap, conf, env):
 
     global __views_list
 
-    for view, rule in urlmap[:]:
+    # Gather the available views in the module
+    view_list = []
+    view_map = {}
+    for name in dir(module):
+        cls = getattr(module, name)
         try:
-            mem = getattr(module, view)
+            mro = cls.mro()
         except AttributeError:
-            try:
-                mem = getattr(module, view.capitalize())
-            except AttributeError:
-                try:
-                    mem = getattr(module, view.lower())
-                except AttributeError:
-                    try:
-                        mem = getattr(module, view.upper())
-                    except AttributeError:
-                        mem = None
+            continue
+        if View in mro:
+            view_list.append(name)
+            view_map[name.lower()] = name
+
+    for view, rule in urlmap[:]:
+        mem = None
+        # First try to match the view name case sensitive...
+        if view in view_list:
+            mem = getattr(module, view)
+        # ...then try again, but now ignore case.
+        else:
+            view_class = view_map.get(view.lower(), None)
+            if view_class:
+                mem = getattr(module, view_class)
+
         if mem:
             kwargs = conf['views'][rule].copy()
             kwargs['path'] = rule
