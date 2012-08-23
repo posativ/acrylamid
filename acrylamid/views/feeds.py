@@ -7,7 +7,7 @@ from os.path import exists
 from collections import defaultdict
 from datetime import datetime
 
-from acrylamid.views import View
+from acrylamid.views import View, tag
 from acrylamid.helpers import joinurl, event, expand, union, safeslug
 
 
@@ -36,28 +36,11 @@ class Feed(View):
         yield html, path
 
 
-class FeedPerTag(Feed):
+class FeedPerTag(tag.Tag, Feed):
 
     def context(self, env, request):
 
-        tags = defaultdict(list)
-        tmap = defaultdict(int)
-
-        for e in request['entrylist']:
-            for tag in e.tags:
-                tags[tag.lower()].append(e)
-                tmap[tag] += 1
-
-        # map tags to the most counted tag name
-        for name in tags.keys()[:]:
-            key = max([(tmap[key], key) for key in tmap
-                       if key.lower() == name])[1]
-            rv = tags.pop(key.lower())
-            tags[key] = rv
-
-        self.tags = {}
-        for k, v in tags.iteritems():
-            self.tags[safeslug(k)] = v
+        self.tags = tag.Tag._prepare_tags(self, request)
 
         return env
 
@@ -73,7 +56,7 @@ class FeedPerTag(Feed):
             new_request = request
             new_request['entrylist'] = entrylist
             self.path = expand(self.original_path, {'name': tag})
-            for html, path in super(FeedPerTag, self).generate(new_request):
+            for html, path in Feed.generate(self, new_request):
                 yield html, path
 
 
