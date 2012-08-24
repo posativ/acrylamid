@@ -28,7 +28,7 @@ class Mako(Filter):
     def init(self, conf, env, *args):
 
         if not Mako or not MakoException:
-            raise ImportError('reStructuredText: No module named docutils')
+            raise ImportError('Mako: No module named mako')
 
         def system(cmd):
             try:
