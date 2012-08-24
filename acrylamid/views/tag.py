@@ -58,7 +58,7 @@ class Tag(View):
         self.items_per_page = items_per_page
         self.pagination = pagination
 
-    def _prepare_tags(self, request):
+    def _populate_tags(self, request):
 
         tags = defaultdict(list)
         tmap = defaultdict(int)
@@ -75,11 +75,8 @@ class Tag(View):
             rv = tags.pop(key.lower())
             tags[key] = rv
 
-        rv = {}
-        for k, v in tags.iteritems():
-            rv[safeslug(k)] = v
-
-        return rv
+        self.tags = dict([(safeslug(k), v) for k, v in tags.iteritems()])
+        return tags
 
     def context(self, env, request):
 
@@ -93,15 +90,12 @@ class Tag(View):
             href = lambda t: expand(self.path, {'name': safeslug(t)})
             return [Link(t, href(t)) for t in tags]
 
-        tags = self._prepare_tags(request)
-
+        tags = self._populate_tags(request)
         env.engine.register('tagify', tagify)
         env.tag_cloud = Tagcloud(tags, self.conf['tag_cloud_steps'],
                                        self.conf['tag_cloud_max_items'],
                                        self.conf['tag_cloud_start_index'],
                                        self.conf.get('tag_cloud_shuffle', False))
-
-        self.tags = tags
 
         return env
 
