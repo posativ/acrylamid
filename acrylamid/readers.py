@@ -2,8 +2,6 @@
 #
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
-#
-# This module currently contains the FileEntry, Entry and abstract BaseEntry class
 
 from __future__ import unicode_literals
 
@@ -89,7 +87,7 @@ def ignored(cwd, path, patterns, dest):
 
 
 def filelist(directory, patterns=[]):
-    """Gathering all entries in directory except ignored."""
+    """Gathering all entries in directory except ignored patterns."""
 
     flist = []
     for root, dirs, files in os.walk(directory):
@@ -116,30 +114,49 @@ class Date(datetime):
         return datetime.strftime(self, fmt)
 
 
-class BaseEntry(object):
-    """An abstract version of what an Entry class should implement."""
+class Reader(object):
 
     __metaclass__ = abc.ABCMeta
 
-    @abc.abstractproperty
-    def source(self):
-        return
+    def __init__(self, conf, meta):
 
-    @abc.abstractproperty
-    def content(self):
-        return
+        self.props = NestedProperties((k, v) for k, v in conf.iteritems()
+            if k in ['author', 'lang', 'encoding', 'email',
+                     'date_format', 'entry_permalink', 'page_permalink'])
 
-    @abc.abstractproperty
-    def date(self):
-        return
+        self.props.update(meta)
+        self.type = meta.get('type', 'entry')
+
+        # redirect singular -> plural
+        for key, to in {'tag': 'tags', 'filter': 'filters'}.iteritems():
+            if key in self.props:
+                self.props.redirect(key, to)
+
+        self.filters = self.props.get('filters', [])
 
     @abc.abstractproperty
     def md5(self):
         return
 
     @abc.abstractproperty
+    def source(self):
+        return
+
+    @abc.abstractproperty
     def has_changed(self):
         return
+
+    @abc.abstractproperty
+    def lastmodified(self):
+        return
+
+    def getfilters(self):
+        return self._filters
+    def setfilters(self, filters):
+        if isinstance(filters, basestring):
+            filters = [filters]
+        self._filters = FilterTree(filters)
+    filters = property(getfilters, setfilters)
 
     def gettype(self):
         """="Type of this entry. Can be either ``'entry'`` or ``'page'``"""
@@ -149,6 +166,135 @@ class BaseEntry(object):
             raise ValueError("item type must be 'entry' or 'page'")
         self._type = value
     type = property(gettype, settype, doc=gettype.__doc__)
+
+    def hasproperty(self, prop):
+        """Test whether BaseEntry has prop in `self.props`."""
+        return prop in self.props
+
+    @property
+    def date(self):
+        return datetime.now()
+
+    def __iter__(self):
+        for key in self.props:
+            yield key
+
+        for key in (attr for attr in dir(self) if not attr.startswith('_')):
+            yield key
+
+    def __contains__(self, other):
+        return other in self.props or other in self.__dict__
+
+    def __getattr__(self, attr):
+        try:
+            return self.props[attr]
+        except KeyError:
+            raise AttributeError(attr)
+
+    __getitem__ = lambda self, attr: getattr(self, attr)
+
+
+class FileReader(Reader):
+
+    def __init__(self, path, conf):
+
+        self.filename = path
+
+        native = conf.get('metastyle', '').lower() == 'native'
+        with io.open(path, 'r', encoding=conf['encoding'], errors='replace') as fp:
+
+            if native and path.endswith(('.md', '.mkdown')):
+                i, meta = markdownstyle(fp)
+            elif native and path.endswith(('.rst', '.rest')):
+                i, meta = reststyle(fp)
+            else:
+                i, meta = yamlstyle(fp)
+
+        meta['title'] = unicode(meta['title'])  # YAML can convert 42 to an int
+
+        self.offset = i
+        Reader.__init__(self, conf, meta)
+
+    def __repr__(self):
+        return "<FileReader f'%s'>" % self.filename
+
+    @property
+    def extension(self):
+        """Filename's extension without leading dot"""
+        return os.path.splitext(self.filename)[1][1:]
+
+    @property
+    def lastmodified(self):
+        return getmtime(self.filename)
+
+    @property
+    def source(self):
+        """Returns the actual, unmodified content."""
+        with io.open(self.filename, 'r', encoding=self.props['encoding'],
+        errors='replace') as f:
+            return ''.join(f.readlines()[self.offset:]).strip()
+
+    @cached_property
+    def md5(self):
+        return md5(self.filename, self.title, self.date)
+
+    @property
+    def date(self):
+        "Fallback to last modification timestamp if date is unset."
+        return Date.fromtimestamp(getmtime(self.filename))
+
+
+class MetadataMixin(object):
+
+    @property
+    def slug(self):
+        """ascii safe entry title"""
+        slug = self.props.get('slug', None)
+        if not slug:
+            slug = safeslug(self.title)
+        return slug
+
+    @cached_property
+    def permalink(self):
+        """Actual permanent link, depends on entry's property and ``permalink_format``.
+        If you set permalink in the YAML header, we use this as permalink otherwise
+        the URL without trailing *index.html.*"""
+
+        try:
+            return self.props['permalink']
+        except KeyError:
+            return expand(rchop(self.props['%s_permalink' % self.type], 'index.html'), self)
+
+    @cached_property
+    def date(self):
+        """Parse date value and return :class:`datetime.datetime` object.
+        You can set a ``DATE_FORMAT`` in your :doc:`conf.py` otherwise
+        Acrylamid tries several format strings and throws an exception if
+        no pattern works."""
+
+        # alternate formats from pelican.utils, thank you!
+        # https://github.com/ametaireau/pelican/blob/master/pelican/utils.py
+        formats = ['%Y-%m-%d %H:%M', '%Y/%m/%d %H:%M',
+                   '%Y-%m-%d', '%Y/%m/%d',
+                   '%d-%m-%Y', '%Y-%d-%m',  # Weird ones
+                   '%d/%m/%Y', '%d.%m.%Y',
+                   '%d.%m.%Y %H:%M', '%Y-%m-%d %H:%M:%S']
+
+        if 'date' not in self.props:
+            if self.type == 'entry':
+                log.warn("using mtime from %r" % self.filename)
+            return super(MetadataMixin, self).date  # Date.fromtimestamp(self.mtime)
+
+        string = re.sub(' +', ' ', self.props['date'])
+        formats.insert(0, self.props['date_format'])
+
+        for date_format in formats:
+            try:
+                return Date.strptime(string, date_format)
+            except ValueError:
+                pass
+        else:
+            raise AcrylamidException("%r is not a valid date" % string)
 
     @property
     def year(self):
@@ -170,14 +316,6 @@ class BaseEntry(object):
     def zday(self):
         return '%02d' % self.day
 
-    def getfilters(self):
-        return self._filters
-    def setfilters(self, filters):
-        if isinstance(filters, basestring):
-            filters = [filters]
-        self._filters = FilterTree(filters)
-    filters = property(getfilters, setfilters)
-
     @property
     def tags(self):
         """Tags applied to this entry, if any.  If you set a single string it
@@ -194,25 +332,6 @@ class BaseEntry(object):
         return True if self.props.get('draft', False) else False
 
     @property
-    def slug(self):
-        """ascii safe entry title"""
-        slug = self.props.get('slug', None)
-        if not slug:
-            slug = safeslug(self.title)
-        return slug
-
-    @cached_property
-    def permalink(self):
-        """Actual permanent link, depends on entry's property and ``permalink_format``.
-        If you set permalink in the YAML header, we use this as permalink otherwise
-        the URL without trailing *index.html.*"""
-
-        try:
-            return self.props['permalink']
-        except KeyError:
-            return expand(rchop(self.props['%s_permalink' % self.type], 'index.html'), self)
-
-    @property
     def description(self):
         """first 50 characters from the source"""
         try:
@@ -220,145 +339,117 @@ class BaseEntry(object):
         except KeyError:
             return self.source[:50].strip() + u'...'
 
-    def hasproperty(self, prop):
-        """Test whether BaseEntry has prop in `self.props`."""
-        return prop in self.props
 
-    def __iter__(self):
-        for key in self.props:
-            yield key
+class ContentMixin(object):
+    """This class represents a single entry. Every property from this class is
+    available during templating including custom key-value pairs from the
+    header. The formal structure is first a YAML with some key/value pairs and
+    then the actual content. For example::
 
-        for key in (attr for attr in dir(self) if not attr.startswith('_')):
-            yield key
+        ---
+        title: My Title
+        date: 12.04.2012, 14:12
+        tags: [some, values]
 
-    def __contains__(self, other):
-        return other in self.props or other in self.__dict__
+        custom: key example
+        image: /path/to/my/image.png
+        ---
 
-    def __getattr__(self, attr):
-        try:
-            return self.props[attr]
-        except KeyError:
-            raise AttributeError(attr)
+        Here we start!
 
-    __getitem__ = lambda self, attr: getattr(self, attr)
+    Where you can access the image path via ``entry.image``.
 
+    For convenience Acrylamid maps "filter" and "tag" automatically to "filters"
+    and "tags" and also converts a single string into an array containing only
+    one string.
 
-class FileEntry(BaseEntry):
+    :param filename: valid path to an entry
+    :param conf: acrylamid configuration
 
-    def __init__(self, path, conf):
+    .. attribute:: lang
 
-        self.filename = path
-        self.mtime = os.path.getmtime(path)
-        self.props = NestedProperties((k, v) for k, v in conf.iteritems()
-            if k in ['author', 'lang', 'encoding', 'email',
-                     'date_format', 'entry_permalink', 'page_permalink'])
-
-        native = conf.get('metastyle', '').lower() == 'native'
-
-        with io.open(path, 'r', encoding=conf['encoding'], errors='replace') as fp:
-
-            if native and path.endswith(('.md', '.mkdown')):
-                i, meta = markdownstyle(fp)
-            elif native and path.endswith(('.rst', '.rest')):
-                i, meta = reststyle(fp)
-            else:
-                i, meta = yamlstyle(fp)
-
-        meta['title'] = unicode(meta['title'])  # YAML can convert 42 to an int
-
-        self.offset = i
-        self.type = meta.get('type', 'entry')
-        self.props.update(meta)
-
-        # redirect singular -> plural
-        for key, to in {'tag': 'tags', 'filter': 'filters'}.iteritems():
-            if key in self.props:
-                self.props.redirect(key, to)
-
-        self.filters = self.props.get('filters', [])
-
-    def __repr__(self):
-        return "<FileEntry f'%s'>" % self.filename
-
-    @cached_property
-    def date(self):
-        """parse date value and return :class:`datetime.datetime` object,
-        fallback to modification timestamp of the file if unset.
-        You can set a ``DATE_FORMAT`` in your :doc:`../conf.py` otherwise
-        Acrylamid tries several format strings and throws an exception if
-        no pattern works.
-
-        As shortcut you can access ``date.day``, ``date.month``, ``date.year``
-        via ``entry.day``, ``entry.month`` and ``entry.year``."""
-
-        # alternate formats from pelican.utils, thank you!
-        # https://github.com/ametaireau/pelican/blob/master/pelican/utils.py
-        formats = ['%Y-%m-%d %H:%M', '%Y/%m/%d %H:%M',
-                   '%Y-%m-%d', '%Y/%m/%d',
-                   '%d-%m-%Y', '%Y-%d-%m',  # Weird ones
-                   '%d/%m/%Y', '%d.%m.%Y',
-                   '%d.%m.%Y %H:%M', '%Y-%m-%d %H:%M:%S']
-
-        if 'date' not in self.props:
-            if self.type == 'entry':
-                log.warn("using mtime from %r" % self.filename)
-            return Date.fromtimestamp(self.mtime)
-
-        string = re.sub(' +', ' ', self.props['date'])
-        formats.insert(0, self.props['date_format'])
-
-        for date_format in formats:
-            try:
-                return Date.strptime(string, date_format)
-            except ValueError:
-                pass
-        else:
-            raise AcrylamidException("%r is not a valid date" % string)
-
-    @property
-    def extension(self):
-        """Filename's extension without leading dot"""
-        return os.path.splitext(self.filename)[1][1:]
-
-    @property
-    def source(self):
-        """Returns the actual, unmodified content."""
-        with io.open(self.filename, 'r', encoding=self.props['encoding'],
-        errors='replace') as f:
-            return u''.join(f.readlines()[self.offset:]).strip()
-
-    @cached_property
-    def md5(self):
-        return md5(self.filename, self.title, self.date)
+       Language used in this article. This is important for the hyphenation pattern."""
 
     @property
     def content(self):
+        """Returns the processed content.  This one of the core functions of
+        acrylamid: it compiles incrementally the filter chain using a tree
+        representation and saves final output or intermediates to cache, so
+        we can rapidly re-compile the whole content.
+
+        The cache is rather dumb: Acrylamid can not determine wether it differs
+        only in a single character. Thus, to minimize the overhead the cache
+        object is zlib-compressed."""
 
         # previous value
-        res = self.source
+        pv = None
+
+        # this is our cache filename
+        path = join(cache.cache_dir, self.md5)
+
         # growing dependencies of the filter chain
         deps = []
 
         for fxs in self.filters.iter(context=self.context):
+
             # extend dependencies
             deps.extend(fxs)
 
+            # key where we save this filter chain
+            key = md5(*deps)
+
             try:
-                for f in fxs:
-                    res = f.transform(res, self, *f.args)
+                rv = cache.get(path, key, mtime=self.lastmodified)
+                if rv is None:
+                    res = self.source if pv is None else pv
+                    for f in fxs:
+                        res = f.transform(res, self, *f.args)
+                    pv = cache.set(path, key, res)
+                    self.has_changed = True
+                else:
+                    pv = rv
             except (IndexError, AttributeError):
                 # jinja2 will ignore these Exceptions, better to catch them before
                 traceback.print_exc(file=sys.stdout)
 
-        return res
+        return pv
 
     @property
     def has_changed(self):
-        return True
+        """Check wether the entry has changed using the following conditions:
+
+        - cache file does not exist -> has changed
+        - cache file does not contain required filter intermediate -> has changed
+        - entry's file is newer than the cache's one -> has changed
+        - otherwise -> not changed"""
+
+        # with new-style classes we can't delete/overwrite @property-ied methods,
+        # so we try to return a fixed value otherwise continue
+        try:
+            return self._has_changed
+        except AttributeError:
+            pass
+
+        path = join(cache.cache_dir, self.md5)
+        deps = []
+
+        for fxs in self.filters.iter(self.context):
+
+            # extend filter dependencies
+            deps.extend(fxs)
+
+            if not cache.has_key(path, md5(*deps)):
+                return True
+        else:
+            return self.lastmodified > cache.getmtime(path)
 
     @has_changed.setter
     def has_changed(self, value):
         self._has_changed = value
+
+
+class Entry(ContentMixin, MetadataMixin, FileReader):
+    pass
 
 
 def distinguish(value):
@@ -526,111 +617,3 @@ def yamlstyle(fileobj):
         raise AcrylamidException('No title given in %r' % fileobj.name)
 
     return i, props
-
-
-class Entry(FileEntry):
-    """This class represents a single entry. Every property from this class is
-    available during templating including custom key-value pairs from the
-    header. The formal structure is first a YAML with some key/value pairs and
-    then the actual content. For example::
-
-        ---
-        title: My Title
-        date: 12.04.2012, 14:12
-        tags: [some, values]
-
-        custom: key example
-        image: /path/to/my/image.png
-        ---
-
-        Here we start!
-
-    Where you can access the image path via ``entry.image``.
-
-    For convenience Acrylamid maps "filter" and "tag" automatically to "filters"
-    and "tags" and also converts a single string into an array containing only
-    one string.
-
-    :param filename: valid path to an entry
-    :param conf: acrylamid configuration
-
-    .. attribute:: lang
-
-       Language used in this article. This is important for the hyphenation pattern."""
-
-    @property
-    def content(self):
-        """Returns the processed content.  This one of the core functions of
-        acrylamid: it compiles incrementally the filter chain using a tree
-        representation and saves final output or intermediates to cache, so
-        we can rapidly re-compile the whole content.
-
-        The cache is rather dumb: Acrylamid can not determine wether it differs
-        only in a single character. Thus, to minimize the overhead the cache
-        object is zlib-compressed."""
-
-        # previous value
-        pv = None
-
-        # this is our cache filename
-        path = join(cache.cache_dir, self.md5)
-
-        # growing dependencies of the filter chain
-        deps = []
-
-        for fxs in self.filters.iter(context=self.context):
-
-            # extend dependencies
-            deps.extend(fxs)
-
-            # key where we save this filter chain
-            key = md5(*deps)
-
-            try:
-                rv = cache.get(path, key, mtime=self.mtime)
-                if rv is None:
-                    res = self.source if pv is None else pv
-                    for f in fxs:
-                        res = f.transform(res, self, *f.args)
-                    pv = cache.set(path, key, res)
-                    self.has_changed = True
-                else:
-                    pv = rv
-            except (IndexError, AttributeError):
-                # jinja2 will ignore these Exceptions, better to catch them before
-                traceback.print_exc(file=sys.stdout)
-
-        return pv
-
-    @property
-    def has_changed(self):
-        """Check wether the entry has changed using the following conditions:
-
-        - cache file does not exist -> has changed
-        - cache file does not contain required filter intermediate -> has changed
-        - entry's file is newer than the cache's one -> has changed
-        - otherwise -> not changed"""
-
-        # with new-style classes we can't delete/overwrite @property-ied methods,
-        # so we try to return a fixed value otherwise continue
-        try:
-            return self._has_changed
-        except AttributeError:
-            pass
-
-        path = join(cache.cache_dir, self.md5)
-        deps = []
-
-        for fxs in self.filters.iter(self.context):
-
-            # extend filter dependencies
-            deps.extend(fxs)
-
-            if not cache.has_key(path, md5(*deps)):
-                return True
-        else:
-            return getmtime(self.filename) > cache.getmtime(path)
-
-    @has_changed.setter
-    def has_changed(self, value):
-        self._has_changed = value
