@@ -452,12 +452,38 @@ class Entry(ContentMixin, MetadataMixin, FileReader):
     pass
 
 
+def unsafe(string):
+    """Try to remove YAML string escape characters safely from `string`.
+
+    ---
+    title: "AttributeError: queryMethodId" when creating an object
+    ---
+
+    should retain the quotations around AttributeError."""
+
+    if len(string) < 2:
+        return string
+
+    for char in "'", '"':
+        if string == 2*char:
+            return ''
+        try:
+            if string.startswith(char) and string.endswith(char):
+                return string[1:-1]
+        except IndexError:
+            continue
+    else:
+        return string
+
+
 def distinguish(value):
     """Convert :param value: to None, Int, Bool, a List or String.
     """
+    if not isinstance(value, (unicode, str)):
+        return value
 
     if not isinstance(value, unicode):
-        return value
+        value = unicode(value)
 
     if value == '':
         return None
@@ -466,10 +492,9 @@ def distinguish(value):
     elif value.lower() in ['true', 'false']:
         return True if value.capitalize() == 'True' else False
     elif value[0] == '[' and value[-1] == ']':
-        return list([unicode(x.strip())
-            for x in value[1:-1].split(',') if x.strip()])
+        return list([x.strip() for x in value[1:-1].split(',') if x.strip()])
     else:
-        return unicode(value.strip('"').strip("'"))
+        return unsafe(value)
 
 
 def markdownstyle(fileobj):

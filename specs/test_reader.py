@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals
+
 try:
     import unittest2 as unittest
 except ImportError:
@@ -12,7 +14,7 @@ try:
 except ImportError:
     docutils = None  # NOQA
 
-from acrylamid.readers import reststyle, markdownstyle
+from acrylamid.readers import reststyle, markdownstyle, distinguish
 
 
 class TestStyles(unittest.TestCase):
@@ -35,7 +37,7 @@ class TestStyles(unittest.TestCase):
         "",
         "Hello *World*."]
 
-        i, meta = reststyle(io.StringIO(u'\n'.join(header)))
+        i, meta = reststyle(io.StringIO('\n'.join(header)))
         assert i == len(header) - 1
 
         assert 'foo' in meta['authors']
@@ -56,9 +58,23 @@ class TestStyles(unittest.TestCase):
         "",
         "This is the first paragraph of the document."]
 
-        i, meta = markdownstyle(io.StringIO(u'\n'.join(header)))
+        i, meta = markdownstyle(io.StringIO('\n'.join(header)))
         assert i == len(header) - 1
 
         assert 'John Doe' in meta['authors']
         assert meta['date'] == 'October 2, 2007'
         assert meta['blank-value'] == None
+
+
+def testQuotes():
+
+    assert distinguish('"') == '"'
+    assert distinguish('""') == ''
+
+    assert distinguish('Foo"') == 'Foo"'
+    assert distinguish('"Foo') == '"Foo'
+
+    assert distinguish('"Foo" Bar') == '"Foo" Bar'
+    assert distinguish('"Foo Bar"') == 'Foo Bar'
+
+    assert distinguish("\"'bout \" and '\"") == "'bout \" and '"

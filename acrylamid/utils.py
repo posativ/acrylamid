@@ -229,4 +229,3 @@ class Struct(dict):
             del self[name]
         except KeyError:
             raise AttributeError(name)
-
