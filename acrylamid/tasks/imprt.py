@@ -21,11 +21,26 @@ from htmlentitydefs import name2codepoint
 from email.utils import parsedate_tz, mktime_tz
 from os.path import join, dirname, isfile
 
-from acrylamid import log
+from acrylamid import log, commands
+from acrylamid.tasks import task, argument
 from acrylamid.errors import AcrylamidException
 
 from acrylamid.readers import Entry
 from acrylamid.helpers import event, escape, system
+
+arguments = [
+    argument("src", metavar="FILE|URL"),
+    argument("-f", "--force", dest="force", action="store_true",
+        help="overwrite existing entries", default=False),
+    argument("-m", dest="fmt", default="Markdown",
+        help="reconvert HTML to FMT"),
+    argument("-k", "--keep-links", dest="keep", action="store_true",
+        help="keep permanent links", default=False),
+    argument("-p", "--pandoc", dest="pandoc", action="store_true",
+        help="use pandoc first", default=False),
+    argument("-a", dest="args", nargs="+", action="store", type=str,
+    help="add argument to header section", default=[]),
+]
 
 # no joke
 USED_WORDPRESS = False
@@ -330,4 +345,23 @@ def build(conf, env, defaults, items, options):
         print "    %s = '%s'" % (key.upper(), value)
 
 
-__all__ = ['fetch', 'parse', 'build']
+@task("import", arguments, "import content from URL or FILE")
+def run(conf, env, options):
+    """Subcommand: import -- import entries and settings from an existing RSS/Atom
+    feed or WordPress dump.  ``acrylamid import http://example.com/feed/`` or any
+    local FILE is fine.
+
+    By default we use ``html2text`` (if available) to re-convert to Markdown, with
+    ``-m rst`` you can also re-convert to reST if you have ``html2rest`` installed.
+    As fallback there we have ``pandoc`` but you can use pandoc as first choice with
+    the ``-p`` flag.
+
+    If you don't like any reconversion, simply use ``-m html``. This command supports
+    the force flag to override already existing files. Use with care!"""
+
+    # we need the actual defaults values for permalink format
+    commands.initialize(conf, env)
+
+    content = fetch(options.src, auth=options.__dict__.get('auth', None))
+    defaults, items = parse(content)
+    build(conf, env, defaults, items, options)

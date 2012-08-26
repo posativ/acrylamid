@@ -3,18 +3,22 @@
 import unittest
 from nose.exc import SkipTest
 
-from acrylamid.lib import importer
-from acrylamid import log
+import argparse
+
+from acrylamid import log, tasks
 
 log.init('acrylamid', 20)
+tasks.task = lambda x,y,z: lambda x: x
+
+from acrylamid.tasks import imprt
 
 
 class TestImport(unittest.TestCase):
 
     def test_unescape(self):
 
-        assert importer.unescape('&lt;p&gt;Foo&lt;/p&gt;') == '<p>Foo</p>'
-        assert importer.unescape('Some Text/') == 'Some Text/'
+        assert imprt.unescape('&lt;p&gt;Foo&lt;/p&gt;') == '<p>Foo</p>'
+        assert imprt.unescape('Some Text/') == 'Some Text/'
 
     def test_conversion(self):
 
@@ -27,9 +31,9 @@ class TestImport(unittest.TestCase):
         except ImportError:
             raise SkipTest
 
-        assert importer.convert(html, fmt='Markdown') == (md, 'markdown')
-        assert importer.convert(html, fmt='reStructuredText') == (rst, 'rst')
-        assert importer.convert(html, fmt='HTML') == (html, 'html')
+        assert imprt.convert(html, fmt='Markdown') == (md, 'markdown')
+        assert imprt.convert(html, fmt='reStructuredText') == (rst, 'rst')
+        assert imprt.convert(html, fmt='HTML') == (html, 'html')
 
-        assert importer.convert('', fmt='Markdown') == ('', 'markdown')
-        assert importer.convert(None, fmt='Markdown') == ('', 'markdown')
+        assert imprt.convert('', fmt='Markdown') == ('', 'markdown')
+        assert imprt.convert(None, fmt='Markdown') == ('', 'markdown')

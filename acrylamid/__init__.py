@@ -129,20 +129,6 @@ def Acryl():
     autocompile.add_argument("-p", "--port", dest="port", type=int, default=8000,
         help="webserver port")
 
-    # --- import params --- #
-    importer = subparsers.add_parser('import', help="import content from URL or FILE",
-        parents=[default])
-    importer.add_argument("src", metavar="FILE|URL")
-    importer.add_argument("-f", "--force", dest="force", action="store_true",
-        help="overwrite existing entries", default=False)
-    importer.add_argument("-m", dest="fmt", default="Markdown", help="reconvert HTML to FMT")
-    importer.add_argument("-k", "--keep-links", dest="keep", action="store_true",
-        help="keep permanent links", default=False)
-    importer.add_argument("-p", "--pandoc", dest="pandoc", action="store_true",
-        help="use pandoc first", default=False)
-    importer.add_argument("-a", dest="args", nargs="+", action="store", type=str,
-        help="add argument to header section", default=[])
-
     for alias in ('co', 'gen', 'generate'):
         subparsers._name_parser_map[alias] = generate
 
@@ -240,13 +226,6 @@ def Acryl():
             log.error(e.args[0])
             traceback.print_exc(file=sys.stdout)
             sys.exit(0)
-
-    elif options.parser in ('import', ):
-        try:
-            commands.imprt(conf, env, options)
-        except AcrylamidException as e:
-            log.critical(e.args[0])
-            sys.exit(1)
 
     elif options.parser in tasks.collected:
         try:

@@ -22,7 +22,7 @@ from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
 from acrylamid import readers, filters, views, utils, helpers
-from acrylamid.lib import lazy, importer
+from acrylamid.lib import lazy
 from acrylamid.core import cache
 from acrylamid.helpers import event, escape
 
@@ -316,25 +316,4 @@ def new(conf, env, title, prompt=True):
         raise AcrylamidException('File is empty!')
 
 
-def imprt(conf, env, options):
-    """Subcommand: import -- import entries and settings from an existing RSS/Atom
-    feed or WordPress dump.  ``acrylamid import http://example.com/feed/`` or any
-    local FILE is fine.
-
-    By default we use ``html2text`` (if available) to re-convert to Markdown, with
-    ``-m rst`` you can also re-convert to reST if you have ``html2rest`` installed.
-    As fallback there we have ``pandoc`` but you can use pandoc as first choice with
-    the ``-p`` flag.
-
-    If you don't like any reconversion, simply use ``-m html``. This command supports
-    the force flag to override already existing files. Use with care!"""
-
-    # we need the actual defaults values for permalink format
-    initialize(conf, env)
-
-    content = importer.fetch(options.src, auth=options.__dict__.get('auth', None))
-    defaults, items = importer.parse(content)
-    importer.build(conf, env, defaults, items, options)
-
-
-__all__ = ["compile", "autocompile", "new", "imprt"]
+__all__ = ["compile", "autocompile", "new"]
