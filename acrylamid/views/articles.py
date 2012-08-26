@@ -25,7 +25,7 @@ class Articles(View):
     to your :doc:`conf.py` where */articles/* is the default URL for this view.
 
     We filter articles that are drafts and add them to the *articles*
-    dictionary using ``(entry.year, entry.month)`` as key. During templating
+    dictionary using ``(entry.year, entry.imonth)`` as key. During templating
     we sort all keys by value, hence we get a listing of years > months > entries.
 
     Variables available during Templating:
@@ -61,7 +61,7 @@ class Articles(View):
 
         articles = {}
         for entry in entrylist:
-            articles.setdefault((entry.year, entry.month), []).append(entry)
+            articles.setdefault((entry.year, entry.imonth), []).append(entry)
 
         html = tt.render(conf=self.conf, articles=articles,
                          env=union(self.env, num_entries=len(entrylist)))

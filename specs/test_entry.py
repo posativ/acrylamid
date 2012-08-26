@@ -42,8 +42,8 @@ class TestEntry(unittest.TestCase):
         date = Entry(self.path, conf).date
 
         assert date.year == 2011
-        assert date.month == 2
-        assert date.day == 13
+        assert date.imonth == 2
+        assert date.iday == 13
         assert date == datetime(year=2011, month=2, day=13, hour=15, minute=36)
 
     def test_alternate_dates(self):
@@ -52,8 +52,8 @@ class TestEntry(unittest.TestCase):
         date = Entry(self.path, conf).date
 
         assert date.year == 2034
-        assert date.month == 2
-        assert date.day == 1
+        assert date.imonth == 2
+        assert date.iday == 1
         assert date == datetime(year=2034, month=2, day=1)
 
     def test_invalid_dates(self):
@@ -113,5 +113,5 @@ class TestEntry(unittest.TestCase):
         assert entry.author == 'Anonymous'
         assert entry.extension == 'txt'
         assert entry.year == datetime.now().year
-        assert entry.month == datetime.now().month
-        assert entry.day == datetime.now().day
+        assert entry.imonth == datetime.now().month
+        assert entry.iday == datetime.now().day
