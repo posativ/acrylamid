@@ -191,11 +191,13 @@ VIEWS = {
     '/tag/:name/': {'filters': 'summarize', 'view':'tag',
                     'pagination': '/tag/:name/:num'},
 
+    # per tag Atom or RSS feed. Just uncomment to generate them.
+
+    # '/tag/:name/atom/': {'filters': ['h2', 'nohyphenate'], 'view': 'atompertag'},
+    # '/tag/:name/rss/': {'filters': ['h2', 'nohyphenate'], 'view': 'rsspertag'},
+
     '/atom/': {'filters': ['h2', 'nohyphenate'], 'view': 'atom'},
     '/rss/': {'filters': ['h2', 'nohyphenate'], 'view': 'rss'},
-
-    '/tag/:name/atom/': {'filters': ['h2', 'nohyphenate'], 'view': 'atompertag'},
-    '/tag/:name/rss/': {'filters': ['h2', 'nohyphenate'], 'view': 'rsspertag'},
 
     '/articles/': {'view': 'articles'},
 
