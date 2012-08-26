@@ -115,12 +115,21 @@ class Helpers(unittest.TestCase):
         assert list(helpers.paginate([X('1'), X('2'), X('3')], 3, orphans=1)) == \
             [((None, 1, None), [X('1'), X('2'), X('3')], True)]
 
-    def test_escape(self):
+    def test_safe(self):
 
-        assert helpers.escape('Hello World') == 'Hello World'
-        assert helpers.escape('Hello: World') == '"Hello: World"'
-        assert helpers.escape('Hello\'s World') == '"Hello\'s World"'
-        assert helpers.escape('Hello "World"') == "'Hello \"World\"'"
+        assert helpers.safe('"') == '"'
+        assert helpers.safe('') == '""'
+
+        assert helpers.safe('*Foo') == '"*Foo"'
+        assert helpers.safe('{"Foo') == '\'{"Foo\''
+
+        assert helpers.safe('"Foo" Bar') == '"Foo" Bar'
+        assert helpers.safe("'bout \" and '") == "\"'bout \" and '\""
+
+        assert helpers.safe('Hello World') == 'Hello World'
+        assert helpers.safe('Hello: World') == '"Hello: World"'
+        assert helpers.safe('Hello\'s World') == 'Hello\'s World'
+        assert helpers.safe('Hello "World"') == 'Hello "World"'
 
     def test_system(self):
 

@@ -24,7 +24,7 @@ from acrylamid.errors import AcrylamidException
 from acrylamid import readers, filters, views, utils, helpers
 from acrylamid.lib import lazy
 from acrylamid.core import cache
-from acrylamid.helpers import event, escape
+from acrylamid.helpers import event, safe
 
 
 def initialize(conf, env):
@@ -270,7 +270,7 @@ def new(conf, env, title, prompt=True):
 
     if not title:
         title = raw_input("Entry's title: ")
-    title = escape(title)
+    title = safe(title)
 
     with io.open(fd, 'w') as f:
         f.write(u'---\n')

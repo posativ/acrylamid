@@ -13,7 +13,7 @@ from acrylamid import log, errors
 from acrylamid.errors import AcrylamidException
 
 from acrylamid.readers import Entry
-from acrylamid.helpers import escape
+from acrylamid.helpers import safe
 from acrylamid.defaults import conf
 
 log.init('acrylamid', level=40)
@@ -24,7 +24,7 @@ def create(path, **kwargs):
         fp.write('---\n')
         for k, v in kwargs.iteritems():
             if isinstance(v, basestring):
-                v = escape(v)
+                v = safe(v)
             fp.write('%s: %s\n' % (k, v))
         fp.write('---\n')
 

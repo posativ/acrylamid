@@ -221,14 +221,26 @@ def paginate(lst, ipp, func=lambda x: x, salt=None, orphans=0):
         yield (next, curr, prev), entries, has_changed
 
 
-def escape(string):
-    """Escape string to fit in to the YAML standard, but I don't read the specs"""
+def safe(string):
+    """Safe string to fit in to the YAML standard (hopefully). Counterpart
+    to :func:`acrylamid.readers.unsafe`."""
 
-    if filter(lambda c: c in string, '\'\"#:'):
-        if '"' in string:
-            return '\'' + string + '\''
-        else:
-            return '\"' + string + '\"'
+    if not string:
+        return '""'
+
+    if len(string) < 2:
+        return string
+
+    for char in ':%#*?{}':
+        if char in string:
+            if '"' in string:
+                return '\'' + string + '\''
+            else:
+                return '\"' + string + '\"'
+
+    for char, repl in ('\'"', '"\''):
+        if string.startswith(char) and string.endswith(char):
+            return repl + string + repl
     return string
 
 

@@ -26,7 +26,7 @@ from acrylamid.tasks import task, argument
 from acrylamid.errors import AcrylamidException
 
 from acrylamid.readers import Entry
-from acrylamid.helpers import event, escape, system
+from acrylamid.helpers import event, safe, system
 
 arguments = [
     argument("src", metavar="FILE|URL"),
@@ -290,7 +290,7 @@ def build(conf, env, defaults, items, options):
         global USED_WORDPRESS
 
         fd, tmp = tempfile.mkstemp(suffix='.txt')
-        title = escape(title)
+        title = safe(title)
 
         with io.open(fd, 'w') as f:
             f.write(u'---\n')
