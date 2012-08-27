@@ -60,7 +60,7 @@ protocol and count of entries.
 :next:
     Number of the next pagination index if available, e.g. ``1`` or ``None``
 
-:base_path:
+:route:
     The path (sub-uri) of the first page in a pagination index, useful for links to the first page or relative links, only available in index/tag view.
 
 :VERSION:
