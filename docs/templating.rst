@@ -8,7 +8,7 @@ your likings.
 Unlike others Acrylamid knows when you edited a template file, hence when you do
 a session on templates and just the your changes without any interaction, launch
 Acrylamid in auto-compile mode (``acrylamid autocompile``) and even when you
-have hundrets of postings you will see your result almost immediately appear.
+have hundreds of postings you will see your result almost immediately appear.
 
 Variables
 ---------
