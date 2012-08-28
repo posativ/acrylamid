@@ -301,20 +301,20 @@ class MetadataMixin(object):
         return self.date.year
 
     @property
-    def month(self):
-        return '%02d' % self.month
-
-    @property
     def imonth(self):
         return self.date.month
 
     @property
-    def day(self):
-        return '%02d' % self.day
+    def month(self):
+        return '%02d' % self.imonth
 
     @property
     def iday(self):
         return self.date.day
+
+    @property
+    def day(self):
+        return '%02d' % self.iday
 
     @property
     def tags(self):
