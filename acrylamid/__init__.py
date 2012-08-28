@@ -88,21 +88,6 @@ def Acryl():
     default.add_argument("-C", "--no-color", action="store_false", dest="colors",
         help=argparse.SUPPRESS, default=True)
 
-    # --- init params --- #
-    init = subparsers.add_parser('init', help='initializes base structure in DIR',
-        parents=[default, ])
-    init.add_argument("dest", metavar="DEST|FILE", nargs="?")
-    init.add_argument("-f", "--force", action="store_true", dest="force",
-        help="don't ask, just overwrite", default=False)
-    init.add_argument("--xhtml", action="store_const", dest="theme", const="xhtml",
-        help="use XHTML theme", default="html5")
-    init.add_argument("--html5", action="store_const", dest="theme", const="html5",
-        help="use HTML5 theme (default)")
-    init.add_argument("--mako", action="store_const", dest="engine", const="mako",
-        help="use the Mako template engine", default="jinja2")
-    init.add_argument("--jinja2", action="store_const", dest="engine", const="jinja2",
-        help="use the Jinja2 template engine (default)")
-
     # --- gen params --- #
     generate = subparsers.add_parser('compile', help='compile blog', parents=[default])
     generate.add_argument("-f", "--force", action="store_true", dest="force",
@@ -160,7 +145,7 @@ def Acryl():
     # -- init -- #
     # TODO: acrylamid init --layout_dir=somedir to overwrite defaults
     if options.parser in ('init', ):
-        defaults.init(options.dest if options.dest else '.', options.theme, options.engine, options.force)
+        tasks.collected[options.parser](env, options)
         sys.exit(0)
 
     # -- teh real thing -- #

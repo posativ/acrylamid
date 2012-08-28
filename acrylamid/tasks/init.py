@@ -9,28 +9,44 @@ import sys
 import os
 import io
 import shutil
-import logging
 
 from os.path import exists, isfile, isdir, join, dirname, basename
 
-log = logging.getLogger('acrylamid.defaults')
+from acrylamid import log, defaults
+from acrylamid.tasks import task, argument
+
+arguments = [
+    argument("dest", metavar="DEST|FILE", nargs="?", default="."),
+    argument("-f", "--force", action="store_true", dest="overwrite",
+        help="don't ask, just overwrite", default=False),
+    argument("--xhtml", action="store_const", dest="theme", const="xhtml",
+        help="use XHTML theme", default="html5"),
+    argument("--html5", action="store_const", dest="theme", const="html5",
+        help="use HTML5 theme (default)"),
+    argument("--mako", action="store_const", dest="engine", const="mako",
+        help="use the Mako template engine", default="jinja2"),
+    argument("--jinja2", action="store_const", dest="engine", const="jinja2",
+        help="use the Jinja2 template engine (default)")
+]
 
 
-def init(root, theme='html5', engine='jinja2', overwrite=False):
+@task('init', arguments, help='initializes base structure in DIR')
+def init(env, options):
     """Subcommand: init -- creates the base structure of an Acrylamid blog
     or restores individual files."""
+
+    root = options.dest
 
     def create(directory, path):
         """A shortcut for check if exists and shutil.copy to."""
 
         dest = join(root, directory, basename(path))
-        if not isfile(dest) or overwrite == True:
+        if not isfile(dest) or options.overwrite == True:
             try:
                 shutil.copy(path, dest)
                 log.info('create  %s', dest)
             except IOError as e:
                 log.fatal(unicode(e))
-
         else:
             log.info('skip  %s already exists', dest)
 
@@ -42,12 +58,12 @@ def init(root, theme='html5', engine='jinja2', overwrite=False):
 
     dirs = ['%(content_dir)s/', '%(layout_dir)s/', '%(output_dir)s/', '.cache/']
 
-    files = [p % {'engine': engine, 'theme': theme} for p in [
+    files = [p % {'engine': options.engine, 'theme': options.theme} for p in [
         '%(engine)s/%(theme)s/base.html', '%(engine)s/%(theme)s/main.html',
         '%(engine)s/%(theme)s/entry.html', '%(engine)s/%(theme)s/articles.html',
         '%(engine)s/rss.xml', '%(engine)s/atom.xml',
         'misc/%(theme)s/style.css', 'misc/sample-entry.txt']]
-    files = [join(dirname(__file__), path) for path in files]
+    files = [join(dirname(defaults.__file__), path) for path in files]
 
     # restore a given file from defaults
     # XXX restore folders, too
@@ -56,7 +72,7 @@ def init(root, theme='html5', engine='jinja2', overwrite=False):
         for path in files:
             if basename(path) == basename(root):
                 break
-        if isfile(root) and (overwrite or raw_input('re-initialize %r? [yn]: ' % root) == 'y'):
+        if isfile(root) and (options.overwrite or raw_input('re-initialize %r? [yn]: ' % root) == 'y'):
             shutil.copy(path, root)
             log.info('re-initialized %s' % root)
         else:
@@ -66,19 +82,19 @@ def init(root, theme='html5', engine='jinja2', overwrite=False):
 
     # re-initialize conf.py
     if root == 'conf.py':
-        if overwrite or raw_input('re-initialize %r? [yn]: ' % root) == 'y':
+        if options.overwrite or raw_input('re-initialize %r? [yn]: ' % root) == 'y':
             with io.open('conf.py', 'w') as fp:
-                fp.write(confstring % {'engine': engine})
+                fp.write(confstring % {'engine': options.engine})
             log.info('re-initialized %s' % root)
         sys.exit(0)
 
     # YO DAWG I HERD U LIEK BLOGS SO WE PUT A BLOG IN UR BLOG -- ask user before
-    if isfile('conf.py') and not overwrite:
+    if isfile('conf.py') and not options.overwrite:
         q = raw_input("Create blog inside a blog? [yn]: ")
         if q != 'y':
             sys.exit(1)
 
-    if exists(root) and len(os.listdir(root)) > 0 and not overwrite:
+    if exists(root) and len(os.listdir(root)) > 0 and not options.overwrite:
         if raw_input("Destination directory not empty! Continue? [yn]: ") != 'y':
             sys.exit(1)
 
@@ -94,7 +110,7 @@ def init(root, theme='html5', engine='jinja2', overwrite=False):
             os.mkdir(directory)
 
     with io.open(join(root, 'conf.py'), 'w') as fp:
-        fp.write(confstring % {'engine': engine})
+        fp.write(confstring % {'engine': options.engine})
         log.info('create  %s', join(root, 'conf.py'))
 
     for path in files:
