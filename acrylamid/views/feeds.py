@@ -4,11 +4,10 @@
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
 from os.path import exists
-from collections import defaultdict
 from datetime import datetime
 
 from acrylamid.views import View, tag
-from acrylamid.helpers import joinurl, event, expand, union, safeslug
+from acrylamid.helpers import joinurl, event, expand, union
 
 
 class Feed(View):

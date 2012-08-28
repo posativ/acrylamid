@@ -32,7 +32,7 @@ except ImportError:
     unidecode = None  # NOQA
 
 __all__ = ['memoize', 'union', 'mkfile', 'md5', 'expand', 'joinurl',
-           'safeslug', 'paginate', 'escape', 'system', 'event', 'rchop']
+           'safeslug', 'paginate', 'safe', 'system', 'event', 'rchop']
 
 _slug_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
 

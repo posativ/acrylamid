@@ -35,12 +35,6 @@ class Tex(Filter):
 
     priority = 70.0
 
-    def inject(self):
-
-        return {
-            'text/css': CSS,
-        }
-
     def transform(self, text, entry, *args):
         replacings = (('LaTeX', LaTeX),
                         ('XeTeX', XeTeX),
