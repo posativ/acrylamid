@@ -9,7 +9,7 @@ from setuptools import setup, find_packages
 version = re.search("__version__ = '([^']+)'",
                     open('acrylamid/__init__.py').read()).group(1)
 
-requires = ['Jinja2>=2.4', 'Markdown>=2.0.1', 'Mako']
+requires = ['Jinja2>=2.4', 'Markdown>=2.0.1']
 kw = {}
 
 if sys.version_info[0] >= 3:
@@ -28,8 +28,13 @@ if '--full' in sys.argv:
         'smartypants',
         'asciimathml',
         'pytextile',
-        'unidecode'
+        'unidecode',
+        'PyYAML'
     ])
+
+if '--mako' in sys.argv:
+    requires.remove('Jinja2>=2.4')
+    requires.append('Mako')
 
 setup(
     name='acrylamid',

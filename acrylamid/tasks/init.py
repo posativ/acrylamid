@@ -24,7 +24,7 @@ arguments = [
     argument("--html5", action="store_const", dest="theme", const="html5",
         help="use HTML5 theme (default)"),
     argument("--mako", action="store_const", dest="engine", const="mako",
-        help="use the Mako template engine", default="jinja2"),
+        help="use the Mako template engine", default=""),
     argument("--jinja2", action="store_const", dest="engine", const="jinja2",
         help="use the Jinja2 template engine (default)")
 ]
@@ -36,6 +36,13 @@ def init(env, options):
     or restores individual files."""
 
     root = options.dest
+
+    if not options.engine:
+        try:
+            import jinja2
+            options.engine = 'jinja2'
+        except ImportError:
+            options.engine = 'mako'
 
     def create(directory, path):
         """A shortcut for check if exists and shutil.copy to."""
