@@ -217,6 +217,7 @@ class FileReader(Reader):
 
     def __repr__(self):
         return "<FileReader f'%s'>" % self.filename
+
     @property
     def extension(self):
         """Filename's extension without leading dot"""
