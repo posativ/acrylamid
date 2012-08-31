@@ -70,9 +70,10 @@ class Base(View):
                 event.skip(path)
                 continue
 
+            route = expand(self.path, entry)
             html = tt.render(conf=self.conf, entry=entry, env=union(self.env,
                              entrylist=[entry], type=self.__class__.__name__.lower(),
-                             prev=prev, next=next))
+                             prev=prev, next=next, route=route))
 
             yield html, path
 

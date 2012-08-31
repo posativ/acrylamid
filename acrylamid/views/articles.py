@@ -63,7 +63,8 @@ class Articles(View):
         for entry in entrylist:
             articles.setdefault((entry.year, entry.imonth), []).append(entry)
 
+        route = self.path
         html = tt.render(conf=self.conf, articles=articles,
-                         env=union(self.env, num_entries=len(entrylist)))
+                         env=union(self.env, num_entries=len(entrylist), route=route))
 
         yield html, path

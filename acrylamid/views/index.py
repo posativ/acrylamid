@@ -37,6 +37,7 @@ class Index(View):
 
         entrylist = [entry for entry in request['entrylist'] if not entry.draft]
         paginator = paginate(entrylist, ipp, orphans=self.conf['default_orphans'])
+        route = self.path
 
         for (next, curr, prev), entries, has_changed in paginator:
             # curr = current page, next = newer pages, prev = older pages
@@ -59,6 +60,6 @@ class Index(View):
 
             html = tt.render(conf=self.conf, env=union(self.env, entrylist=entries,
                                   type='index', prev=prev, curr=curr, next=next,
-                                  items_per_page=ipp, num_entries=len(entrylist)))
+                                  items_per_page=ipp, num_entries=len(entrylist), route=route))
 
             yield html, path
