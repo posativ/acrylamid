@@ -60,6 +60,10 @@ protocol and count of entries.
 :next:
     Number of the next pagination index if available, e.g. ``1`` or ``None``
 
+:route:
+    The (expanded) path of the view, e.g. ``articles``, ``/2012/my-example`` (for ``/:year/:slug/``) or
+    ``/tag/acrylamid/`` (for ``/tag/:name``).
+
 :VERSION:
     Acrylamid's version
 
