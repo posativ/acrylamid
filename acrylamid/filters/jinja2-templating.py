@@ -22,9 +22,9 @@ class Jinja2(Filter):
 
     def init(self, conf, env, *args):
 
-        def system(cmd):
+        def system(cmd, stdin=None):
             try:
-                return defaultsystem(cmd, shell=True).strip()
+                return defaultsystem(cmd, stdin, shell=True).strip()
             except (OSError, AcrylamidException) as e:
                 log.warn('%s: %s' % (e.__class__.__name__, e.args[0]))
                 return e.args[0]
