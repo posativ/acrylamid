@@ -111,6 +111,7 @@ class Tag(View):
 
             entrylist = [entry for entry in self.tags[tag]]
             paginator = paginate(entrylist, ipp, salt=tag, orphans=self.conf['default_orphans'])
+            route = expand(self.path, {'name': tag}).rstrip('/')
 
             for (next, curr, prev), entries, has_changed in paginator:
 
@@ -134,6 +135,7 @@ class Tag(View):
 
                 html = tt.render(conf=self.conf, env=union(self.env, entrylist=entries,
                                 type='tag', prev=prev, curr=curr, next=next, tag=tag,
-                                items_per_page=ipp, num_entries=len(entrylist)))
+                                items_per_page=ipp, num_entries=len(entrylist),
+                                route=route))
 
                 yield html, path

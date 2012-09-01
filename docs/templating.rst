@@ -8,7 +8,7 @@ your likings.
 Unlike others Acrylamid knows when you edited a template file, hence when you do
 a session on templates and just the your changes without any interaction, launch
 Acrylamid in auto-compile mode (``acrylamid autocompile``) and even when you
-have hundrets of postings you will see your result almost immediately appear.
+have hundreds of postings you will see your result almost immediately appear.
 
 Variables
 ---------
@@ -59,6 +59,9 @@ protocol and count of entries.
 
 :next:
     Number of the next pagination index if available, e.g. ``1`` or ``None``
+
+:route:
+    The path (sub-uri) of the first page in a pagination index, useful for links to the first page or relative links, only available in index/tag view.
 
 :VERSION:
     Acrylamid's version
