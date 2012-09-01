@@ -29,7 +29,7 @@ class Feed(View):
                 raise StopIteration
 
         updated = entrylist[0].date if entrylist else datetime.now()
-        html = tt.render(conf=self.conf, env=union(self.env,
+        html = tt.render(conf=self.conf, env=union(self.env, route=self.path,
                          updated=updated, entrylist=entrylist))
 
         yield html, path
