@@ -15,7 +15,7 @@ import traceback
 
 from os.path import join, getmtime
 from fnmatch import fnmatch
-from datetime import datetime
+from datetime import datetime, tzinfo, timedelta
 
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
@@ -114,6 +114,20 @@ class Date(datetime):
         return datetime.strftime(self, fmt)
 
 
+class Timezone(tzinfo):
+    """A dummy tzinfo object that gives :class:`datetime.datetime` more
+    UTC awareness."""
+
+    def __init__(self, offset=0):
+        self.offset = timedelta(hours=offset)
+
+    def utcoffset(self, dt):
+        return self.offset
+
+    def dst(self, dt):
+        return timedelta()
+
+
 class Reader(object):
 
     __metaclass__ = abc.ABCMeta
@@ -199,6 +213,7 @@ class FileReader(Reader):
     def __init__(self, path, conf):
 
         self.filename = path
+        self.tzinfo = conf['tzinfo']
 
         native = conf.get('metastyle', '').lower() == 'native'
         with io.open(path, 'r', encoding=conf['encoding'], errors='replace') as fp:
@@ -241,7 +256,7 @@ class FileReader(Reader):
     @property
     def date(self):
         "Fallback to last modification timestamp if date is unset."
-        return Date.fromtimestamp(getmtime(self.filename))
+        return Date.fromtimestamp(getmtime(self.filename)).replace(tzinfo=self.tzinfo)
 
 
 class MetadataMixin(object):
@@ -290,7 +305,7 @@ class MetadataMixin(object):
 
         for date_format in formats:
             try:
-                return Date.strptime(string, date_format)
+                return Date.strptime(string, date_format).replace(tzinfo=self.tzinfo)
             except ValueError:
                 pass
         else:

@@ -10,9 +10,19 @@ from acrylamid.views import View, tag
 from acrylamid.helpers import joinurl, event, expand, union
 
 
+def utc(dt, fmt='%Y-%m-%dT%H:%M:%SZ%z'):
+    """return date pre-formated as UTC timestamp.
+    """
+    return (dt - dt.utcoffset()).strftime(fmt)
+
+
 class Feed(View):
 
     priority = 25.0
+
+    def context(self, env, request):
+        env.engine.register('utc', utc)
+        return env
 
     def generate(self, request):
         entrylist = filter(lambda e: not e.draft, request['entrylist'])
