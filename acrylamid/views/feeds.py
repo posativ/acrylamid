@@ -10,7 +10,7 @@ from acrylamid.views import View, tag
 from acrylamid.helpers import joinurl, event, expand, union
 
 
-def utc(dt, fmt='%Y-%m-%dT%H:%M:%SZ%z'):
+def utc(dt, fmt='%Y-%m-%dT%H:%M:%SZ'):
     """return date pre-formated as UTC timestamp.
     """
     return (dt - dt.utcoffset()).strftime(fmt)
