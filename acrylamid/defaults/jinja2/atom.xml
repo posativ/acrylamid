@@ -22,7 +22,7 @@
     <title>{{ conf.sitename | escape }}</title>
     <id>{{ conf.www_root + '/' }}</id>
     <link rel="alternate" type="text/html" href="{{ conf.www_root + '/' }}" />
-    <link rel="self" type="application/atom+xml" href="{{ conf.www_root+env.views.atom.path }}" />
+    <link rel="self" type="application/atom+xml" href="{{ conf.www_root+env.route }}" />
     <updated>{{ env.updated.strftime('%Y-%m-%dT%H:%M:%SZ') }}</updated>
     <generator uri="{{ env.url }}" version="{{ env.version }}">acrylamid</generator>
     {%- for entry in env.entrylist %}
