@@ -30,7 +30,7 @@ import traceback
 import signal
 
 from acrylamid import defaults, log, commands, colors, tasks
-from acrylamid.utils import execfile, Struct
+from acrylamid.utils import find, execfile, Struct
 from acrylamid.errors import AcrylamidException
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -153,12 +153,13 @@ def Acryl():
 
     try:
         ns = dict([(k.upper(), v) for k, v in defaults.conf.iteritems()])
+        os.chdir(os.path.dirname(find('conf.py', os.getcwd())))
         execfile('conf.py', ns)
         conf.update(dict([(k.lower(), ns[k]) for k in ns if k.upper() == k]))
-    except OSError:
-        log.critical('no config file found: %s. Try "acrylamid init".', options.conf)
+    except IOError:
+        log.critical('no conf.py found. Try "acrylamid init".')
         sys.exit(1)
-    except Exception, e:
+    except Exception as e:
         log.critical("%s in `conf.py`" % e.__class__.__name__)
         traceback.print_exc(file=sys.stdout)
         sys.exit(1)

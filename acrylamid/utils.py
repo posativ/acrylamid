@@ -8,6 +8,7 @@
 from __future__ import unicode_literals
 
 import sys
+import os
 import io
 import re
 import functools
@@ -101,6 +102,23 @@ class memoized(object):
     def __get__(self, obj, objtype):
         """Support instance methods."""
         return functools.partial(self.__call__, obj)
+
+
+def find(fname, directory):
+    """Find a `fname` in `directory`, if not found try the parent folder until
+    we find `fname` (as full path) or raises an :class:`IOError`."""
+
+    path = None
+    directory = directory.rstrip('/')
+
+    while directory:
+        try:
+            return os.path.join(directory, filter(lambda p: p == fname,
+                os.listdir(directory))[0])
+        except (OSError, IndexError):
+            directory = directory.rsplit('/', 1)[0]
+    else:
+        raise IOError
 
 
 def execfile(path, ns={}):
