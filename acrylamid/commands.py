@@ -194,7 +194,7 @@ def compile(conf, env, force=False, **options):
 
             # sort them ascending because we will pop within filters.add
             entry.filters.add(sorted(flst, key=lambda k: (-k.priority, k.name)),
-                              context=v.__class__.__name__)
+                              context=v)
 
     # lets offer a last break to populate tags or so
     # XXX this API component needs a review
@@ -209,7 +209,7 @@ def compile(conf, env, force=False, **options):
         # some sys magic to recursively check wether the calling class is
         # derieved from `View`.)
         for entry in entrylist + pages + translations:
-            entry.context = v.__class__.__name__
+            entry.context = v
 
         request['pages'], request['translations'] = pages, translations
         request['entrylist'] = filter(v.condition, entrylist)

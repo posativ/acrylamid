@@ -212,34 +212,25 @@ class View(object):
 
        :param request: request dictionary"""
 
-    _filters = []
-    priority = 50.0
-    condition = lambda v, e: True
-    view = 'View'
-    path = '/'
-
     def __init__(self, conf, env, **kwargs):
+
+        self.priority = 50.0
+        self.condition = kwargs.get('condition', lambda e: True)
+        self.view = kwargs.get('view', 'View')
+        self.path = kwargs.get('path', '/')
+        self.filters = kwargs.get('filters', [])
+
+        # single string --> [string, ]
+        if isinstance(self.filters, basestring):
+            self.filters = [self.filters, ]
 
         self.conf = conf
         self.env = env
 
         for k in ('condition', 'view', 'path', 'filters'):
-            try:
-                setattr(self, k, kwargs[k])
-            except KeyError:
-                pass
-        for k in ('condition', 'view', 'path', 'filters'):
             kwargs.pop(k, None)
 
         self._getkwargs = lambda : kwargs
-
-    def _fset(self, value):
-        if isinstance(value, basestring):
-            value = [value]
-        self._filters = value
-
-    # single string --> [string, ]
-    filters = property(lambda v: v._filters, _fset)
 
     def init(self, **kwargs):
         pass
