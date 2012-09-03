@@ -123,7 +123,7 @@ class RegexList(list):
 
 
 class meta(type):
-    """Python metaclass magic to provide a easy filter API.  You can write complex
+    """Python metaclass magic to provide an easy filter API.  You can write complex
     calculations into your initialization, but it is only called when this filter
     is actually needed and then also only once.
 

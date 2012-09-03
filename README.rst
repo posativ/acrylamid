@@ -73,7 +73,7 @@ blogging features
 what is missing
 ~~~~~~~~~~~~~~~
 
-- No comments. You have to Disqus_ or `this approach`_.
+- No comments. You have to use Disqus_ or `this approach`_.
 - No search. But it's on the roadmap, Sphinx_ too.
 - A consistent™ documentation.
 

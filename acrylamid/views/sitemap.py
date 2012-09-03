@@ -96,6 +96,7 @@ class Sitemap(View):
             except ValueError:
                 pass
         self.views.extend(views)
+        return env
 
     def generate(self, request):
         """In this step, we filter drafted entries (they should not be included into the
