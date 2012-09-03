@@ -39,21 +39,21 @@ class TestEntry(unittest.TestCase):
     def test_dates(self):
 
         create(self.path, date='13.02.2011, 15:36', title='bla')
-        date = Entry(self.path, conf).date
+        date = Entry(self.path, conf).date.replace(tzinfo=None)
 
         assert date.year == 2011
-        assert date.imonth == 2
-        assert date.iday == 13
+        assert date.month == 2
+        assert date.day == 13
         assert date == datetime(year=2011, month=2, day=13, hour=15, minute=36)
 
     def test_alternate_dates(self):
 
         create(self.path, date='1.2.2034', title='bla')
-        date = Entry(self.path, conf).date
+        date = Entry(self.path, conf).date.replace(tzinfo=None)
 
         assert date.year == 2034
-        assert date.imonth == 2
-        assert date.iday == 1
+        assert date.month == 2
+        assert date.day == 1
         assert date == datetime(year=2034, month=2, day=1)
 
     def test_invalid_dates(self):
