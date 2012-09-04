@@ -103,8 +103,8 @@ def initialize(conf, env):
         if view.view == 'page':
             pagefmt = view.path
 
-    conf['entry_permalink'] = conf['entry_permalink'] or entryfmt
-    conf['page_permalink'] = conf['page_permalink'] or pagefmt
+    conf.setdefault('entry_permalink', entryfmt)
+    conf.setdefault('page_permalink', pagefmt)
 
     return {'conf': conf, 'env': env}
 
