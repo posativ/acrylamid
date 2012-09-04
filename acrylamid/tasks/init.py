@@ -57,7 +57,7 @@ def init(env, options):
         else:
             log.info('skip  %s already exists', dest)
 
-    global default
+    default = defaults.conf
 
     default['output_dir'] = default['output_dir'].rstrip('/')
     default['content_dir'] = default['content_dir'].rstrip('/')
@@ -129,68 +129,6 @@ def init(env, options):
             create(default['output_dir'], path)
 
     log.info('Created your fresh new blog at %r. Enjoy!', root)
-
-
-def check_conf(conf):
-    """Rudimentary conf checking.  Currently every *_dir except
-    `ext_dir` (it's a list of dirs) is checked whether it exists."""
-
-    def check(value):
-        if os.path.exists(value):
-            if os.path.isdir(value):
-                pass
-            else:
-                log.error("'%s' must be a directory" % value)
-                sys.exit(1)
-        else:
-            os.mkdir(value)
-            log.warning('%s created...' % value)
-
-    # directories
-    for key, value in conf.iteritems():
-        if key.endswith('_dir'):
-            if isinstance(value, list) or isinstance(value, tuple):
-                for subkey in value:
-                    check(subkey)
-            else:
-                check(value)
-
-    return True
-
-
-conf = default = {
-    'sitename': 'A descriptive blog title',
-    'author': 'Anonymous',
-    'email': 'info@example.com',
-
-    'date_format': '%d.%m.%Y, %H:%M',
-    'encoding': 'utf-8',
-    'permalink_format': '/:year/:slug/',
-    'output_ignore': ['/style.css', '/images/*', '.git/'],
-
-    'default_orphans': 0,
-
-    'tag_cloud_max_items': 100,
-    'tag_cloud_steps': 4,
-    'tag_cloud_start_index': 0,
-
-    'filters_dir': [],
-    'views_dir': [],
-    'content_dir': 'content/',
-    'layout_dir': 'layouts/',
-    'output_dir': 'output/',
-
-    'filters_ignore': [],
-    'filters_include': [],
-
-    'filters': ['markdown+codehilite(css_class=highlight)', 'hyphenate'],
-    'views': {
-    },
-
-    'engine': 'acrylamid.templates.jinja2.Environment',
-    'entry_permalink': None,
-    'page_permalink': None,
-}
 
 
 confstring = """
