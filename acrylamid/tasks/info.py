@@ -9,7 +9,7 @@ import argparse
 from time import localtime, strftime
 from os.path import join, getmtime
 
-from acrylamid import readers
+from acrylamid import readers, commands
 from acrylamid.core import cache
 from acrylamid.tasks import task, argument
 from acrylamid.colors import white, blue, green
@@ -64,6 +64,7 @@ def run(conf, env, options):
     """Subcommand: info -- a short overview of a blog."""
 
     limit = options.max if options.max > 0 else 5
+    commands.initialize(conf, env)
     entrylist, pages = readers.load(conf)
 
     print
@@ -72,7 +73,7 @@ def run(conf, env, options):
     print
 
     for entry in entrylist[:limit]:
-        print '  ', green(ago(entry.date).ljust(13)),
+        print '  ', green(ago(entry.date.replace(tzinfo=None)).ljust(13)),
         print white(entry.title) if entry.draft else entry.title
 
     print
