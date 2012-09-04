@@ -4,7 +4,7 @@
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
 from os.path import exists
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from acrylamid.views import View, tag
 from acrylamid.helpers import joinurl, event, expand, union
@@ -13,7 +13,7 @@ from acrylamid.helpers import joinurl, event, expand, union
 def utc(dt, fmt='%Y-%m-%dT%H:%M:%SZ'):
     """return date pre-formated as UTC timestamp.
     """
-    return (dt - dt.utcoffset()).strftime(fmt)
+    return (dt - (dt.utcoffset() or timedelta())).strftime(fmt)
 
 
 class Feed(View):
@@ -38,7 +38,7 @@ class Feed(View):
                 event.skip(path)
                 raise StopIteration
 
-        updated = entrylist[0].date if entrylist else datetime.now()
+        updated = entrylist[0].date if entrylist else datetime.utcnow()
         html = tt.render(conf=self.conf, env=union(self.env, route=self.path,
                          updated=updated, entrylist=entrylist))
 
