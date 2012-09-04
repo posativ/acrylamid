@@ -1,5 +1,7 @@
 # -*- encoding: utf-8 -*-
 
+from __future__ import unicode_literals
+
 conf = {
     'sitename': 'A descriptive blog title',
     'author': 'Anonymous',
