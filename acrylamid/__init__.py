@@ -168,9 +168,6 @@ def Acryl():
     conf['content_dir'] = conf.get('content_dir', 'content/')
     conf['layout_dir'] = conf.get('layout_dir', 'layouts/')
 
-    # assert defaults.check_conf(conf)
-    conf.update(dict((k, v) for k, v in options.__dict__.iteritems() if v != None))
-
     # -- run -- #
     if options.parser in ('gen', 'generate', 'co', 'compile'):
         log.setLevel(options.verbosity)
