@@ -212,9 +212,10 @@ class View(object):
 
        :param request: request dictionary"""
 
+    priority = 50.0
+
     def __init__(self, conf, env, **kwargs):
 
-        self.priority = 50.0
         self.condition = kwargs.get('condition', lambda e: True)
         self.view = kwargs.get('view', 'View')
         self.path = kwargs.get('path', '/')

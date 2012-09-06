@@ -34,6 +34,8 @@ class Articles(View):
     - *num_entries* count of articles
     - *conf*, *env*"""
 
+    priority = 80.0
+
     def init(self, template='articles.html'):
         self.template = template
 

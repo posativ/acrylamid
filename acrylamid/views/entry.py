@@ -18,6 +18,8 @@ class Base(View):
 
     __metaclass__ = abc.ABCMeta
 
+    priority = 75.0
+
     @abc.abstractproperty
     def type(self):
         return None
