@@ -179,7 +179,11 @@ Now we change the base template and should see some updates:
 
 If we change a filter in conf.py we should see an update:
 
-  $ sed -i "" -e s/\'hyphenate/\'nohyphenate/g conf.py
+  $ if [ `uname` = "Linux" ]; then
+  >   sed -i -e s/\'hyphenate/\'nohyphenate/g conf.py
+  > else
+  >   sed -i "" -e s/\'hyphenate/\'nohyphenate/g conf.py
+  > fi
   $ acrylamid compile -Cv
   skip  output/articles/index.html
   identical  output/2012/spam/index.html
