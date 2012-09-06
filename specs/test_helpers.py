@@ -140,7 +140,7 @@ class Helpers(unittest.TestCase):
             assert helpers.system(cmd, stdin) == expected
 
         with self.assertRaises(AcrylamidException):
-            helpers.system('bc', '1+1')
+            helpers.system('false')
 
         with self.assertRaises(OSError):
             helpers.system('foo', None)
