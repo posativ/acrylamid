@@ -55,7 +55,7 @@ def initialize(conf, env):
                 locale.setlocale(locale.LC_ALL, '')
             except locale.Error:
                 pass  # hope this makes Travis happy
-            log.info('notice  your OS does not support %s, fallback to %s', conf['lang'],
+            log.info('notice  your OS does not support %s, fallback to %s', conf.get('lang', ''),
                      locale.getlocale()[0])
     if locale.getlocale()[0] is not None:
         conf['lang'] = locale.getlocale()[0][:2]
