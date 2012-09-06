@@ -8,7 +8,6 @@
 import os
 import io
 import re
-import locale
 import hashlib
 import subprocess
 
@@ -68,17 +67,15 @@ def mkfile(content, path, ctime=0.0, force=False, dryrun=False, **kw):
     :param force: force overwrite, even nothing has changed (defaults to `False`)
     :param dryrun: don't write anything."""
 
-    enc = locale.getpreferredencoding() or "utf-8"
-
     # XXX use hashing for comparison
     if exists(dirname(path)) and exists(path):
-        with io.open(path, 'r', encoding=enc) as fp:
+        with io.open(path, 'r') as fp:
             old = fp.read()
         if content == old and not force:
             event.identical(path)
         else:
             if not dryrun:
-                with io.open(path, 'w', encoding=enc) as fp:
+                with io.open(path, 'w') as fp:
                     fp.write(content)
             event.update(path=path, ctime=ctime)
     else:
@@ -89,7 +86,7 @@ def mkfile(content, path, ctime=0.0, force=False, dryrun=False, **kw):
             # dir already exists (mostly)
             pass
         if not dryrun:
-            with io.open(path, 'w', encoding=enc) as fp:
+            with io.open(path, 'w') as fp:
                 fp.write(content)
         event.create(path=path, ctime=ctime)
 
