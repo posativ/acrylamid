@@ -5,8 +5,11 @@ Acrylamid is a mixture of `nanoc <http://nanoc.stoneship.org/>`_, `Pyblosxom
 <http://pyblosxom.bluesock.org/>`_ and `Pelican <http://blog.getpelican.com/>`_
 licensed under BSD Style, 2 clauses.
 
-.. image:: https://secure.travis-ci.org/posativ/acrylamid.png
-   :alt: build status
+|Build Status|_
+
+.. _Build Status: <http://travis-ci.org/posativ/acrylamid>
+.. |Build Status| image:: https://secure.travis-ci.org/posativ/acrylamid.png
+
 
 Why?
 ----
