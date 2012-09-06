@@ -64,8 +64,10 @@ def initialize(conf, env):
         log.warn('no `www_root` specified, using localhost:8000')
         conf['www_root'] = 'http://localhost:8000/'
 
-    # figure out timezone and set offset
-    offset = round(((datetime.now() - datetime.utcnow()).total_seconds()) / 3600.0)
+    # figure out timezone and set offset, more verbose for 2.6 compatibility
+    td = (datetime.now() - datetime.utcnow())
+    total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+    offset = round(total_seconds / 3600.0)
     conf['tzinfo'] = readers.Timezone(offset)
 
     # determine http(s), host and path
