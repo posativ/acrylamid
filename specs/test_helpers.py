@@ -134,7 +134,7 @@ class Helpers(unittest.TestCase):
     def test_system(self):
 
         examples = ((['echo', 'ham'], None, 'ham'),
-                    ('bc', '1 + 1\n', '2'),
+                    ('cat', 'foo', 'foo'),
             )
         for cmd, stdin, expected in examples:
             assert helpers.system(cmd, stdin) == expected
