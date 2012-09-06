@@ -51,7 +51,10 @@ def initialize(conf, env):
             locale.setlocale(locale.LC_ALL, locale.locale_alias[str(conf.get('lang', '')).lower()])
         except (locale.Error, KeyError):
             # LANG is not an alias, so we use system's default
-            locale.setlocale(locale.LC_ALL, '')
+            try:
+                locale.setlocale(locale.LC_ALL, '')
+            except locale.Error:
+                pass  # hope this makes Travis happy
             log.info('notice  your OS does not support %s, fallback to %s', conf['lang'],
                      locale.getlocale()[0])
     if locale.getlocale()[0] is not None:
