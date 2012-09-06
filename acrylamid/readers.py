@@ -110,7 +110,7 @@ class Date(datetime):
 
     def strftime(self, fmt):
         if sys.version_info < (3, 0):
-            return u"" + datetime.strftime(self, fmt).decode(locale.getlocale()[1])
+            return u"" + datetime.strftime(self, fmt).decode(locale.getlocale()[1] or 'utf-8')
         return datetime.strftime(self, fmt)
 
 
