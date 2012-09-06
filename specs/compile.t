@@ -1,13 +1,9 @@
-Test (slow) full-featured compilation
+Test (incremental) compilation.
 
   $ [ -n "$PYTHON" ] || PYTHON="`which python`"
   $ LANG="de_DE.UTF-8" && unset LC_ALL && unset LANGUAGE
   $ acrylamid init -q $TMPDIR
   $ cd $TMPDIR
-
-When we use BSD touch we always have to reset the timestamps after
-each test otherwise we may break following tests. This is done via
-`find output -exec bsdtouch -A 00 {} \;`.
 
 Can we compile? Use a decent machine, everything should compile
 in less than a second.
@@ -37,10 +33,9 @@ filter with version that randomly changes, but *this* is not an intented!)
   skip  output/sitemap.xml
   0 new, 0 updated, 8 skipped [?.??s] (glob)
 
-If we change the modification but this require a BSD touch, because GNU's
-touch sucks!
+If we change the modification, it should re-render!
 
-  $ bsdtouch -A 15 content/sample-entry.txt
+  $ touch content/sample-entry.txt
 
   $ acrylamid compile -Cv
   skip  output/articles/index.html
@@ -52,9 +47,6 @@ touch sucks!
   identical  output/rss/index.html
   identical  output/sitemap.xml
   0 new, 0 updated, 8 skipped [?.??s] (glob)
-
-  $ bsdtouch -A 00 content/sample-entry.txt
-  $ find output -exec bsdtouch -A 00 {} \;
 
 Acrylamid should update a file if the content changes!
 
@@ -70,9 +62,6 @@ Acrylamid should update a file if the content changes!
   update  [?.??s] output/rss/index.html (glob)
   identical  output/sitemap.xml
   0 new, 3 updated, 5 skipped [?.??s] (glob)
-
-  $ bsdtouch -A 00 content/sample-entry.txt
-  $ find output -exec bsdtouch -A 00 {} \;
 
 Lets try if we have really incremental rendering:
 
@@ -95,10 +84,10 @@ recognition wether a template (including its parent templates) has changed.
 
 Let's randomly (chosen by fair dice) change some mtimes...
 
-  $ bsdtouch -A 05 layouts/articles.html
-  $ bsdtouch -A 42 layouts/entry.html
-  $ bsdtouch -A 23 layouts/rss.xml
-  $ bsdtouch -A 59 layouts/atom.xml
+  $ touch layouts/articles.html
+  $ touch layouts/entry.html
+  $ touch layouts/rss.xml
+  $ touch layouts/atom.xml
 
   $ acrylamid compile -Cv
   identical  output/articles/index.html
@@ -112,16 +101,9 @@ Let's randomly (chosen by fair dice) change some mtimes...
   identical  output/sitemap.xml
   0 new, 0 updated, 9 skipped [?.??s] (glob)
 
-  $ bsdtouch -A 00 layouts/articles.html
-  $ bsdtouch -A 00 layouts/entry.html
-  $ bsdtouch -A 00 layouts/rss.xml
-  $ bsdtouch -A 00 layouts/atom.xml
-
-  $ find output -exec bsdtouch -A 00 {} \;
-
 Now we touch a parent template and all inherited templates should change as, too.
 
-  $ bsdtouch -A 05 layouts/base.html
+  $ touch layouts/base.html
 
   $ acrylamid compile -Cv
   identical  output/articles/index.html
@@ -135,12 +117,9 @@ Now we touch a parent template and all inherited templates should change as, too
   identical  output/sitemap.xml
   0 new, 0 updated, 9 skipped [?.??s] (glob)
 
-  $ bsdtouch -A 00 layouts/base.html
-  $ find output -exec bsdtouch -A 00 {} \;
-
 And now vice versa: we touch completely different templates:
 
-  $ bsdtouch -A 05 layouts/rss.xml
+  $ touch layouts/rss.xml
 
   $ acrylamid compile -Cv
   skip  output/articles/index.html
@@ -154,13 +133,10 @@ And now vice versa: we touch completely different templates:
   identical  output/sitemap.xml
   0 new, 0 updated, 9 skipped [0.??s] (glob)
 
-  $ bsdtouch -A 00 layouts/rss.xml
-  $ find output -exec bsdtouch -A 00 {} \;
-
 Now we change the base template and should see some updates:
 
   $ echo "Bar!" >> layouts/base.html
-  $ bsdtouch -A 01 layouts/base.html
+  $ touch layouts/base.html
 
   $ acrylamid compile -Cv
   update  [?.??s] output/articles/index.html (glob)
@@ -173,9 +149,6 @@ Now we change the base template and should see some updates:
   skip  output/rss/index.html
   identical  output/sitemap.xml
   0 new, 6 updated, 3 skipped [?.??s] (glob)
-
-  $ bsdtouch -A 00 layouts/base.html
-  $ find output -exec bsdtouch -A 00 {} \;
 
 If we change a filter in conf.py we should see an update:
 
