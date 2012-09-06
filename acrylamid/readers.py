@@ -213,7 +213,7 @@ class FileReader(Reader):
     def __init__(self, path, conf):
 
         self.filename = path
-        self.tzinfo = conf['tzinfo']
+        self.tzinfo = conf.get('tzinfo', None)
 
         native = conf.get('metastyle', '').lower() == 'native'
         with io.open(path, 'r', encoding=conf['encoding'], errors='replace') as fp:
