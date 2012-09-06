@@ -12,23 +12,23 @@ Does `acrylamid clean` work?
   $ acrylamid clean -C
   $ rm content/sample-entry.txt
 
-  $ acrylamid clean -nC
-  remove  output/index.html
+  $ acrylamid clean -nC | sort
   remove  output/2012/die-verwandlung/index.html
+  remove  output/index.html
   remove  output/tag/die-verwandlung/index.html
   remove  output/tag/franz-kafka/index.html
 
-  $ acrylamid clean -C
-  remove  output/index.html
+  $ acrylamid clean -C | sort
   remove  output/2012/die-verwandlung/index.html
+  remove  output/index.html
   remove  output/tag/die-verwandlung/index.html
   remove  output/tag/franz-kafka/index.html
 
-  $ acrylamid clean -fC
-  remove  output/sitemap.xml
+  $ acrylamid clean -fC | sort
   remove  output/articles/index.html
   remove  output/atom/index.html
   remove  output/rss/index.html
+  remove  output/sitemap.xml
 
 And we should clean up everything:
 

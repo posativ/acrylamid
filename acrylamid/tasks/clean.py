@@ -62,13 +62,13 @@ def run(conf, env, options):
         found = set([join(root, p) for p in files
                      if not readers.ignored(root, p, conf['output_ignore'], conf['output_dir'])])
 
-        for i, p in enumerate(found.difference(tracked)):
+        for p in found.difference(tracked):
             if not dryrun:
                 os.remove(p)
             event.remove(p)
 
         if force:
-            for i, p in enumerate(found.intersection(tracked)):
+            for p in found.intersection(tracked):
                 if not dryrun:
                     os.remove(p)
                 event.remove(p)
