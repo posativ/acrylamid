@@ -67,7 +67,7 @@ def convert(data, fmt='markdown', pandoc=False):
         cmds = ['html2text']
         fmt = 'markdown'
     elif fmt in ('rst', 'restructuredtext', 'rest', 'reStructuredText'):
-        cmds = ['html2rest utf-8']
+        # cmds = ['html2rest']
         fmt = 'rst'
     else:
         cmds = []
