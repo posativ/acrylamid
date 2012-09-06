@@ -4,4 +4,4 @@ python:
   - 2.7
 script: tox
 install:
-  - pip install nose cram
+  - pip install nose cram tox
