@@ -11,12 +11,12 @@ in less than a second.
   $ acrylamid compile -C
   create  [?.??s] output/articles/index.html (glob)
   create  [?.??s] output/2012/die-verwandlung/index.html (glob)
-  create  [0.0?s] output/index.html (glob)
-  create  [0.0?s] output/tag/die-verwandlung/index.html (glob)
-  create  [0.0?s] output/tag/franz-kafka/index.html (glob)
+  create  [0.??s] output/index.html (glob)
+  create  [0.??s] output/tag/die-verwandlung/index.html (glob)
+  create  [0.??s] output/tag/franz-kafka/index.html (glob)
   create  [?.??s] output/atom/index.html (glob)
   create  [?.??s] output/rss/index.html (glob)
-  create  [0.0?s] output/sitemap.xml (glob)
+  create  [0.??s] output/sitemap.xml (glob)
   8 new, 0 updated, 0 skipped [?.??s] (glob)
 
 If we compile a second time, nothing should happen at all (except you use a
@@ -69,13 +69,13 @@ Lets try if we have really incremental rendering:
   $ acrylamid compile -Cv
   update  [?.??s] output/articles/index.html (glob)
   create  [?.??s] output/2012/spam/index.html (glob)
-  update  [0.0?s] output/2012/die-verwandlung/index.html (glob)
+  update  [0.??s] output/2012/die-verwandlung/index.html (glob)
   update  [?.??s] output/index.html (glob)
   skip  output/tag/die-verwandlung/index.html
   skip  output/tag/franz-kafka/index.html
   update  [?.??s] output/atom/index.html (glob)
   update  [?.??s] output/rss/index.html (glob)
-  update  [0.0?s] output/sitemap.xml (glob)
+  update  [0.??s] output/sitemap.xml (glob)
   1 new, 6 updated, 2 skipped [?.??s] (glob)
 
 Now with templates. We have patched jinja2 template loader so we have a
@@ -141,10 +141,10 @@ Now we change the base template and should see some updates:
   $ acrylamid compile -Cv
   update  [?.??s] output/articles/index.html (glob)
   update  [?.??s] output/2012/spam/index.html (glob)
-  update  [0.0?s] output/2012/die-verwandlung/index.html (glob)
-  update  [0.0?s] output/index.html (glob)
-  update  [0.0?s] output/tag/die-verwandlung/index.html (glob)
-  update  [0.0?s] output/tag/franz-kafka/index.html (glob)
+  update  [0.??s] output/2012/die-verwandlung/index.html (glob)
+  update  [0.??s] output/index.html (glob)
+  update  [0.??s] output/tag/die-verwandlung/index.html (glob)
+  update  [0.??s] output/tag/franz-kafka/index.html (glob)
   skip  output/atom/index.html
   skip  output/rss/index.html
   identical  output/sitemap.xml
@@ -161,9 +161,9 @@ If we change a filter in conf.py we should see an update:
   skip  output/articles/index.html
   identical  output/2012/spam/index.html
   update  [?.??s] output/2012/die-verwandlung/index.html (glob)
-  update  [0.0?s] output/index.html (glob)
-  update  [0.0?s] output/tag/die-verwandlung/index.html (glob)
-  update  [0.0?s] output/tag/franz-kafka/index.html (glob)
+  update  [0.??s] output/index.html (glob)
+  update  [0.??s] output/tag/die-verwandlung/index.html (glob)
+  update  [0.??s] output/tag/franz-kafka/index.html (glob)
   identical  output/atom/index.html
   identical  output/rss/index.html
   identical  output/sitemap.xml
