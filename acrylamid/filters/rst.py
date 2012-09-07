@@ -10,7 +10,6 @@ import traceback
 
 from acrylamid import log
 from acrylamid.filters import Filter, discover
-from acrylamid.filters.md import get_pygments_style
 
 try:
     from docutils.core import publish_parts
@@ -52,10 +51,6 @@ class Restructuredtext(Filter):
             except (ImportError, Exception) as e:
                 traceback.print_exc(file=sys.stdout)
                 log.warn('%r %s: %s' % (filename, e.__class__.__name__, e))
-
-    def inject(self):
-
-        return get_pygments_style()
 
     def transform(self, content, entry, *filters):
 

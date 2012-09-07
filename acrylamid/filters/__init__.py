@@ -6,11 +6,9 @@
 import sys
 import os
 import imp
-import glob
-import fnmatch
 import traceback
 
-from acrylamid import log, PY3
+from acrylamid import log
 from acrylamid.errors import AcrylamidException
 from acrylamid.lib.lazy import _demandmod as LazyModule
 
