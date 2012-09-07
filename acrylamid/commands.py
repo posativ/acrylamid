@@ -94,8 +94,7 @@ def initialize(conf, env):
         conf['views_dir'] = [conf['views_dir'], ]
 
     lazy.enable()
-    filters.initialize(conf["filters_dir"], conf, env, exclude=conf["filters_ignore"],
-                                                       include=conf["filters_include"])
+    filters.initialize(conf["filters_dir"], conf, env)
     lazy.disable()  # this has weird side effects with jinja2, so disabled after filters
 
     views.initialize(conf["views_dir"], conf, env)

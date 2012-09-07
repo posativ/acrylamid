@@ -5,6 +5,7 @@
 
 import sys
 import os
+import imp
 import glob
 import fnmatch
 import traceback
@@ -39,73 +40,39 @@ def index_filters(module, conf, env):
             callbacks.append(mem)
 
 
-def initialize(ext_dir, conf, env, include=[], exclude=[]):
-    """Imports and initializes extensions from the directories in the list
-    specified by 'ext_dir'.  If no such list exists, the we don't load any
-    plugins. 'include' and 'exclude' may contain a list of shell patterns
-    used for fnmatch. If empty, this filter is not applied.
+def discover(directories, filterfunc=lambda filename: True):
+    """Discover and yield python modules (aka files that endswith .py) and
+    applies `filterfunc` to the filename."""
 
-    :param ext_dir: list of directories
+    for directory in directories:
+        for root, dirs, files in os.walk(directory):
+            for fname in files:
+                if fname.endswith('.py') and filterfunc(fname):
+                    yield os.path.join(root, fname)
+
+
+def initialize(directories, conf, env):
+    """Import and initialize filters from `directories` list. We skip modules that
+    start with an underscore, md_x or rstx_ as they have special meaning to Acrylamid.
+
+    :param directories: list of directories
     :param conf: user config
-    :param env: environment
-    :param include: a list of filename patterns to include
-    :param exclude: a list of filename patterns to exclude
-    """
+    :param env: environment"""
 
-    def get_name(filename):
-        """Takes a filename and returns the module name from the filename."""
-        return os.path.splitext(os.path.split(filename)[1])[0]
+    directories += [os.path.dirname(__file__)]
+    modules = discover(directories, lambda path: not path.startswith(('_','mdx_', 'rstx_')))
 
-    def get_extension_list(ext_dir, include, exclude):
-        """Load all plugins that matches include/exclude pattern in
-        given lust of directories.  Arguments as in initializes(**kw)."""
+    for filename in modules:
+        modname, ext = os.path.splitext(os.path.basename(filename))
+        fp, path, descr = imp.find_module(modname, directories)
 
-        def pattern(name, incl, excl):
-            for i in incl:
-                if fnmatch.fnmatch(name, i):
-                    return True
-            for e in excl:
-                if fnmatch.fnmatch(name, e):
-                    return False
-            if not incl:
-                return True
-            else:
-                return False
-
-        ext_list = []
-        for mem in ext_dir:
-            files = glob.glob(os.path.join(mem, "*.py"))
-            files = [get_name(f) for f in files
-                if pattern(get_name(f), include, exclude)]
-            ext_list += files
-
-        return sorted(ext_list)
-
-    global plugins
-
-    exclude.extend(['mdx_*', 'rstx_*'])
-    ext_dir.extend([os.path.dirname(__file__)])
-
-    for mem in ext_dir[:]:
-        if os.path.isdir(mem):
-            sys.path.insert(0, mem)
-        else:
-            ext_dir.remove(mem)
-            log.error("Filter directory '%s' does not exist. -- skipping" % mem)
-
-    ext_list = get_extension_list(ext_dir, include, exclude)
-    for mem in ext_list:
         try:
-            if PY3:
-                from importlib import import_module
-                _module = import_module('.' + mem, package='acrylamid.filters')
-            else:
-                _module = __import__(mem)
-        except (ImportError, Exception) as e:
-            log.warn('%r %s: %s', mem, e.__class__.__name__, e)
+            mod = imp.load_module(modname, fp, path, descr)
+        except (ImportError, SyntaxError, ValueError) as e:
+            log.warn('%r %s: %s', mod, e.__class__.__name__, e)
             continue
 
-        index_filters(_module, conf, env)
+        index_filters(mod, conf, env)
 
 
 class RegexList(list):

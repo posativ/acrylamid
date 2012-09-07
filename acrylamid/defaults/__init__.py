@@ -24,9 +24,6 @@ conf = {
     'layout_dir': 'layouts/',
     'output_dir': 'output/',
 
-    'filters_ignore': [],
-    'filters_include': [],
-
     'filters': ['markdown+codehilite(css_class=highlight)', 'hyphenate'],
     'views': {
     },
