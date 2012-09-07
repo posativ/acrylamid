@@ -67,13 +67,13 @@ def convert(data, fmt='markdown', pandoc=False):
         cmds = ['html2text']
         fmt = 'markdown'
     elif fmt in ('rst', 'restructuredtext', 'rest', 'reStructuredText'):
-        # cmds = ['html2rest']
+        cmds = ['html2rest']
         fmt = 'rst'
     else:
         cmds = []
 
     p = ['pandoc', '--normalize', '-f', 'html', '-t', fmt, '--strict', '--no-wrap']
-    cmds.insert(0, p) if pandoc else cmds.append(p)
+    cmds.insert(0, p) if pandoc or fmt == 'rst' else cmds.append(p)
 
     if fmt == 'html':
         return data, 'html'

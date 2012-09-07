@@ -5,7 +5,7 @@ from nose.exc import SkipTest
 
 import argparse
 
-from acrylamid import log, tasks
+from acrylamid import log, tasks, helpers
 
 log.init('acrylamid', 20)
 tasks.task = lambda x,y,z: lambda x: x
@@ -31,8 +31,18 @@ class TestImport(unittest.TestCase):
         except ImportError:
             raise SkipTest
 
+        try:
+            import html2rest
+        except ImportError:
+            try:
+                helpers.system(['which', 'pandoc'])
+            except:
+                raise SkipTest
+        else:
+            raise SkipTest
+
         assert imprt.convert(html, fmt='Markdown') == (md, 'markdown')
-        # assert imprt.convert(html, fmt='reStructuredText') == (rst, 'rst')
+        assert imprt.convert(html, fmt='reStructuredText') == (rst, 'rst')
         assert imprt.convert(html, fmt='HTML') == (html, 'html')
 
         assert imprt.convert('', fmt='Markdown') == ('', 'markdown')
