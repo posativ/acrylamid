@@ -7,7 +7,7 @@ licensed under BSD Style, 2 clauses.
 
 |Build Status|_
 
-.. _Build Status: <http://travis-ci.org/posativ/acrylamid>
+.. _Build Status: http://travis-ci.org/posativ/acrylamid
 .. |Build Status| image:: https://secure.travis-ci.org/posativ/acrylamid.png
 
 
