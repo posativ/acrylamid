@@ -43,9 +43,9 @@ setup(
     author_email='info@posativ.org',
     packages=find_packages(),
     include_package_data=True,
-    url='https://github.com/posativ/acrylamid/',
+    url='http://posativ.org/acrylamid/',
     license='BSD revised',
-    description='yet another static blog generator',
+    description='static blog compiler with incremental updates',
     data_files=[
         'README.rst',
     ],

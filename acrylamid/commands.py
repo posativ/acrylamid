@@ -114,24 +114,7 @@ def initialize(conf, env):
 
 
 def compile(conf, env, force=False, **options):
-    """The compilation process.
-
-    Current API:
-
-        #. when we require context
-        #. when we called an event
-
-    New API:
-
-        #. before we start with view Initialization
-        #. after we initialized views
-        #. before we require context
-        #. after we required context
-        #. before we template
-        #. before we write a file
-        #. when we called an event
-        #. when we finish
-    """
+    """The compilation process."""
 
     # time measurement
     ctime = time.time()
