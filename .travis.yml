@@ -10,8 +10,4 @@ script:
   - nosetests specs/
   - cram specs/
 notifications:
-  irc:
-    channels:
-      - "irc.freenode.org#acrylamid"
-    on_success: change
-    on_failure: always
+  irc: "irc.freenode.org#acrylamid"
