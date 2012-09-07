@@ -5,10 +5,11 @@
 
 import sys
 import os
+import imp
 import traceback
 
 from acrylamid import log
-from acrylamid.filters import Filter
+from acrylamid.filters import Filter, discover
 from acrylamid.filters.md import get_pygments_style
 
 try:
@@ -36,18 +37,21 @@ class Restructuredtext(Filter):
             raise ImportError('reStructuredText: No module named docutils')
 
         # -- discover reStructuredText extensions --
-        for mem in os.listdir(os.path.dirname(__file__)):
-            if mem.startswith('rstx_') and mem.endswith('.py'):
-                try:
-                    mod = __import__(mem.replace('.py', ''))
-                    rstx = mod.makeExtension()
-                    if isinstance(mod.match, basestring):
-                        mod.match = [mod.__name__]
-                    for name in mod.match:
-                        directives.register_directive(name, rstx)
-                except (ImportError, Exception) as e:
-                    traceback.print_exc(file=sys.stdout)
-                    log.warn('%r %s: %s' % (mem, e.__class__.__name__, e))
+        directories = conf['filters_dir'] + [os.path.dirname(__file__)]
+        for filename in discover(directories, lambda path: path.startswith('rstx_')):
+            modname, ext = os.path.splitext(os.path.basename(filename))
+            fp, path, descr = imp.find_module(modname, directories)
+
+            try:
+                mod = imp.load_module(modname, fp, path, descr)
+                rstx = mod.makeExtension()
+                if isinstance(mod.match, basestring):
+                    mod.match = [mod.__name__]
+                for name in mod.match:
+                    directives.register_directive(name, rstx)
+            except (ImportError, Exception) as e:
+                traceback.print_exc(file=sys.stdout)
+                log.warn('%r %s: %s' % (filename, e.__class__.__name__, e))
 
     def inject(self):
 

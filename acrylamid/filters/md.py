@@ -4,9 +4,10 @@
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
 import os
+import imp
 import markdown
 
-from acrylamid.filters import Filter
+from acrylamid.filters import Filter, discover
 from acrylamid.errors import AcrylamidException
 
 
@@ -40,19 +41,22 @@ class Markdown(Filter):
         markdown.Markdown  # raises ImportError eventually
 
         # -- discover markdown extensions --
-        for mem in os.listdir(os.path.dirname(__file__)):
-            if mem.startswith('mdx_') and mem.endswith('.py'):
-                try:
-                    mod = __import__(mem.replace('.py', ''))
-                    mdx = mod.makeExtension()
-                    if isinstance(mod.match, basestring):
-                        self.match.append(mod.match)
-                        self.extensions[mod.__name__] = mdx
-                    else:
-                        for name in mod.match:
-                            self.extensions[name] = mdx
-                except (ImportError, Exception) as e:
-                    self.failed.append('%r %s: %s' % (mem, e.__class__.__name__, e))
+        directories = conf['filters_dir'] + [os.path.dirname(__file__)]
+        for filename in discover(directories, lambda path: path.startswith('mdx_')):
+            modname, ext = os.path.splitext(os.path.basename(filename))
+            fp, path, descr = imp.find_module(modname, directories)
+
+            try:
+                mod = imp.load_module(modname, fp, path, descr)
+                mdx = mod.makeExtension()
+                if isinstance(mod.match, basestring):
+                    self.match.append(mod.match)
+                    self.extensions[mod.__name__] = mdx
+                else:
+                    for name in mod.match:
+                        self.extensions[name] = mdx
+            except (ImportError, Exception) as e:
+                self.failed.append('%r %s: %s' % (filename, e.__class__.__name__, e))
 
     def __contains__(self, key):
         return True if key in self.extensions else False
