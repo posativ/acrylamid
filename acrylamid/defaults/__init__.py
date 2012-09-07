@@ -2,10 +2,16 @@
 
 from __future__ import unicode_literals
 
+import io
+from os.path import join, dirname
+
+copy = lambda path: io.open(join(dirname(__file__), path), 'rb')
+
 conf = {
     'sitename': 'A descriptive blog title',
     'author': 'Anonymous',
     'email': 'info@example.com',
+    'theme': 'layouts/',
 
     'date_format': '%d.%m.%Y, %H:%M',
     'encoding': 'utf-8',
@@ -21,7 +27,6 @@ conf = {
     'filters_dir': [],
     'views_dir': [],
     'content_dir': 'content/',
-    'layout_dir': 'layouts/',
     'output_dir': 'output/',
 
     'filters': ['markdown+codehilite(css_class=highlight)', 'hyphenate'],

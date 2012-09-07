@@ -143,10 +143,13 @@ def Acryl():
     env['globals'] = Struct()
 
     # -- init -- #
-    # TODO: acrylamid init --layout_dir=somedir to overwrite defaults
-    if options.parser in ('init', ):
-        tasks.collected[options.parser](env, options)
-        sys.exit(0)
+    try:
+        if options.parser in ('init', ):
+            tasks.collected[options.parser](env, options)
+            sys.exit(0)
+    except AcrylamidException as e:
+        log.fatal(e.args[0])
+        sys.exit(1)
 
     # -- teh real thing -- #
     conf = Struct(defaults.conf)
@@ -163,10 +166,6 @@ def Acryl():
         log.critical("%s in `conf.py`" % e.__class__.__name__)
         traceback.print_exc(file=sys.stdout)
         sys.exit(1)
-
-    conf['output_dir'] = conf.get('output_dir', 'output/')
-    conf['content_dir'] = conf.get('content_dir', 'content/')
-    conf['layout_dir'] = conf.get('layout_dir', 'layouts/')
 
     # -- run -- #
     if options.parser in ('gen', 'generate', 'co', 'compile'):

@@ -32,4 +32,4 @@ Does `acrylamid clean` work?
 
 And we should clean up everything:
 
-  $ rm -rf output/ layouts/ content/ .cache/ conf.py
+  $ rm -rf output/ theme/ content/ .cache/ conf.py

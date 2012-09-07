@@ -17,37 +17,29 @@ init
 ----
 
 This initializes the base structure of an Acrylamid blog, thus it should be
-the first command you'll execute. In addition to initialization it also can
-restore changed/deleted files if you specify the complete path as argument.
+the first command you'll execute. If the destination  directory is not empty
+it won't overwrite anything unless you supply -f, --force to re-initialize the
+whole theme.
 
--f, --force  don't ask, just overwrite
---xhtml      use XHTML theme
---html5      use HTML5 theme (default)
---mako       use the Mako template engine
---jinja2     use the Jinja2 template engine (default)
+-f, --force    don't ask, just overwrite
+--theme THEME  use theme (minimalistic HTML5 per default)
+--mako         use the Mako template engine
+--jinja2       use the Jinja2 template engine (default)
 
 .. raw:: html
 
     <pre>
     $ acrylamid init tutorial
-      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/output/style.css
+      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/theme/style.css
          ...
-      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/layouts/atom.xml
+      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/theme/atom.xml
       <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/content/sample-entry.txt
     Created your fresh new blog at 'tutorial'. Enjoy!
     </pre>
 
-If you give . (dot) as argument the current working dir is used. Let's say you
-have edited *output/style.css* and want restore the original version.
+If you need to restore single files, remove the existing file and run::
 
-.. raw:: html
-
-    <pre>
-    $ cd foo/
-    $ acrylamid init output/blog.css
-    re-initialize 'output/style.css'? [yn]: y
-        <span style="font-weight: bold; color: #aa5500">re-initialized</span> output/style.css
-    </pre>
+    $ acrylamid init path/to/blog/
 
 
 new

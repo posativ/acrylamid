@@ -8,21 +8,23 @@ from __future__ import unicode_literals
 import sys
 import os
 import io
+import imp
 import shutil
+import string
 
 from os.path import exists, isfile, isdir, join, dirname, basename
 
 from acrylamid import log, defaults
+from acrylamid import AcrylamidException
 from acrylamid.tasks import task, argument
+from acrylamid.helpers import event
 
 arguments = [
     argument("dest", metavar="DEST|FILE", nargs="?", default="."),
     argument("-f", "--force", action="store_true", dest="overwrite",
         help="don't ask, just overwrite", default=False),
-    argument("--xhtml", action="store_const", dest="theme", const="xhtml",
-        help="use XHTML theme", default="html5"),
-    argument("--html5", action="store_const", dest="theme", const="html5",
-        help="use HTML5 theme (default)"),
+    argument("--theme", dest="theme", default="html5",
+        help="use theme (minimalistic HTML5 per default)"),
     argument("--mako", action="store_const", dest="engine", const="mako",
         help="use the Mako template engine", default=""),
     argument("--jinja2", action="store_const", dest="engine", const="jinja2",
@@ -30,12 +32,46 @@ arguments = [
 ]
 
 
-@task('init', arguments, help='initializes base structure in DIR')
-def init(env, options):
-    """Subcommand: init -- creates the base structure of an Acrylamid blog
-    or restores individual files."""
+def rollout(name, engine):
+    """A helper to ship custom themes.  Your theme must provide a ``__init__.py``
+    that contains a :func:`rollout` function that returns the theme directory
+    name as well as a dictionary of files."""
 
-    root = options.dest
+    directory = join(dirname(defaults.__file__), name)
+
+    if not isdir(directory):
+        raise AcrylamidException("no such theme %r" % name)
+
+    if not isdir(join(directory, engine)):
+        raise AcrylamidException("theme is not available for %r" % engine)
+
+    try:
+        if isfile(join(directory, engine, '__init__.py')):
+            fp, path, descr = imp.find_module(engine, [directory])
+        else:
+            # try parent directory
+            fp, path, descr = imp.find_module(name, [dirname(defaults.__file__)])
+        mod = imp.load_module(engine, fp, path, descr)
+    except (ImportError, Exception) as e:
+        raise AcrylamidException(unicode(e))
+
+    return mod.rollout(engine)
+
+
+@task('init', arguments, help='initializes base structure in PATH')
+def init(env, options):
+    """Subcommand: init -- create the base structure of an Acrylamid blog
+    or restore individual files and folders.
+
+    If the destination directory is empty, it will create a new blog. If the
+    destination  directory is not empty it won't overwrite anything unless
+    you supply -f, --force to re-initialize the whole theme.
+
+    If you need to restore single files, remove the existing file and run::
+
+        $ acrylamid init path/to/blog/
+
+    and all missing files are automatically re-created."""
 
     if not options.engine:
         try:
@@ -44,144 +80,48 @@ def init(env, options):
         except ImportError:
             options.engine = 'mako'
 
-    def create(directory, path):
-        """A shortcut for check if exists and shutil.copy to."""
+    root = options.dest
+    theme, files = rollout(options.theme, options.engine)
 
-        dest = join(root, directory, basename(path))
-        if not isfile(dest) or options.overwrite == True:
-            try:
-                shutil.copy(path, dest)
-                log.info('create  %s', dest)
-            except IOError as e:
-                log.fatal(unicode(e))
-        else:
-            log.info('skip  %s already exists', dest)
+    # remember whether we are restore an existing theme
+    restore = isfile(join(root, 'conf.py'))
 
-    default = defaults.conf
+    if isfile(root):
+        raise AcrylamidException("%s already exists!" % root)
 
-    default['output_dir'] = default['output_dir'].rstrip('/')
-    default['content_dir'] = default['content_dir'].rstrip('/')
-    default['layout_dir'] = default['layout_dir'].rstrip('/')
-
-    dirs = ['%(content_dir)s/', '%(layout_dir)s/', '%(output_dir)s/', '.cache/']
-
-    files = [p % {'engine': options.engine, 'theme': options.theme} for p in [
-        '%(engine)s/%(theme)s/base.html', '%(engine)s/%(theme)s/main.html',
-        '%(engine)s/%(theme)s/entry.html', '%(engine)s/%(theme)s/articles.html',
-        '%(engine)s/rss.xml', '%(engine)s/atom.xml',
-        'misc/%(theme)s/style.css', 'misc/sample-entry.txt']]
-    files = [join(dirname(defaults.__file__), path) for path in files]
-
-    # restore a given file from defaults
-    # XXX restore folders, too
-    if filter(lambda p: basename(p) == basename(root), files):
-
-        for path in files:
-            if basename(path) == basename(root):
-                break
-        if isfile(root) and (options.overwrite or raw_input('re-initialize %r? [yn]: ' % root) == 'y'):
-            shutil.copy(path, root)
-            log.info('re-initialized %s' % root)
-        else:
-            shutil.copy(path, root)
-            log.info('create %s' % root)
-        sys.exit(0)
-
-    # re-initialize conf.py
-    if root == 'conf.py':
-        if options.overwrite or raw_input('re-initialize %r? [yn]: ' % root) == 'y':
-            with io.open('conf.py', 'w') as fp:
-                fp.write(confstring % {'engine': options.engine})
-            log.info('re-initialized %s' % root)
-        sys.exit(0)
-
-    # YO DAWG I HERD U LIEK BLOGS SO WE PUT A BLOG IN UR BLOG -- ask user before
-    if isfile('conf.py') and not options.overwrite:
-        q = raw_input("Create blog inside a blog? [yn]: ")
-        if q != 'y':
+    if isdir(root) and len(os.listdir(root)) > 0 and not options.overwrite:
+        if not restore and raw_input("Destination directory not empty! Continue? [yn]: ") != 'y':
             sys.exit(1)
 
-    if exists(root) and len(os.listdir(root)) > 0 and not options.overwrite:
-        if raw_input("Destination directory not empty! Continue? [yn]: ") != 'y':
-            sys.exit(1)
+    if 'conf.py' not in files:
+        conf = string.Template(defaults.copy('conf.py').read())
+        files['conf.py'] = io.StringIO(conf.substitute(engine=options.engine, theme=theme))
 
-    if root != '.' and not exists(root):
-        os.mkdir(root)
+    for dest, items in files.iteritems():
+        dest = join(root, dest)
 
-    for directory in dirs:
-        directory = join(root, directory % default)
-        if exists(directory) and not isdir(directory):
-            log.critical('Unable to create %r. Please remove this file', directory)
-            sys.exit(1)
-        elif not exists(directory):
-            os.mkdir(directory)
+        if not isdir(dirname(dest)):
+            os.makedirs(dirname(dest))
 
-    with io.open(join(root, 'conf.py'), 'w') as fp:
-        fp.write(confstring % {'engine': options.engine})
-        log.info('create  %s', join(root, 'conf.py'))
+        if isinstance(items, (basestring, io.IOBase)):
+            items = [items, ]
 
-    for path in files:
-        if path.endswith(('.html', '.xml')):
-            create(default['layout_dir'], path)
-        elif path.endswith('.txt'):
-            create(default['content_dir'], path)
-        else:
-            create(default['output_dir'], path)
+        for obj in items:
+            if hasattr(obj, 'read'):
+                path = join(dirname(dest), basename(obj.name)) if dest.endswith('/') else dest
+                if options.overwrite or not exists(path):
+                    with io.open(path, 'wb') as fp:
+                        fp.write(obj.read())
+                    event.create(path)
+                else:
+                    event.skip(path)
+            else:
+                src = join(dirname(defaults.__file__), options.theme, options.engine, obj)
+                if options.overwrite or not exists(join(dest, basename(src))):
+                    shutil.copy(src, dest)
+                    event.create(dest if basename(dest) else join(dest, obj))
+                else:
+                    event.skip(dest)
 
-    log.info('Created your fresh new blog at %r. Enjoy!', root)
-
-
-confstring = """
-# -*- encoding: utf-8 -*-
-# This is your config file.  Please write in a valid python syntax!
-# See http://acrylamid.readthedocs.org/en/latest/conf.py.html
-
-SITENAME = 'A descriptive blog title'
-WWW_ROOT = 'http://example.com/'
-
-AUTHOR = 'Anonymous'
-EMAIL = 'mail@example.com'
-
-FILTERS = ['markdown+codehilite(css_class=highlight)', 'hyphenate', 'h1']
-VIEWS = {
-    '/': {'filters': 'summarize', 'view': 'index',
-          'pagination': '/page/:num'},
-
-    '/:year/:slug/': {'view': 'entry'},
-
-    '/tag/:name/': {'filters': 'summarize', 'view':'tag',
-                    'pagination': '/tag/:name/:num'},
-
-    # per tag Atom or RSS feed. Just uncomment to generate them.
-
-    # '/tag/:name/atom/': {'filters': ['h2', 'nohyphenate'], 'view': 'atompertag'},
-    # '/tag/:name/rss/': {'filters': ['h2', 'nohyphenate'], 'view': 'rsspertag'},
-
-    '/atom/': {'filters': ['h2', 'nohyphenate'], 'view': 'atom'},
-    '/rss/': {'filters': ['h2', 'nohyphenate'], 'view': 'rss'},
-
-    '/articles/': {'view': 'articles'},
-
-    '/sitemap.xml': {'view': 'sitemap'},
-
-    # Here are some more examples
-
-    # # '/:slug/' is a slugified url of your static page's title
-    # '/:slug/': {'view': 'page'}
-
-    # # '/atom/full/' will give you a _complete_ feed of all your entries
-    # '/atom/full/': {'filters': 'h2', 'view': 'atom', 'num_entries': 1000},
-
-    # # a feed containing all entries tagges with 'python'
-    # '/rss/python/': {'filters': 'h2', 'view': 'rss',
-    #                  'if': lambda e: 'python' in e.tags}
-
-    # # a full typography features entry including MathML and Footnotes
-    # '/:year/:slug': {'filters': ['typography', 'Markdown+Footnotes+MathML'],
-    #                  'view': 'entry'}
-}
-
-ENGINE = 'acrylamid.templates.%(engine)s.Environment'
-PERMALINK_FORMAT = '/:year/:slug/index.html'
-DATE_FORMAT = '%%d.%%m.%%Y, %%H:%%M'
-""".strip()
+    if not restore:
+        log.info('Created your fresh new blog at %r. Enjoy!', root)

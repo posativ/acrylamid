@@ -38,7 +38,7 @@ def initialize(conf, env):
     # set up templating environment
     env.engine = utils.import_object(conf['engine'])()
 
-    env.engine.init(conf['layout_dir'], cache.cache_dir)
+    env.engine.init(conf['theme'], cache.cache_dir)
     env.engine.register('safeslug', helpers.safeslug)
     env.engine.register('tagify', lambda x: x)
 
@@ -227,7 +227,7 @@ def autocompile(ws, conf, env, **options):
     while True:
         ntime = max(
             max(getmtime(e) for e in readers.filelist(conf['content_dir']) if utils.istext(e)),
-            max(getmtime(p) for p in readers.filelist(conf['layout_dir'])))
+            max(getmtime(p) for p in readers.filelist(conf['theme'])))
         if mtime != ntime:
             try:
                 compile(conf, env, **options)

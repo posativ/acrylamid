@@ -14,6 +14,7 @@ licensed under BSD Style, 2 clauses.
    commands
    filters
    views
+   theming
    templating
    extending
    howtos

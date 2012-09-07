@@ -7,30 +7,30 @@ Testing `acrylamid init` in different ways:
 Setup in current directory?
 
   $ acrylamid init -C .
-  create  ./conf.py
-  create  ./layouts/base.html
-  create  ./layouts/main.html
-  create  ./layouts/entry.html
-  create  ./layouts/articles.html
-  create  ./layouts/rss.xml
-  create  ./layouts/atom.xml
-  create  ./output/style.css
   create  ./content/sample-entry.txt
+  create  ./theme/base.html
+  create  ./theme/main.html
+  create  ./theme/entry.html
+  create  ./theme/articles.html
+  create  ./theme/atom.xml
+  create  ./theme/rss.xml
+  create  ./theme/style.css
+  create  ./conf.py
   Created your fresh new blog at '.'. Enjoy!
 
 Now set up in a given directory:
 
-  $ rm -rf ./output ./layouts ./content conf.py
+  $ rm -rf ./theme ./content conf.py
   $ acrylamid init -C foo
-  create  foo/conf.py
-  create  foo/layouts/base.html
-  create  foo/layouts/main.html
-  create  foo/layouts/entry.html
-  create  foo/layouts/articles.html
-  create  foo/layouts/rss.xml
-  create  foo/layouts/atom.xml
-  create  foo/output/style.css
   create  foo/content/sample-entry.txt
+  create  foo/theme/base.html
+  create  foo/theme/main.html
+  create  foo/theme/entry.html
+  create  foo/theme/articles.html
+  create  foo/theme/atom.xml
+  create  foo/theme/rss.xml
+  create  foo/theme/style.css
+  create  foo/conf.py
   Created your fresh new blog at 'foo'. Enjoy!
 
 Can we find all needed files?
@@ -39,26 +39,20 @@ Can we find all needed files?
   $ [ -e conf.py ]
   $ [ -e content/sample-entry.txt ]
 
-  $ [ -e layouts/base.html ]
-  $ [ -e layouts/main.html ]
-  $ [ -e layouts/entry.html ]
-  $ [ -e layouts/articles.html ]
-  $ [ -e layouts/rss.xml ]
-  $ [ -e layouts/atom.xml ]
-
-  $ [ -e output/style.css ]
+  $ [ -e theme/base.html ]
+  $ [ -e theme/main.html ]
+  $ [ -e theme/entry.html ]
+  $ [ -e theme/articles.html ]
+  $ [ -e theme/rss.xml ]
+  $ [ -e theme/atom.xml ]
+  $ [ -e theme/style.css ]
 
 Can we restore a stylesheet?
 
-  $ rm output/style.css
-  $ acrylamid init -fC output/style.css
-  create output/style.css
-
-An existing file?
-
-  $ acrylamid init -fC conf.py
-  re-initialized conf.py
+  $ rm theme/style.css
+  $ acrylamid init -C .
+  create  ./theme/style.css
 
 And we should clean up everything:
 
-  $ rm -rf output/ layouts/ content/ .cache/ conf.py
+  $ rm -rf output/ theme/ content/ .cache/ conf.py
