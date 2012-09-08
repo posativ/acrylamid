@@ -14,7 +14,8 @@ from os.path import getmtime, isfile, basename
 
 from acrylamid.templates import AbstractEnvironment, AbstractTemplate
 from mako.lookup import TemplateLookup
-from mako import exceptions
+from mako import exceptions, runtime
+
 
 class ExtendedLookup(TemplateLookup):
 
@@ -110,7 +111,10 @@ class Template(AbstractTemplate):
         # we inject the filter functions as top-level objects into the template,
         # that's probably the only way that works with Mako
         kw.update(self.filters)
-        return self.template.render_unicode(**kw)
+        buf = io.StringIO()
+        ctx = runtime.Context(buf, **kw)
+        self.template.render_context(ctx)
+        return buf
         # For debugging template compilation:
         # TODO: Integrate this with acrylamid somehow
         #from mako import exceptions as mako_exceptions

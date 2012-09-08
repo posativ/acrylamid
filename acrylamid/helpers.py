@@ -9,11 +9,12 @@ import os
 import io
 import re
 import hashlib
+import shutil
 import subprocess
 
 from unicodedata import normalize
 from collections import defaultdict
-from os.path import join, exists, dirname, basename
+from os.path import join, dirname, basename, isdir, isfile
 
 from acrylamid import log, PY3
 from acrylamid.errors import AcrylamidException
@@ -58,36 +59,48 @@ def union(*args, **kwargs):
     return d
 
 
-def mkfile(content, path, ctime=0.0, force=False, dryrun=False, **kw):
-    """Creates entry in filesystem. Overwrite only if content differs.
+def identical(obj, other, bs=4096):
+    """Takes two file-like objects and return if they are identical."""
+    while True:
+        a, b = obj.read(bs), other.read(bs)
+        if not a or not b or a != b:
+            break
+    obj.seek(0), other.seek(0)
+    return a == b
 
-    :param content: rendered html/xml to write
+
+def mkfile(fileobj, path, ctime=0.0, force=False, dryrun=False, mode="t", **kw):
+    """Creates entry in filesystem. Overwrite only if fileobj differs.
+
+    :param fileobj: rendered html/xml as file-like object
     :param path: path to write to
     :param ctime: time needed to compile
     :param force: force overwrite, even nothing has changed (defaults to `False`)
     :param dryrun: don't write anything."""
 
-    # XXX use hashing for comparison
-    if exists(dirname(path)) and exists(path):
-        with io.open(path, 'r') as fp:
-            old = fp.read()
-        if content == old and not force:
-            event.identical(path)
-        else:
-            if not dryrun:
-                with io.open(path, 'w') as fp:
-                    fp.write(content)
-            event.update(path=path, ctime=ctime)
-    else:
-        try:
-            if not dryrun:
-                os.makedirs(dirname(path))
-        except OSError:
-            # dir already exists (mostly)
-            pass
+    # reset pointer
+    fileobj.seek(0)
+
+    if isfile(path):
+        with io.open(path, 'r' + mode) as other:
+            if identical(fileobj, other):
+                return event.identical(path)
         if not dryrun:
-            with io.open(path, 'w') as fp:
-                fp.write(content)
+            if hasattr(fileobj, 'name'):
+                shutil.copy(fileobj.name, path)
+            else:
+                with io.open(path, 'w' + mode) as fp:
+                    fp.write(fileobj.read())
+        event.update(path=path, ctime=ctime)
+    else:
+        if not dryrun and not isdir(dirname(path)):
+            os.makedirs(dirname(path))
+        if not dryrun:
+            if hasattr(fileobj, 'name'):
+                shutil.copy(fileobj.name, path)
+            else:
+                with io.open(path, 'w' + mode) as fp:
+                    fp.write(fileobj.read())
         event.create(path=path, ctime=ctime)
 
 

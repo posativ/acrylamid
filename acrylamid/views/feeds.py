@@ -84,7 +84,7 @@ class RSS(Feed):
 
         self.num_entries = num_entries
         self.env.engine.register(
-            'rfc822', lambda x: format_date_time(mktime(x.timetuple())))
+            'rfc822', lambda x: unicode(format_date_time(mktime(x.timetuple()))))
         self.type = 'rss'
 
 

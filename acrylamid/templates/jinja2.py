@@ -5,12 +5,13 @@
 
 from __future__ import absolute_import
 
+from io import StringIO
 from os.path import exists, getmtime
 
 from jinja2 import Environment as J2Environemnt, FileSystemBytecodeCache
 from jinja2 import FileSystemLoader, meta
 
-from acrylamid.templates import AbstractEnvironment
+from acrylamid.templates import AbstractEnvironment, AbstractTemplate
 
 
 class ExtendedFileSystemLoader(FileSystemLoader):
@@ -97,4 +98,19 @@ class Environment(AbstractEnvironment):
         self.jinja2.filters[name] = func
 
     def fromfile(self, path):
-        return self.jinja2.get_template(path)
+        return Template(self.jinja2.get_template(path))
+
+
+class Template(AbstractTemplate):
+
+    def __init__(self, template):
+        self.template = template
+
+    def render(self, **kw):
+        buf = StringIO()
+        self.template.stream(**kw).dump(buf)
+        return buf
+
+    @property
+    def has_changed(self):
+        return self.template.has_changed

@@ -202,8 +202,8 @@ def compile(conf, env, force=False, **options):
         request['entrylist'] = filter(v.condition, entrylist)
         tt = time.time()
 
-        for html, path in v.generate(request):
-            helpers.mkfile(html, path, time.time()-tt, **options)
+        for buf, path in v.generate(request):
+            helpers.mkfile(buf, path, time.time()-tt, **options)
             tt = time.time()
 
     # remove abandoned cache files

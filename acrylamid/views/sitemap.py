@@ -13,29 +13,28 @@ from acrylamid.views import View
 from acrylamid.helpers import event, joinurl, rchop
 
 
-class Map(object):
+class Map(io.StringIO):
     """A simple Sitemap generator."""
 
     def __init__(self, *args, **kw):
 
-        self.sm = io.StringIO()
-        self.sm.write(u"<?xml version='1.0' encoding='UTF-8'?>\n")
-        self.sm.write(u'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n')
+        io.StringIO.__init__(self)
+        self.write(u"<?xml version='1.0' encoding='UTF-8'?>\n")
+        self.write(u'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n')
 
     def add(self, url, lastmod, changefreq='never', priority=0.5):
 
-        self.sm.write(u'  <url>\n')
-        self.sm.write(u'    <loc>%s</loc>\n' % url)
-        self.sm.write(u'    <lastmod>%s</lastmod>\n' % strftime('%Y-%m-%d', gmtime(lastmod)))
+        self.write(u'  <url>\n')
+        self.write(u'    <loc>%s</loc>\n' % url)
+        self.write(u'    <lastmod>%s</lastmod>\n' % strftime('%Y-%m-%d', gmtime(lastmod)))
         if changefreq:
-            self.sm.write(u'    <changefreq>%s</changefreq>\n' % changefreq)
+            self.write(u'    <changefreq>%s</changefreq>\n' % changefreq)
         if priority != 0.5:
-            self.sm.write(u'    <priority>%.1f</priority>\n' % priority)
-        self.sm.write(u'  </url>\n')
+            self.write(u'    <priority>%.1f</priority>\n' % priority)
+        self.write(u'  </url>\n')
 
-    def read(self):
-        self.sm.seek(0)
-        return self.sm.read() + u'</urlset>'
+    def finish(self):
+        self.write(u'</urlset>')
 
 
 class Sitemap(View):
@@ -126,4 +125,5 @@ class Sitemap(View):
 
                     break
 
-        yield sm.read(), path
+        sm.finish()
+        yield sm, path
