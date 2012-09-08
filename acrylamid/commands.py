@@ -21,7 +21,7 @@ from os.path import join, dirname, getmtime, isfile
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
-from acrylamid import readers, filters, views, utils, helpers
+from acrylamid import readers, filters, views, assets, utils, helpers
 from acrylamid.lib import lazy
 from acrylamid.core import cache
 from acrylamid.helpers import event, safe
@@ -205,6 +205,10 @@ def compile(conf, env, force=False, **options):
         for buf, path in v.generate(request):
             helpers.mkfile(buf, path, time.time()-tt, **options)
             tt = time.time()
+
+    # copy modified/missing assets to output
+    assets.initialize(conf, env)
+    assets.compile(conf, env)
 
     # remove abandoned cache files
     cache.shutdown()

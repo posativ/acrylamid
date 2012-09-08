@@ -33,6 +33,11 @@ class AbstractEnvironment(object):
         :class:`AbstractTemplate`-like class`."""
         return
 
+    @abc.abstractproperty
+    def templates(self):
+        """Return the path of all currently processed templates."""
+        return
+
 
 class AbstractTemplate(object):
 

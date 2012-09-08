@@ -25,6 +25,9 @@ class ExtendedLookup(TemplateLookup):
     # remember already resolved templates
     resolved = {}
 
+    # used templates
+    used = set()
+
     def get_template(self, uri):
         """This is stolen and truncated from mako.lookup:TemplateLookup."""
 
@@ -41,6 +44,8 @@ class ExtendedLookup(TemplateLookup):
 
         def resolve(uri):
             """Check whether any referenced template has changed -- recursively."""
+
+            self.used.add(uri)
 
             if uri in self.resolved:
                 return self.resolved[uri]
@@ -99,6 +104,10 @@ class Environment(AbstractEnvironment):
 
     def fromfile(self, path):
         return Template(self.mako.get_template(path), self.filters)
+
+    @property
+    def templates(self):
+        return self.mako.used
 
 
 class Template(AbstractTemplate):

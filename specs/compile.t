@@ -17,7 +17,8 @@ in less than a second.
   create  [?.??s] output/atom/index.html (glob)
   create  [?.??s] output/rss/index.html (glob)
   create  [0.??s] output/sitemap.xml (glob)
-  8 new, 0 updated, 0 skipped [?.??s] (glob)
+  create  output/style.css
+  9 new, 0 updated, 0 skipped [?.??s] (glob)
 
 If we compile a second time, nothing should happen at all (except you use a
 filter with version that randomly changes, but *this* is not an intented!)
@@ -31,7 +32,8 @@ filter with version that randomly changes, but *this* is not an intented!)
   skip  output/atom/index.html
   skip  output/rss/index.html
   skip  output/sitemap.xml
-  0 new, 0 updated, 8 skipped [?.??s] (glob)
+  skip  output/style.css
+  0 new, 0 updated, 9 skipped [?.??s] (glob)
 
 If we change the modification, it should re-render!
 
@@ -46,7 +48,8 @@ If we change the modification, it should re-render!
   identical  output/atom/index.html
   identical  output/rss/index.html
   identical  output/sitemap.xml
-  0 new, 0 updated, 8 skipped [?.??s] (glob)
+  skip  output/style.css
+  0 new, 0 updated, 9 skipped [?.??s] (glob)
 
 Acrylamid should update a file if the content changes!
 
@@ -61,7 +64,8 @@ Acrylamid should update a file if the content changes!
   update  [?.??s] output/atom/index.html (glob)
   update  [?.??s] output/rss/index.html (glob)
   identical  output/sitemap.xml
-  0 new, 3 updated, 5 skipped [?.??s] (glob)
+  skip  output/style.css
+  0 new, 3 updated, 6 skipped [?.??s] (glob)
 
 Lets try if we have really incremental rendering:
 
@@ -76,18 +80,19 @@ Lets try if we have really incremental rendering:
   update  [?.??s] output/atom/index.html (glob)
   update  [?.??s] output/rss/index.html (glob)
   update  [0.??s] output/sitemap.xml (glob)
-  1 new, 6 updated, 2 skipped [?.??s] (glob)
+  skip  output/style.css
+  1 new, 6 updated, 3 skipped [?.??s] (glob)
 
 Now with templates. We have patched jinja2 template loader so we have a
 recognition wether a template (including its parent templates) has changed.
 *Note*, that this required BSD touch, too.
 
-Let's randomly (chosen by fair dice) change some mtimes...
+Let's change some mtimes ...
 
-  $ touch layouts/articles.html
-  $ touch layouts/entry.html
-  $ touch layouts/rss.xml
-  $ touch layouts/atom.xml
+  $ touch theme/articles.html
+  $ touch theme/entry.html
+  $ touch theme/rss.xml
+  $ touch theme/atom.xml
 
   $ acrylamid compile -Cv
   identical  output/articles/index.html
@@ -99,11 +104,12 @@ Let's randomly (chosen by fair dice) change some mtimes...
   identical  output/atom/index.html
   identical  output/rss/index.html
   identical  output/sitemap.xml
-  0 new, 0 updated, 9 skipped [?.??s] (glob)
+  skip  output/style.css
+  0 new, 0 updated, 10 skipped [?.??s] (glob)
 
 Now we touch a parent template and all inherited templates should change as, too.
 
-  $ touch layouts/base.html
+  $ touch theme/base.html
 
   $ acrylamid compile -Cv
   identical  output/articles/index.html
@@ -115,11 +121,12 @@ Now we touch a parent template and all inherited templates should change as, too
   skip  output/atom/index.html
   skip  output/rss/index.html
   identical  output/sitemap.xml
-  0 new, 0 updated, 9 skipped [?.??s] (glob)
+  skip  output/style.css
+  0 new, 0 updated, 10 skipped [?.??s] (glob)
 
 And now vice versa: we touch completely different templates:
 
-  $ touch layouts/rss.xml
+  $ touch theme/rss.xml
 
   $ acrylamid compile -Cv
   skip  output/articles/index.html
@@ -131,12 +138,13 @@ And now vice versa: we touch completely different templates:
   skip  output/atom/index.html
   identical  output/rss/index.html
   identical  output/sitemap.xml
-  0 new, 0 updated, 9 skipped [0.??s] (glob)
+  skip  output/style.css
+  0 new, 0 updated, 10 skipped [0.??s] (glob)
 
 Now we change the base template and should see some updates:
 
-  $ echo "Bar!" >> layouts/base.html
-  $ touch layouts/base.html
+  $ echo "Bar!" >> theme/base.html
+  $ touch theme/base.html
 
   $ acrylamid compile -Cv
   update  [?.??s] output/articles/index.html (glob)
@@ -148,7 +156,8 @@ Now we change the base template and should see some updates:
   skip  output/atom/index.html
   skip  output/rss/index.html
   identical  output/sitemap.xml
-  0 new, 6 updated, 3 skipped [?.??s] (glob)
+  skip  output/style.css
+  0 new, 6 updated, 4 skipped [?.??s] (glob)
 
 If we change a filter in conf.py we should see an update:
 
@@ -167,8 +176,9 @@ If we change a filter in conf.py we should see an update:
   identical  output/atom/index.html
   identical  output/rss/index.html
   identical  output/sitemap.xml
-  0 new, 4 updated, 5 skipped [?.??s] (glob)
+  skip  output/style.css
+  0 new, 4 updated, 6 skipped [?.??s] (glob)
 
 And we should clean up everything:
 
-  $ rm -rf output/ layouts/ content/ .cache/ conf.py
+  $ rm -rf output/ theme/ content/ .cache/ conf.py

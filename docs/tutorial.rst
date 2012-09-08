@@ -18,13 +18,13 @@ basic structure, type into the terminal:
 
     <pre>
     $ acrylamid init tutorial
-      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/output/style.css
-      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/layouts/base.html
-      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/layouts/main.html
-      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/layouts/entry.html
-      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/layouts/articles.html
-      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/layouts/rss.xml
-      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/layouts/atom.xml
+      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/theme/style.css
+      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/theme/base.html
+      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/theme/main.html
+      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/theme/entry.html
+      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/theme/articles.html
+      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/theme/rss.xml
+      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/theme/atom.xml
       <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/content/sample-entry.txt
     Created your fresh new blog at 'tutorial'. Enjoy!
     </pre>
@@ -40,13 +40,14 @@ and type ``ls -l``
     total 4
      -rw-r--r-- 1 ich 1452 Mai 23 19:48 conf.py
      drwxr-xr-x 3 ich  102 Mai 23 19:42 <span class="ansi1 ansi34">content</span>/
-     drwxr-xr-x 8 ich  272 Mai 23 19:42 <span class="ansi1 ansi34">layouts</span>/
-     drwxr-xr-x 3 ich  102 Mai 23 19:42 <span class="ansi1 ansi34">output</span>/
-     drwxr-xr-x 7 ich  238 Mai 23 19:43 <span class="ansi1 ansi34">tutorial</span>/
+     drwxr-xr-x 8 ich  272 Mai 23 19:42 <span class="ansi1 ansi34">theme</span>/
     </pre>
 
-You see one file and three directories and they should be pretty
-self-explanatory, at least their intention.
+In ``conf.py`` you configure the whole generation behavior and you can set default
+values that you may override in a specific entry. By default, all your text goes into
+``content/`` and your theme is located in ``theme/``. All assets such as images and
+other binary stuff goes into ``theme/``. Acrylamid will automatically copy stuff from
+there into the output directory (defaults to ``output/``).
 
 Compiling the Blog
 ------------------

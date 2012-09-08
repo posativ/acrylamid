@@ -24,6 +24,9 @@ class ExtendedFileSystemLoader(FileSystemLoader):
     # remember already resolved templates
     resolved = {}
 
+    # used templates
+    used = set()
+
     def load(self, environment, name, globals=None):
         """patched `load` to add a has_changed attribute providing information
         whether the template or its parents have changed."""
@@ -32,6 +35,8 @@ class ExtendedFileSystemLoader(FileSystemLoader):
             """We check whether any dependency (extend-block) has changed and
             update the bucket -- recursively. Returns True if the template
             itself or any parent template has changed. Otherwise False."""
+
+            self.used.add(parent)
 
             if parent in self.resolved:
                 return self.resolved[parent]
@@ -99,6 +104,10 @@ class Environment(AbstractEnvironment):
 
     def fromfile(self, path):
         return Template(self.jinja2.get_template(path))
+
+    @property
+    def templates(self):
+        return self.jinja2.loader.used
 
 
 class Template(AbstractTemplate):
