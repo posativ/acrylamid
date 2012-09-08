@@ -8,6 +8,7 @@ import io
 import time
 
 from tempfile import mkstemp
+from itertools import chain
 from os.path import join, relpath, isfile, getmtime, splitext
 
 from acrylamid import core, readers, helpers
@@ -77,6 +78,9 @@ class LESSWriter(System):
 
 def initialize(conf, env):
 
+    if isinstance(conf.setdefault('static', []), basestring):
+        conf['static'] = [conf['static'], ]
+
     global __writers, __defaultwriter
     __writers = {}
     __defaultwriter = DefaultWriter()
@@ -97,16 +101,21 @@ def compile(conf, env):
         # ...
     }
 
-    files = (relpath(path, conf['theme']) for path in readers.filelist(conf['theme']))
-    files = (f for f in files if f not in env.engine.templates)
+    other = [(prefix, readers.filelist(prefix)) for prefix in conf['static']]
+    other = [((relpath(path, prefix), prefix) for path in generator)
+        for prefix, generator in other]
 
-    for path in files:
+    files = ((path, conf['theme']) for path in readers.filelist(conf['theme']))
+    files = ((relpath(path, prefix), prefix) for path, prefix in files)
+    files = ((path, prefix) for path, prefix in files if path not in env.engine.templates)
+
+    for path, directory in chain(files, chain(*other)):
 
         # initialize writer for extension if not already there
         _, ext = splitext(path)
         if ext in ext_map and ext not in __writers:
             __writers[ext] = ext_map[ext]()
 
-        src, dest = join(conf['theme'], path), join(conf['output_dir'], path)
+        src, dest = join(directory, path), join(conf['output_dir'], path)
         writer = __writers.get(ext, __defaultwriter)
         writer.write(src, dest, force=env.options.force, dryrun=env.options.dryrun)

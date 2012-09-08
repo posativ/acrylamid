@@ -35,6 +35,9 @@ def initialize(conf, env):
     # initialize cache, optional to cache_dir
     cache.init(conf.get('cache_dir', None))
 
+    # rewrite static directory
+    assets.initialize(conf, env)
+
     # set up templating environment
     env.engine = utils.import_object(conf['engine'])()
 
@@ -207,7 +210,6 @@ def compile(conf, env, force=False, **options):
             tt = time.time()
 
     # copy modified/missing assets to output
-    assets.initialize(conf, env)
     assets.compile(conf, env)
 
     # remove abandoned cache files

@@ -87,22 +87,21 @@ def ignored(cwd, path, patterns, dest):
 
 
 def filelist(directory, patterns=[]):
-    """Gathering all entries in directory except ignored patterns."""
+    """Gathers all files in directory but excludes file by patterns. Note, that
+    this generator won't raise any (IOError, OSError)."""
 
-    flist = []
     for root, dirs, files in os.walk(directory):
         for f in files:
             if f[0] == '.':
                 continue
             path = os.path.join(root, f)
             if not ignored(root, path, patterns, directory):
-                flist.append(path)
+                yield path
 
         # don't visit excluded dirs
         for dir in dirs[:]:
             if ignored(root, dir+'/', patterns, directory):
                 dirs.remove(dir)
-    return flist
 
 
 class Date(datetime):
