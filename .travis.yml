@@ -10,4 +10,9 @@ script:
   - nosetests specs/
   - cram specs/
 notifications:
-  irc: "irc.freenode.org#acrylamid"
+  irc:
+    channel: "irc.freenode.org#acrylamid"
+    on_success: change
+    on_failure: change
+    use_notice: true
+    template: "%{repository} (%{commit}) : %{message}, %{build_url}"
