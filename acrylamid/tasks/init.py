@@ -95,7 +95,8 @@ def init(env, options):
 
     if 'conf.py' not in files:
         conf = string.Template(defaults.copy('conf.py').read())
-        files['conf.py'] = io.StringIO(conf.substitute(engine=options.engine, theme=theme))
+        files['conf.py'] = io.BytesIO(conf.substitute(engine=options.engine,
+                                                      theme=theme).encode('utf-8'))
 
     for dest, items in files.iteritems():
         dest = join(root, dest)
