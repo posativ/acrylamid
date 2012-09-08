@@ -81,10 +81,13 @@ blogging features
 - HTML5 valid (but there's a XHTML template, too)
 - internal webserver with automatic compiling when something has changed
 - uni-directional PingBack support.
+- assets management, including LESS_ and SASS_ conversion.
 
 .. _YAML front matter: https://github.com/mojombo/jekyll/wiki/YAML-Front-Matter
 .. _Jekyll: http://jekyllrb.com/
 .. _nanoc: http://nanoc.stoneship.org/
+.. _LESS: http://lesscss.org/
+.. _SASS: http://sass-lang.com/
 
 what is missing
 ~~~~~~~~~~~~~~~
