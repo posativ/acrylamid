@@ -12,7 +12,7 @@ from os.path import join, getmtime
 from acrylamid import readers, commands
 from acrylamid.core import cache
 from acrylamid.tasks import task, argument
-from acrylamid.colors import white, blue, green
+from acrylamid.colors import white, blue, green, normal
 
 
 class Gitlike(argparse.Action):
@@ -74,7 +74,7 @@ def run(conf, env, options):
 
     for entry in entrylist[:limit]:
         print '  ', green(ago(entry.date.replace(tzinfo=None)).ljust(13)),
-        print white(entry.title) if entry.draft else entry.title
+        print white(entry.title) if entry.draft else normal(entry.title)
 
     print
     print '%s published,' % blue(len([e for e in entrylist if not e.draft])),

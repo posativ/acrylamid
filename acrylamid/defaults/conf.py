@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
-# This is your config file.  Please write in a valid python syntax!
-# See http://acrylamid.readthedocs.org/en/latest/conf.py.html
+# This is your configuration file.  Please write valid python!
+# See http://posativ.org/acrylamid/conf.py.html
 
 SITENAME = 'A descriptive blog title'
 WWW_ROOT = 'http://example.com/'

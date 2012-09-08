@@ -43,7 +43,7 @@ class ANSIString(object):
         return other + unicode(self)
 
 
-notmal, bold, underline = [lambda obj, x=x: ANSIString(obj, style=x)
+normal, bold, underline = [lambda obj, x=x: ANSIString(obj, style=x)
     for x in range(0, 3)]
 
 black, red, green, yellow, blue, \
