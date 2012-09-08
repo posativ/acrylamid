@@ -140,7 +140,7 @@ class cache(object):
                 os.remove(path)
             except (AttributeError, EOFError):
                 # this may happen after a refactor
-                log.info('notice  invalid cache objects')
+                log.info('notice  stale cache objects')
                 for obj in self._list_dir():
                     cache.remove(obj)
                 break
