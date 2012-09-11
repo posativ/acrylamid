@@ -388,12 +388,35 @@ rebuilt this content, the output might differ).
 
         {{ "cat ~/work/project/code.py" | system | indent(4) }}
 
-Environment variables are the same as in :doc:`templating`.
+    You can find my previous article "{{ env.prev.title }}" here_. Not
+    interesting enough? How about lorem ipsum?
+
+    {{ lipsum(5) }}
+
+    .. _here: {{ env.prev }}
+
+Environment variables are the same as in :doc:`templating` plus
+some imported modules from Python namely: ``time``, ``datetime``
+and ``urllib`` since you can't import anything from Jinja2.
 
 ============  ==================================================
 Requires      <built-in>
 Aliases       Jinja2, jinja2
 ============  ==================================================
+
+
+Mako
+----
+
+Just like Jinja2 filtering but using Mako. You have also ``system`` filter
+available within Mako. Unlike Jinja2 Mako can import python modules during
+runtime, therefore no additional modules are imported into the namespace.
+
+============  ==================================================
+Requires      `mako <http://docs.makotemplates.org/>`_
+Aliases       Mako, mako
+============  ==================================================
+
 
 .. _custom-filters:
 
