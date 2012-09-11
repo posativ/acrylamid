@@ -9,7 +9,7 @@ sys.path.append(os.path.abspath('_themes'))
 
 # -- General configuration -----------------------------------------------------
 
-extensions = ['sphinx.ext.autodoc']
+extensions = ['sphinx.ext.autodoc', 'sphinxcontrib.blockdiag']
 templates_path = ['_templates']
 source_suffix = '.rst'
 master_doc = 'index'

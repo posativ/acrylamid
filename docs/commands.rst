@@ -207,7 +207,7 @@ recommended to import WordPress blogs as pure HTML because it does not validate!
     If you get a *critical  Entry already exists u'content/2012/update.txt'*,
     you may change your ``PERMALINK_FORMAT`` to a more fine-grained
     ``"/:year/:month/:day/:slug/index.html"`` import strategy. If you don't
-    which a re-layout of your entries, you can use ``--keep-links`` to use the
+    wish a re-layout of your entries, you can use ``--keep-links`` to use the
     permalink as path.
 
 -f, --force         override existing entries, use with care!
@@ -219,6 +219,7 @@ recommended to import WordPress blogs as pure HTML because it does not validate!
                     are like this: ``/?p=23``.
 -p, --pandoc        use pandoc first, then ``html2rest`` or ``html2text``
 
+.. _deploy:
 
 deploy
 ------
@@ -301,9 +302,34 @@ ping
 ----
 
 Send Pingbacks to other blogs (still experimental) with one command. Without any arguments the
-newest article is submitted to any referenced url that supports Pingback.
+newest article is submitted to any referenced url that supports Pingback. As positional argument
+you can ping Twitter with your article.
 
--a, --all             ping all entries (default: only the newest)
--2                    a git-like digit to ping the newest N articles. Defaults to 1.
--n, --dry-run         show what would have been pingbacked
--j JOBS, --jobs JOBS  N parallel requests
+optional arguments:
+  -h, --help            show this help message and exit
+  -a, --all             ping all entries (default: only the newest)
+  -p FILE               ping specific article
+  -n, --dry-run         show what would have been pingbacked
+  -j JOBS, --jobs JOBS  N parallel requests
+  -2                    a git-like digit to ping the last N articles. Defaults to the last one.
+
+First we do a dry-run and look what blogs we may ping back:
+
+::
+
+    $ acrylamid ping --dry-run
+    Pingback crypto.junod.info from blog.posativ.org/2012/linkschleuder-27/.
+
+Now without ``--dry-run`` you actually ping that blog. Note that you may ping a ressource several
+times without any drawback. That's part of the protocol to handle that. After that we'll post your
+article to Twitter (note that you must have ``twitter`` from PyPi installed):
+
+::
+
+    $ acrylamid ping twitter
+    tweet  New Blog Entry: Linkschleuder #27
+           http://blog.posativ.org/2012/linkschleuder-27/ #links
+           #unix #html5 #javascript #planet
+
+Of course, you must first allow Acrylamid to post tweets for you. From all optional argumments above
+you can only use ``--all`` and ``-2`` to increase the amount of pinged articles.

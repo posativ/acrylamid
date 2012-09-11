@@ -54,11 +54,6 @@ div.body {
 
     /* hyphens1! */
     text-align: justify;
-    -moz-hyphens: auto;
-    -ms-hyphens: auto;
-    -o-hyphens: auto;
-    -webkit-hyphens: auto;
-    hyphens: auto;
 }
 
 img.floatingflask {

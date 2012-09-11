@@ -14,6 +14,9 @@ licensed under BSD Style, 2 clauses.
 Why?
 ----
 
+Acrylamid isn't your granddad's static blog compiler. I think that just sums
+it up.
+
 - it is *fast* (incremental builds)
 - support for Jinja2_ or Mako_ templates
 - many Markdown_ extensions and custom reStructuredText_ directives
@@ -70,8 +73,8 @@ blogging features
   hyphenation feature?)
 - HTML5 valid (but there's a XHTML template, too)
 - internal webserver with automatic compiling when something has changed
-- uni-directional PingBack support.
 - assets management, including LESS_ and SASS_ conversion.
+- uni-directional PingBack support.
 
 .. _YAML front matter: https://github.com/mojombo/jekyll/wiki/YAML-Front-Matter
 .. _Jekyll: http://jekyllrb.com/
@@ -93,9 +96,13 @@ what is missing
 Quickstart
 ----------
 
+The latest release on PyPi is outdated but the current master not yet finished.
+But to get the latest improvements (and there have been alot) as well as new
+features such as asset handling use:
+
 ::
 
-    easy_install -U acrylamid
+    easy_install -U https://github.com/posativ/acrylamid/tarball/master
 
 This installs Acrylamid with Jinja2_ as templating engine. For Mako_ use
 ``easy_install -U acrylamid --mako``. This installs two additional but not
@@ -108,17 +115,21 @@ Initialize the base structure, edit *conf.py* and *layouts/* and compile with:
 
 ::
 
-    $> acrylamid init myblog
+    $ acrylamid init myblog
         create  myblog/conf.py
         ...
-    $> cd myblog/
-    $> acrylamid compile && acrylamid view
-          warn  using mtime from <fileentry f'content/sample entry.txt'>
-        create  '/articles/index.html', written to output/articles/index.html
-        create  'Die Verwandlung', written to output/2011/die-verwandlung/index.html
-        create  '/atom/index.html', written to output/atom/index.html
-        create  '/rss/index.html', written to output/rss/index.html
-        create  '/', written to output/index.html
+    $ cd myblog/
+    $ acrylamid compile && acrylamid view
+        create  [0.05s] output/articles/index.html
+        create  [0.37s] output/2012/die-verwandlung/index.html
+        create  [0.00s] output/index.html
+        create  [0.00s] output/tag/die-verwandlung/index.html
+        create  [0.00s] output/tag/franz-kafka/index.html
+        create  [0.03s] output/atom/index.html
+        create  [0.04s] output/rss/index.html
+        create  [0.00s] output/sitemap.xml
+        create  output/style.css
+    9 new, 0 updated, 0 skipped [0.72s]
        * Running on http://127.0.0.1:8000/
 
 Real World Examples?

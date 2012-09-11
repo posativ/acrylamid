@@ -5,13 +5,8 @@ Acrylamid doesn't reinvent the wheel. It integrates a lot of useful projects
 to provide a feature-rich user experience. You can use acrylamid in a very
 minimalistic way and write your posts in plain markdown or add more expensive
 features you may not have with dynamic web pages such as code highlighting,
-typography, mathml and hyphenation. See :doc:`about` for a listing of
-third-party libraries used.
-
-I'm aware of tools like javascript-based syntax highlighting and
-browser/javascript provided hyphenation, but the latter is rather slow and a
-browser may not distuingish between different languages. Acrylamids focuses on
-plain HTML generation and avoids javascript usage whenever possible.
+typography, mathml and hyphenation. See :doc:`about` for an overview of the
+third-party libraries used in Acrylamid.
 
 Linux/Debian and OS X
 *********************
@@ -43,6 +38,8 @@ Additional Supported Modules
 +-----------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
 | Textile                                                                                 | `pytextile <http://pypi.python.org/pypi/textile/>`_                        |
 +-----------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
+| Discount                                                                                | `discount <http://www.pell.portland.or.us/~orc/Code/discount/>`_.          |
++-----------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
 | Syntax Highlighting                                                                     | `pygments <http://pygments.org/>`_                                         |
 +-----------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
 | Typography enhancements                                                                 | `smartypants <http://daringfireball.net/projects/smartypants/>`_           |
@@ -51,30 +48,31 @@ Additional Supported Modules
 +-----------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
 | cyrillic/chinese ascii slugs                                                            | `unidecode <http://pypi.python.org/pypi/Unidecode/>`_                      |
 +-----------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
-| Mako Templates                                                                          | `mako <http://www.makotemplates.org/>`_                                    |
+| Mako Templating                                                                         | `mako <http://www.makotemplates.org/>`_                                    |
 +-----------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
 | exact YAML parser                                                                       | `PyYAML <http://pyyaml.org/>`_                                             |
 +-----------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
-
+| Twitter                                                                                 | `twitter <http://pypi.python.org/pypi/twitter>`_                           |
++-----------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
 
 Asian/Russian Users
 -------------------
 
-If you write in your native language, you have to install ``unidecode`` for
-ASCII transcription of your characters. This is only required for the safe
-slug to your post.
-
+If you write in your native language, it is better to install ``unidecode`` for
+a better ASCII transcription of your characters. This is only required for the
+safe slug to your post.
 
 Windows
 *******
 
-Not supported currently.
+Not supported.
 
 Python 3
 ********
 
-Within the release of 0.3.4 Acrylamid has experimental support for Python 3. I
-hope *2to3* gets automatically applied, if not:
+As of release of 0.3.4 Acrylamid has experimental support for Python 3. Although
+most parts of Acrylamid work with Python 3, it is not actively tested and
+maintained. I hope *2to3* gets automatically applied, if not:
 
 
 .. code-block:: bash

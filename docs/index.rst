@@ -5,24 +5,33 @@ Acrylamid is a mixture of `nanoc <http://nanoc.stoneship.org/>`_, `Pyblosxom
 <http://pyblosxom.bluesock.org/>`_ and `Pelican <http://blog.getpelican.com/>`_
 licensed under BSD Style, 2 clauses.
 
+|Build Status|_
+
+.. _Build Status: http://travis-ci.org/posativ/acrylamid
+.. |Build Status| image:: https://secure.travis-ci.org/posativ/acrylamid.png
+
 .. toctree::
    :maxdepth: 1
 
    installation
-   tutorial
+   usage
+   advanced
    conf.py
    commands
+   idea
    filters
    views
    theming
    templating
    extending
    howtos
-   internals
    about
 
 Why?
 ----
+
+Acrylamid isn't your granddad's static blog compiler. I think that just sums
+it up.
 
 - it is *fast* (incremental builds)
 - support for Jinja2_ or Mako_ templates
@@ -80,8 +89,8 @@ blogging features
   hyphenation feature?)
 - HTML5 valid (but there's a XHTML template, too)
 - internal webserver with automatic compiling when something has changed
-- uni-directional PingBack support.
 - assets management, including LESS_ and SASS_ conversion.
+- uni-directional PingBack support.
 
 .. _YAML front matter: https://github.com/mojombo/jekyll/wiki/YAML-Front-Matter
 .. _Jekyll: http://jekyllrb.com/
@@ -92,7 +101,7 @@ blogging features
 what is missing
 ~~~~~~~~~~~~~~~
 
-- No comments. You have to Disqus_ or `this approach`_.
+- No comments. You have to use Disqus_ or `this approach`_.
 - No search. But it's on the roadmap, Sphinx_ too.
 - A consistent™ documentation.
 
@@ -103,9 +112,14 @@ what is missing
 Quickstart
 ----------
 
+The latest release on PyPi is outdated but the current master not yet finished.
+But to get the latest improvements (and there have been alot) as well as new
+features such as asset handling use:
+
 ::
 
-    easy_install -U acrylamid
+    easy_install -U https://github.com/posativ/acrylamid/tarball/master
+
 
 This installs Acrylamid with Jinja2_ as templating engine. For Mako_ use
 ``easy_install -U acrylamid --mako``. This installs two additional but not
@@ -124,16 +138,17 @@ Initialize the base structure, edit *conf.py* and *layouts/* and compile with:
         ...
     $ cd myblog/
     $ acrylamid compile && acrylamid view
-       <span class="ansi1 ansi32">   create</span>  [0.06s] output/articles/index.html
-       <span class="ansi1 ansi32">   create</span>  [0.44s] output/2012/die-verwandlung/index.html
-       <span class="ansi1 ansi32">   create</span>  [0.00s] output/index.html
-       <span class="ansi1 ansi32">   create</span>  [0.00s] output/tag/die-verwandlung/index.html
-       <span class="ansi1 ansi32">   create</span>  [0.00s] output/tag/franz-kafka/index.html
-       <span class="ansi1 ansi32">   create</span>  [0.03s] output/atom/index.html
-       <span class="ansi1 ansi32">   create</span>  [0.03s] output/rss/index.html
-       <span class="ansi1 ansi32">   create</span>  [0.00s] output/sitemap.xml
-    Blog compiled in 0.61s
-     * Running on http://127.0.0.1:8000/
+      <span style="font-weight: bold; color: #00aa00">   create</span>  [0.02s] output/articles/index.html
+      <span style="font-weight: bold; color: #00aa00">   create</span>  [0.31s] output/2012/die-verwandlung/index.html
+      <span style="font-weight: bold; color: #00aa00">   create</span>  [0.00s] output/index.html
+      <span style="font-weight: bold; color: #00aa00">   create</span>  [0.00s] output/tag/die-verwandlung/index.html
+      <span style="font-weight: bold; color: #00aa00">   create</span>  [0.00s] output/tag/franz-kafka/index.html
+      <span style="font-weight: bold; color: #00aa00">   create</span>  [0.01s] output/atom/index.html
+      <span style="font-weight: bold; color: #00aa00">   create</span>  [0.01s] output/rss/index.html
+      <span style="font-weight: bold; color: #00aa00">   create</span>  [0.00s] output/sitemap.xml
+      <span style="font-weight: bold; color: #00aa00">   create</span>  output/style.css
+    9 new, 0 updated, 0 skipped [0.50s]
+       * Running on http://127.0.0.1:8000/
     </pre>
 
 Real World Examples?
