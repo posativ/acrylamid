@@ -26,8 +26,8 @@ class Jinja2(Filter):
             try:
                 return defaultsystem(cmd, stdin, shell=True).strip()
             except (OSError, AcrylamidException) as e:
-                log.warn('%s: %s' % (e.__class__.__name__, e.args[0]))
-                return e.args[0]
+                log.warn('%s: %s' % (e.__class__.__name__, unicode(e)))
+                return unicode(e)
 
         self.conf = conf
         self.env = env

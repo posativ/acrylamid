@@ -276,24 +276,19 @@ def link(title, href=None, entry=None):
 
 def system(cmd, stdin=None, **kwargs):
     """A simple front-end to python's horrible Popen-interface which lets you
-    run a single shell command (only one, semicolon and && is not supported by
-    os.execvp(). Does not catch OSError!
+    run a single shell command. Does not catch :py:exc:`OSError`.
 
     :param cmd: command to run (a single string or a list of strings).
     :param stdin: optional string to pass to stdin.
     :param kwargs: is passed to :class:`subprocess.Popen`."""
 
-    try:
-        if stdin:
-            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                 stdin=subprocess.PIPE, **kwargs)
-            result, err = p.communicate(stdin.encode('utf-8'))
-        else:
-            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kwargs)
-            result, err = p.communicate()
-
-    except OSError as e:
-        raise OSError(e.strerror)
+    if stdin:
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                             stdin=subprocess.PIPE, **kwargs)
+        result, err = p.communicate(stdin.encode('utf-8'))
+    else:
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kwargs)
+        result, err = p.communicate()
 
     retcode = p.poll()
     if err or retcode != 0:
