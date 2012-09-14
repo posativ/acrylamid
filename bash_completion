@@ -3,12 +3,16 @@ _acrylamid() {
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    opts="init compile view autocompile clean import deploy dp --help --version
-    --no-color --verbose --quiet"
+    opts="init compile view autocompile clean import deploy dp new check
+    info ping --help --version --no-color --verbose --quiet"
 
     case "${prev}" in
         init)
-            COMPREPLY=( $(compgen -W "--force --xhtml --html5" -- ${cur}) )
+            COMPREPLY=( $(compgen -W "--force --mako --jinja2 --theme" -- ${cur}) )
+            return 0
+            ;;
+        new)
+            COMPREPLY=( $(compgen -W "" -- ${cur}) )
             return 0
             ;;
         compile|co|gen|generate)
@@ -28,13 +32,25 @@ _acrylamid() {
             return 0
             ;;
         import)
-            COMPREPLY=( $(compgen -W "--keep-links" -- ${cur}) )
+            COMPREPLY=( $(compgen -W "--force --keep-links --pandoc" -- ${cur}) )
             return 0
             ;;
-        deploy|dp|task)
+        deploy|dp)
             local keys=$(for x in `acrylamid deploy`; do echo ${x};
             done)
             COMPREPLY=( $(compgen -W "${keys}" -- ${cur}) )
+            return 0
+            ;;
+        check)
+            COMPREPLY=( $(compgen -W "W3C links" -- ${cur}) )
+            return 0
+            ;;
+        info)
+            COMPREPLY=( $(compgen -W "" -- ${cur}) )
+            return 0
+            ;;
+        ping)
+            COMPREPLY=( $(compgen -W "back twitter" -- ${cur}) )
             return 0
             ;;
     esac
