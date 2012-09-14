@@ -1,25 +1,6 @@
 Knowledge base
 ==============
 
-About Page and Other Static Pages
-*********************************
-
-If you want set up an about page like in WordPress just change the type
-to ``page``:
-
-    ---
-    title: About
-    type: page
-    ---
-
-and add this to your configuration:
-
-.. code-block:: python
-
-    '/:slug/': {'view': 'page'},
-
-You can still customize the permalink with the ``permalink: /path/``.
-
 Per-Tag Feed
 ************
 
