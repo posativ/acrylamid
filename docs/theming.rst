@@ -7,6 +7,40 @@ Jinja2_ and Mako_ as templating language. Unfortunately you can't mix both, so
 you may write only a Jinja2_ theme or Mako_, although it is possible to ship
 both versions.
 
+Themes
+------
+
+HTML5
+^^^^^
+
+A minimalistic theme using HTML5 available for Mako and Jinja2.
+`Preview <http://posativ.org/acrylamid/_static/html5.png>`_. Install with::
+
+    $ acrylamid init --theme html5  # --mako optional
+
+shadowplay
+^^^^^^^^^^
+
+New theme from `HTML5Webtemplates.co.uk
+<http://www.html5webtemplates.co.uk/templates/shadowplay_2/index.html>`_ with
+slightly modified colors. `Preview
+<http://posativ.org/acrylamid/_static/shadowplay.png>`_. Unfortunately
+Jinja2-only.
+
+::
+
+    $ acrylamid init --theme shadowplay
+
+XHTML
+^^^^^
+
+From the dark days, Acrylamid also ships an XHTML theme that is no longer supported but still works™.
+
+::
+
+    $ acrylamid init --theme xhtml  # --mako optional
+
+
 Where to start?
 ---------------
 
@@ -15,17 +49,18 @@ HTML5 theme. At this point you can choose your templating engine of choice::
 
     $ acrylamid init --mako  # or --jinja2
 
-This initializes all templates and statuc files into `theme/`. This directory
+This initializes all templates and static files into `theme/`. This directory
 is configurable. Set ``THEME`` to any directory of your choice (but it should
 include your used templates). You can now modify and extend the theme (use
 :doc:`templating` as reference).
+
 
 Contribute
 ----------
 
 I'd be glad if you contribute a theme to Acrylamid and I'm also willing to
 translate a Mako_ theme back to Jinja2_. This requires a working copy if
-Acryamid itself:
+Acryamid itself::
 
     $ git clone https://github.com/posativ/acrylamid.git
 

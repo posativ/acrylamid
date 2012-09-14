@@ -34,7 +34,7 @@ Acrylamid isn't your granddad's static blog compiler. I think that just sums
 it up.
 
 - it is *fast* (incremental builds)
-- support for Jinja2_ or Mako_ templates
+- support for Jinja2_ and Mako_ templates
 - many Markdown_ extensions and custom reStructuredText_ directives
 - MathML_, enhanced typography and hyphenation using soft-hyphens
 
@@ -87,8 +87,9 @@ blogging features
   format of Markdown or reStructuredText.
 - support for translations (oh, and did I mention the language dependend
   hyphenation feature?)
-- HTML5 valid (but there's a XHTML template, too)
-- internal webserver with automatic compiling when something has changed
+- a few HTML5/XHTML themes, see `Theming
+  <http://posativ.org/acrylamid/theming.html>`_.
+- internal webserver with automatic compiling when something has changed.
 - assets management, including LESS_ and SASS_ conversion.
 - uni-directional PingBack support.
 
