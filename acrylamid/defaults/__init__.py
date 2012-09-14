@@ -16,7 +16,7 @@ conf = {
     'date_format': '%d.%m.%Y, %H:%M',
     'encoding': 'utf-8',
     'permalink_format': '/:year/:slug/',
-    'output_ignore': ['/style.css', '/images/*', '.git/'],
+    'output_ignore': ['.git', '.hg'],
 
     'default_orphans': 0,
 

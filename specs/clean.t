@@ -29,6 +29,7 @@ Does `acrylamid clean` work?
   remove  output/atom/index.html
   remove  output/rss/index.html
   remove  output/sitemap.xml
+  remove  output/style.css
 
 And we should clean up everything:
 
