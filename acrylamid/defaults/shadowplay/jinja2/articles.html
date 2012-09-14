@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}{{ conf.sitename }} – Artikelübersicht{% endblock %}
+
+{% block content %}
+<article>
+  <table id="arc">
+  {% set year = -1 %}
+  {% for key, months in articles.items() | sort(reverse=True) %}
+    <tr>
+        {% if year != key[0] %}
+          {% set year = key[0] %}
+          <th>{{ key[0] ~ ' ' ~ months[0].date.strftime('%B') }}</th>
+        {% else %}
+          <th>{{ months[0].date.strftime('%B')}}</th>
+        {% endif %}
+        <td></td>
+    </tr>
+    {% for entry in months %}
+      <tr><th>{{ entry.date.day }}</th>
+          <td><a href="{{ entry.permalink }}">{{ entry.title | e }}</a></td>
+      </tr>
+    {% endfor %}
+  {% endfor %}
+  </table>
+</article>
+{% endblock %}

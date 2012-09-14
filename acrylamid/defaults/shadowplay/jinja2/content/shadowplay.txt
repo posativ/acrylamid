@@ -1,0 +1,9 @@
+---
+title: shadowplay
+filter: Jinja2
+tag: default
+---
+
+This is just a sample. This theme needs content otherwise it looks rather
+weird. When your tag cloud grows, you can also write shorter articles. Or fix
+this with CSS.

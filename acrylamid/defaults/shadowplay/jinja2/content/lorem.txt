@@ -1,0 +1,8 @@
+---
+title: Lorem
+filter: Jinja2
+date: 13.09.2012, 08:00
+tag: default
+---
+
+{{ lipsum(3, max=75) }}

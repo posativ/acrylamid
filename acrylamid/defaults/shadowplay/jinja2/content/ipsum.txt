@@ -1,0 +1,8 @@
+---
+title: Ipsum
+filter: Jinja2
+date: 12.09.2012, 10:00
+tag: default
+---
+
+{{ lipsum(3, max=75) }}
