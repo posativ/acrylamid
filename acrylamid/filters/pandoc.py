@@ -38,4 +38,4 @@ class Pandoc(Filter):
         try:
             return system(cmd, stdin=text)
         except OSError as e:
-            raise AcrylamidException(e.strerror)
+            raise AcrylamidException(e.msg)
