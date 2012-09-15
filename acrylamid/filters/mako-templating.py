@@ -45,8 +45,7 @@ class Mako(Filter):
 
         try:
             tt = Template(content, cache_enabled=False, input_encoding='utf-8')
-            #tt = self.jinja2_env.from_string(content)
-            return tt.render(conf=self.conf, env=self.env, entry=entry)
-        except (MakoException, AcrylamidException, OSError, TypeError) as e:
-            log.warn('%s: %s in %s' % (e.__class__.__name__, e.args[0], entry.filename))
+            return tt.render(conf=self.conf, env=self.env, entry=entry, **self.filters)
+        except (MakoException, AcrylamidException) as e:
+            log.warn('%s: %s in %r' % (e.__class__.__name__, e.args[0], entry.filename))
             return content
