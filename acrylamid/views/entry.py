@@ -39,45 +39,50 @@ class Base(View):
     def generate(self, request):
 
         tt = self.env.engine.fromfile(self.template)
-
-        entrylist = request[self.type]
         pathes = set()
 
-        has_changed = self.has_changed(entrylist)
-
-        for i, entry in enumerate(entrylist):
-
-            if entry.hasproperty('permalink'):
-                path = joinurl(self.conf['output_dir'], entry.permalink)
+        nondrafts, drafts = [], []
+        for entry in request[self.type]:
+            if not entry.draft:
+                nondrafts.append(entry)
             else:
-                path = joinurl(self.conf['output_dir'], expand(self.path, entry))
+                drafts.append(entry)
 
-            if path.endswith('/'):
-                path = joinurl(path, 'index.html')
+        for isdraft, entrylist in enumerate([nondrafts, drafts]):
+            has_changed = self.has_changed(entrylist)
 
-            if isfile(path) and path in pathes:
-                try:
-                    os.remove(path)
-                finally:
-                    f = lambda e: e is not entry and e.permalink == entry.permalink
-                    raise AcrylamidException("title collision %r in %r with %r." %
-                        (entry.permalink, entry.filename, filter(f, entrylist)[0].filename))
+            for i, entry in enumerate(entrylist):
 
-            next, prev = self.next(entrylist, i), self.prev(entrylist, i)
+                if entry.hasproperty('permalink'):
+                    path = joinurl(self.conf['output_dir'], entry.permalink)
+                else:
+                    path = joinurl(self.conf['output_dir'], expand(self.path, entry))
 
-            # detect collisions
-            pathes.add(path)
+                if path.endswith('/'):
+                    path = joinurl(path, 'index.html')
 
-            if isfile(path) and not any([has_changed, entry.has_changed, tt.has_changed]):
-                event.skip(path)
-                continue
+                if isfile(path) and path in pathes:
+                    try:
+                        os.remove(path)
+                    finally:
+                        f = lambda e: e is not entry and e.permalink == entry.permalink
+                        raise AcrylamidException("title collision %r in %r with %r." %
+                            (entry.permalink, entry.filename, filter(f, entrylist)[0].filename))
 
-            route = expand(self.path, entry)
-            html = tt.render(conf=self.conf, entry=entry, env=union(self.env,
-                             entrylist=[entry], type=self.__class__.__name__.lower(),
-                             prev=prev, next=next, route=route))
+                pathes.add(path)
+                next = self.next(entrylist, i) if not isdraft else None
+                prev = self.prev(entrylist, i) if not isdraft else None
 
-            yield html, path
+                if isfile(path) and not any([has_changed, entry.has_changed, tt.has_changed]):
+                    event.skip(path)
+                    continue
+
+                route = expand(self.path, entry)
+                html = tt.render(conf=self.conf, entry=entry, env=union(self.env,
+                                 entrylist=[entry], type=self.__class__.__name__.lower(),
+                                 prev=prev, next=next, route=route))
+
+                yield html, path
 
 
 class Entry(Base):
