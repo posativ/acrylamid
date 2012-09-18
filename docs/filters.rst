@@ -268,6 +268,9 @@ appears in your :doc:`conf.py`.
 You can override single or all configurations made in :doc:`conf.py` with
 ``summarize.maxwords: 10`` and so on in the entry header.
 
+With ``<!-- break -->`` you can end the summarizing process preliminary. For
+convenience ``excerpt`` and ``summary`` will also work as keyword.
+
 ============  ==================================================
 Requires      <built-in>
 Aliases       sum

@@ -94,4 +94,8 @@ class HTMLParser(WTFMixin):
         """An escaped umlaut like ``"&auml;"``"""
         self.result.append('&#' + char + ';')
 
+    def handle_comment(self, comment):
+        """Preserve HTML comments."""
+        self.result.append('<!--' + comment + '-->')
+
 __all__ = ['HTMLParser', 'HTMLParseError']
