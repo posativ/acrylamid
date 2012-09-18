@@ -33,7 +33,7 @@ class Base(View):
     def prev(self, entrylist, i):
         return None
 
-    def has_changed(self, entrylist):
+    def has_changed(self, entrylist, salt):
         return False
 
     def generate(self, request):
@@ -49,7 +49,7 @@ class Base(View):
                 drafts.append(entry)
 
         for isdraft, entrylist in enumerate([nondrafts, drafts]):
-            has_changed = self.has_changed(entrylist)
+            has_changed = self.has_changed(entrylist, 'draft' if isdraft else 'entry')
 
             for i, entry in enumerate(entrylist):
 
@@ -109,12 +109,12 @@ class Entry(Base):
     def type(self):
         return 'entrylist'
 
-    def has_changed(self, entrylist):
+    def has_changed(self, entrylist, salt):
         # detect changes in prev and next
         hv = md5(*entrylist, attr=lambda e: e.permalink)
 
-        if memoize('entry-permalinks') != hv:
-            memoize('entry-permalinks', hv)
+        if memoize(salt + '-permalinks') != hv:
+            memoize(salt +'-permalinks', hv)
             return True
         return False
 
