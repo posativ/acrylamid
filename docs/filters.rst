@@ -1,34 +1,59 @@
 Filters
 =======
 
-All transformations of your content is done via filters. You an either set them
-implicit in *conf.yaml* and/or overriding them in your individual blog entries.
-A filter can convert a Markdown-written text into HTML, render MathML from
-AsciiMathML, apply typographical enhancements or simply increase HTML-headers by
-one or two.
+All text transformations are done with filters. You can think of a filter as a
+UNIX pipe: text goes in, magic happens, text goes out. You can chain filters,
+of course. In Acrylamid a filter can convert Markdown into HTML, render MathML
+from AsciiMathML, apply typographical enhancements or just increase headings
+by an offset.
 
-To apply filters implicit, you set *FILTERS* to a list (or a single string) of
-filters. Next to global filters we have implicit per-view filters that inherit
-from global FILTERS. Implicit means *parent* applied if you don't override them
-with conflicting filters or explicitly disable them by adding "no" to the filter
-name.
 
-Acrylamid defines a filter as a simple object containing one or more identifiers
-[#]_ and also has a list of filters that would conflict with this filter. For
-example you write your text using :abbr:`reST (reStructuredText)` but sometimes
-you prefer Markdown's less-verbose syntax. Then you can set a (per-view or
-global) filter to render all text with reST but set in chosen articles
-"``filter: Markdown``" and the Markdown-filter will automatically remove
-conflicting ones.
+Usage
+*****
 
-The order of choosing filters is *entry* -- *view* -- *global*, but that's *not*
-the actual evaluation order when we apply these filters [#]_.
+There are three ways to add filters to your blog: global, per view and per
+entry. During compilation, all filters are chained, conflicting filters such as
+reST and Markdown at the same time are removed and then ordered by internal
+priorities [#]_. Each entry evaluates its own filter chain.
+
+Acrylamid defines a filter as a simple object containing one or more
+identifiers [#]_ and also has a list of filters that would conflict with this
+filter. Below is a complete list of all shipped filters.
+
+global : [String, String, ...]
+    If you prefer Markdown as markup language, you can set this as default
+    filter like ``FILTERS = [Markdown, ]`` in your :doc:`conf.py <conf.py>`.
+
+view : String or [String, String, ...]
+    Apply filters to specific views. For example you can provide a summarized
+    feed.
+
+    .. code-block:: python
+
+        '/rss/': {'view': 'rss', filters: 'summarize'}
+
+entry : String or [String, String, ...]
+    Switch between Markdown and reStructuredText? Use one of them as default
+    filter but override it in the given article's metadata. For convenience
+    both "filter" and "filters" can be used as key. An example YAML front
+    matter::
+
+        ---
+        title: Test
+        filter: reST
+        ---
+
+    Now if your default filter converts Markdown, this uses :abbr:`reST
+    (reStructuredText)`.
+
+Additional Arguments
+--------------------
 
 Some filters may take additional arguments to activate builtin filters like
 Markdown's code-hilighting. Not every filter supports additional arguments,
-please refer to the next section for details.
+please refer to the actual filter documentation.
 
-**Examples:**
+**Examples**
 
 A normal usage of explicit filters in an article:
 
@@ -48,21 +73,24 @@ Filters with arguments:
     filters: [markdown+mathml, summarize+100]
     filters: [markdown+mathml+codehilite(css_class=highlight), ...]
 
-Disabling a filter:
+Disabling Filters
+-----------------
+
+Sometimes it is useful to disable filters per entry or per view. You can annul
+filters you have applied globally in per view filters or entry metadata. The
+syntax is the filter name (without any arguments) prefixed with "no":
 
 ::
 
     filters: nosummary
 
-The next section gives you complete details of all properties, dependencies and
-extensions by Acrylamid. So continue reading!
+.. [#] the evaluation order depends on the internal priority value of each
+   filter so we don't confuse our users or produce unexpected behavior.
 
 .. [#] an identifier is the name you use to enable this specific filter, most
    filters have multiple aliases for the same filter, like "reStructuredText"
    which you can also enable with "rst" or "reST".
 
-.. [#] the evaluation order depends on the internal priority value of each
-   filter so we don't confuse our users or produce unexpected behavior.
 
 Built-in Filters
 ****************
@@ -74,10 +102,12 @@ them. Simply create a directory like *filters/* and add ``FILTERS_DIR +=
 
 A quick note to the following tables:
 
-- *Requires* indicates what you have to install to use this filter
-- *Alias* is a list of alternate identifiers to this filter
-- *Conflicts* shows what filters don't work together (does not conflict if empty)
-- *Arguments* what arguments you can apply to this filter
+- *Requires* indicates what you have to install to use this filter.
+- *Alias* is a list of alternate identifiers to this filter.
+- *Conflicts* shows what filters don't work together (does not conflict if
+  empty).
+- *Arguments* what arguments you can apply to this filter.
+
 
 Markdown
 --------
@@ -90,14 +120,16 @@ Gruber <http://freewisdom.org/projects/python-markdown/>`_ and all it's
 Here's an online service converting Markdown to HTML and providing a handy
 cheat sheet: `Dingus <http://daringfireball.net/projects/markdown/dingus>`_.
 
-Acrylamid features few AsciiMathML_ extension:
+Acrylamid features some additional extension:
 
-- inline math via AsciiMathML_. The aliases are: *asciimathml*, *mathml* and *math*
-  and require the ``python-asciimathml`` package. *Note* put your formula into single
-  dollar signs like ``$a+b^2$``!
-- super_ und subscript_ via *sup* or *superscript* as well as *sub* or *subscript*.
-  The syntax for subscript is ``H~2~O`` and for superscript ``a^2^``.
-- `deletion and insertion`_ syntax via *delins*. The syntax is ``~~old~~`` and ``++new``.
+- inline math via AsciiMathML_. The aliases are: *asciimathml*, *mathml* and
+  *math* and require the ``python-asciimathml`` package. *Note* put your formula
+  into single dollar signs like ``$a+b^2$``!
+- super_ und subscript_ via *sup* or *superscript* as well as *sub* or
+  *subscript*. The syntax for subscript is ``H~2~O`` and for superscript
+  ``a^2^``.
+- `deletion and insertion`_ syntax via *delins*. The syntax is ``~~old~~`` and
+  ``++new``.
 
 .. _available extensions: http://www.freewisdom.org/projects/python-markdown/Available_Extensions
 .. _codehilite: http://freewisdom.org/projects/python-markdown/CodeHilite
@@ -123,7 +155,7 @@ reStructuredText lets you write (like the name says) in reStructuredText syntax
 instead of HTML and is more powerful and reliable than Markdown but also slower
 and slightly more difficult to use. See their quickref_ for syntax details.
 
-Using a decent version of ``docutils`` (:math:`\geq 0.8`) let you also write
+Using a decent version of ``docutils`` (≥ 0.8) let you also write
 `inline math`_ with a subset of LaTeX math syntax, so there is no need of an
 additional extension like in Markdown. In addition to all standard builtin
 directives, acrylamid offers three additional one:
@@ -221,8 +253,9 @@ Arguments     First argument is the FORMAT like Markdown,
 Discount
 --------
 
-`Discount`__ -- a C implementation of John Gruber's Markdown including definition
-lists, pseudo protocols and `Smartypants`__ (makes typography_ obsolete).
+`Discount`__ -- a C implementation of John Gruber's Markdown including
+definition lists, pseudo protocols and `Smartypants`__ (makes typography_
+obsolete).
 
 __ http://www.pell.portland.or.us/~orc/Code/discount/#smartypants
 __ http://www.pell.portland.or.us/~orc/Code/discount/
@@ -262,11 +295,11 @@ Aliases       h1, h2, h3, h4, h5
 summarize
 ---------
 
-Summarizes content to make listings of text previews (used in tag/page by default).
-You can customize the ellipsis, CSS-class, link-text and the behaviour how the link
-appears in your :doc:`conf.py`.
-You can override single or all configurations made in :doc:`conf.py` with
-``summarize.maxwords: 10`` and so on in the entry header.
+Summarizes content to make listings of text previews (used in tag/page by
+default). You can customize the ellipsis, CSS-class, link-text and the behaviour
+how the link appears in your :doc:`conf.py`. You can override single or all
+configurations made in :doc:`conf.py` with ``summarize.maxwords: 10`` and so on
+in the entry header.
 
 With ``<!-- break -->`` you can end the summarizing process preliminary. For
 convenience ``excerpt`` and ``summary`` will also work as keyword.
