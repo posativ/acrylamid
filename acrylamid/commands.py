@@ -268,7 +268,7 @@ def new(conf, env, title, prompt=True):
 
     if not title:
         title = raw_input("Entry's title: ")
-    title = safe(title)
+    title = safe(title).decode('utf-8')
 
     with io.open(fd, 'w') as f:
         f.write(u'---\n')
