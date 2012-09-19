@@ -7,7 +7,7 @@ from os.path import exists
 from datetime import datetime, timedelta
 
 from acrylamid.views import View, tag
-from acrylamid.helpers import joinurl, event, expand, union
+from acrylamid.helpers import joinurl, event, expand, union, md5, memoize
 
 
 def utc(dt, fmt='%Y-%m-%dT%H:%M:%SZ'):
@@ -33,10 +33,18 @@ class Feed(View):
         if not path.endswith(('.xml', '.html')):
             path = joinurl(path, 'index.html')
 
-        if exists(path) and not filter(lambda e: e.has_changed, entrylist):
-            if not tt.has_changed:
-                event.skip(path)
-                raise StopIteration
+        # detect removed entries
+        hv = md5(*entrylist, attr=lambda e: e.permalink)
+        if memoize(path) != hv:
+            memoize(path, hv)
+            has_changed = True
+        else:
+            has_changed = False
+
+        if (exists(path) and not filter(lambda e: e.has_changed, entrylist) and
+            not has_changed and not tt.has_changed):
+            event.skip(path)
+            raise StopIteration
 
         updated = entrylist[0].date if entrylist else datetime.utcnow()
         html = tt.render(conf=self.conf, env=union(self.env, route=self.path,
