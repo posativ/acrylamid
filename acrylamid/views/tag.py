@@ -64,6 +64,8 @@ class Tag(View):
         tmap = defaultdict(int)
 
         for e in request['entrylist']:
+            if e.draft:
+                continue
             for tag in e.tags:
                 tags[tag.lower()].append(e)
                 tmap[tag] += 1
@@ -104,8 +106,6 @@ class Tag(View):
 
         ipp = self.items_per_page
         tt = self.env.engine.fromfile(self.template)
-
-        entrylist = [entry for entry in request['entrylist'] if not entry.draft]
 
         for tag in self.tags:
 
