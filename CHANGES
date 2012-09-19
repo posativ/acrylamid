@@ -3,28 +3,44 @@
 Version 0.4
 -----------
 
-### 0.4.0
+Released on September, 19th 2012 – Arrr!
 
-.. Released on August, 31th 2012 [TBD]
+### What's new?
 
-- add Mako as second templating engine of choice, #39
-- new subcommand `acrylamid ping` for PingBack and Twitter announces
-- add superscript, subscript and delins extensions to md
-- add compatibility for russion and asian characters to ASCII
+- support for translations, #22
+- Mako as second templating engine of choice, #39
+- opt-in for native markdown and reStructuredText metadata style, #40
+- `acrylamid autocompile` now detects layout and conf.py changes, #48
+- new kind of entry – page – that should be used for static sites, #50
+- summarize by keyword, #51
+- new Mako filter, #52
+- asset handling, #62
+- per-tag feeds, #68
+- support for LESS, SASS and SCSS
+- new theme "shadowplay"
+- subcommand `acrylamid ping` for PingBack and Twitter announces
+- superscript, subscript and delins extensions for Markdown
+- compatibility for russion and asian characters to ASCII
   via unidecode
-- opt-in for native markdown and reStructuredText metadata style
-- add new kind of entry -- page -- that should be used for static sites
-- add support for translations, #22
-- add new Mako filter
-- add ability to add custom lines to entry header on import
-- rename `ENTRIES_IGNORE` to `CONTENT_IGNORE`, a list of gitlike patterns
+- ability to add custom metadata pairs to entry header on import
+
+### What changes?
+
+- discover Markdown and reST extension in `FILTERS_DIR`
+- `ENTRIES_IGNORE` was renamed to `CONTENT_IGNORE`, a list of git-like patterns
 - new `SUMMARIZE_LINK` for continue reading link instead of the old three
   `SUMMARIZE_*` variables to allow more customization, #45
-- fix CSS in the metalogo filter to not affect the line height
-- fix an issue where /tmp is on another partition (often on Linux)
-- fix `acrylamid autocompile` to detect layout and conf.py changes, #48
-- fix sitemap view to not include drafted items
-- tons of other fixes (thanks to @markvl and @moschlar)
+- `LAYOUT_DIR` was renamed to `THEME`
+- `PERMALINK_FORMAT` is no longer used. Acrylamid will automatically determine
+  the permalink format or you can explicitly set it with `ENTRY_PERMALINK` and
+  `PAGE_PERMALINK`
+
+### Bugfixes
+
+Way too many to mention here. Over 700 (!) commits from 0.3.5. I would like to
+thank @markvl, @moschlar and @t-8ch for their patches and patience to test
+broken builds.
+
 
 Version 0.3
 -----------
@@ -98,7 +114,7 @@ Version 0.3
 
 ### 0.3.0
 
-Released on April, 1th 2012 [Aprilscherz]
+Released on April, 1th 2012 – Aprilscherz
 
 - new command `acrylamid new` to create a new post with some defaults
 - new command `acrylamid view` an internal webserver to view your output
