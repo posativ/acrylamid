@@ -85,7 +85,6 @@ what is missing
 
 - No comments. You have to use Disqus_ or `this approach`_.
 - No search. But it's on the roadmap, Sphinx_ too.
-- A consistent™ documentation.
 
 .. _Disqus: http://disqus.com/
 .. _this approach: http://hezmatt.org/~mpalmer/blog/2011/07/19/static-comments-in-jekyll.html
@@ -94,13 +93,9 @@ what is missing
 Quickstart
 ----------
 
-The latest release on PyPi is outdated but the current master not yet finished.
-But to get the latest improvements (and there have been alot) as well as new
-features such as asset handling use:
-
 ::
 
-    easy_install -U https://github.com/posativ/acrylamid/tarball/master
+    easy_install -U acrylamid
 
 This installs Acrylamid with Jinja2_ as templating engine. For Mako_ use
 ``easy_install -U acrylamid --mako``. This installs two additional but not
