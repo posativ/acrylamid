@@ -27,7 +27,7 @@ if '--full' in sys.argv:
         'docutils',
         'smartypants',
         'asciimathml',
-        'pytextile',
+        'textile',
         'unidecode',
         'PyYAML'
     ])
