@@ -49,5 +49,4 @@ VIEWS = {
 
 THEME = '${theme}'
 ENGINE = 'acrylamid.templates.${engine}.Environment'
-PERMALINK_FORMAT = '/:year/:slug/index.html'
 DATE_FORMAT = '%d.%m.%Y, %H:%M'

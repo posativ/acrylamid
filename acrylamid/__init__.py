@@ -124,7 +124,7 @@ def Acryl():
 
     new = subparsers.add_parser('new', help="create a new entry", parents=[default],
         epilog=("Takes all leading [args] as title or prompt if none given. creates "
-                "a new entry based on your PERMALINK_FORMAT and opens it with your "
+                "a new entry based on your ENTRY_PERMALINK and opens it with your "
                 "favourite $EDITOR."))
     new.add_argument("title", nargs="*", default='')
 
