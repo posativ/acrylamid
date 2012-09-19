@@ -30,10 +30,7 @@ licensed under BSD Style, 2 clauses.
 Why?
 ----
 
-Acrylamid isn't your granddad's static blog compiler. I think that just sums
-it up.
-
-- it is *fast* (incremental builds)
+- it is *fast* due incremental builds
 - support for Jinja2_ and Mako_ templates
 - many Markdown_ extensions and custom reStructuredText_ directives
 - MathML_, enhanced typography and hyphenation using soft-hyphens
