@@ -64,24 +64,26 @@ Variable name (default value)                       Description
 ================================================    =====================================================
 `SITENAME` (``'A descriptive blog title'``)         The name of your blog. It's displayed in the
                                                     <title>-block.
-`THEME` (``layouts/``)                              Directory where you place your jinja2 templates.
 `AUTHOR` (``'Anonymous'``)                          First author of this blog, can be overwritten in
                                                     the entry YAML-header.
 `EMAIL` (``'info@example.com'``)                    Your email address -- used in Atom/RSS feeds and as
                                                     contact ability at the bottom in the default layout.
 `ENCODING` (``'utf-8'``)                            Default encoding of your text files, only global.
-`STATIC` (*not set*)                                A directory or list of directories which contain
-                                                    objects Acrylamid should copy to destination dir.
-`OUTPUT_IGNORE` (|ignored|)                         A list of filename/directory-patterns which
-                                                    Acrylamid should ignore.
-`CONTENT_IGNORE` (*not set*)                        (same as ``OUTPUT_IGNORE`` but for ``CONTENT_DIR``)
 `FILTERS` (|filter|)                                Global list of filters.
 `VIEWS` (see example conf.py)                       Dictionary of views set in conf.py.
 `WWW_ROOT` (``'http://localhost:8000'``)            Your actual website link where you host this blog.
                                                     It's used to build absolute urls (required for disqus
                                                     and feeds).
-`CONTENT_DIR`(``content/``)                         Directory where you write your posts to.
 `OUTPUT_DIR` (``output/``)                          Directory where the output goes to.
+`OUTPUT_IGNORE` (|ignored|)                         A list of filename/directory-patterns which
+                                                    Acrylamid should ignore.
+`CONTENT_DIR` (``content/``)                        Directory where you write your posts to.
+`CONTENT_IGNORE` (|ignored|)                        Same as ``OUTPUT_IGNORE`` but for ``CONTENT_DIR``.
+`THEME` (``layouts/``)                              Directory where you place your jinja2 templates.
+`THEME_IGNORE` (|ignored|)                          Same as ``OUTPUT_IGNORE`` but for ``THEME``.
+`STATIC` (*not set*)                                A directory or list of directories which contain
+                                                    objects Acrylamid should copy to destination dir.
+`STATIC_IGNORE` (|ignored|)                         Same as ``OUTPUT_IGNORE`` but for ``STATIC``,
 `FILTERS_DIR` (*not set*)                           If you want add your own filters, create a directory,
                                                     put your filters into and add this directory to conf.
 `VIEWS_DIR` (*not set*)                             Like above but for custom views.
@@ -89,7 +91,7 @@ Variable name (default value)                       Description
 
 .. |ignored| replace::
 
-    ``['/style.css', '/images/*', '.git/']``
+    ``['.git*', '.hg*', '.svn']``
 
 .. |filter| replace::
 
