@@ -11,12 +11,10 @@ conf = {
     'sitename': 'A descriptive blog title',
     'author': 'Anonymous',
     'email': 'info@example.com',
-    'theme': 'layouts/',
 
     'date_format': '%d.%m.%Y, %H:%M',
     'encoding': 'utf-8',
     'permalink_format': '/:year/:slug/',
-    'output_ignore': ['.git', '.hg'],
 
     'default_orphans': 0,
 
@@ -26,8 +24,13 @@ conf = {
 
     'filters_dir': [],
     'views_dir': [],
-    'content_dir': 'content/',
     'output_dir': 'output/',
+    'output_ignore': ['.git*', '.hg*', '.svn'],
+    'content_dir': 'content/',
+    'content_ignore': ['.git*', '.hg*', '.svn'],
+    'theme': 'layouts/',
+    'theme_ignore': ['.git*', '.hg*', '.svn'],
+    'static_ignore': ['.git*', '.hg*', '.svn'],
 
     'filters': ['markdown+codehilite(css_class=highlight)', 'hyphenate'],
     'views': {

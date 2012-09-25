@@ -101,11 +101,11 @@ def compile(conf, env):
         # ...
     }
 
-    other = [(prefix, readers.filelist(prefix)) for prefix in conf['static']]
+    other = [(prefix, readers.filelist(prefix, conf.get('static_ignore', []))) for prefix in conf['static']]
     other = [((relpath(path, prefix), prefix) for path in generator)
         for prefix, generator in other]
 
-    files = ((path, conf['theme']) for path in readers.filelist(conf['theme']))
+    files = ((path, conf['theme']) for path in readers.filelist(conf['theme'], conf.get('theme_ignore', [])))
     files = ((relpath(path, prefix), prefix) for path, prefix in files)
     files = ((path, prefix) for path, prefix in files if path not in env.engine.templates)
 

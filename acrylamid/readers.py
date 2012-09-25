@@ -92,8 +92,6 @@ def filelist(directory, patterns=[]):
 
     for root, dirs, files in os.walk(directory):
         for f in files:
-            if f[0] == '.':
-                continue
             path = os.path.join(root, f)
             if not ignored(root, path, patterns, directory):
                 yield path
