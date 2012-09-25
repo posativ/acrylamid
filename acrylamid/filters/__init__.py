@@ -67,7 +67,7 @@ def initialize(directories, conf, env):
         try:
             mod = imp.load_module(modname, fp, path, descr)
         except (ImportError, SyntaxError, ValueError) as e:
-            log.warn('%r %s: %s', mod, e.__class__.__name__, e)
+            log.warn('%r %s: %s', modname, e.__class__.__name__, e)
             continue
 
         index_filters(mod, conf, env)
