@@ -14,7 +14,7 @@ try:
 except ImportError:
     docutils = None  # NOQA
 
-from acrylamid.readers import reststyle, markdownstyle, distinguish
+from acrylamid.readers import reststyle, markdownstyle, distinguish, ignored
 
 
 class TestStyles(unittest.TestCase):
@@ -78,3 +78,15 @@ def testQuotes():
     assert distinguish('"Foo Bar"') == 'Foo Bar'
 
     assert distinguish("\"'bout \" and '\"") == "'bout \" and '"
+
+
+def testIgnored():
+
+    assert ignored('/path/', 'foo', ['foo', 'fo*', '/foo'], '/path/')
+    assert ignored('/path/', 'dir/', ['dir', 'dir/'], '/path/')
+    assert not ignored('/path/to/', 'baz/', ['/baz/', '/baz'], '/path/')
+
+    assert ignored('/', '.git/info/refs', ['.git*'], '/')
+    assert ignored('/', '.gitignore', ['.git*'], '/')
+
+    assert ignored('/', '.DS_Store', ['.DS_Store'], '/')

@@ -64,21 +64,21 @@ def load(conf):
     return (sorted(entrylist, key=lambda k: k.date, reverse=True), pages)
 
 
-def ignored(cwd, path, patterns, dest):
+def ignored(cwd, path, patterns, directory):
     """Test wether a path is excluded by the user. The ignore syntax is
     similar to Git: a path with a leading slash means absolute position
     (relative to output root), path with trailing slash marks a directory
     and everything else is just relative fnmatch.
 
-    :param cwd: current directory
+    :param cwd: current directory (root from :py:func:`os.walk`)
     :param path: current path
-    :param excl_files: a list of patterns
-    :param dest: destination directory
+    :param patterns: a list of patterns
+    :param directory: destination directory
     """
 
     for pattern in patterns:
         if pattern.startswith('/'):
-            if fnmatch(join(cwd, path), join(dest, pattern[1:])):
+            if fnmatch(join(cwd, path), join(directory, pattern[1:])):
                 return True
         elif fnmatch(path, pattern):
             return True
@@ -91,10 +91,9 @@ def filelist(directory, patterns=[]):
     this generator won't raise any (IOError, OSError)."""
 
     for root, dirs, files in os.walk(directory):
-        for f in files:
-            path = os.path.join(root, f)
+        for path in files:
             if not ignored(root, path, patterns, directory):
-                yield path
+                yield os.path.join(root, path)
 
         # don't visit excluded dirs
         for dir in dirs[:]:
