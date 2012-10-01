@@ -68,6 +68,8 @@ def index_views(module, urlmap, conf, env):
                 pass
             kwargs.pop('if', None)
 
+            # python <= 2.6 requires kwargs keys to be strings
+            kwargs = dict((str(k), v) for k, v in kwargs.iteritems())
             m = mem(conf, env, **kwargs)
             m.init(**m._getkwargs())
 
