@@ -386,7 +386,8 @@ class event:
         else:
             log.info("update  %s", path)
 
-    def skip(self, path):
+    @classmethod
+    def skip(cls, path):
         """:param path: path"""
         log.skip("skip  %s", path)
 

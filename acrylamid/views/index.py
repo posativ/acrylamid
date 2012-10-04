@@ -43,14 +43,14 @@ class Index(View):
             # curr = current page, next = newer pages, prev = older pages
 
             next = None if next is None \
-                else link(u'« Next', self.path.rstrip('/')) if next == 1 \
-                    else link(u'« Next', expand(self.pagination, {'num': next}))
+                else link(u'Next', self.path.rstrip('/')) if next == 1 \
+                    else link(u'Next', expand(self.pagination, {'num': next}))
 
             curr = link(curr, self.path) if curr == 1 \
                 else link(expand(self.pagination, {'num': curr}))
 
             prev = None if prev is None \
-               else link(u'Previous »', expand(self.pagination, {'num': prev}))
+               else link(u'Previous', expand(self.pagination, {'num': prev}))
 
             path = joinurl(self.conf['output_dir'], curr.href, 'index.html')
 
