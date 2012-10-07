@@ -74,7 +74,7 @@ class Sitemap(View):
         patterns = dict()
         replacements = [(':year', '\d+'), (':month', '\d+'), (':day', '\d+'), (':[^/]+', '[^/]+')]
 
-        for name, view in self.env.views.iteritems():
+        for view in self.env.views:
             permalink = view.path
             for pat, repl in replacements:
                 permalink = re.sub(pat, repl, permalink)
@@ -82,19 +82,18 @@ class Sitemap(View):
             if permalink.endswith('/'):
                 permalink += 'index.html'
 
-            patterns[name] = re.compile('^' + joinurl(re.escape(self.conf['www_root']), permalink) + '$')
+            patterns[view] = re.compile(
+                '^' + joinurl(re.escape(self.conf['www_root']), permalink) + '$')
 
         self.patterns = patterns
-        self.views = []
+        self.views = self.env.views[:]
 
         # sort active views by frequency
-        views = env.views.keys()
-        for v in 'entry', 'tag', 'index':
-            try:
-                self.views.append(views.pop(views.index(v)))
-            except ValueError:
-                pass
-        self.views.extend(views)
+        for key in 'entry', 'tag', 'index':
+            for view in [v for v in self.views if v == key]:
+                self.views.remove(view)
+                self.views.insert(0, view)
+
         return env
 
     def generate(self, request):

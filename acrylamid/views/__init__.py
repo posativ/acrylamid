@@ -233,6 +233,11 @@ class View(object):
 
         self._getkwargs = lambda : kwargs
 
+    def __eq__(self, other):
+        if isinstance(other, View):
+            return hash(self) == hash(other)
+        return self.name == other
+
     def init(self, **kwargs):
         pass
 
