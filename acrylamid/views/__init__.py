@@ -112,6 +112,19 @@ def initialize(ext_dir, conf, env):
             traceback.print_exc(file=sys.stdout)
 
 
+class Views(list):
+    """A compatibility layer for the view storage. It is actually a list
+    but supports ``__getitem__`` for retrieval."""
+
+    def __getitem__(self, key):
+        if isinstance(key, basestring):
+            try:
+                return self[self.index(key)]
+            except ValueError:
+                raise IndexError(key)
+        return list.__getitem__(self, key)
+
+
 class View(object):
     """A view generally takes a template and generates HTML/XML or other
     kinds of text. It may filter a list of entries by a given attribute,
