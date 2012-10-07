@@ -3,11 +3,14 @@
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
+from future_builtins import filter
+
 import io
 import re
 
 from time import strftime, gmtime
 from os.path import join, getmtime, exists
+from collections import defaultdict
 
 from acrylamid.views import View
 from acrylamid.helpers import event, joinurl, rchop
@@ -67,23 +70,27 @@ class Sitemap(View):
         event.register(track, to=['create', 'update', 'skip', 'identical'])
         event.register(changed, to=['create', 'update', 'identical'])
 
+    def convert(self, link, replacements):
+        for pat, repl in replacements:
+            link = re.sub(pat, repl, link)
+
+        if link.endswith('/'):
+            link += 'index.html'
+
+        return re.compile('^' + joinurl(re.escape(self.conf['www_root']), link) + '$')
+
     def context(self, env, request):
         """"Here we prepare the detection pattern and active views. For each view we convert
         ``view.path`` to a regular expression pattern using simple replacements."""
 
-        patterns = dict()
-        replacements = [(':year', '\d+'), (':month', '\d+'), (':day', '\d+'), (':[^/]+', '[^/]+')]
+        patterns = defaultdict(list)
+        replacements = [(':year', '\d+'), (':month', '\d+'), (':day', '\d+'),
+                        (':num', '\d+'), (':[^/]+', '[^/]+')]
 
         for view in self.env.views:
-            permalink = view.path
-            for pat, repl in replacements:
-                permalink = re.sub(pat, repl, permalink)
-
-            if permalink.endswith('/'):
-                permalink += 'index.html'
-
-            patterns[view] = re.compile(
-                '^' + joinurl(re.escape(self.conf['www_root']), permalink) + '$')
+            patterns[view].append(self.convert(view.path, replacements))
+            if hasattr(view, 'pagination'):
+                 patterns[view].append(self.convert(view.pagination, replacements))
 
         self.patterns = patterns
         self.views = self.env.views[:]
@@ -118,7 +125,7 @@ class Sitemap(View):
             url = join(self.conf['www_root'], fname.replace(self.conf['output_dir'], ''))
             for view in self.views:
 
-                if self.patterns[view].match(url):
+                if any(filter(lambda pat: pat.match(url), self.patterns[view])):
                     priority, changefreq = self.scores.get(view, (0.5, 'weekly'))
                     sm.add(rchop(url, 'index.html'), getmtime(fname), changefreq, priority)
 
