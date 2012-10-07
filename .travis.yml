@@ -14,4 +14,3 @@ notifications:
     channel: "irc.freenode.org#acrylamid"
     on_success: change
     on_failure: change
-    template: "%{repository} (%{commit}) : %{message}, %{build_url}"
