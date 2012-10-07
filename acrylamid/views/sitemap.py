@@ -90,7 +90,7 @@ class Sitemap(View):
         for view in self.env.views:
             patterns[view].append(self.convert(view.path, replacements))
             if hasattr(view, 'pagination'):
-                 patterns[view].append(self.convert(view.pagination, replacements))
+                patterns[view].append(self.convert(view.pagination, replacements))
 
         self.patterns = patterns
         self.views = self.env.views[:]
