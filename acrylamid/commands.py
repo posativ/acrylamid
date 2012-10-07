@@ -263,7 +263,8 @@ def new(conf, env, title, prompt=True):
     # we need the actual defaults values
     initialize(conf, env)
 
-    fd, tmp = tempfile.mkstemp(suffix=conf['content_extension'], dir='.cache/')
+    fd, tmp = tempfile.mkstemp(suffix=conf.get('content_extension', '.txt'),
+                               dir='.cache/')
     editor = os.getenv('VISUAL') if os.getenv('VISUAL') else os.getenv('EDITOR')
 
     if not title:
@@ -284,7 +285,7 @@ def new(conf, env, title, prompt=True):
     except OSError:
         pass
 
-    filepath = p + conf['content_extension']
+    filepath = p + conf.get('content_extension', '.txt')
     if isfile(filepath):
         raise AcrylamidException('Entry already exists %r' % filepath)
     shutil.move(tmp, filepath)

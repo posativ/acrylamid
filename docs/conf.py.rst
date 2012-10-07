@@ -78,6 +78,8 @@ Variable name (default value)                       Description
 `OUTPUT_IGNORE` (|ignored|)                         A list of filename/directory-patterns which
                                                     Acrylamid should ignore.
 `CONTENT_DIR` (``content/``)                        Directory where you write your posts to.
+`CONTENT_EXTENSION` (``.txt``)                      Filename extension used for
+                                                    creating new entries.
 `CONTENT_IGNORE` (|ignored|)                        Same as ``OUTPUT_IGNORE`` but for ``CONTENT_DIR``.
 `THEME` (``layouts/``)                              Directory where you place your jinja2 templates.
 `THEME_IGNORE` (|ignored|)                          Same as ``OUTPUT_IGNORE`` but for ``THEME``.
