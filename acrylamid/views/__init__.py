@@ -217,7 +217,7 @@ class View(object):
     def __init__(self, conf, env, **kwargs):
 
         self.condition = kwargs.get('condition', lambda e: True)
-        self.view = kwargs.get('view', 'View')
+        self.name = kwargs.get('view', 'View')
         self.path = kwargs.get('path', '/')
         self.filters = kwargs.get('filters', [])
 
@@ -232,6 +232,11 @@ class View(object):
             kwargs.pop(k, None)
 
         self._getkwargs = lambda : kwargs
+
+    def __eq__(self, other):
+        if isinstance(other, View):
+            return hash(self) == hash(other)
+        return self.name == other
 
     def init(self, **kwargs):
         pass

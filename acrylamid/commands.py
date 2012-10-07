@@ -101,13 +101,13 @@ def initialize(conf, env):
     lazy.disable()  # this has weird side effects with jinja2, so disabled after filters
 
     views.initialize(conf["views_dir"], conf, env)
-    env['views'] = dict([(v.view, v) for v in views.get_views()])
+    env.views = [view for view in views.get_views()]
 
     entryfmt, pagefmt = '/:year/:slug/', '/:slug/'
     for view in views.get_views():
-        if view.view == 'entry':
+        if view.name == 'entry':
             entryfmt = view.path
-        if view.view == 'page':
+        if view.name == 'page':
             pagefmt = view.path
 
     conf.setdefault('entry_permalink', entryfmt)
