@@ -105,9 +105,9 @@ def initialize(conf, env):
 
     entryfmt, pagefmt = '/:year/:slug/', '/:slug/'
     for view in views.get_views():
-        if view.view == 'entry':
+        if view.name == 'entry':
             entryfmt = view.path
-        if view.view == 'page':
+        if view.name == 'page':
             pagefmt = view.path
 
     conf.setdefault('entry_permalink', entryfmt)

@@ -217,7 +217,7 @@ class View(object):
     def __init__(self, conf, env, **kwargs):
 
         self.condition = kwargs.get('condition', lambda e: True)
-        self.view = kwargs.get('view', 'View')
+        self.name = kwargs.get('view', 'View')
         self.path = kwargs.get('path', '/')
         self.filters = kwargs.get('filters', [])
 
