@@ -46,7 +46,7 @@ arguments = [
 USED_WORDPRESS = False
 
 
-class InvalidSource(Exception):
+class InputError(Exception):
     pass
 
 
@@ -101,28 +101,7 @@ def rss20(xml):
         ts = mktime_tz(ts)
         return datetime.fromtimestamp(ts)
 
-    try:
-        tree = ElementTree.fromstring(xml.encode('utf-8'))
-    except ElementTree.ParseError:
-        raise InvalidSource('no well-formed XML')
-    if tree.tag != 'rss' or tree.attrib.get('version') != '2.0':
-        raise InvalidSource('no RSS 2.0 feed')
-
-    # --- site settings --- #
-    defaults = {'author': None}
-    channel = tree.getchildren()[0]
-
-    for k, v in {'title': 'sitename', 'link': 'www_root',
-                 'language': 'lang', 'author': 'author'}.iteritems():
-        try:
-            defaults[v] = channel.find(k).text
-        except AttributeError:
-            pass
-
-    yield defaults
-
-    # --- individual posts --- #
-    for item in channel.findall('item'):
+    def generate(item):
 
         entry = {}
         for k, v in {'title': 'title', 'date': 'pubDate', 'link': 'link',
@@ -137,10 +116,29 @@ def rss20(xml):
             raise AcrylamidException('invalid RSS 2.0 feed: provide at least title, ' \
                                      + 'link, content and pubDate!')
 
-        yield {'title': entry['title'],
+        return {'title': entry['title'],
                'content': entry['content'],
                'date': parse_date_time(entry['date']),
                'link': entry['link']}
+
+    try:
+        tree = ElementTree.fromstring(xml.encode('utf-8'))
+    except ElementTree.ParseError:
+        raise InputError('no well-formed XML')
+    if tree.tag != 'rss' or tree.attrib.get('version') != '2.0':
+        raise InputError('no RSS 2.0 feed')
+
+    defaults = {'author': None}
+    channel = tree.getchildren()[0]
+
+    for k, v in {'title': 'sitename', 'link': 'www_root',
+                 'language': 'lang', 'author': 'author'}.iteritems():
+        try:
+            defaults[v] = channel.find(k).text
+        except AttributeError:
+            pass
+
+    return defaults, map(generate, channel.findall('item'))
 
 
 def atom(xml):
@@ -150,26 +148,8 @@ def atom(xml):
         ts = mktime_tz(ts)
         return datetime.fromtimestamp(ts)
 
-    try:
-        tree = ElementTree.fromstring(xml.encode('utf-8'))
-    except ElementTree.ParseError:
-        raise InvalidSource('no well-formed XML')
+    def generate(item):
 
-    if not tree.tag.endswith('/2005/Atom}feed'):
-        raise InvalidSource('no Atom feed')
-
-    # --- site settings --- #
-    ns = '{http://www.w3.org/2005/Atom}'  # etree Y U have stupid namespace handling?
-    defaults = {}
-
-    defaults['title'] = tree.find(ns + 'title').text
-    defaults['www_root'] = tree.find(ns + 'id').text
-    defaults['author'] = tree.find(ns + 'author').find(ns + 'name').text
-
-    yield defaults
-
-    # --- individual posts --- #
-    for item in tree.findall(ns + 'entry'):
         entry = {}
 
         try:
@@ -187,10 +167,27 @@ def atom(xml):
             raise AcrylamidException('invalid Atom feed: provide at least title, '
                                      + 'link, content and updated!')
 
-        yield {'title': entry['title'],
+        return {'title': entry['title'],
                'content': entry['content'],
                'date': datetime.strptime(entry['date'], "%Y-%m-%dT%H:%M:%SZ"),
                'link': entry['link']}
+
+    try:
+        tree = ElementTree.fromstring(xml.encode('utf-8'))
+    except ElementTree.ParseError:
+        raise InputError('no well-formed XML')
+
+    if not tree.tag.endswith('/2005/Atom}feed'):
+        raise InputError('no Atom feed')
+
+    ns = '{http://www.w3.org/2005/Atom}'  # etree Y U have stupid namespace handling?
+    defaults = {}
+
+    defaults['title'] = tree.find(ns + 'title').text
+    defaults['www_root'] = tree.find(ns + 'id').text
+    defaults['author'] = tree.find(ns + 'author').find(ns + 'name').text
+
+    return defaults, map(generate, tree.findall(ns + 'entry'))
 
 
 def wp(xml):
@@ -198,25 +195,19 @@ def wp(xml):
     -- https://github.com/ametaireau/pelican/blob/master/pelican/tools/pelican_import.py
     """
 
+    if 'xmlns:wp' not in xml:
+        raise InputError('not a WP dump')
+
     global USED_WORDPRESS
     USED_WORDPRESS = True
 
-    from BeautifulSoup import BeautifulStoneSoup
-    soup = BeautifulStoneSoup(xml)
-
     try:
-        items = soup.rss.channel.findAll('item')
-    except AttributeError:
-        raise InvalidSource("no such attribute 'channel'")
+        from BeautifulSoup import BeautifulStoneSoup
+    except ImportError:
+        raise AcrylamidException('BeautifulSoup is required for WordPress import')
 
-    # --- site settings --- #
-    title = soup.rss.channel.fetch('title')[0].contents[0]
-    www_root = soup.rss.channel.fetch('link')[0].contents[0]
+    def generate(item):
 
-    yield {'title': title, 'www_root': www_root}
-
-    # --- individual posts --- #
-    for item in items:
         if item.fetch('wp:status')[0].contents[0] == "publish":
 
             title = item.title.contents[0]
@@ -231,8 +222,20 @@ def wp(xml):
             author = item.fetch('dc:creator')[0].contents[0].title()
             tags = [tag.contents[0] for tag in item.fetch(domain='post_tag')]
 
-            yield {'title': title, 'content': content, 'date': date, 'author': author,
+            return {'title': title, 'content': content, 'date': date, 'author': author,
                    'tags': tags, 'link': link}
+
+    soup = BeautifulStoneSoup(xml)
+
+    try:
+        items = soup.rss.channel.findAll('item')
+    except AttributeError:
+        raise InputError("no such attribute 'channel'")
+
+    title = soup.rss.channel.fetch('title')[0].contents[0]
+    www_root = soup.rss.channel.fetch('link')[0].contents[0]
+
+    return {'title': title, 'www_root': www_root}, map(generate, items)
 
 
 def fetch(url, auth=None):
@@ -270,15 +273,11 @@ def fetch(url, auth=None):
 
 def parse(content):
 
-    failed = []
-    for method in (wp, rss20, atom):
+    for method in (atom, wp, rss20):
         try:
-            res = method(content)
-            return next(res), res
-        except ImportError:
-            log.info('notice  BeautifulSoup is required for WordPress import')
-        except InvalidSource as e:
-            failed.append(e.args[0])
+            return method(content)
+        except InputError:
+            pass
     else:
         raise AcrylamidException('unable to parse source')
 
@@ -330,7 +329,7 @@ def build(conf, env, defaults, items, options):
         shutil.move(tmp, filepath)
         event.create(filepath)
 
-    for item in items:
+    for item in filter(lambda x: x, items):
 
         if options.keep:
             m = urlsplit(item['link'])

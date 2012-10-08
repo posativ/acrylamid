@@ -1,10 +1,11 @@
 # -*- encoding: utf-8 -*-
 
+import io
 import unittest
+
+from os.path import join, dirname
+
 from nose.exc import SkipTest
-
-import argparse
-
 from acrylamid import log, tasks, helpers
 
 log.init('acrylamid', 20)
@@ -47,3 +48,25 @@ class TestImport(unittest.TestCase):
 
         assert imprt.convert('', fmt='Markdown') == ('', 'markdown')
         assert imprt.convert(None, fmt='Markdown') == ('', 'markdown')
+
+
+class TestRSS(unittest.TestCase):
+
+    def test_recognition(self):
+
+        with self.assertRaises(imprt.InputError):
+            imprt.rss20('baz')
+            imprt.rss20('<?xml version="1.0" encoding="utf-8"?>' \
+                      + '<rss version="1.0" xmlns:atom="http://www.w3.org/2005/Atom">' \
+                      + '</rss>')
+
+
+class TestAtom(unittest.TestCase):
+
+    def test_recognition(self):
+
+        with self.assertRaises(imprt.InputError):
+            imprt.atom('bar')
+            imprt.atom('<?xml version="1.0" encoding="utf-8"?>' \
+                     + '<feed xmlns="http://invalid.org/" xml:lang="de">' \
+                     + '</feed>')
