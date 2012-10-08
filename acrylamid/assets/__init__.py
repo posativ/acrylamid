@@ -11,9 +11,10 @@ from tempfile import mkstemp
 from itertools import chain
 from os.path import join, relpath, isfile, getmtime, splitext
 
-from acrylamid import core, readers, helpers
+from acrylamid import core, helpers
 from acrylamid.errors import AcrylamidException
 from acrylamid.helpers import mkfile, event
+from acrylamid.readers import filelist
 
 __writers = None
 __defaultwriter = None
@@ -101,11 +102,11 @@ def compile(conf, env):
         # ...
     }
 
-    other = [(prefix, readers.filelist(prefix, conf.get('static_ignore', []))) for prefix in conf['static']]
+    other = [(prefix, filelist(prefix, conf['static_ignore'])) for prefix in conf['static']]
     other = [((relpath(path, prefix), prefix) for path in generator)
         for prefix, generator in other]
 
-    files = ((path, conf['theme']) for path in readers.filelist(conf['theme'], conf.get('theme_ignore', [])))
+    files = ((path, conf['theme']) for path in filelist(conf['theme'], conf['theme_ignore']))
     files = ((relpath(path, prefix), prefix) for path, prefix in files)
     files = ((path, prefix) for path, prefix in files if path not in env.engine.templates)
 
