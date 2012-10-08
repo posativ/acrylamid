@@ -158,19 +158,17 @@ def atom(xml):
             entry['link'] = item.find(ns + 'link').text
             entry['content'] = item.find(ns + 'content').text
         except (AttributeError, TypeError):
-            pass
+            raise AcrylamidException('invalid Atom feed: provide at least title, '
+                                     + 'link, content and updated!')
 
         if item.find(ns + 'content').get('type', 'text') == 'html':
             entry['content'] = unescape(entry['content'])
 
-        if filter(lambda k: not k in entry, ['title', 'date', 'link', 'content']):
-            raise AcrylamidException('invalid Atom feed: provide at least title, '
-                                     + 'link, content and updated!')
-
         return {'title': entry['title'],
                'content': entry['content'],
                'date': datetime.strptime(entry['date'], "%Y-%m-%dT%H:%M:%SZ"),
-               'link': entry['link']}
+               'link': entry['link'],
+               'tags': [x.get('term') for x in item.findall(ns + 'category')]}
 
     try:
         tree = ElementTree.fromstring(xml.encode('utf-8'))
