@@ -9,8 +9,8 @@ install:
 script:
   - nosetests specs/
   - cram specs/
+branches:
+  only:
+    - master
 notifications:
-  irc:
-    channel: "irc.freenode.org#acrylamid"
-    on_success: change
-    on_failure: change
+  irc: "irc.freenode.org#acrylamid"
