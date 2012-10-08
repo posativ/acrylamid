@@ -117,7 +117,7 @@ class Views(list):
     but supports ``__getitem__`` for retrieval."""
 
     def __getitem__(self, key):
-        if isinstance(key, basestring):
+        if isinstance(key, (basestring, View)):
             try:
                 return self[self.index(key)]
             except ValueError:
