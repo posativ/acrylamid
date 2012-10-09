@@ -94,7 +94,10 @@ def convert(data, fmt='markdown', pandoc=False):
         return data, 'html'
 
 
-def rss20(xml):
+def rss(xml):
+
+    if 'xmlns:wp' in xml:
+        raise InputError('WordPress dump')
 
     def parse_date_time(stamp):
         ts = parsedate_tz(stamp)
@@ -181,9 +184,13 @@ def atom(xml):
     ns = '{http://www.w3.org/2005/Atom}'  # etree Y U have stupid namespace handling?
     defaults = {}
 
-    defaults['title'] = tree.find(ns + 'title').text
-    defaults['www_root'] = tree.find(ns + 'id').text
+    defaults['sitename'] = tree.find(ns + 'title').text
     defaults['author'] = tree.find(ns + 'author').find(ns + 'name').text
+
+    www_root = [a for a in tree.findall(ns + 'link')
+        if a.attrib.get('rel', 'alternate') == 'alternate']
+    if www_root:
+         defaults['www_root'] = www_root[0].attrib.get('href')
 
     return defaults, map(generate, tree.findall(ns + 'entry'))
 
@@ -271,7 +278,7 @@ def fetch(url, auth=None):
 
 def parse(content):
 
-    for method in (atom, wp, rss20):
+    for method in (atom, wp, rss):
         try:
             return method(content)
         except InputError:
