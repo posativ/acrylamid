@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>mecker. mecker. mecker.</title>
+        <link>http://blog.posativ.org/</link>
+        <description></description>
+        <language>de</language>
+        <pubDate>Thu, 27 Sep 2012 20:16:00 GMT</pubDate>
+        <docs>http://blog.posativ.org/rss/</docs>
+        <generator>acrylamid 0.4.2</generator>
+
+            <item>
+                <title>Linkschleuder #28</title>
+                <link>http://blog.posativ.org/2012/linkschleuder-28/</link>
+                <category>Links</category>
+                <category>planet</category>
+                <description>&lt;ul&gt;
+        &lt;li&gt;&lt;a href=&#34;http://tiptheweb.org/&#34;&gt;tiptheweb&lt;/a&gt; – wie &lt;a href=&#34;https://flattr.com/&#34;&gt;Flattr&lt;/a&gt; nur
+          lässt sich der Betrag gezielter steuern und es steht eine non-profit Organization
+          dahinter. Hoffentlich wird das&amp;nbsp;populärer.&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&#34;https://github.com/apenwarr/redo&#34;&gt;redo&lt;/a&gt; – ein
+          &lt;a href=&#34;https://en.wikipedia.org/wiki/Make_(software)&#34;&gt;Make&lt;/a&gt; Ersatz, nur einfacher,
+          mächtiger und zuverlässiger. Nichts, was ich persönlich bisher an Make vermisst&amp;nbsp;habe.&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&#34;https://github.com/hut/ranger&#34;&gt;ranger&lt;/a&gt; – Vim-inspirierter Dateimanager für die
+          &lt;span class=&#34;caps&#34;&gt;&lt;abbr title=&#34;Command Line Interface&#34;&gt;CLI&lt;/abbr&gt;&lt;/span&gt;. Ganz nett, nur sind die default-keybindings allesamt read-only. Aber ansonsten
+          macht das Teil&amp;nbsp;Spaß.&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&#34;http://tos-dr.info/#services&#34;&gt;ToS;dr&lt;/a&gt; – &lt;em&gt;Terms of Service; Didn&amp;#8217;t Read&lt;/em&gt; ist eine
+          recht junge Initiative um AGBs allgemein verständlich zu erklären. So wusste ich
+          zum Beispiel nicht, dass ich beim Twittern alle Rechte an meinem Text verliere. Das
+          Projekt ist übrigens &lt;a href=&#34;http://www.indiegogo.com/terms-of-service-didnt-read&#34;&gt;am &lt;del&gt;Kickstartern&lt;/del&gt;
+          Crowfunden&lt;/a&gt;.&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&#34;http://ascii.io/&#34;&gt;ascii.io&lt;/a&gt; – ein YouTube für Terminal-Sessions. Für alle Fälle&amp;nbsp;geblogmarkt.&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&#34;http://tent.io/&#34;&gt;tent&lt;/a&gt; – &lt;em&gt;Tent is a protocol for social networking&lt;/em&gt;. Was auch
+          immer das heißen&amp;nbsp;mag.&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&#34;https://github.com/bazaarlabs/gitdocs&#34;&gt;gitdocs&lt;/a&gt; – eine eigene Dropbox auf Basis
+          von Ruby und Git. Hat sogar ein schickes&amp;nbsp;Webinterface.&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&#34;http://portspoof.duszynski.eu/&#34;&gt;Portspoof&lt;/a&gt; – ein &lt;em&gt;service signature obfuscator&lt;/em&gt;.
+          Emuliert so ziemlich jeden Dienst, den man sich vorstellen kann, um &lt;code&gt;nmap&lt;/code&gt; für
+          mehrere Minuten zu&amp;nbsp;beschäftigen.&lt;/li&gt;
+        &lt;/ul&gt;
+        &lt;p&gt;Passwörter verwalten. Manche können sich ausgehend von ein paar Masterpasswörtern per
+        &lt;a href=&#34;https://en.wikipedia.org/wiki/PBKDF2&#34;&gt;&lt;span class=&#34;caps&#34;&gt;PBKDF2&lt;/span&gt;&lt;/a&gt; für jede Website ein neues erdenken.
+        Für alle anderen gibt es &lt;a href=&#34;https://www.keepassx.org/&#34;&gt;KeePassX&lt;/a&gt;. Für die Integration
+        in Firefox/Chrome gibt es nun &lt;a href=&#34;https://github.com/pfn/passifox&#34;&gt;passifox&lt;/a&gt; über
+        &lt;a href=&#34;https://github.com/pfn/keepasshttp&#34;&gt;keepasshttp&lt;/a&gt;, das die Passwörter über 256-bit
+        &lt;span class=&#34;caps&#34;&gt;&lt;abbr title=&#34;Advanced Encryption Standard&#34;&gt;AES&lt;/abbr&gt;&lt;/span&gt;/&lt;abbr title=&#34;Cipher Block Chaining&#34;&gt;&lt;span class=&#34;caps&#34;&gt;CBC&lt;/span&gt;&lt;/abbr&gt; per &lt;span class=&#34;caps&#34;&gt;HTTP&lt;/span&gt; weiterreicht. Wem das zu viel des Guten ist, kann auch
+        &lt;a href=&#34;http://zx2c4.com/projects/password-store/&#34;&gt;pass&lt;/a&gt; nutzen, das eher den &lt;span class=&#34;caps&#34;&gt;UNIX&lt;/span&gt; Weg&amp;nbsp;einschlägt.&lt;/p&gt;
+        &lt;p&gt;„Du heißt 40 Mal wahrscheinlicher &lt;abbr title=&#34;Wang&#34;&gt;王&lt;/abbr&gt; als Jones” – &lt;a href=&#34;http://www.troyhunt.com/2012/09/10-lessons-for-uncultured-web-developers.html&#34;&gt;10 lessons for uncultured web
+        developers&lt;/a&gt; – nicht nur für Webentwickler. In &lt;a href=&#34;http://www.sublimetext.com/~jps/animated_gifs_the_hard_way.html&#34;&gt;Animated GIFs the Hard
+        Way&lt;/a&gt; erzählt der
+        Entwickler von &lt;a href=&#34;http://www.sublimetext.com/2&#34;&gt;Sublime Text 2&lt;/a&gt;, wie aus mehreren
+        Megabytes großen GIFs nur noch hundert Kilobyte große Animationen werden – allerdings
+        mittels &lt;span class=&#34;caps&#34;&gt;PNG&lt;/span&gt;. Und wo wir gerade bei GIFs waren: mit
+        &lt;a href=&#34;https://github.com/videlalvaro/gifsockets&#34;&gt;gifsockets&lt;/a&gt; unterstützt auch der &lt;span class=&#34;caps&#34;&gt;IE6&lt;/span&gt;&amp;nbsp;Websockets.&lt;/p&gt;</description>
+                <pubDate>Thu, 27 Sep 2012 20:16:00 GMT</pubDate>
+                <guid isPermaLink="false">tag:blog.posativ.org,2012-09-27:/2012/linkschleuder-28</guid>
+            </item>
+        </channel>
+</rss>
