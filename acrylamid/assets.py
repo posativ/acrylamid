@@ -116,14 +116,9 @@ def compile(conf, env):
 
     global __writers, __default
 
-    ext_map = {
-        '.sass': SASSWriter,
-        '.scss': SCSSWriter,
-        '.less': LESSWriter,
-        '.html': HTMLWriter,
-        # '.haml': 'HAMLWriter',
-        # ...
-    }
+    ext_map = dict((cls.ext, cls) for cls in (
+        SASSWriter, SCSSWriter, LESSWriter, HTMLWriter
+    ))
 
     other = [(prefix, filelist(prefix, conf['static_ignore'])) for prefix in conf['static']]
     other = [((relpath(path, prefix), prefix) for path in generator)
