@@ -127,7 +127,27 @@ def rss(xml):
         return {'title': entry['title'],
                'content': entry['content'],
                'date': parse_date_time(entry['date']),
-               'link': entry['link']}
+               'link': entry['link'],
+               'tags': [cat.text for cat in item.findall('category')]}
+
+    try:
+        tree = ElementTree.fromstring(xml.encode('utf-8'))
+    except ElementTree.ParseError:
+        raise InputError('no well-formed XML')
+    if tree.tag != 'rss' or tree.attrib.get('version') != '2.0':
+        raise InputError('no RSS 2.0 feed')
+
+    defaults = {'author': None}
+    channel = tree.getchildren()[0]
+
+    for k, v in {'title': 'sitename', 'link': 'www_root',
+                 'language': 'lang', 'author': 'author'}.iteritems():
+        try:
+            defaults[v] = channel.find(k).text
+        except AttributeError:
+            pass
+
+    return defaults, map(generate, channel.findall('item'))
 
     try:
         tree = ElementTree.fromstring(xml.encode('utf-8'))

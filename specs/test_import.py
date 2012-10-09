@@ -90,8 +90,10 @@ class TestRSS(unittest.TestCase):
         defaults, items = imprt.rss(rss)
         entry = items[0]
 
-        for key in 'title', 'content', 'link', 'date':
+        for key in 'title', 'content', 'link', 'date', 'tags':
             assert key in entry
+
+        assert len(entry['tags']) == 2
 
 
 class TestAtom(unittest.TestCase):
