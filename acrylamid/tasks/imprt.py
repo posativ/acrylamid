@@ -6,6 +6,7 @@
 import os
 import io
 import re
+import sys
 import shutil
 import tempfile
 import getpass
@@ -16,6 +17,7 @@ from urllib2 import urlopen, Request, HTTPError
 from urlparse import urlsplit
 
 from xml.etree import ElementTree
+from xml.parsers.expat import ExpatError
 from htmlentitydefs import name2codepoint
 
 from email.utils import parsedate_tz, mktime_tz
@@ -41,6 +43,9 @@ arguments = [
     argument("-a", dest="args", nargs="+", action="store", type=str,
     help="add argument to header section", default=[]),
 ]
+
+if sys.version_info < (2, 7):
+    setattr(ElementTree, 'ParseError', ExpatError)
 
 # no joke
 USED_WORDPRESS = False
