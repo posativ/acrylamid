@@ -13,4 +13,9 @@ branches:
   only:
     - master
 notifications:
-  irc: "irc.freenode.org#acrylamid"
+  irc:
+    channels:
+      - "irc.freenode.org#acrylamid"
+    on_success: change
+    on_failure: change
+    template: "%{repository} (%{commit}) : %{message}, %{build_url}"
