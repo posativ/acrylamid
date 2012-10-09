@@ -22,13 +22,35 @@ __defaultwriter = None
 
 class DefaultWriter(object):
 
+    enabled = True
+
+    def __init__(self, conf, env):
+
+        self.conf = conf
+        self.env = env
+
     def write(self, src, dest, force=False, dryrun=False):
+
+        if not self.enabled:
+            return
 
         if not force and isfile(dest) and getmtime(dest) > getmtime(src):
             return event.skip(dest)
 
         with io.open(src, 'rb') as fp:
             mkfile(fp, dest, force=force, dryrun=dryrun, mode="b")
+
+
+class HTMLWriter(DefaultWriter):
+
+    ext = '.html'
+
+    def write(self, src, dest, **kw):
+
+        if src.startswith(self.conf['theme'] + '/'):
+            return
+
+        return DefaultWriter.write(self, src, dest, **kw)
 
 
 class System(DefaultWriter):
@@ -84,7 +106,7 @@ def initialize(conf, env):
 
     global __writers, __defaultwriter
     __writers = {}
-    __defaultwriter = DefaultWriter()
+    __defaultwriter = DefaultWriter(conf, env)
 
 
 def compile(conf, env):
@@ -98,6 +120,7 @@ def compile(conf, env):
         '.sass': SASSWriter,
         '.scss': SCSSWriter,
         '.less': LESSWriter,
+        '.html': HTMLWriter,
         # '.haml': 'HAMLWriter',
         # ...
     }
@@ -115,7 +138,7 @@ def compile(conf, env):
         # initialize writer for extension if not already there
         _, ext = splitext(path)
         if ext in ext_map and ext not in __writers:
-            __writers[ext] = ext_map[ext]()
+            __writers[ext] = ext_map[ext](conf, env)
 
         src, dest = join(directory, path), join(conf['output_dir'], path)
         writer = __writers.get(ext, __defaultwriter)
