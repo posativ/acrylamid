@@ -126,7 +126,7 @@ class Sitemap(View):
             for view in self.views:
 
                 if any(filter(lambda pat: pat.match(url), self.patterns[view])):
-                    priority, changefreq = self.scores.get(view, (0.5, 'weekly'))
+                    priority, changefreq = self.scores.get(view.name, (0.5, 'weekly'))
                     sm.add(rchop(url, 'index.html'), getmtime(fname), changefreq, priority)
 
                     break
