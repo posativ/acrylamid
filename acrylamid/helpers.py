@@ -8,8 +8,9 @@
 import os
 import io
 import re
-import hashlib
+import imp
 import shutil
+import hashlib
 import subprocess
 
 from unicodedata import normalize
@@ -33,7 +34,8 @@ except ImportError:
     unidecode = None  # NOQA
 
 __all__ = ['memoize', 'union', 'mkfile', 'md5', 'expand', 'joinurl',
-           'safeslug', 'paginate', 'safe', 'system', 'event', 'rchop']
+           'safeslug', 'paginate', 'safe', 'system', 'event', 'rchop',
+           'discover']
 
 _slug_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
 
@@ -408,3 +410,32 @@ def rchop(original_string, substring):
     if original_string.endswith(substring):
         return original_string[:-len(substring)]
     return original_string
+
+
+def discover(directories, index, filterfunc=lambda filename: True):
+    """Import and initialize modules from `directories` list.
+
+    :param directories: list of directories
+    :param index: index function"""
+
+    def find(directories, filterfunc):
+        """Discover and yield python modules (aka files that endswith .py) if
+        `filterfunc` returns True for that filename."""
+
+        for directory in directories:
+            for root, dirs, files in os.walk(directory):
+                for fname in files:
+                    if fname.endswith('.py') and filterfunc(fname):
+                        yield os.path.join(root, fname)
+
+    for filename in find(directories, filterfunc):
+        modname, ext = os.path.splitext(os.path.basename(filename))
+        fp, path, descr = imp.find_module(modname, directories)
+
+        try:
+            mod = imp.load_module(modname, fp, path, descr)
+        except (ImportError, SyntaxError, ValueError) as e:
+            log.warn('%r %s: %s', modname, e.__class__.__name__, e)
+            continue
+
+        index(mod)

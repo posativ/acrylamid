@@ -5,10 +5,11 @@
 
 import sys
 import os
-import imp
 import traceback
 
-from acrylamid import log
+from functools import partial
+
+from acrylamid import log, helpers
 from acrylamid.errors import AcrylamidException
 from acrylamid.lib.lazy import _demandmod as LazyModule
 
@@ -19,7 +20,7 @@ def get_filters():
     return callbacks
 
 
-def index_filters(module, conf, env):
+def index_filters(conf, env, module):
     """Goes through the modules' contents and indexes all classes derieved
     from Filter and have a `match` attribute.
 
@@ -39,8 +40,8 @@ def index_filters(module, conf, env):
 
 
 def discover(directories, filterfunc=lambda filename: True):
-    """Discover and yield python modules (aka files that endswith .py) and
-    applies `filterfunc` to the filename."""
+    """Discover and yield python modules (aka files that endswith .py) if
+    `filterfunc` returns True for that filename."""
 
     for directory in directories:
         for root, dirs, files in os.walk(directory):
@@ -50,27 +51,18 @@ def discover(directories, filterfunc=lambda filename: True):
 
 
 def initialize(directories, conf, env):
-    """Import and initialize filters from `directories` list. We skip modules that
-    start with an underscore, md_x or rstx_ as they have special meaning to Acrylamid.
+    """Import and initialize filters butskip modules that start with an
+    underscore, md_x or rstx_ as they have special meaning to Acrylamid.
 
     :param directories: list of directories
     :param conf: user config
     :param env: environment"""
 
     directories += [os.path.dirname(__file__)]
-    modules = discover(directories, lambda path: not path.startswith(('_','mdx_', 'rstx_')))
-
-    for filename in modules:
-        modname, ext = os.path.splitext(os.path.basename(filename))
-        fp, path, descr = imp.find_module(modname, directories)
-
-        try:
-            mod = imp.load_module(modname, fp, path, descr)
-        except (ImportError, SyntaxError, ValueError) as e:
-            log.warn('%r %s: %s', modname, e.__class__.__name__, e)
-            continue
-
-        index_filters(mod, conf, env)
+    helpers.discover(
+        directories, partial(index_filters, conf, env),
+        lambda path: not path.startswith(('_', 'mdx_', 'rstx_'))
+    )
 
 
 class RegexList(list):
