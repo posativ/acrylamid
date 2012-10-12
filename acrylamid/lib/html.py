@@ -18,9 +18,17 @@ This implementation is used :mod:`acrylamid.filters.acronyms`,
 an unintuitive way of working with HTML."""
 
 import sys
+import re
 
 from cgi import escape
 from HTMLParser import HTMLParser as DefaultParser, HTMLParseError
+from htmlentitydefs import name2codepoint
+
+
+def unescape(s):
+    """&amp; -> & conversion"""
+    return re.sub('&(%s);' % '|'.join(name2codepoint),
+            lambda m: unichr(name2codepoint[m.group(1)]), s)
 
 
 def format(attrs):
@@ -98,4 +106,4 @@ class HTMLParser(WTFMixin):
         """Preserve HTML comments."""
         self.result.append('<!--' + comment + '-->')
 
-__all__ = ['HTMLParser', 'HTMLParseError']
+__all__ = ['HTMLParser', 'HTMLParseError', 'unescape']

@@ -18,7 +18,6 @@ from urlparse import urlsplit
 
 from xml.etree import ElementTree
 from xml.parsers.expat import ExpatError
-from htmlentitydefs import name2codepoint
 
 from email.utils import parsedate_tz, mktime_tz
 from os.path import join, dirname, isfile
@@ -29,6 +28,7 @@ from acrylamid.errors import AcrylamidException
 
 from acrylamid.readers import Entry
 from acrylamid.helpers import event, safe, system
+from acrylamid.lib.html import unescape
 
 arguments = [
     argument("src", metavar="FILE|URL"),
@@ -53,11 +53,6 @@ USED_WORDPRESS = False
 
 class InputError(Exception):
     pass
-
-
-def unescape(s):
-    return re.sub('&(%s);' % '|'.join(name2codepoint),
-            lambda m: unichr(name2codepoint[m.group(1)]), s)
 
 
 def convert(data, fmt='markdown', pandoc=False):
