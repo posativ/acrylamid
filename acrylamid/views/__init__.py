@@ -5,10 +5,10 @@
 
 import sys
 import os
-import glob
-import traceback
 
-from acrylamid import log
+from functools import partial
+
+from acrylamid import log, helpers
 from acrylamid.errors import AcrylamidException
 
 # module-wide callbacks variable contaning views, reset this on initialize!
@@ -22,7 +22,7 @@ def get_views():
     return sorted(__views_list, key=lambda v: v.priority, reverse=True)
 
 
-def index_views(module, urlmap, conf, env):
+def index_views(conf, env, urlmap, module):
     """Stupid an naïve try getting attribute specified in `views` in
     various flavours and fail silent.
 
@@ -75,7 +75,7 @@ def index_views(module, urlmap, conf, env):
             urlmap.remove((view, rule))
 
 
-def initialize(ext_dir, conf, env):
+def initialize(directories, conf, env):
 
     global __views_list
     __views_list = []
@@ -83,33 +83,8 @@ def initialize(ext_dir, conf, env):
     # view -> path
     urlmap = [(conf['views'][k]['view'], k) for k in conf['views']]
 
-    ext_dir.extend([os.path.dirname(__file__)])
-    ext_list = []
-
-    # handle ext_dir
-    for mem in ext_dir[:]:
-        if os.path.isdir(mem):
-            sys.path.insert(0, mem)
-        else:
-            ext_dir.remove(mem)
-            log.error("View directory %r does not exist. -- skipping" % mem)
-
-    for mem in ext_dir:
-        files = glob.glob(os.path.join(mem, "*.py"))
-        files += [p.rstrip('/__init__.py') for p in \
-                    glob.glob(os.path.join(mem, '*/__init__.py'))]
-        ext_list += files
-
-    for mem in [os.path.basename(x).replace('.py', '') for x in ext_list]:
-        if mem.startswith('_'):
-            continue
-        try:
-            _module = __import__(mem)
-            #sys.modules[__package__].__dict__[mem] = _module
-            index_views(_module, urlmap, conf, env)
-        except (ImportError, Exception) as e:
-            log.error('%r ImportError %r', mem, e)
-            traceback.print_exc(file=sys.stdout)
+    directories += [os.path.dirname(__file__)]
+    helpers.discover(directories, partial(index_views, conf, env, urlmap))
 
 
 class Views(list):
