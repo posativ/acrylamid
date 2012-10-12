@@ -1,5 +1,27 @@
 # Acrylamid Changelog
 
+Version 0.5
+----------
+
+Not released – TBD
+
+### What is new?
+
+- #78 – `acrylamid import` now uses RSS/Atom categories as tags
+- #80 – new config variable `CONTENT_EXTENSION` to set the default filename
+  extension when using `acrylamid new`, defaults to `.txt` (Günter Kolousek)
+
+### What changes?
+
+- `env.views` is now a list containing the actual view objects, but retains
+  `if 'sitemap' in env.views` and `env.views['sitemap']` syntax.
+
+### What was fixed?
+
+- #82 – theme files copied to output if they are not used
+- #77 – missing items in sitemap view
+- #75 – dotfiles not copied from the static folder (Mark van Lent)
+
 Version 0.4
 -----------
 
