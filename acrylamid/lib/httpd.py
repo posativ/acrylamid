@@ -18,6 +18,8 @@ from threading import Thread
 from SocketServer import TCPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 
+from acrylamid.helpers import joinurl
+
 
 class ReuseAddressServer(TCPServer):
     """avoids socket.error: [Errno 48] Address already in use"""
@@ -32,34 +34,15 @@ class ReuseAddressServer(TCPServer):
                 time.sleep(0.1)
 
 
-class AcrylServe(SimpleHTTPRequestHandler):
+class RequestHandler(SimpleHTTPRequestHandler):
     """This is a modified version of python's -m SimpleHTTPServer to
     serve on a specific sub directory of :func:`os.getcwd`."""
 
     www_root = '.'
 
-    def translate_path(self, path):
-        """Translate a /-separated PATH to the local filename syntax.
-
-        Components that mean special things to the local file system
-        (e.g. drive or directory names) are ignored. (XXX They should
-        probably be diagnosed.)
-
-        """
-        # abandon query parameters
-        path = path.split('?', 1)[0]
-        path = path.split('#', 1)[0]
-        path = posixpath.normpath(urllib.unquote(path))
-        words = path.split('/')
-        words = filter(None, words)
-        path = os.path.join(os.getcwd(), self.www_root)
-        for word in words:
-            drive, word = os.path.splitdrive(word)
-            head, word = os.path.split(word)
-            if word in (os.curdir, os.pardir):
-                continue
-            path = os.path.join(path, word)
-        return path
+    def do_GET(self):
+        self.path = joinurl(self.www_root, self.path)
+        SimpleHTTPRequestHandler.do_GET(self)
 
     def end_headers(self):
         self.wfile.write('Cache-Control: max-age=0, must-revalidate\r\n')
@@ -74,7 +57,7 @@ class Webserver(Thread):
 
     def __init__(self, port=8000, root='.'):
         Thread.__init__(self)
-        Handler = AcrylServe
+        Handler = RequestHandler
         Handler.www_root = root
         Handler.log_error = lambda x, *y: None
         Handler.log_message = lambda x, *y: None
