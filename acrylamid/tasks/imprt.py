@@ -215,10 +215,8 @@ def atom(xml):
     return defaults, map(generate, tree.findall(ns + 'entry'))
 
 
-def wp(xml):
-    """WordPress to Acrylamid, stolen from pelican-import.py, thank you Alexis.
-    -- https://github.com/ametaireau/pelican/blob/master/pelican/tools/pelican_import.py
-    """
+def wordpress(xml):
+    """WordPress to Acrylamid, inspired by the Astraeus project."""
 
     if 'xmlns:wp' not in xml:
         raise InputError('not a WP dump')
@@ -226,41 +224,44 @@ def wp(xml):
     global USED_WORDPRESS
     USED_WORDPRESS = True
 
-    try:
-        from BeautifulSoup import BeautifulStoneSoup
-    except ImportError:
-        raise AcrylamidException('BeautifulSoup is required for WordPress import')
-
     def generate(item):
 
-        if item.fetch('wp:status')[0].contents[0] == "publish":
+        entry = {
+            'title': item.find('title').text,
+            'link': item.find('link').text,
 
-            title = item.title.contents[0]
-            link = item.fetch('link')[0].contents[0]
+            'content': item.find('%sencoded' % cons).text.replace('\n', '<br />\n'),
+            'date': datetime.strptime(item.find('%spost_date' % wpns).text,
+                "%Y-%m-%d %H:%M:%S"),
 
-            content = item.fetch('content:encoded')[0].contents[0]
-            content = content.replace('\n', '<br />\n')
+            'author': item.find('%screator' % dcns).text,
+            'tags': [tag.text for tag in item.findall('category')]
+        }
 
-            raw_date = item.fetch('wp:post_date')[0].contents[0]
-            date = datetime.strptime(raw_date, "%Y-%m-%d %H:%M:%S")
+        if item.find('%spost_type' % wpns).text == 'page':
+            entry['type'] = 'page'
 
-            author = item.fetch('dc:creator')[0].contents[0].title()
-            tags = [tag.contents[0] for tag in item.fetch(domain='post_tag')]
+        if item.find('%sstatus' % wpns).text != 'publish':
+            entry['draft'] = True
 
-            return {'title': title, 'content': content, 'date': date, 'author': author,
-                   'tags': tags, 'link': link}
-
-    soup = BeautifulStoneSoup(xml)
+        return entry
 
     try:
-        items = soup.rss.channel.findAll('item')
-    except AttributeError:
-        raise InputError("no such attribute 'channel'")
+        tree = ElementTree.fromstring(xml.encode('utf-8'))
+    except ElementTree.ParseError:
+        raise InputError('no well-formed XML')
 
-    title = soup.rss.channel.fetch('title')[0].contents[0]
-    www_root = soup.rss.channel.fetch('link')[0].contents[0]
+    # wordpress name spaces
+    wpns = '{http://wordpress.org/export/1.1/}'
+    dcns = '{http://purl.org/dc/elements/1.1/}'
+    cons = '{http://purl.org/rss/1.0/modules/content/}'
 
-    return {'title': title, 'www_root': www_root}, map(generate, items)
+    defaults = {
+        'title': tree.find('channel/title').text,
+        'www_root': tree.find('channel/link').text
+    }
+
+    return defaults, map(generate, tree.findall('channel/item'))
 
 
 def fetch(url, auth=None):
@@ -298,7 +299,7 @@ def fetch(url, auth=None):
 
 def parse(content):
 
-    for method in (atom, wp, rss):
+    for method in (atom, rss, wordpress):
         try:
             return method(content)
         except InputError:
@@ -309,24 +310,22 @@ def parse(content):
 
 def build(conf, env, defaults, items, options):
 
-    def create(defaults, title, date, author, content, fmt, permalink=None, tags=None):
+    def create(defaults, item):
 
         global USED_WORDPRESS
-
         fd, tmp = tempfile.mkstemp(suffix='.txt')
-        title = safe(title)
 
         with io.open(fd, 'w') as f:
             f.write(u'---\n')
-            f.write(u'title: %s\n' % title)
-            if author != defaults.get('author', None):
-                f.write(u'author: %s\n' % author)
-            f.write(u'date: %s\n' % date.strftime(conf['date_format']))
-            f.write(u'filter: [%s, ]\n' % fmt)
-            if tags:
-                f.write(u'tags: [%s]\n' % ', '.join(tags))
-            if permalink:
-                f.write(u'permalink: %s\n' % permalink)
+            f.write(u'title: %s\n' % safe(item['title']))
+            if item['author'] != defaults.get('author', None):
+                f.write(u'author: %s\n' % item['author'])
+            f.write(u'date: %s\n' % item['date'].strftime(conf['date_format']))
+            f.write(u'filter: %s\n' % item['filter'])
+            if 'tags' in item:
+                f.write(u'tags: [%s]\n' % ', '.join(item['tags']))
+            if 'permalink' in item:
+                f.write(u'permalink: %s\n' % item['permalink'])
             for arg in options.args:
                 f.write(arg.strip() + u'\n')
             f.write(u'---\n\n')
@@ -334,11 +333,11 @@ def build(conf, env, defaults, items, options):
             # this are fixes for WordPress because they don't save HTML but a
             # stupid mixed-in form of HTML making it very difficult to get either HTML
             # or reStructuredText/Markdown
-            if USED_WORDPRESS and fmt == 'markdown':
-                content = content.replace("\n ", "  \n")
-            elif USED_WORDPRESS and fmt == 'rst':
-                content = content.replace('\n ', '\n\n')
-            f.write(content+u'\n')
+            if USED_WORDPRESS and item['filter'] == 'markdown':
+                item['content'] = item['content'].replace("\n ", "  \n")
+            elif USED_WORDPRESS and item['filter'] == 'rst':
+                item['content'] = item['content'].replace('\n ', '\n\n')
+            f.write(item['content']+u'\n')
 
         entry = Entry(tmp, conf)
         p = join(conf['content_dir'], dirname(entry.permalink)[1:])
@@ -358,11 +357,12 @@ def build(conf, env, defaults, items, options):
 
         if options.keep:
             m = urlsplit(item['link'])
-            permalink = m.path if m.path != '/' else None
+            item['permalink'] = m.path if m.path != '/' else None
 
-        content, fmt = convert(item.get('content', ''), options.fmt, options.pandoc)
-        create(defaults, item['title'], item['date'], item.get('author'), content, fmt,
-               tags=item.get('tags', None), permalink=permalink if options.keep else None)
+        item['content'], item['filter'] = convert(item.get('content', ''),
+            options.fmt, options.pandoc)
+
+        create(defaults, item)
 
     print "\nImport was successful. Edit your conf.py with these new settings:"
     for key, value in defaults.iteritems():
