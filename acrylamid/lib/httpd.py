@@ -9,29 +9,30 @@ Internal Webserver
 
 Launch a dumb webserver as thread."""
 
-from threading import Thread
 import os
-import SimpleHTTPServer
-import SocketServer
-import posixpath
+import time
 import urllib
+import posixpath
+
+from threading import Thread
+from SocketServer import TCPServer
+from SimpleHTTPServer import SimpleHTTPRequestHandler
 
 
-class ReuseAddressServer(SocketServer.TCPServer):
+class ReuseAddressServer(TCPServer):
     """avoids socket.error: [Errno 48] Address already in use"""
     allow_reuse_address = True
 
     def serve_forever(self):
         """Handle one request at a time until doomsday."""
         while not self.kill_received:
-            print self.wait
             if not self.wait:
-                print self.wait
                 self.handle_request()
+            else:
+                time.sleep(0.1)
 
 
-
-class AcrylServe(SimpleHTTPServer.SimpleHTTPRequestHandler):
+class AcrylServe(SimpleHTTPRequestHandler):
     """This is a modified version of python's -m SimpleHTTPServer to
     serve on a specific sub directory of :func:`os.getcwd`."""
 
@@ -59,6 +60,10 @@ class AcrylServe(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 continue
             path = os.path.join(path, word)
         return path
+
+    def end_headers(self):
+        self.wfile.write('Cache-Control: max-age=0, must-revalidate\r\n')
+        SimpleHTTPRequestHandler.end_headers(self)
 
 
 class Webserver(Thread):
