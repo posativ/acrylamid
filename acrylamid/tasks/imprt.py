@@ -318,8 +318,8 @@ def build(conf, env, defaults, items, options):
         with io.open(fd, 'w') as f:
             f.write(u'---\n')
             f.write(u'title: %s\n' % safe(item['title']))
-            if item['author'] != defaults.get('author', None):
-                f.write(u'author: %s\n' % item['author'])
+            if item.get('author') != defaults.get('author'):
+                f.write(u'author: %s\n' % (item.get('author') or defaults.get('author')))
             f.write(u'date: %s\n' % item['date'].strftime(conf['date_format']))
             f.write(u'filter: %s\n' % item['filter'])
             if 'tags' in item:
@@ -366,6 +366,8 @@ def build(conf, env, defaults, items, options):
 
     print "\nImport was successful. Edit your conf.py with these new settings:"
     for key, value in defaults.iteritems():
+        if value is None:
+            continue
         print "    %s = '%s'" % (key.upper(), value)
 
 
