@@ -231,9 +231,13 @@ def autocompile(ws, conf, env, **options):
     cmtime = getmtime(CONF_PY)
 
     while True:
+
+        ws.wait = True
         ntime = max(
-            max(getmtime(e) for e in readers.filelist(conf['content_dir'], conf.get('content_ignore', [])) if utils.istext(e)),
-            max(getmtime(p) for p in readers.filelist(conf['theme'], conf.get('theme_ignore', []))))
+            max(getmtime(e) for e in readers.filelist(
+                conf['content_dir'], conf.get('content_ignore', [])) if utils.istext(e)),
+            max(getmtime(p) for p in readers.filelist(
+                conf['theme'], conf.get('theme_ignore', []))))
         if mtime != ntime:
             try:
                 compile(conf, env, **options)
@@ -242,6 +246,7 @@ def autocompile(ws, conf, env, **options):
                 pass
             event.reset()
             mtime = ntime
+        ws.wait = False
 
         if cmtime != getmtime(CONF_PY):
             log.info(' * Restarting due to change in %s' % (CONF_PY))

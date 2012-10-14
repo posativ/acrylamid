@@ -21,6 +21,15 @@ class ReuseAddressServer(SocketServer.TCPServer):
     """avoids socket.error: [Errno 48] Address already in use"""
     allow_reuse_address = True
 
+    def serve_forever(self):
+        """Handle one request at a time until doomsday."""
+        while not self.kill_received:
+            print self.wait
+            if not self.wait:
+                print self.wait
+                self.handle_request()
+
+
 
 class AcrylServe(SimpleHTTPServer.SimpleHTTPRequestHandler):
     """This is a modified version of python's -m SimpleHTTPServer to
@@ -64,13 +73,14 @@ class Webserver(Thread):
         Handler.www_root = root
         Handler.log_error = lambda x, *y: None
         Handler.log_message = lambda x, *y: None
-        self.httpd = ReuseAddressServer(("", port), Handler)
-        self.kill_received = False
 
-    def serve_forever(self):
-        """Handle one request at a time until doomsday."""
-        while not self.kill_received:
-            self.handle_request()
+        self.httpd = ReuseAddressServer(("", port), Handler)
+        self.httpd.wait = False
+        self.httpd.kill_received = False
+
+    def setwait(self, value):
+        self.httpd.wait = value
+    wait = property(lambda self: self.httpd.wait, setwait)
 
     def run(self):
         self.httpd.serve_forever()
@@ -78,5 +88,5 @@ class Webserver(Thread):
 
     def shutdown(self):
         """"Sets kill_recieved and closes the server socket."""
-        self.kill_received = True
+        self.httpd.kill_received = True
         self.httpd.socket.close()
