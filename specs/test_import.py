@@ -133,3 +133,36 @@ class TestAtom(unittest.TestCase):
             assert key in entry
 
         assert len(entry['tags']) == 2
+
+
+class TestWordPress(unittest.TestCase):
+
+    def test_recognition(self):
+
+        examples = [
+            'bar', rss, atom
+        ]
+
+        for value in examples:
+            with self.assertRaises(imprt.InputError):
+                imprt.wordpress(value)
+
+    def test_defaults(self):
+
+        defaults, items = imprt.wordpress(wordpress)
+        entry = items[0]
+
+        for key in 'title', 'link', 'content', 'date', 'author', 'tags':
+            assert key in entry
+
+        assert len(entry['tags']) == 1
+
+    def test_additional_metadata(self):
+
+        defaults, items = imprt.wordpress(wordpress)
+
+        assert 'type' in items[1]
+        assert items[1]['type'] == 'page'
+
+        assert 'draft' in items[2]
+        assert items[2]['draft']
