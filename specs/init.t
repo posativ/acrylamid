@@ -47,11 +47,11 @@ Can we find all needed files?
   $ [ -e theme/atom.xml ]
   $ [ -e theme/style.css ]
 
-Can we restore a stylesheet?
+Can we restore our stylesheet?
 
   $ rm theme/style.css
-  $ acrylamid init -C .
-  create  ./theme/style.css
+  $ acrylamid init -C theme/style.css
+  re-initialized  theme/style.css
 
 And we should clean up everything:
 

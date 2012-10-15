@@ -16,15 +16,15 @@ flags like force or dry run. The basic call is ``acrylamid <subcommand>
 init
 ----
 
-This initializes the base structure of an Acrylamid blog, thus it should be
-the first command you'll execute. If the destination  directory is not empty
-it won't overwrite anything unless you supply -f, --force to re-initialize the
-whole theme.
+Initializes the base structure of an Acrylamid blog, hence it should be the
+first command you should execute. If the destination directory is not empty it
+won't overwrite anything unless you supply -f, --force. The default template
+is either Jinja2 or Mako if only one egg is installed or Jinja2.
 
 -f, --force    don't ask, just overwrite
 --theme THEME  use theme (minimalistic HTML5 per default)
 --mako         use the Mako template engine
---jinja2       use the Jinja2 template engine (default)
+--jinja2       use the Jinja2 template engine
 
 .. raw:: html
 
@@ -37,9 +37,11 @@ whole theme.
     Created your fresh new blog at 'tutorial'. Enjoy!
     </pre>
 
-If you need to restore single files, remove the existing file and run::
+You can also restore individual files that you accidentially removed. Run the
+following line inside your blog if want to restore `theme/main.html` and you
+use shadowplay as theme, run::
 
-    $ acrylamid init path/to/blog/
+    $ acrylamid init theme/main.html --theme shadowplay
 
 
 new

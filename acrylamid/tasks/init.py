@@ -28,8 +28,43 @@ arguments = [
     argument("--mako", action="store_const", dest="engine", const="mako",
         help="use the Mako template engine", default=""),
     argument("--jinja2", action="store_const", dest="engine", const="jinja2",
-        help="use the Jinja2 template engine (default)")
+        help="use the Jinja2 template engine")
 ]
+
+
+def resolve(options, theme, files):
+    """Takes a files dictionary and yields src and full destination path.
+
+    :param options: Argparse namespace object
+    :param theme: theme directory name
+    :param files: {'/path/': [item, ...]}"""
+
+    if 'conf.py' not in files:
+        conf = string.Template(defaults.copy('conf.py').read())
+        files['conf.py'] = io.BytesIO(conf.substitute(engine=options.engine,
+                                                      theme=theme).encode('utf-8'))
+
+    for path, items in files.iteritems():
+        path = join(options.dest, path)
+
+        if isinstance(items, (basestring, io.IOBase)):
+            items = [items, ]
+
+        for obj in items:
+            if hasattr(obj, 'read'):
+                dest = join(path, basename(obj.name)) if path.endswith('/') else path
+                yield obj, dest
+            else:
+                obj = join(dirname(defaults.__file__), options.theme, options.engine, obj)
+                yield obj, join(dirname(path), basename(obj))
+
+
+def write(obj, dest):
+    if hasattr(obj, 'read'):
+        with io.open(dest, 'wb') as fp:
+            fp.write(obj.read())
+    else:
+        shutil.copy(obj, dest)
 
 
 def rollout(name, engine):
@@ -67,11 +102,10 @@ def init(env, options):
     destination  directory is not empty it won't overwrite anything unless
     you supply -f, --force to re-initialize the whole theme.
 
-    If you need to restore single files, remove the existing file and run::
+    If you need to restore a single file, run
 
-        $ acrylamid init path/to/blog/
-
-    and all missing files are automatically re-created."""
+        $ cd blog && acrylamid init theme/main.html
+    """
 
     if not options.engine:
         try:
@@ -80,49 +114,33 @@ def init(env, options):
         except ImportError:
             options.engine = 'mako'
 
-    root = options.dest
     theme, files = rollout(options.theme, options.engine)
 
-    # remember whether we are restore an existing theme
-    restore = isfile(join(root, 'conf.py'))
+    # if destination is part of theme, restore it!
+    for src, dest in resolve(options, theme, files):
+        if dest.endswith(options.dest):
+            if (not isfile(options.dest) or options.overwrite or
+                raw_input("re-initialize %s ? [yn]: " % options.dest) == 'y'):
+                write(src, options.dest)
+                log.info('re-initialized  ' + options.dest)
+                return
 
-    if isfile(root):
-        raise AcrylamidException("%s already exists!" % root)
+    if isfile(options.dest):
+        raise AcrylamidException("%s already exists!" % options.dest)
 
-    if isdir(root) and len(os.listdir(root)) > 0 and not options.overwrite:
-        if not restore and raw_input("Destination directory not empty! Continue? [yn]: ") != 'y':
+    if isdir(options.dest) and len(os.listdir(options.dest)) > 0 and not options.overwrite:
+        if raw_input("Destination directory not empty! Continue? [yn]: ") != 'y':
             sys.exit(1)
 
-    if 'conf.py' not in files:
-        conf = string.Template(defaults.copy('conf.py').read())
-        files['conf.py'] = io.BytesIO(conf.substitute(engine=options.engine,
-                                                      theme=theme).encode('utf-8'))
-
-    for dest, items in files.iteritems():
-        dest = join(root, dest)
+    for src, dest in resolve(options, theme, files):
 
         if not isdir(dirname(dest)):
             os.makedirs(dirname(dest))
 
-        if isinstance(items, (basestring, io.IOBase)):
-            items = [items, ]
+        if options.overwrite or not exists(dest):
+            write(src, dest)
+            event.create(dest)
+        else:
+            event.skip(dest)
 
-        for obj in items:
-            if hasattr(obj, 'read'):
-                path = join(dirname(dest), basename(obj.name)) if dest.endswith('/') else dest
-                if options.overwrite or not exists(path):
-                    with io.open(path, 'wb') as fp:
-                        fp.write(obj.read())
-                    event.create(path)
-                else:
-                    event.skip(path)
-            else:
-                src = join(dirname(defaults.__file__), options.theme, options.engine, obj)
-                if options.overwrite or not exists(join(dest, basename(src))):
-                    shutil.copy(src, dest)
-                    event.create(dest if basename(dest) else join(dest, obj))
-                else:
-                    event.skip(dest)
-
-    if not restore:
-        log.info('Created your fresh new blog at %r. Enjoy!', root)
+    log.info('Created your fresh new blog at %r. Enjoy!', options.dest)
