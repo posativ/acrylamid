@@ -23,7 +23,7 @@
         <email>{{ conf.email }}</email>
     </author>
     <title>{{ conf.sitename | escape }}</title>
-    <id>{{ conf.www_root + '/' }}</id>
+    <id>tag:{{ env.netloc + env.path }},2011-06-11:{{ env.route }}</id>
     <link rel="alternate" type="text/html" href="{{ conf.www_root + '/' }}" />
     <link rel="self" type="application/atom+xml" href="{{ conf.www_root+env.route }}" />
     <updated>{{ env.updated | utc }}</updated>
