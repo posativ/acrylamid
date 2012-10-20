@@ -4,6 +4,9 @@
         <link rel="alternate" type="text/html" href="${ conf.www_root + entry.permalink }" />
         <id>tag:${ env.netloc + env.path },${ entry.date.strftime('%Y-%m-%d') }:${ entry.permalink.rstrip('/') }</id>
         <updated>${ utc(entry.date) }</updated>
+        % for tag in tagify(entry.tags):
+            <category term="${ tag.title }" />
+        % endfor
         <author>
             <name>${ entry.author }</name>
             <uri>${ conf.www_root + '/' }</uri>
