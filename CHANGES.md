@@ -7,6 +7,10 @@ Not released – TBD
 
 ### What is new?
 
+- \#82 – updated Atom feed to include tags, icons and provide an unique id
+  for multiple destinations (Mark van Lent)
+- improved WordPress import (pages and draft recognition)
+- integrated web server blocks browser requests during (auto) compilation
 - \#78 – `acrylamid import` now uses RSS/Atom categories as tags
 - \#80 – new config variable `CONTENT_EXTENSION` to set the default filename
   extension when using `acrylamid new`, defaults to `.txt` (Günter Kolousek)
