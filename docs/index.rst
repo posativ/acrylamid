@@ -147,10 +147,10 @@ Initialize the base structure, edit *conf.py* and *layouts/* and compile with:
 Real World Examples?
 ~~~~~~~~~~~~~~~~~~~~
 
-- sources from my `personal blog <http://blog.posativ.org/>`_:
-  `/posativ/blog.posativ.org <https://github.com/posativ/blog.posativ.org/>`_.
-- sebix' (contributer) `blog <http://sebix.github.com/>`_ sources:
-  `/sebix/sebix.github.com-sources <https://github.com/sebix/sebix.github.com-sources>`_.
+- `Practicing web development <http://www.vlent.nl/>`_ – Mark van Lent
+  [`source <https://github.com/markvl/www.vlent.nl>`_]
+- `mecker. mecker. mecker. <http://blog.posativ.org/>`_ – posativ
+  [`source <https://github.com/posativ/blog.posativ.org/>`_]
 
 Commands
 --------
