@@ -5,6 +5,7 @@
 #
 # This module contains helper objects and function for writing third-party code.
 
+import sys
 import os
 import io
 import re
@@ -433,9 +434,12 @@ def discover(directories, index, filterfunc=lambda filename: True):
         fp, path, descr = imp.find_module(modname, directories)
 
         try:
-            mod = imp.load_module(modname, fp, path, descr)
-        except (ImportError, SyntaxError, ValueError) as e:
-            log.warn('%r %s: %s', modname, e.__class__.__name__, e)
-            continue
+            mod = sys.modules[modname]
+        except KeyError:
+            try:
+                mod = imp.load_module(modname, fp, path, descr)
+            except (ImportError, SyntaxError, ValueError) as e:
+                log.warn('%r %s: %s', modname, e.__class__.__name__, e)
+                continue
 
         index(mod)
