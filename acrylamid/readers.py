@@ -247,7 +247,7 @@ class FileReader(Reader):
 
     @cached_property
     def md5(self):
-        return md5(self.filename, self.title, self.date)
+        return md5(self.filename, self.title, self.date.ctime())
 
     @property
     def date(self):
