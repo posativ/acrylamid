@@ -13,10 +13,9 @@ from acrylamid.filters import Filter, discover
 
 try:
     from docutils.core import publish_parts
-    from docutils.parsers.rst import directives
+    from docutils.parsers.rst import roles, directives
 except ImportError:
-    publish_parts = None  # NOQA
-    directives = None  # NOQA
+    publish_parts = roles = directives = None  # NOQA
 
 
 class Restructuredtext(Filter):
@@ -43,11 +42,7 @@ class Restructuredtext(Filter):
 
             try:
                 mod = imp.load_module(modname, fp, path, descr)
-                rstx = mod.makeExtension()
-                if isinstance(mod.match, basestring):
-                    mod.match = [mod.match]
-                for name in mod.match:
-                    directives.register_directive(name, rstx)
+                mod.register(roles, directives)
             except (ImportError, Exception) as e:
                 traceback.print_exc(file=sys.stdout)
                 log.warn('%r %s: %s' % (filename, e.__class__.__name__, e))

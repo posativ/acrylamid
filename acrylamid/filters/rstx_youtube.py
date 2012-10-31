@@ -6,8 +6,6 @@
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 
-match = ['youtube', 'yt']
-
 
 def align(argument):
     return directives.choice(argument, ('left', 'center', 'right'))
@@ -65,5 +63,7 @@ class YouTube(Directive):
                       start="%(start)i" class="video" allowfullscreen></iframe>"""
         return [nodes.raw('', YT_EMBED % self.options, format='html')]
 
-def makeExtension():
-    return YouTube
+
+def register(roles, directives):
+    for name in 'youtube', 'yt':
+        directives.register_directive(name, YouTube)

@@ -6,8 +6,6 @@
 from docutils import nodes
 from docutils.parsers.rst import Directive
 
-match = 'code'
-
 
 class Code(Directive):
     """reStructuredText directive that creates a pre tag suitable for
@@ -46,5 +44,5 @@ class Code(Directive):
             format='html')]
 
 
-def makeExtension():
-    return Code
+def register(roles, directives):
+    directives.register_directive('code', Code)

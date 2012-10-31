@@ -12,8 +12,6 @@ from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import get_lexer_by_name, TextLexer
 
-match = ['code-block', 'sourcecode', 'pygments']
-
 
 class Pygments(Directive):
     """ Source code syntax hightlighting using Pygments.
@@ -63,5 +61,6 @@ class Pygments(Directive):
         return [nodes.raw('', parsed, format='html')]
 
 
-def makeExtension():
-    return Pygments
+def register(roles, directives):
+    for name in 'code-block', 'sourcecode', 'pygments':
+        directives.register_directive(name, Pygments)
