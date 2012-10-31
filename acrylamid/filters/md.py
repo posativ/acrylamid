@@ -40,11 +40,9 @@ class Markdown(Filter):
                 mod = imp.load_module(modname, fp, path, descr)
                 mdx = mod.makeExtension()
                 if isinstance(mod.match, basestring):
-                    self.match.append(mod.match)
-                    self.extensions[mod.__name__] = mdx
-                else:
-                    for name in mod.match:
-                        self.extensions[name] = mdx
+                    mod.match = [mod.match]
+                for name in mod.match:
+                    self.extensions[name] = mdx
             except (ImportError, Exception) as e:
                 self.failed.append('%r %s: %s' % (filename, e.__class__.__name__, e))
 

@@ -45,7 +45,7 @@ class Restructuredtext(Filter):
                 mod = imp.load_module(modname, fp, path, descr)
                 rstx = mod.makeExtension()
                 if isinstance(mod.match, basestring):
-                    mod.match = [mod.__name__]
+                    mod.match = [mod.match]
                 for name in mod.match:
                     directives.register_directive(name, rstx)
             except (ImportError, Exception) as e:
