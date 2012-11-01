@@ -47,10 +47,15 @@ class HTMLWriter(DefaultWriter):
 
     def write(self, src, dest, **kw):
 
-        if src.startswith(self.conf['theme'] + '/'):
+        if src.startswith(self.conf['theme'].rstrip('/') + '/'):
             return
 
         return DefaultWriter.write(self, src, dest, **kw)
+
+
+class XMLWriter(HTMLWriter):
+
+    ext = '.xml'
 
 
 class System(DefaultWriter):
@@ -117,7 +122,7 @@ def compile(conf, env):
     global __writers, __default
 
     ext_map = dict((cls.ext, cls) for cls in (
-        SASSWriter, SCSSWriter, LESSWriter, HTMLWriter
+        SASSWriter, SCSSWriter, LESSWriter, HTMLWriter, XMLWriter
     ))
 
     other = [(prefix, filelist(prefix, conf['static_ignore'])) for prefix in conf['static']]
