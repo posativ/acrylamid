@@ -84,6 +84,9 @@ def mkfile(fileobj, path, ctime=0.0, force=False, dryrun=False, mode="t", **kw):
     # reset pointer
     fileobj.seek(0)
 
+    if isinstance(fileobj, io.BytesIO) and mode == "t":
+        mode = "b"
+
     if isfile(path):
         with io.open(path, 'r' + mode) as other:
             if identical(fileobj, other):
