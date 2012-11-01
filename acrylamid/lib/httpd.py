@@ -39,6 +39,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
     serve on a specific sub directory of :func:`os.getcwd`."""
 
     www_root = '.'
+    log_error = lambda x, *y: None
 
     def do_GET(self):
         self.path = joinurl(self.www_root, self.path)
@@ -55,12 +56,11 @@ class Webserver(Thread):
     :param port: port to listen on
     :param root: serve this directory under /"""
 
-    def __init__(self, port=8000, root='.'):
+    def __init__(self, port=8000, root='.', log_message=lambda x, *y: None):
         Thread.__init__(self)
         Handler = RequestHandler
         Handler.www_root = root
-        Handler.log_error = lambda x, *y: None
-        Handler.log_message = lambda x, *y: None
+        Handler.log_message = log_message
 
         self.httpd = ReuseAddressServer(("", port), Handler)
         self.httpd.wait = False

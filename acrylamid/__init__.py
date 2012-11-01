@@ -29,6 +29,8 @@ import argparse
 import traceback
 import signal
 
+from functools import partial
+
 from acrylamid import defaults, log, commands, colors, tasks
 from acrylamid.utils import find, execfile, Struct
 from acrylamid.errors import AcrylamidException
@@ -185,7 +187,8 @@ def Acryl():
 
     elif options.parser in ('srv', 'serve', 'view'):
         from acrylamid.lib.httpd import Webserver
-        ws = Webserver(options.port, conf['output_dir']); ws.start()
+        ws = partial(Webserver, options.port, conf['output_dir'])
+        ws = ws(log.info) if options.verbosity < 20 else ws(); ws.start()
         log.info(' * Running on http://127.0.0.1:%i/' % options.port)
 
         try:
