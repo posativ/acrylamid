@@ -11,7 +11,7 @@ from tempfile import mkstemp
 from itertools import chain
 from os.path import join, relpath, isfile, getmtime, splitext
 
-from acrylamid import core, helpers
+from acrylamid import core, helpers, log
 from acrylamid.errors import AcrylamidException
 from acrylamid.helpers import mkfile, event
 from acrylamid.readers import filelist
@@ -74,16 +74,16 @@ class System(DefaultWriter):
 
         try:
             res = helpers.system(self.cmd + [src])
-        except OSError:
+        except (OSError, AcrylamidException) as e:
             if isfile(dest):
                 os.unlink(dest)
-            raise AcrylamidException('%s is not available!' % self.cmd[0])
+            log.warn('%s: %s' % (e.__class__.__name__, e.args[0]))
+        else:
+            with os.fdopen(fd, 'w') as fp:
+                fp.write(res)
 
-        with os.fdopen(fd, 'w') as fp:
-            fp.write(res)
-
-        with io.open(path, 'rb') as fp:
-            mkfile(fp, dest, ctime=time.time()-tt, force=force, dryrun=dryrun)
+            with io.open(path, 'rb') as fp:
+                mkfile(fp, dest, ctime=time.time()-tt, force=force, dryrun=dryrun)
 
 
 class SASSWriter(System):
