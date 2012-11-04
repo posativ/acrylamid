@@ -193,8 +193,7 @@ class View(object):
            True
 
        If you skip over an entry make sure you :func:`acrylamid.helpers.event.skip` it,
-       so Acrylamid can track this file to include it into your sitemap or won't wipe
-       it during clean up.
+       so Acrylamid can track this file to include it into your sitemap.
 
        :param request: request dictionary"""
 

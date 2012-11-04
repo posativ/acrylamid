@@ -113,7 +113,6 @@ Quickstart
 
     easy_install -U acrylamid
 
-
 This installs Acrylamid with Jinja2_ as templating engine. For Mako_ use
 ``easy_install -U acrylamid --mako``. This installs two additional but not
 required dependencies: ``Markdown`` and ``translitcodec``. To get a list of
@@ -171,7 +170,6 @@ overview.
         autocompile   automatic compilation and serving
         new           create a new entry
         check         run W3C or validate links
-        clean         remove abandoned files
         deploy        run task
         import        import content from URL or FILE
         info          short summary

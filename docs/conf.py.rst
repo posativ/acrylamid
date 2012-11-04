@@ -75,17 +75,16 @@ Variable name (default value)                       Description
                                                     It's used to build absolute urls (required for disqus
                                                     and feeds).
 `OUTPUT_DIR` (``output/``)                          Directory where the output goes to.
-`OUTPUT_IGNORE` (|ignored|)                         A list of filename/directory-patterns which
-                                                    Acrylamid should ignore.
 `CONTENT_DIR` (``content/``)                        Directory where you write your posts to.
 `CONTENT_EXTENSION` (``.txt``)                      Filename extension used for
                                                     creating new entries.
-`CONTENT_IGNORE` (|ignored|)                        Same as ``OUTPUT_IGNORE`` but for ``CONTENT_DIR``.
+`CONTENT_IGNORE` (|ignored|)                        A list of filename/directory-patterns [#]_ which
+                                                    Acrylamid should ignore.
 `THEME` (``layouts/``)                              Directory where you place your jinja2 templates.
-`THEME_IGNORE` (|ignored|)                          Same as ``OUTPUT_IGNORE`` but for ``THEME``.
+`THEME_IGNORE` (|ignored|)                          Same as ``CONTENT_IGNORE`` but for ``THEME``.
 `STATIC` (*not set*)                                A directory or list of directories which contain
                                                     objects Acrylamid should copy to destination dir.
-`STATIC_IGNORE` (|ignored|)                         Same as ``OUTPUT_IGNORE`` but for ``STATIC``,
+`STATIC_IGNORE` (|ignored|)                         Same as ``CONTENT_IGNORE`` but for ``STATIC``,
 `FILTERS_DIR` (*not set*)                           If you want add your own filters, create a directory,
                                                     put your filters into and add this directory to conf.
 `VIEWS_DIR` (*not set*)                             Like above but for custom views.
@@ -99,6 +98,17 @@ Variable name (default value)                       Description
 
     ``["markdown+codehilite(css_class=highlight)", "hyphenate"]``
 
+.. [#] The syntax for ignore patterns is very similar to ``git-ignore``: a
+   path with a leading slash means absolute position (to /path/to/output/),
+   path with trailing slash marks a directory and everything else is just
+   relative fnmatch.
+
+   - ``".hidden"`` matches every file named *.hidden*, ``"/.hidden"`` matches
+     a file in the base directory named the same.
+   - ``".git/*"`` excludes *HEAD*, *config* and *description* but not the
+     directories  *hooks/* and *info/*.
+   - ``".git/"`` ignores a *.git* folder anywhere in the output directory,
+     ``"/.git/"`` only *output/.git*.
 
 Templating Engine
 -----------------

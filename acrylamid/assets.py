@@ -116,8 +116,7 @@ def initialize(conf, env):
 
 def compile(conf, env):
     """Copy or compile assets to output directory.  If an asset is used as template, it
-    won't be copied to the output directory. All assets are tracked by the event object
-    and should not be removed during `acrylamid clean`."""
+    won't be copied to the output directory."""
 
     global __writers, __default
 
