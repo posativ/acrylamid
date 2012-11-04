@@ -530,10 +530,7 @@ def markdownstyle(fileobj):
         if m1:
             key = m1.group('key').lower().strip()
             value = distinguish(m1.group('value').strip())
-            try:
-                meta[key].append(value)
-            except KeyError:
-                meta[key] = [value]
+            meta.setdefault(key, []).append(value)
         else:
             m2 = meta_more_re.match(line)
             if m2 and key:
@@ -546,7 +543,7 @@ def markdownstyle(fileobj):
         raise AcrylamidException("no meta information in %r found" % fileobj.name)
 
     for key, values in meta.iteritems():
-        if key not in ('tag', 'tags') and len(values) == 1:
+        if len(values) == 1:
             meta[key] = values[0]
 
     return i, meta
