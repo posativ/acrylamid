@@ -5,18 +5,14 @@
 
 import sys
 import os
-import io
 import time
 import locale
 import codecs
-import tempfile
-import subprocess
-import shutil
 
 from urlparse import urlsplit
 from datetime import datetime
 from collections import defaultdict
-from os.path import join, dirname, getmtime, isfile
+from os.path import getmtime
 
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
@@ -24,7 +20,7 @@ from acrylamid.errors import AcrylamidException
 from acrylamid import readers, filters, views, assets, utils, helpers
 from acrylamid.lib import lazy
 from acrylamid.core import cache
-from acrylamid.helpers import event, safe
+from acrylamid.helpers import event
 
 
 def initialize(conf, env):
@@ -260,64 +256,4 @@ def autocompile(ws, conf, env, **options):
         time.sleep(1)
 
 
-def new(conf, env, title, prompt=True):
-    """Subcommand: new -- create a new blog entry the easy way.  Either run
-    ``acrylamid new My fresh new Entry`` or interactively via ``acrylamid new``
-    and the file will be created using the preferred permalink format."""
-
-    # we need the actual defaults values
-    initialize(conf, env)
-
-    fd, tmp = tempfile.mkstemp(suffix=conf.get('content_extension', '.txt'),
-                               dir='.cache/')
-    editor = os.getenv('VISUAL') if os.getenv('VISUAL') else os.getenv('EDITOR')
-
-    if not title:
-        title = raw_input("Entry's title: ")
-    title = safe(title).decode('utf-8')
-
-    with io.open(fd, 'w') as f:
-        f.write(u'---\n')
-        f.write(u'title: %s\n' % title)
-        f.write(u'date: %s\n' % datetime.now().strftime(conf['date_format']))
-        f.write(u'---\n\n')
-
-    entry = readers.Entry(tmp, conf)
-    p = join(conf['content_dir'], dirname(entry.permalink)[1:])
-
-    try:
-        os.makedirs(p.rsplit('/', 1)[0])
-    except OSError:
-        pass
-
-    filepath = p + conf.get('content_extension', '.txt')
-    if isfile(filepath):
-        raise AcrylamidException('Entry already exists %r' % filepath)
-    shutil.move(tmp, filepath)
-    event.create(filepath)
-
-    if datetime.now().hour == 23 and datetime.now().minute > 45:
-        log.info("notice  consider editing entry.date-day after you passed mignight!")
-
-    if not prompt:
-        return
-
-    try:
-        if editor:
-            retcode = subprocess.call([editor, filepath])
-        elif sys.platform == 'darwin':
-            retcode = subprocess.call(['open', filepath])
-        else:
-            retcode = subprocess.call(['xdg-open', filepath])
-    except OSError:
-        raise AcrylamidException('Could not launch an editor')
-
-    # XXX process detaches... m(
-    if retcode < 0:
-        raise AcrylamidException('Child was terminated by signal %i' % -retcode)
-
-    if os.stat(filepath)[6] == 0:
-        raise AcrylamidException('File is empty!')
-
-
-__all__ = ["compile", "autocompile", "new"]
+__all__ = ["compile", "autocompile"]

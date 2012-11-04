@@ -124,12 +124,6 @@ def Acryl():
 
     subparsers._name_parser_map['aco'] = autocompile
 
-    new = subparsers.add_parser('new', help="create a new entry", parents=[default],
-        epilog=("Takes all leading [args] as title or prompt if none given. creates "
-                "a new entry based on your ENTRY_PERMALINK and opens it with your "
-                "favourite $EDITOR."))
-    new.add_argument("title", nargs="*", default='')
-
     # initialize other tasks
     tasks.initialize(subparsers, default)
 
@@ -174,13 +168,6 @@ def Acryl():
         log.setLevel(options.verbosity)
         try:
             commands.compile(conf, env, **options.__dict__)
-        except AcrylamidException as e:
-            log.fatal(e.args[0])
-            sys.exit(1)
-
-    elif options.parser in ('new', 'create'):
-        try:
-            commands.new(conf, env, title=' '.join(options.title), prompt=log.level()<log.WARN)
         except AcrylamidException as e:
             log.fatal(e.args[0])
             sys.exit(1)
