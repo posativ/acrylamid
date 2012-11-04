@@ -3,12 +3,10 @@
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
-import sys
 import os
-
 from functools import partial
 
-from acrylamid import log, helpers
+from acrylamid import helpers
 from acrylamid.errors import AcrylamidException
 
 # module-wide callbacks variable contaning views, reset this on initialize!

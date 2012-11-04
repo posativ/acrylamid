@@ -63,12 +63,13 @@ def union(*args, **kwargs):
 
 
 def identical(obj, other, bs=4096):
-    """Takes two file-like objects and return if they are identical."""
+    """Takes two file-like objects and return whether they are identical or not."""
+    s, t = obj.tell(), other.tell()
     while True:
         a, b = obj.read(bs), other.read(bs)
         if not a or not b or a != b:
             break
-    obj.seek(0), other.seek(0)
+    obj.seek(s), other.seek(t)
     return a == b
 
 

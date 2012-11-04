@@ -9,10 +9,7 @@ Internal Webserver
 
 Launch a dumb webserver as thread."""
 
-import os
 import time
-import urllib
-import posixpath
 
 from threading import Thread
 from SocketServer import TCPServer
