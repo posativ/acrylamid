@@ -72,7 +72,7 @@ def identical(obj, other, bs=4096):
     return a == b
 
 
-def mkfile(fileobj, path, ctime=0.0, force=False, dryrun=False, mode="t", **kw):
+def mkfile(fileobj, path, ctime=0.0, force=False, dryrun=False, **kw):
     """Creates entry in filesystem. Overwrite only if fileobj differs.
 
     :param fileobj: rendered html/xml as file-like object
@@ -81,11 +81,8 @@ def mkfile(fileobj, path, ctime=0.0, force=False, dryrun=False, mode="t", **kw):
     :param force: force overwrite, even nothing has changed (defaults to `False`)
     :param dryrun: don't write anything."""
 
-    # reset pointer
     fileobj.seek(0)
-
-    if isinstance(fileobj, io.BytesIO) and mode == "t":
-        mode = "b"
+    mode = "t" if isinstance(fileobj, io.TextIOBase) else "b"
 
     if isfile(path):
         with io.open(path, 'r' + mode) as other:

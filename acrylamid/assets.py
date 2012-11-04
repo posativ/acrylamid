@@ -38,7 +38,7 @@ class DefaultWriter(object):
             return event.skip(dest)
 
         with io.open(src, 'rb') as fp:
-            mkfile(fp, dest, force=force, dryrun=dryrun, mode="b")
+            mkfile(fp, dest, force=force, dryrun=dryrun)
 
 
 class HTMLWriter(DefaultWriter):
@@ -83,7 +83,7 @@ class System(DefaultWriter):
             fp.write(res)
 
         with io.open(path, 'rb') as fp:
-            mkfile(fp, dest, ctime=time.time()-tt, force=force, dryrun=dryrun, mode="b")
+            mkfile(fp, dest, ctime=time.time()-tt, force=force, dryrun=dryrun)
 
 
 class SASSWriter(System):
