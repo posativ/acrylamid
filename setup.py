@@ -64,11 +64,9 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.2",
     ],
-    install_requires=requires,
-    tests_require=[
-        'tox',
-        'cram'
-    ],
+    test_require=['Attest', 'cram', 'docutils'],
+    test_loader='attest:auto_reporter.test_loader',
+    test_suite='acrylamid.specs.testsuite',
     entry_points={
         'console_scripts':
             ['acrylamid = acrylamid:Acryl']

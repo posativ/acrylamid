@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import unittest
 import re
+import attest
 
 from acrylamid.filters import FilterList, FilterTree
 from acrylamid.filters import Filter, disable
@@ -11,9 +11,10 @@ def build(name, **kw):
     return type(name, (Filter, ), kw)({}, {}, name)
 
 
-class TestFilterlist(unittest.TestCase):
+class TestFilterlist(attest.TestBase):
 
-    def test_plain_strings(self):
+    @attest.test
+    def plain_strings(self):
 
         f1 = build('F1', match=['foo', 'bar'], conflicts=['spam'])
         f2 = build('F2', match=['spam'])
@@ -25,7 +26,8 @@ class TestFilterlist(unittest.TestCase):
         assert f2 in x
         assert f3 not in x
 
-    def test_regex_strings(self):
+    @attest.test
+    def regex_strings(self):
 
         f1 = build('F1', match=['foo', 'bar'], conflicts=['spam'])
         f2 = build('F2', match=[re.compile('^spam$')])
@@ -37,7 +39,8 @@ class TestFilterlist(unittest.TestCase):
         assert f2 in x
         assert f3 not in x
 
-    def test_conflicts(self):
+    @attest.test
+    def conflicts(self):
 
         f1 = build('F1', match=['foo', 'bar'], conflicts=['spam'])
         f4 = build('F4', match=['baz'], conflicts=['foo'])
@@ -47,7 +50,8 @@ class TestFilterlist(unittest.TestCase):
         assert f1 in x
         assert f4 in x
 
-    def test_access_by_name(self):
+    @attest.test
+    def access_by_name(self):
 
         f3 = build('F3', match=[re.compile('^sp', re.I)])
         x = FilterList([f3])
@@ -56,7 +60,8 @@ class TestFilterlist(unittest.TestCase):
         assert x['spam'] == f3
         assert x['sPaMmEr'] == f3
 
-    def test_disable(self):
+    @attest.test
+    def disable(self):
 
         f1 = build('F1', match=['Foo'], conflicts=['Bar'])
         f2 = disable(f1)
@@ -68,16 +73,17 @@ class TestFilterlist(unittest.TestCase):
         assert f1.conflicts == f2.conflicts
 
 
-class TestFilterTree(unittest.TestCase):
+class TestFilterTree(attest.TestBase):
 
-    def test_path(self):
+    @attest.test
+    def path(self):
 
         t = FilterTree()
         t.add([1, 3, 4, 7], 'foo')
         assert t.path('foo') == [1, 3, 4, 7]
 
-
-    def test_works(self):
+    @attest.test
+    def works(self):
 
         t = FilterTree()
 
@@ -89,7 +95,8 @@ class TestFilterTree(unittest.TestCase):
         assert list(t.iter('bar')) == [[1, 2], [3, 5]]
         assert list(t.iter('baz')) == [[7, ], ]
 
-    def test_edge_cases(self):
+    @attest.test
+    def edge_cases(self):
 
         t = FilterTree()
 

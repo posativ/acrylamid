@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import unittest
-
+import attest
 from acrylamid.utils import NestedProperties
 
 
-class TestNestedProperties(unittest.TestCase):
+class TestNestedProperties(attest.TestBase):
 
-    def test_works(self):
+    @attest.test
+    def works(self):
 
         dct = NestedProperties()
         dct['hello.world'] = 1
@@ -30,7 +30,8 @@ class TestNestedProperties(unittest.TestCase):
 
         assert dct.hello.foreigner == 2
 
-    def test_redirects(self):
+    @attest.test
+    def redirects(self):
 
         dct = NestedProperties()
         alist = [1, 2, 3]

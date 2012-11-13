@@ -1,31 +1,15 @@
 # -*- coding: utf-8 -*-
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+import attest
 
-import shutil
-
-from acrylamid import log
-from acrylamid.core import cache
 from acrylamid import helpers
 from acrylamid import AcrylamidException
 
 
-class Helpers(unittest.TestCase):
+class Helpers(attest.TestBase):
 
-    @classmethod
-    def setup_class(self):
-        log.init('acrylamid', level=40)
-        cache.init()
-
-    @classmethod
-    def teardown_class(self):
-        shutil.rmtree(cache.cache_dir)
-
-    @unittest.skipIf(helpers.translitcodec is None, 'no translitcodec available')
-    def test_safeslug(self):
+    @attest.test_if(helpers.translitcodec is not None)
+    def safeslug(self):
 
         examples = (('This is a Test', 'this-is-a-test'),
                     ('this is a test', 'this-is-a-test'),
@@ -47,8 +31,8 @@ class Helpers(unittest.TestCase):
         helpers.translitcodec = None
         assert helpers.safeslug(u'Hänsel und Gretel') == 'hansel-und-gretel'
 
-    @unittest.skipIf(helpers.unidecode is None, 'no unidecode available')
-    def test_safeslugwithrussian(self):
+    @attest.test_if(helpers.unidecode is not None)
+    def safeslugwithrussian(self):
 
         examples = [(u'Nothing happens', 'nothing-happens'),
                     (u'русский', 'russkii')]
@@ -59,7 +43,8 @@ class Helpers(unittest.TestCase):
         helpers.unidecode = None
         assert helpers.safeslug(u'русский') == ''
 
-    def test_joinurl(self):
+    @attest.test
+    def joinurl(self):
 
         examples = ((['hello', 'world'], 'hello/world'),
                     (['/hello', 'world'], '/hello/world'),
@@ -70,13 +55,15 @@ class Helpers(unittest.TestCase):
         for value, expected in examples:
             assert helpers.joinurl(*value) == expected
 
-    def test_expand(self):
+    @attest.test
+    def expand(self):
 
         assert helpers.expand('/:foo/:bar/', {'foo': 1, 'bar': 2}) == '/1/2/'
         assert helpers.expand('/:foo/:spam/', {'foo': 1, 'bar': 2}) == '/1/:spam/'
         assert helpers.expand('/:foo/', {'bar': 2}) == '/:foo/'
 
-    def test_paginate(self):
+    @attest.test
+    def paginate(self):
 
         class X(str):  # dummy class
             has_changed = True
@@ -115,7 +102,8 @@ class Helpers(unittest.TestCase):
         assert list(helpers.paginate([X('1'), X('2'), X('3')], 3, orphans=1)) == \
             [((None, 1, None), [X('1'), X('2'), X('3')], True)]
 
-    def test_safe(self):
+    @attest.test
+    def safe(self):
 
         assert helpers.safe('"') == '"'
         assert helpers.safe('') == '""'
@@ -131,7 +119,8 @@ class Helpers(unittest.TestCase):
         assert helpers.safe('Hello\'s World') == 'Hello\'s World'
         assert helpers.safe('Hello "World"') == 'Hello "World"'
 
-    def test_system(self):
+    @attest.test
+    def system(self):
 
         examples = ((['echo', 'ham'], None, 'ham'),
                     ('cat', 'foo', 'foo'),
@@ -139,8 +128,8 @@ class Helpers(unittest.TestCase):
         for cmd, stdin, expected in examples:
             assert helpers.system(cmd, stdin) == expected
 
-        with self.assertRaises(AcrylamidException):
+        with attest.raises(AcrylamidException):
             helpers.system('false')
 
-        with self.assertRaises(OSError):
+        with attest.raises(OSError):
             helpers.system('foo', None)

@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
-
 import tempfile
+import attest
 
 from datetime import datetime
 
-from acrylamid import log, errors
+from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
 from acrylamid.readers import Entry
@@ -29,14 +25,14 @@ def create(path, **kwargs):
         fp.write('---\n')
 
 
-class TestEntry(unittest.TestCase):
+class TestEntry(attest.TestBase):
 
-    @classmethod
-    def setup_class(self):
-        fd, path = tempfile.mkstemp(suffix='.txt')
-        self.path = path
+    def __context__(self):
+        fd, self.path = tempfile.mkstemp(suffix='.txt')
+        yield
 
-    def test_dates(self):
+    @attest.test
+    def dates(self):
 
         create(self.path, date='13.02.2011, 15:36', title='bla')
         date = Entry(self.path, conf).date.replace(tzinfo=None)
@@ -46,7 +42,8 @@ class TestEntry(unittest.TestCase):
         assert date.day == 13
         assert date == datetime(year=2011, month=2, day=13, hour=15, minute=36)
 
-    def test_alternate_dates(self):
+    @attest.test
+    def alternate_dates(self):
 
         create(self.path, date='1.2.2034', title='bla')
         date = Entry(self.path, conf).date.replace(tzinfo=None)
@@ -56,13 +53,15 @@ class TestEntry(unittest.TestCase):
         assert date.day == 1
         assert date == datetime(year=2034, month=2, day=1)
 
-    def test_invalid_dates(self):
+    @attest.test
+    def invalid_dates(self):
 
         create(self.path, date='unparsable', title='bla')
-        with self.assertRaises(AcrylamidException):
+        with attest.raises(AcrylamidException):
             Entry(self.path, conf).date
 
-    def test_permalink(self):
+    @attest.test
+    def permalink(self):
 
         create(self.path, title='foo')
         entry = Entry(self.path, conf)
@@ -79,7 +78,8 @@ class TestEntry(unittest.TestCase):
 
         assert entry.permalink == '/2012/foo/'
 
-    def test_tags(self):
+    @attest.test
+    def tags(self):
 
         create(self.path, title='foo', tags='Foo')
         assert Entry(self.path, conf).tags == ['Foo']
@@ -87,7 +87,8 @@ class TestEntry(unittest.TestCase):
         create(self.path, title='foo', tags='[Foo, Bar]')
         assert Entry(self.path, conf).tags == ['Foo', 'Bar']
 
-    def test_deprecated_keys(self):
+    @attest.test
+    def deprecated_keys(self):
 
         create(self.path, title='foo', tag=None, filter=None)
         entry = Entry(self.path, conf)
@@ -95,7 +96,8 @@ class TestEntry(unittest.TestCase):
         assert 'tags' in entry
         assert 'filters' in entry
 
-    def test_custom_values(self):
+    @attest.test
+    def custom_values(self):
 
         create(self.path, title='foo', image='/img/test.png')
         entry = Entry(self.path, conf)
@@ -103,7 +105,8 @@ class TestEntry(unittest.TestCase):
         assert 'image' in entry
         assert entry.image == '/img/test.png'
 
-    def test_fallbacks(self):
+    @attest.test
+    def fallbacks(self):
 
         create(self.path, title='Bla')
         entry = Entry(self.path, conf)

@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import unittest
-
-from acrylamid import log, defaults, utils
+from acrylamid import log, utils
 from acrylamid.filters import initialize, get_filters
+
+import attest
+tt = attest.Tests()
 
 log.init('foo', 35)
 
@@ -23,9 +24,10 @@ class Entry(object):
         self.lang = lang
 
 
-class Hyphenation(unittest.TestCase):
+class Hyphenation(attest.TestBase):
 
-    def test_hyphenate(self):
+    @attest.test
+    def hyphenate(self):
 
         hyph = get_filters()['Hyphenate'](conf, env, 'Hyphenate')
 
@@ -42,7 +44,8 @@ class Hyphenation(unittest.TestCase):
         # test unsupported
         assert hyph.transform('Flugzeug', Entry('foo'), '8') == 'Flugzeug'
 
-    def test_build_pattern(self):
+    @attest.test
+    def build_pattern(self):
 
         # short term
         build('en')
@@ -51,7 +54,8 @@ class Hyphenation(unittest.TestCase):
         assert hyphenate('Airplane') == ['Air', 'plane']
 
 
-def test_jinja2():
+@tt.test
+def jinja2():
 
     jinja2 = get_filters()['Jinja2'](conf, env, 'Jinja2')
 
@@ -59,7 +63,8 @@ def test_jinja2():
     assert jinja2.transform("{{ 'which which' | system }}", None) == '/usr/bin/which'
 
 
-def test_mako():
+@tt.test
+def mako():
 
     mako = get_filters()['Mako'](conf, env, 'Mako')
 
@@ -70,7 +75,8 @@ def test_mako():
     assert mako.transform("${ 'which which' | system }", e) == '/usr/bin/which'
 
 
-def test_acronyms():
+@tt.test
+def acronyms():
 
     acronyms = get_filters()['Acronyms'](conf, env, 'Acronyms')
     abbr = lambda abbr, expl: '<abbr title="%s">%s</abbr>' % (expl, abbr)
@@ -86,7 +92,9 @@ def test_acronyms():
     for test, result in examples:
         assert acronyms.transform(test, None) == result
 
-def test_headoffset():
+
+@tt.test
+def headoffset():
 
     h1 = get_filters()['h1'](conf, env, 'h1')
     examples = [
@@ -102,7 +110,8 @@ def test_headoffset():
     assert h5.transform('<h3>eggs</h3>', '<h6>eggs</h6>')
 
 
-def test_summarize():
+@tt.test
+def summarize():
 
     summarize = get_filters()['summarize'](conf, env, 'summarize')
     examples = [('Hello World', 'Hello World'),

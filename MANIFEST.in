@@ -2,3 +2,7 @@ include README.rst
 recursive-exclude acrylamid/ *.pyc
 recursive-include acrylamid/filters/hyph *.txt
 recursive-include acrylamid/defaults *
+
+include acrylamid/specs/samples/blog.posativ.org.xml
+include acrylamid/specs/samples/vlent.nl.xml
+include acrylamid/specs/samples/thethreedevelopers.wordpress.2012-04-11.xml

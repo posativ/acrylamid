@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest  # NOQA
-
-import tempfile
-import shutil
 import os
+import attest
+import shutil
+import tempfile
 
-from os.path import join, isfile, isdir
+from os.path import join, isfile
 
 from acrylamid import utils, log, helpers
 from acrylamid.commands import initialize, compile
@@ -42,53 +38,53 @@ def entry(**kw):
     return '\n'.join(res)
 
 
-class SingleEntry(unittest.TestCase):
+class SingleEntry(attest.TestBase):
 
     @classmethod
-    def setup_class(self):
-        self.path = tempfile.mkdtemp(dir='.')
+    def __context__(self):
+        with attest.tempdir() as path:
 
-        os.chdir(self.path)
-        os.mkdir('content/')
-        os.mkdir('layouts/')
+            self.path = path
+            os.chdir(self.path)
+            os.mkdir('content/')
+            os.mkdir('layouts/')
 
-        with open('layouts/main.html', 'w') as fp:
-            fp.write('{{ env.entrylist[0].content }}\n')
+            with open('layouts/main.html', 'w') as fp:
+                fp.write('{{ env.entrylist[0].content }}\n')
 
-        self.conf = conf
-        self.env = utils.Struct({'options': options, 'globals': utils.Struct()})
+            self.conf = conf
+            self.env = utils.Struct({'options': options, 'globals': utils.Struct()})
 
-        self.conf['filters'] = ['HTML']
-        self.conf['views'] = {'/:year/:slug/': {'view': 'entry'}}
+            self.conf['filters'] = ['HTML']
+            self.conf['views'] = {'/:year/:slug/': {'view': 'entry'}}
+            yield
 
-    @classmethod
-    def teardown_class(self):
-        os.chdir('../')
-        shutil.rmtree(self.path)
-
-    @unittest.skipIf(helpers.translitcodec is None, 'no translitcodec available')
-    def test_exists_at_permalink(self):
+    @attest.test_if(helpers.translitcodec is not None)
+    def exists_at_permalink(self):
         with open('content/bla.txt', 'w') as fp:
             fp.write(entry())
 
         compile(self.conf, self.env, options)
         assert isfile(join('output/', '2012', 'haensel-and-gretel', 'index.html'))
 
-    def test_renders_custom_permalink(self):
+    @attest.test
+    def renders_custom_permalink(self):
         with open('content/bla.txt', 'w') as fp:
             fp.write(entry(permalink='/about/me.asp'))
 
         compile(self.conf, self.env, options)
         assert isfile(join('output/', 'about', 'me.asp'))
 
-    def test_appends_index(self):
+    @attest.test
+    def appends_index(self):
         with open('content/bla.txt', 'w') as fp:
             fp.write(entry(permalink='/about/me/'))
 
         compile(self.conf, self.env, options)
         assert isfile(join('output/', 'about', 'me', 'index.html'))
 
-    def test_plaintext(self):
+    @attest.test
+    def plaintext(self):
         with open('content/bla.txt', 'w') as fp:
             fp.write(entry(permalink='/'))
 
@@ -97,7 +93,8 @@ class SingleEntry(unittest.TestCase):
         expected = '# Test\n\nThis is supercalifragilisticexpialidocious.'
         assert open('output/index.html').read() == expected
 
-    def test_markdown(self):
+    @attest.test
+    def markdown(self):
         with open('content/bla.txt', 'w') as fp:
             fp.write(entry(permalink='/', filter='[Markdown]'))
 
@@ -106,7 +103,8 @@ class SingleEntry(unittest.TestCase):
         expected = '<h1>Test</h1>\n<p>This is supercalifragilisticexpialidocious.</p>'
         assert open('output/index.html').read() == expected
 
-    def test_fullchain(self):
+    @attest.test
+    def fullchain(self):
         with open('content/bla.txt', 'w') as fp:
             fp.write(entry(permalink='/', filter='[Markdown, h1, hyphenate]', lang='en'))
 
@@ -117,35 +115,33 @@ class SingleEntry(unittest.TestCase):
         assert open('output/index.html').read() == expected
 
 
-class MultipleEntries(unittest.TestCase):
+class MultipleEntries(attest.TestBase):
 
     @classmethod
-    def setup_class(self):
-        self.path = tempfile.mkdtemp(dir='.')
+    def __context__(self):
+        with attest.tempdir() as path:
+            self.path = path
 
-        os.chdir(self.path)
-        os.mkdir('content/')
-        os.mkdir('layouts/')
+            os.chdir(self.path)
+            os.mkdir('content/')
+            os.mkdir('layouts/')
 
-        with open('layouts/main.html', 'w') as fp:
-            fp.write('{{ env.entrylist[0].content }}\n')
+            with open('layouts/main.html', 'w') as fp:
+                fp.write('{{ env.entrylist[0].content }}\n')
 
-        with open('layouts/atom.xml', 'w') as fp:
-            fp.write("{% for entry in env.entrylist %}\n{{ entry.content ~ '\n' }}\n{% endfor %}")
+            with open('layouts/atom.xml', 'w') as fp:
+                fp.write("{% for entry in env.entrylist %}\n{{ entry.content ~ '\n' }}\n{% endfor %}")
 
-        self.conf = conf
-        self.env = utils.Struct({'options': options, 'globals': utils.Struct()})
+            self.conf = conf
+            self.env = utils.Struct({'options': options, 'globals': utils.Struct()})
 
-        self.conf['filters'] = ['Markdown', 'h1']
-        self.conf['views'] = {'/:year/:slug/': {'view': 'entry'},
-                              '/atom.xml': {'view': 'Atom', 'filters': ['h2', 'summarize+2']}}
+            self.conf['filters'] = ['Markdown', 'h1']
+            self.conf['views'] = {'/:year/:slug/': {'view': 'entry'},
+                                  '/atom.xml': {'view': 'Atom', 'filters': ['h2', 'summarize+2']}}
+            yield
 
-    @classmethod
-    def teardown_class(self):
-        os.chdir('../')
-        shutil.rmtree(self.path)
-
-    def test_markdown(self):
+    @attest.test
+    def markdown(self):
         with open('content/foo.txt', 'w') as fp:
             fp.write(entry(title='Foo'))
         with open('content/bar.txt', 'w') as fp:

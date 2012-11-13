@@ -1,14 +1,9 @@
 # -*- encoding: utf-8 -*-
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
-
 import io
+import attest
 from os.path import join, dirname
 
-from nose.exc import SkipTest
 from acrylamid import log, tasks, helpers
 
 log.init('acrylamid', 20)
@@ -22,14 +17,16 @@ rss = read('blog.posativ.org.xml')
 atom = read('vlent.nl.xml')
 
 
-class TestImport(unittest.TestCase):
+class Import(attest.TestBase):
 
-    def test_unescape(self):
+    @attest.test
+    def unescape(self):
 
         assert imprt.unescape('&lt;p&gt;Foo&lt;/p&gt;') == '<p>Foo</p>'
         assert imprt.unescape('Some Text/') == 'Some Text/'
 
-    def test_conversion(self):
+    @attest.test
+    def conversion(self):
 
         md = 'Hello _[World](http://example.com/)!_'
         rst = 'Hello *`World <http://example.com/>`_!*'
@@ -38,7 +35,7 @@ class TestImport(unittest.TestCase):
         try:
             import html2text
         except ImportError:
-            raise SkipTest
+            return
 
         try:
             import html2rest
@@ -46,9 +43,9 @@ class TestImport(unittest.TestCase):
             try:
                 helpers.system(['which', 'pandoc'])
             except:
-                raise SkipTest
+                return
         else:
-            raise SkipTest
+            return
 
         assert imprt.convert(html, fmt='Markdown') == (md, 'markdown')
         assert imprt.convert(html, fmt='reStructuredText') == (rst, 'rst')
@@ -58,9 +55,10 @@ class TestImport(unittest.TestCase):
         assert imprt.convert(None, fmt='Markdown') == ('', 'markdown')
 
 
-class TestRSS(unittest.TestCase):
+class RSS(attest.TestBase):
 
-    def test_recognition(self):
+    @attest.test
+    def recognition(self):
 
         examples = [
             'baz',
@@ -71,12 +69,13 @@ class TestRSS(unittest.TestCase):
         ]
 
         for value in examples:
-            with self.assertRaises(imprt.InputError):
+            with attest.raises(imprt.InputError):
                 imprt.rss(value)
 
         imprt.rss(rss)
 
-    def test_defaults(self):
+    @attest.test
+    def defaults(self):
 
         defaults, items = imprt.rss(rss)
 
@@ -85,7 +84,8 @@ class TestRSS(unittest.TestCase):
 
         assert len(items) == 1
 
-    def test_first_entry(self):
+    @attest.test
+    def first_entry(self):
 
         defaults, items = imprt.rss(rss)
         entry = items[0]
@@ -96,9 +96,10 @@ class TestRSS(unittest.TestCase):
         assert len(entry['tags']) == 2
 
 
-class TestAtom(unittest.TestCase):
+class Atom(attest.TestBase):
 
-    def test_recognition(self):
+    @attest.test
+    def recognition(self):
 
         examples = [
             'bar',
@@ -109,12 +110,13 @@ class TestAtom(unittest.TestCase):
         ]
 
         for value in examples:
-            with self.assertRaises(imprt.InputError):
+            with attest.raises(imprt.InputError):
                 imprt.atom(value)
 
         imprt.atom(atom)
 
-    def test_defaults(self):
+    @attest.test
+    def defaults(self):
 
         defaults, items = imprt.atom(atom)
 
@@ -124,7 +126,8 @@ class TestAtom(unittest.TestCase):
 
         assert len(items) == 1
 
-    def test_first_entry(self):
+    @attest.test
+    def first_entry(self):
 
         defaults, items = imprt.atom(atom)
         entry = items[0]
@@ -135,19 +138,21 @@ class TestAtom(unittest.TestCase):
         assert len(entry['tags']) == 2
 
 
-class TestWordPress(unittest.TestCase):
+class WordPress(attest.TestBase):
 
-    def test_recognition(self):
+    @attest.test
+    def recognition(self):
 
         examples = [
             'bar', rss, atom
         ]
 
         for value in examples:
-            with self.assertRaises(imprt.InputError):
+            with attest.raises(imprt.InputError):
                 imprt.wordpress(value)
 
-    def test_defaults(self):
+    @attest.test
+    def defaults(self):
 
         defaults, items = imprt.wordpress(wordpress)
         entry = items[0]
@@ -157,7 +162,8 @@ class TestWordPress(unittest.TestCase):
 
         assert len(entry['tags']) == 1
 
-    def test_additional_metadata(self):
+    @attest.test
+    def additional_metadata(self):
 
         defaults, items = imprt.wordpress(wordpress)
 
