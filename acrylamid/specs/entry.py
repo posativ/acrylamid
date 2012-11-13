@@ -13,6 +13,7 @@ from acrylamid.helpers import safe
 from acrylamid.defaults import conf
 
 log.init('acrylamid', level=40)
+conf['entry_permalink'] = '/:year/:slug/'
 
 def create(path, **kwargs):
 

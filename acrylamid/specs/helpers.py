@@ -28,8 +28,9 @@ class Helpers(attest.TestBase):
 
         from unicodedata import normalize
         setattr(helpers, 'normalize', normalize)
-        helpers.translitcodec = None
+        _, helpers.translitcodec = helpers.translitcodec, None
         assert helpers.safeslug(u'Hänsel und Gretel') == 'hansel-und-gretel'
+        helpers.translitcodec = _
 
     @attest.test_if(helpers.unidecode is not None)
     def safeslugwithrussian(self):
@@ -40,8 +41,9 @@ class Helpers(attest.TestBase):
         for value, expected in examples:
             assert helpers.safeslug(value) == expected
 
-        helpers.unidecode = None
+        _, helpers.unidecode = helpers.unidecode, None
         assert helpers.safeslug(u'русский') == ''
+        helpers.unidecode = _
 
     @attest.test
     def joinurl(self):
