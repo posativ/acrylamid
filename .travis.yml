@@ -2,13 +2,15 @@ language: python
 python:
   - 2.6
   - 2.7
+  - 3.2
 install:
-  - pip install --use-mirrors nose cram html2text unidecode mako
-  - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install --use-mirrors unittest2; fi
+  - pip install --use-mirrors cram unidecode mako docutils "https://github.com/dag/attest/archive/master.tar.gz"
+  - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install --use-mirrors translitcodec; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then pip install --use-mirrors translitcodec; fi
   - python setup.py -q install
 script:
-  - nosetests specs/
-  - cram specs/
+  - python setup.py test
+  - cram acrylamid/specs
 branches:
   only:
     - master
