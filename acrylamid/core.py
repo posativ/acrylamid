@@ -110,7 +110,8 @@ class cache(object):
         for mako, we prefix cached templates with cache_
         """
         return [join(self.cache_dir, fn) for fn in os.listdir(self.cache_dir)
-                if not (fn.endswith('.cache') or fn.startswith('cache_'))]
+                if not (fn.endswith('.cache') or fn.startswith('cache_') or
+                        fn == '__pycache__')]
 
     @classmethod
     def init(self, cache_dir=None, mode=0600):

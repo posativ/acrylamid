@@ -40,7 +40,7 @@ def resolve(options, theme, files):
     :param files: {'/path/': [item, ...]}"""
 
     if 'conf.py' not in files:
-        conf = string.Template(defaults.copy('conf.py').read())
+        conf = string.Template(defaults.copy('conf.py').read().decode('utf-8'))
         files['conf.py'] = io.BytesIO(conf.substitute(engine=options.engine,
                                                       theme=theme).encode('utf-8'))
 

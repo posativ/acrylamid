@@ -3,12 +3,11 @@
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
-from future_builtins import filter
-
 import io
 import re
 
 from time import strftime, gmtime
+from itertools import ifilter
 from os.path import join, getmtime, exists
 from collections import defaultdict
 
@@ -125,7 +124,7 @@ class Sitemap(View):
             url = join(self.conf['www_root'], fname.replace(self.conf['output_dir'], ''))
             for view in self.views:
 
-                if any(filter(lambda pat: pat.match(url), self.patterns[view])):
+                if any(ifilter(lambda pat: pat.match(url), self.patterns[view])):
                     priority, changefreq = self.scores.get(view.name, (0.5, 'weekly'))
                     sm.add(rchop(url, 'index.html'), getmtime(fname), changefreq, priority)
 

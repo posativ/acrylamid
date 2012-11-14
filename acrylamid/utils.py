@@ -12,6 +12,7 @@ import os
 import io
 import re
 import functools
+import itertools
 
 
 # Borrowed from werkzeug._internal
@@ -112,8 +113,8 @@ def find(fname, directory):
 
     while directory:
         try:
-            return os.path.join(directory, filter(lambda p: p == fname,
-                os.listdir(directory))[0])
+            return os.path.join(directory, next(itertools.ifilter(
+                lambda p: p == fname, os.listdir(directory))))
         except (OSError, IndexError):
             directory = directory.rsplit('/', 1)[0]
     else:

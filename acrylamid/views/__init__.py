@@ -223,6 +223,9 @@ class View(object):
             return hash(self) == hash(other)
         return self.name == other
 
+    def __hash__(self):
+        return object.__hash__(self)
+
     def init(self, **kwargs):
         pass
 

@@ -11,6 +11,7 @@ from os.path import exists, getmtime
 from jinja2 import Environment as J2Environemnt, FileSystemBytecodeCache
 from jinja2 import FileSystemLoader, meta
 
+from acrylamid import PY3
 from acrylamid.templates import AbstractEnvironment, AbstractTemplate
 
 
@@ -92,6 +93,9 @@ class Environment(AbstractEnvironment):
 
         for module in (time, datetime, urllib):
             self.jinja2.globals[module.__name__] = module
+
+            if PY3:
+                continue  # WTF: AttributeError: 'PyCapsule' object has no attribute '__class__'
 
             for name in dir(module):
                 if name.startswith('_'):

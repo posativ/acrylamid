@@ -16,9 +16,9 @@ import subprocess
 
 from unicodedata import normalize
 from collections import defaultdict
-from os.path import join, dirname, basename, isdir, isfile
+from os.path import join, dirname, basename, isdir, isfile, commonprefix
 
-from acrylamid import log, PY3
+from acrylamid import log, PY3, __file__ as PATH
 from acrylamid.errors import AcrylamidException
 
 from acrylamid.core import cache
@@ -303,7 +303,7 @@ def system(cmd, stdin=None, **kwargs):
     if err or retcode != 0:
         if not err.strip():
             err = 'process exited with %i.' % retcode
-        raise AcrylamidException(err.strip().decode('utf-8'))
+        raise AcrylamidException(err.strip() if PY3 else err.strip().decode('utf-8'))
     return result.strip().decode('utf-8')
 
 
@@ -433,6 +433,11 @@ def discover(directories, index, filterfunc=lambda filename: True):
     for filename in find(directories, filterfunc):
         modname, ext = os.path.splitext(os.path.basename(filename))
         fp, path, descr = imp.find_module(modname, directories)
+
+        prefix = commonprefix((PATH, filename))
+        if prefix:
+            modname = 'acrylamid.'
+            modname += rchop(filename[len(prefix):].replace('/', '.'), '.py')
 
         try:
             mod = sys.modules[modname]
