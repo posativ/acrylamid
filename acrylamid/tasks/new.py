@@ -9,7 +9,7 @@ import shutil
 from os.path import join, dirname, isfile
 from datetime import datetime
 
-from acrylamid import log, readers, commands
+from acrylamid import PY3, log, readers, commands
 from acrylamid.errors import AcrylamidException
 
 from acrylamid.tasks import task, argument
@@ -40,7 +40,10 @@ def run(conf, env, options):
 
     if not options.title:
         options.title = raw_input("Entry's title: ")
-    title = (' '.join(options.title)).decode('utf-8')
+
+    title = (' '.join(options.title))
+    if not PY3:
+        title = title.decode('utf-8')
 
     with io.open(fd, 'w') as f:
         f.write(tt(title, datetime.now().strftime(conf['date_format'])))
