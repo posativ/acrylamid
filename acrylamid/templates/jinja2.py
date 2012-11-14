@@ -94,14 +94,12 @@ class Environment(AbstractEnvironment):
         for module in (time, datetime, urllib):
             self.jinja2.globals[module.__name__] = module
 
-            if PY3:
-                continue  # WTF: AttributeError: 'PyCapsule' object has no attribute '__class__'
-
             for name in dir(module):
                 if name.startswith('_'):
                     continue
-                if callable(getattr(module, name)):
-                    self.jinja2.filters[module.__name__ + '.' + name] = getattr(module, name)
+                obj = getattr(module, name)
+                if hasattr(obj, '__class__') and callable(obj):
+                    self.jinja2.filters[module.__name__ + '.' + name] = obj
 
     def register(self, name, func):
         self.jinja2.filters[name] = func
