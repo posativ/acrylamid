@@ -31,7 +31,9 @@ option = lambda i: argument('-%i' % i, action=Gitlike, help=argparse.SUPPRESS,
     nargs=0, dest="max", default=0)
 arguments = [
     argument("type", nargs="?", type=str, choices=["summary", "tags"],
-        default="summary", help="info about given type (default: summary)")
+        default="summary", help="info about given type (default: summary)"),
+    argument("--coverage", type=int, default=None, dest="coverage",
+        metavar="N", help="discover posts with uncommon tags")
 ] + [option(i) for i in range(10)]
 
 
@@ -91,11 +93,10 @@ def do_summary(conf, env, options):
 
 # This function was written by Alex Martelli
 # -- http://stackoverflow.com/questions/1396820/
-def colprint(table, totwidth=None):
+def colprint(table, totwidth):
     """Print the table in terminal taking care of wrapping/alignment
 
     - `table`:    A table of strings. Elements must not be `None`
-    - `totwidth`: If None, console width is used
     """
     if not table:
         return
@@ -106,24 +107,30 @@ def colprint(table, totwidth=None):
     widths = [1 + max(len(x) for x in column) for column in zip(*padded)]
     widths[-1] -= 1
     # drop or truncate columns from the right in order to fit
-    if totwidth is not None:
-        while sum(widths) > totwidth:
-            mustlose = sum(widths) - totwidth
-            if widths[-1] <= mustlose:
-                del widths[-1]
-            else:
-                widths[-1] -= mustlose
-                break
+    while sum(widths) > totwidth:
+        mustlose = sum(widths) - totwidth
+        if widths[-1] <= mustlose:
+            del widths[-1]
+        else:
+            widths[-1] -= mustlose
+            break
     # and finally, the output phase!
     for row in padded:
         s = ''.join(['%*s' % (-w, i[:w])
                      for w, i in zip(widths, row)])
-        print s
+        print s.encode('utf-8')
 
 def do_tags(conf, env, options):
 
     limit = options.max if options.max > 0 else 100
     entrylist = readers.load(conf)[0]
+
+    if options.coverage:
+        for tag, entries in sorted(fetch(entrylist).iteritems()):
+            if len(entries) <= options.coverage:
+                print blue(tag).encode('utf-8'),
+                print ', '.join(e.filename.encode('utf-8') for e in entries)
+        return
 
     tags = ['%i %s' % (len(value), key) for key, value in
         sorted(fetch(entrylist).iteritems(), key=lambda k: len(k[1]), reverse=True)]

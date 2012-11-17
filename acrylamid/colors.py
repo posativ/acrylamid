@@ -42,6 +42,9 @@ class ANSIString(object):
     def __radd__(self, other):
         return other + unicode(self)
 
+    def encode(self, encoding):
+        return unicode(self).encode(encoding)
+
 
 normal, bold, underline = [lambda obj, x=x: ANSIString(obj, style=x)
     for x in range(0, 3)]

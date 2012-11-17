@@ -257,7 +257,14 @@ flag/option after the task identifier is passed to:
 info
 ----
 
-Prints a short summary about your blog and lists recent entries (drafted entries are grey).
+Shows information about your blog. It can print a short summary (default) or
+shows you your current tag usage and coverage.
+
+-2                a git-like digit to show the last N articles (default: 5)
+                  during summary or 100 most used tags.
+  --coverage N    discover posts with uncommon tags
+
+Summarize mode (gray items are drafts):
 
 .. raw:: html
 
@@ -272,22 +279,33 @@ Prints a short summary about your blog and lists recent entries (drafted entries
     last compilation at <span style="color: #0000aa">01. June 2012, 10:41</span>
     </pre>
 
--2   a git-like digit to show the last N articles. Defaults to 5.
+Tag usage and coverage:
+
+.. code-block:: sh
+
+    $ acrylamid info tags | head -n 2
+    34 Python          4 Jena      2 TextMate         2 Open Source
+    28 Links           4 V-Server  2 iOS              2 munin
+
+    $ acrylamid info tags --coverage 1 | head -n 2
+    Diaspora content/2012/diaspora.txt
+    FreeBSD content/2012/abseits-von-linux-freebsd.txt
+
 
 ping
 ----
 
-Send Pingbacks to other blogs (still experimental) with one command. Without any arguments the
-newest article is submitted to any referenced url that supports Pingback. As positional argument
-you can ping Twitter with your article.
+Send Pingbacks to other blogs (still experimental) with one command. Without
+any arguments the newest article is submitted to any referenced url that
+supports Pingback. As positional argument you can ping Twitter with your
+article.
 
-optional arguments:
-  -h, --help            show this help message and exit
-  -a, --all             ping all entries (default: only the newest)
-  -p FILE               ping specific article
-  -n, --dry-run         show what would have been pingbacked
-  -j JOBS, --jobs JOBS  N parallel requests
-  -2                    a git-like digit to ping the last N articles. Defaults to the last one.
+-h, --help            show this help message and exit
+-a, --all             ping all entries (default: only the newest)
+-p FILE               ping specific article
+-n, --dry-run         show what would have been pingbacked
+-j JOBS, --jobs JOBS  N parallel requests
+-2                    a git-like digit to ping the last N articles. Defaults to the last one.
 
 First we do a dry-run and look what blogs we may ping back:
 
@@ -296,9 +314,10 @@ First we do a dry-run and look what blogs we may ping back:
     $ acrylamid ping --dry-run
     Pingback crypto.junod.info from blog.posativ.org/2012/linkschleuder-27/.
 
-Now without ``--dry-run`` you actually ping that blog. Note that you may ping a ressource several
-times without any drawback. That's part of the protocol to handle that. After that we'll post your
-article to Twitter (note that you must have ``twitter`` from PyPi installed):
+Now without ``--dry-run`` you actually ping that blog. Note that you may ping
+a ressource several times without any drawback. That's part of the protocol to
+handle that. After that we'll post your article to Twitter (note that you must
+have ``twitter`` from PyPi installed):
 
 ::
 
@@ -307,5 +326,6 @@ article to Twitter (note that you must have ``twitter`` from PyPi installed):
            http://blog.posativ.org/2012/linkschleuder-27/ #links
            #unix #html5 #javascript #planet
 
-Of course, you must first allow Acrylamid to post tweets for you. From all optional argumments above
-you can only use ``--all`` and ``-2`` to increase the amount of pinged articles.
+Of course, you must first allow Acrylamid to post tweets for you. From all
+optional argumments above you can only use ``--all`` and ``-2`` to increase
+the amount of pinged articles.

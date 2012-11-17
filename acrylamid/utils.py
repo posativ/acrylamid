@@ -115,7 +115,7 @@ def find(fname, directory):
         try:
             return os.path.join(directory, next(itertools.ifilter(
                 lambda p: p == fname, os.listdir(directory))))
-        except (OSError, IndexError):
+        except (OSError, StopIteration):
             directory = directory.rsplit('/', 1)[0]
     else:
         raise IOError
