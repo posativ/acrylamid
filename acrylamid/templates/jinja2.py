@@ -11,7 +11,6 @@ from os.path import exists, getmtime
 from jinja2 import Environment as J2Environemnt, FileSystemBytecodeCache
 from jinja2 import FileSystemLoader, meta
 
-from acrylamid import PY3
 from acrylamid.templates import AbstractEnvironment, AbstractTemplate
 
 

@@ -2,13 +2,11 @@
 
 import os
 import attest
-import shutil
-import tempfile
 
 from os.path import join, isfile
 
 from acrylamid import utils, log, helpers
-from acrylamid.commands import initialize, compile
+from acrylamid.commands import compile
 from acrylamid.defaults import conf
 
 # supress warnings
