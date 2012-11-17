@@ -3,16 +3,21 @@
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
+import os
 import datetime
 import argparse
 
+from math import ceil
 from time import localtime, strftime
 from os.path import join, getmtime
+from itertools import izip_longest as izip
 
 from acrylamid import readers, commands
 from acrylamid.core import cache
+from acrylamid.utils import batch
 from acrylamid.tasks import task, argument
 from acrylamid.colors import white, blue, green, normal
+from acrylamid.views.tag import fetch
 
 
 class Gitlike(argparse.Action):
@@ -24,7 +29,10 @@ class Gitlike(argparse.Action):
 
 option = lambda i: argument('-%i' % i, action=Gitlike, help=argparse.SUPPRESS,
     nargs=0, dest="max", default=0)
-arguments = [option(i) for i in range(10)]
+arguments = [
+    argument("type", nargs="?", type=str, choices=["summary", "tags"],
+        default="summary", help="info about given type (default: summary)")
+] + [option(i) for i in range(10)]
 
 
 def ago(date, now=datetime.datetime.now()):
@@ -59,12 +67,9 @@ def ago(date, now=datetime.datetime.now()):
     return str(days/365) + " years ago"
 
 
-@task('info', arguments=arguments, help="short summary")
-def run(conf, env, options):
-    """Subcommand: info -- a short overview of a blog."""
+def do_summary(conf, env, options):
 
     limit = options.max if options.max > 0 else 5
-    commands.initialize(conf, env)
     entrylist, pages = readers.load(conf)
 
     print
@@ -82,3 +87,60 @@ def run(conf, env, options):
 
     time = localtime(getmtime(join(conf.get('cache_dir', '.cache/'), 'info')))
     print 'last compilation at %s' % blue(strftime('%d. %B %Y, %H:%M', time))
+
+
+# This function was written by Alex Martelli
+# -- http://stackoverflow.com/questions/1396820/
+def colprint(table, totwidth=None):
+    """Print the table in terminal taking care of wrapping/alignment
+
+    - `table`:    A table of strings. Elements must not be `None`
+    - `totwidth`: If None, console width is used
+    """
+    if not table:
+        return
+    numcols = max(len(row) for row in table)
+    # ensure all rows have >= numcols columns, maybe empty
+    padded = [row+numcols*('',) for row in table]
+    # compute col widths, including separating space (except for last one)
+    widths = [1 + max(len(x) for x in column) for column in zip(*padded)]
+    widths[-1] -= 1
+    # drop or truncate columns from the right in order to fit
+    if totwidth is not None:
+        while sum(widths) > totwidth:
+            mustlose = sum(widths) - totwidth
+            if widths[-1] <= mustlose:
+                del widths[-1]
+            else:
+                widths[-1] -= mustlose
+                break
+    # and finally, the output phase!
+    for row in padded:
+        s = ''.join(['%*s' % (-w, i[:w])
+                     for w, i in zip(widths, row)])
+        print s
+
+def do_tags(conf, env, options):
+
+    limit = options.max if options.max > 0 else 100
+    entrylist = readers.load(conf)[0]
+
+    tags = ['%i %s' % (len(value), key) for key, value in
+        sorted(fetch(entrylist).iteritems(), key=lambda k: len(k[1]), reverse=True)]
+
+    colprint(
+        list(izip(*list(batch(tags[:limit], ceil(len(tags)/4.0))), fillvalue='')),
+        os.popen('stty size', 'r').read().split()[1]
+    )
+
+
+@task('info', arguments=arguments, help="short summary")
+def run(conf, env, options):
+    """Subcommand: info -- a short overview of a blog."""
+
+    commands.initialize(conf, env)
+
+    if options.type == "summary":
+        do_summary(conf, env, options)
+    elif options.type == "tags":
+        do_tags(conf, env, options)

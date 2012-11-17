@@ -13,6 +13,29 @@ from acrylamid.views import View
 from acrylamid.helpers import union, joinurl, safeslug, event, paginate, expand, link
 
 
+def fetch(entrylist, skip=lambda x: False):
+    """Fetch tags from list of entries but don't include items from skip function."""
+
+    tags = defaultdict(list)
+    tmap = defaultdict(int)
+
+    for e in entrylist:
+        if skip(e):
+            continue
+        for tag in e.tags:
+            tags[tag.lower()].append(e)
+            tmap[tag] += 1
+
+    # map tags to the most counted tag name
+    for name in tags.keys()[:]:
+        key = max([(tmap[key], key) for key in tmap
+                   if key.lower() == name])[1]
+        rv = tags.pop(key.lower())
+        tags[key] = rv
+
+    return tags
+
+
 class Tagcloud:
     """Tagcloud helper class similar (almost identical) to pelican's tagcloud helper object.
     Takes a bunch of tags and produces a logarithm-based partition and returns a iterable
@@ -60,23 +83,7 @@ class Tag(View):
 
     def _populate_tags(self, request):
 
-        tags = defaultdict(list)
-        tmap = defaultdict(int)
-
-        for e in request['entrylist']:
-            if e.draft:
-                continue
-            for tag in e.tags:
-                tags[tag.lower()].append(e)
-                tmap[tag] += 1
-
-        # map tags to the most counted tag name
-        for name in tags.keys()[:]:
-            key = max([(tmap[key], key) for key in tmap
-                       if key.lower() == name])[1]
-            rv = tags.pop(key.lower())
-            tags[key] = rv
-
+        tags = fetch(request['entrylist'], skip=lambda x: x.draft)
         self.tags = dict([(safeslug(k), v) for k, v in tags.iteritems()])
         return tags
 
