@@ -83,7 +83,7 @@ class Tag(View):
 
     def _populate_tags(self, request):
 
-        tags = fetch(request['entrylist'], skip=lambda x: x.draft)
+        tags = fetch(request['entrylist'] + request['translations'])
         self.tags = dict([(safeslug(k), v) for k, v in tags.iteritems()])
         return tags
 

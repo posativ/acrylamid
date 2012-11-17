@@ -11,6 +11,7 @@ import codecs
 
 from urlparse import urlsplit
 from datetime import datetime
+from itertools import chain
 from collections import defaultdict
 from os.path import getmtime
 
@@ -26,7 +27,7 @@ from acrylamid.helpers import event
 def initialize(conf, env):
     """Initializes Jinja2 environment, prepares locale and configure
     some minor things. Filter and View are inited with conf and env,
-    a request dict is returned.
+    a data dict is returned.
     """
     # initialize cache, optional to cache_dir
     cache.init(conf.get('cache_dir', None))
@@ -119,15 +120,17 @@ def compile(conf, env, force=False, **options):
     ctime = time.time()
 
     # populate env and corrects some conf things
-    request = initialize(conf, env)
+    data = initialize(conf, env)
 
     # load pages/entries and store them in env
-    entrylist, pages = readers.load(conf)
-    env.globals['entrylist'] = entrylist
-    env.globals['pages'] = pages
+    rv = dict(zip(['entrylist', 'pages', 'translations', 'drafts'],
+        readers.load(conf)))
 
-    # XXX translations should be moved out of core
-    env.globals['translations'] = translations = []
+    entrylist, pages = rv['entrylist'], rv['pages']
+    translations, drafts = rv['translations'], rv['drafts']
+
+    data.update(rv)
+    env.globals.update(rv)
 
     if force:
         # acrylamid compile -f
@@ -143,8 +146,8 @@ def compile(conf, env, force=False, **options):
     # ... and get all configured views
     _views = views.get_views()
 
-    # filters found in all entries, views and conf.py
-    found = sum((x.filters for x in entrylist+pages+_views), []) + request['conf']['filters']
+    # filters found in all entries, views and conf.py (skip translations, has no items)
+    found = sum((x.filters for x in chain(entrylist, pages, drafts, _views, [conf])), [])
 
     for val in found:
         # first we for `no` and get the function name and arguments
@@ -164,14 +167,14 @@ def compile(conf, env, force=False, **options):
 
         ns[fx].add(val)
 
-    for entry in entrylist + pages:
+    for entry in chain(entrylist, pages, drafts):
         for v in _views:
 
             # a list that sorts out conflicting and duplicated filters
             flst = filters.FilterList()
 
             # filters found in this specific entry plus views and conf.py
-            found = entry.filters + v.filters + request['conf']['filters']
+            found = entry.filters + v.filters + data['conf']['filters']
 
             for fn in found:
                 fx, _ = next((k for k in ns.iteritems() if fn in k[1]))
@@ -182,26 +185,21 @@ def compile(conf, env, force=False, **options):
             entry.filters.add(sorted(flst, key=lambda k: (-k.priority, k.name)),
                               context=v)
 
-    # lets offer a last break to populate tags or so
-    # XXX this API component needs a review
+    # lets offer a last break to populate tags and such
     for v in _views:
-        env = v.context(env, {'entrylist': entrylist, 'pages': pages,
-                              'translations': translations})
+        env = v.context(env, data)
 
     # now teh real thing!
     for v in _views:
 
-        # XXX the entry should automatically determine its caller (using
-        # some sys magic to recursively check wether the calling class is
-        # derieved from `View`.)
-        for entry in entrylist + pages + translations:
+        for entry in chain(entrylist, pages, translations, drafts):
             entry.context = v
 
-        request['pages'], request['translations'] = pages, translations
-        request['entrylist'] = filter(v.condition, entrylist)
-        tt = time.time()
+        for var in 'entrylist', 'pages', 'translations', 'drafts':
+            data[var] = filter(v.condition, locals()[var]) if v.condition else locals()[var]
 
-        for buf, path in v.generate(request):
+        tt = time.time()
+        for buf, path in v.generate(data):
             helpers.mkfile(buf, path, time.time()-tt, **options)
             tt = time.time()
 

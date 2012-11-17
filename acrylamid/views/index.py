@@ -35,7 +35,7 @@ class Index(View):
         ipp = self.items_per_page
         tt = self.env.engine.fromfile(self.template)
 
-        entrylist = [entry for entry in request['entrylist'] if not entry.draft]
+        entrylist = request['entrylist']
         paginator = paginate(entrylist, ipp, orphans=self.conf['default_orphans'])
         route = self.path
 

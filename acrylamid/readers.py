@@ -46,22 +46,24 @@ def load(conf):
     :param conf: configuration with CONTENT_DIR and CONTENT_IGNORE set"""
 
     # list of Entry-objects reverse sorted by date.
-    entrylist, pages = [], []
+    entries, pages, trans, drafts = [], [], [], []
 
     # collect and skip over malformed entries
     for path in filelist(conf['content_dir'], conf.get('content_ignore', [])):
         if path.endswith(('.txt', '.rst', '.md')) or istext(path):
             try:
                 entry = Entry(path, conf)
-                if entry.type == 'entry':
-                    entrylist.append(entry)
+                if entry.draft:
+                    drafts.append(entry)
+                elif entry.type == 'entry':
+                    entries.append(entry)
                 else:
                     pages.append(entry)
             except (ValueError, AcrylamidException) as e:
                 raise AcrylamidException('%s: %s' % (path, e.args[0]))
 
     # sort by date, reverse
-    return (sorted(entrylist, key=lambda k: k.date, reverse=True), pages)
+    return sorted(entries, key=lambda k: k.date, reverse=True), pages, trans, drafts
 
 
 def ignored(cwd, path, patterns, directory):

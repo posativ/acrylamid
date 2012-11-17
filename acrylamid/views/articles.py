@@ -41,8 +41,7 @@ class Articles(View):
 
     def generate(self, request):
 
-        entrylist = sorted((e for e in request['entrylist'] if not e.draft),
-                        key=lambda k: k.date, reverse=True)
+        entrylist = request['entrylist']
 
         tt = self.env.engine.fromfile(self.template)
         path = joinurl(self.conf['output_dir'], self.path, 'index.html')

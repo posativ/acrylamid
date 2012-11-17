@@ -33,56 +33,48 @@ class Base(View):
     def prev(self, entrylist, i):
         return None
 
-    def has_changed(self, entrylist, salt):
+    def has_changed(self, entrylist):
         return False
 
-    def generate(self, request):
+    def generate(self, data):
 
         tt = self.env.engine.fromfile(self.template)
         pathes = set()
 
-        nondrafts, drafts = [], []
-        for entry in request[self.type]:
-            if not entry.draft:
-                nondrafts.append(entry)
+        entrylist = data[self.type]
+        has_changed = self.has_changed(entrylist)
+
+        for i, entry in enumerate(entrylist):
+
+            if entry.hasproperty('permalink'):
+                path = joinurl(self.conf['output_dir'], entry.permalink)
             else:
-                drafts.append(entry)
+                path = joinurl(self.conf['output_dir'], expand(self.path, entry))
 
-        for isdraft, entrylist in enumerate([nondrafts, drafts]):
-            has_changed = self.has_changed(entrylist, 'draft' if isdraft else 'entry')
+            if path.endswith('/'):
+                path = joinurl(path, 'index.html')
 
-            for i, entry in enumerate(entrylist):
+            if isfile(path) and path in pathes:
+                try:
+                    os.remove(path)
+                finally:
+                    f = lambda e: e is not entry and e.permalink == entry.permalink
+                    raise AcrylamidException("title collision %r in %r with %r." %
+                        (entry.permalink, entry.filename, filter(f, entrylist)[0].filename))
 
-                if entry.hasproperty('permalink'):
-                    path = joinurl(self.conf['output_dir'], entry.permalink)
-                else:
-                    path = joinurl(self.conf['output_dir'], expand(self.path, entry))
+            pathes.add(path)
+            next, prev = self.next(entrylist, i), self.prev(entrylist, i)
 
-                if path.endswith('/'):
-                    path = joinurl(path, 'index.html')
+            if isfile(path) and not any([has_changed, entry.has_changed, tt.has_changed]):
+                event.skip(path)
+                continue
 
-                if isfile(path) and path in pathes:
-                    try:
-                        os.remove(path)
-                    finally:
-                        f = lambda e: e is not entry and e.permalink == entry.permalink
-                        raise AcrylamidException("title collision %r in %r with %r." %
-                            (entry.permalink, entry.filename, filter(f, entrylist)[0].filename))
+            route = expand(self.path, entry)
+            html = tt.render(conf=self.conf, entry=entry, env=union(self.env,
+                             entrylist=[entry], type=self.__class__.__name__.lower(),
+                             prev=prev, next=next, route=route))
 
-                pathes.add(path)
-                next = self.next(entrylist, i) if not isdraft else None
-                prev = self.prev(entrylist, i) if not isdraft else None
-
-                if isfile(path) and not any([has_changed, entry.has_changed, tt.has_changed]):
-                    event.skip(path)
-                    continue
-
-                route = expand(self.path, entry)
-                html = tt.render(conf=self.conf, entry=entry, env=union(self.env,
-                                 entrylist=[entry], type=self.__class__.__name__.lower(),
-                                 prev=prev, next=next, route=route))
-
-                yield html, path
+            yield html, path
 
 
 class Entry(Base):
@@ -109,13 +101,12 @@ class Entry(Base):
     def type(self):
         return 'entrylist'
 
-    def has_changed(self, entrylist, salt):
+    def has_changed(self, entrylist):
         # detect changes in prev and next
         hv = md5(*entrylist, attr=lambda e: e.permalink)
 
-        if memoize(salt + '-permalinks') != hv:
-            memoize(salt +'-permalinks', hv)
-            return True
+        if memoize('entry-permalinks') != hv:
+            return memoize('entry-permalinks', hv) and True
         return False
 
     def next(self, entrylist, i):
@@ -204,10 +195,10 @@ class Translation(Base):
     def type(self):
         return 'translations'
 
-    def context(self, env, request):
+    def context(self, env, data):
 
         translations = defaultdict(list)
-        for entry in request['entrylist'][:]:
+        for entry in data['entrylist'][:]:
 
             if entry.hasproperty('identifier'):
                 translations[entry.identifier].append(entry)
@@ -216,8 +207,8 @@ class Translation(Base):
                     entry.props['entry_permalink'] = self.path
 
                     # remove from original entrylist
-                    request['entrylist'].remove(entry)
-                    request['translations'].append(entry)
+                    data['entrylist'].remove(entry)
+                    data['translations'].append(entry)
 
         def translationsfor(entry):
 
@@ -233,3 +224,12 @@ class Translation(Base):
         env.translationsfor = translationsfor
 
         return env
+
+
+class Draft(Base):
+    """Create an drafted post that is not linked by the articles overview or
+    regular posts."""
+
+    @property
+    def type(self):
+        return 'drafts'

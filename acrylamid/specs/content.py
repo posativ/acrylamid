@@ -50,7 +50,7 @@ class SingleEntry(attest.TestBase):
             with open('layouts/main.html', 'w') as fp:
                 fp.write('{{ env.entrylist[0].content }}\n')
 
-            self.conf = conf
+            self.conf = utils.Struct(conf)
             self.env = utils.Struct({'options': options, 'globals': utils.Struct()})
 
             self.conf['filters'] = ['HTML']
@@ -130,7 +130,7 @@ class MultipleEntries(attest.TestBase):
             with open('layouts/atom.xml', 'w') as fp:
                 fp.write("{% for entry in env.entrylist %}\n{{ entry.content ~ '\n' }}\n{% endfor %}")
 
-            self.conf = conf
+            self.conf = utils.Struct(conf)
             self.env = utils.Struct({'options': options, 'globals': utils.Struct()})
 
             self.conf['filters'] = ['Markdown', 'h1']

@@ -108,7 +108,7 @@ class Sitemap(View):
         changefreq and priority to the Sitemap."""
 
         drafted = set([joinurl(self.conf['output_dir'], e.permalink, 'index.html')
-                    for e in request['entrylist'] + request['pages'] if e.draft])
+            for e in request.get('drafts', [])])
 
         path = joinurl(self.conf['output_dir'], self.path)
         sm = Map()
