@@ -46,40 +46,46 @@ def index_views(conf, env, urlmap, module):
             view_list.append(name)
             view_map[name.lower()] = name
 
-    for view, rule in urlmap[:]:
+    for rule, view in urlmap[:]:
         mem = None
         # First try to match the view name case sensitive...
-        if view in view_list:
-            mem = getattr(module, view)
+        if view['name'] in view_list:
+            mem = getattr(module, view['name'])
         # ...then try again, but now ignore case.
         else:
-            view_class = view_map.get(view.lower(), None)
+            view_class = view_map.get(view['name'].lower(), None)
             if view_class:
                 mem = getattr(module, view_class)
 
         if mem:
-            kwargs = conf['views'][rule].copy()
+            kwargs = view.copy()
             kwargs['path'] = rule
-            try:
-                kwargs['condition'] = conf['views'][rule]['if']
-            except KeyError:
-                pass
-            kwargs.pop('if', None)
+            kwargs['condition'] = kwargs.pop('if', None)
 
             m = mem(conf, env, **kwargs)
             m.init(**m._getkwargs())
 
             __views_list.append(m)
-            urlmap.remove((view, rule))
+            urlmap.remove((rule, view))
 
 
 def initialize(directories, conf, env):
 
     global __views_list
-    __views_list = []
+    __views_list, urlmap = [], []
 
-    # view -> path
-    urlmap = [(conf['views'][k]['view'], k) for k in conf['views']]
+    for rule, view in conf.views.iteritems():
+        if 'views' not in view:
+            view['views'] = [view.pop('view'), ]
+
+        for name in view['views']:
+            item = view.copy()
+            item.pop('views')
+            item['name'] = name
+            urlmap.append((rule, item))
+
+    # views are available through env.views
+    conf.pop('views')
 
     directories += [os.path.dirname(__file__)]
     helpers.discover(directories, partial(index_views, conf, env, urlmap))
@@ -202,7 +208,7 @@ class View(object):
     def __init__(self, conf, env, **kwargs):
 
         self.condition = kwargs.get('condition', None)
-        self.name = kwargs.get('view', 'View')
+        self.name = kwargs.get('name', 'View')
         self.path = kwargs.get('path', '/')
         self.filters = kwargs.get('filters', [])
 
@@ -213,7 +219,7 @@ class View(object):
         self.conf = conf
         self.env = env
 
-        for k in ('condition', 'view', 'path', 'filters'):
+        for k in ('condition', 'name', 'path', 'filters'):
             kwargs.pop(k, None)
 
         self._getkwargs = lambda : kwargs
