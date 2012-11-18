@@ -10,10 +10,12 @@ import os
 import io
 import re
 import imp
+import zlib
 import shutil
 import hashlib
 import subprocess
 
+from __builtin__ import hash as pyhash
 from unicodedata import normalize
 from collections import defaultdict
 from os.path import join, dirname, basename, isdir, isfile, commonprefix
@@ -108,24 +110,12 @@ def mkfile(fileobj, path, ctime=0.0, force=False, dryrun=False, **kw):
         event.create(path=path, ctime=ctime)
 
 
-def md5(*objs, **kw):
-    """A multifunctional hash function that can take one or more objects
-    and a getter from which you want calculate the MD5 sum.
+def hash(*objs, **kw):
 
-    :param obj: one or more objects
-    :param attr: a getter, defaults to ``lambda o: o.__str__()``"""
+    xor = lambda x,y: (x & 0xffffffff)^(y & 0xffffffff)
+    attr = kw.get('attr', lambda o: o)
 
-    # positional arguments before *args issue
-    attr = kw.get('attr', lambda o: o.encode('utf-8') if isinstance(o, unicode) else o.__str__())
-    h = hashlib.md5()
-
-    for obj in objs:
-        try:
-            h.update(attr(obj))
-        except (TypeError, UnicodeEncodeError):
-            h.update(attr(obj).encode('utf-8'))
-
-    return h.hexdigest()
+    return reduce(xor, map(lambda o: pyhash(attr(o)), objs))
 
 
 def expand(url, obj):
@@ -221,7 +211,7 @@ def paginate(lst, ipp, func=lambda x: x, salt=None, orphans=0):
             hkey = '%s:%s-hash-%s-%i' % (basename(frame[0]), frame[2], salt, i)
 
         # calculating hash value and retrieve memoized value
-        hv = md5(*entries, attr=lambda o: o.md5)
+        hv = hash(*entries, attr=lambda o: o.hash)
         rv = cache.memoize(hkey)
 
         if rv == hv:

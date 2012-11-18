@@ -23,7 +23,7 @@ from acrylamid.errors import AcrylamidException
 from acrylamid.utils import cached_property, NestedProperties, istext
 from acrylamid.core import cache
 from acrylamid.filters import FilterTree
-from acrylamid.helpers import safeslug, expand, md5, rchop
+from acrylamid.helpers import safeslug, expand, hash, rchop
 
 try:
     import yaml
@@ -147,7 +147,7 @@ class Reader(object):
         self.filters = self.props.get('filters', [])
 
     @abc.abstractproperty
-    def md5(self):
+    def hash(self):
         return
 
     @abc.abstractproperty
@@ -248,8 +248,8 @@ class FileReader(Reader):
             return ''.join(f.readlines()[self.offset:]).strip()
 
     @cached_property
-    def md5(self):
-        return md5(self.filename, self.title, self.date.ctime())
+    def hash(self):
+        return hash(self.filename, self.title, self.date.ctime())
 
     @property
     def date(self):
@@ -398,7 +398,7 @@ class ContentMixin(object):
         pv = None
 
         # this is our cache filename
-        path = join(cache.cache_dir, self.md5)
+        path = join(cache.cache_dir, hex(self.hash)[2:])
 
         # growing dependencies of the filter chain
         deps = []
@@ -409,7 +409,7 @@ class ContentMixin(object):
             deps.extend(fxs)
 
             # key where we save this filter chain
-            key = md5(*deps)
+            key = hash(*deps)
 
             try:
                 rv = cache.get(path, key, mtime=self.lastmodified)
@@ -443,7 +443,7 @@ class ContentMixin(object):
         except AttributeError:
             pass
 
-        path = join(cache.cache_dir, self.md5)
+        path = join(cache.cache_dir, hex(self.hash)[2:])
         deps = []
 
         for fxs in self.filters.iter(self.context):
@@ -451,7 +451,7 @@ class ContentMixin(object):
             # extend filter dependencies
             deps.extend(fxs)
 
-            if not cache.has_key(path, md5(*deps)):
+            if not cache.has_key(path, hash(*deps)):
                 return True
         else:
             return self.lastmodified > cache.getmtime(path)

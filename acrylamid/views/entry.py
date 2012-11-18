@@ -10,7 +10,7 @@ from os.path import isfile
 from collections import defaultdict
 
 from acrylamid.views import View
-from acrylamid.helpers import expand, union, joinurl, event, link, memoize, md5
+from acrylamid.helpers import expand, union, joinurl, event, link, memoize, hash
 from acrylamid.errors import AcrylamidException
 
 
@@ -103,7 +103,7 @@ class Entry(Base):
 
     def has_changed(self, entrylist):
         # detect changes in prev and next
-        hv = md5(*entrylist, attr=lambda e: e.permalink)
+        hv = hash(*entrylist, attr=lambda e: e.permalink)
 
         if memoize('entry-permalinks') != hv:
             return memoize('entry-permalinks', hv) or True

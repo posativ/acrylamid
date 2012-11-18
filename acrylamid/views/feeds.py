@@ -7,7 +7,7 @@ from os.path import exists
 from datetime import datetime, timedelta
 
 from acrylamid.views import View, tag
-from acrylamid.helpers import joinurl, event, expand, union, md5, memoize
+from acrylamid.helpers import joinurl, event, expand, union, hash, memoize
 
 
 def utc(dt, fmt='%Y-%m-%dT%H:%M:%SZ'):
@@ -34,7 +34,7 @@ class Feed(View):
             path = joinurl(path, 'index.html')
 
         # detect removed entries
-        hv = md5(*entrylist, attr=lambda e: e.permalink)
+        hv = hash(*entrylist, attr=lambda e: e.permalink)
         if memoize(path) != hv:
             memoize(path, hv)
             has_changed = True

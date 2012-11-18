@@ -4,7 +4,7 @@
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
 from acrylamid.views import View
-from acrylamid.helpers import union, joinurl, event, md5, memoize
+from acrylamid.helpers import union, joinurl, event, hash, memoize
 
 from os.path import exists
 
@@ -46,7 +46,7 @@ class Articles(View):
         tt = self.env.engine.fromfile(self.template)
         path = joinurl(self.conf['output_dir'], self.path, 'index.html')
 
-        hv = md5(*entrylist, attr=lambda o: o.md5)
+        hv = hash(*entrylist, attr=lambda o: o.hash)
         rv = memoize('articles-hash')
 
         if rv == hv:
