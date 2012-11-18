@@ -67,9 +67,9 @@ class Helpers(attest.TestBase):
     @attest.test
     def paginate(self):
 
-        class X(str):  # dummy class
-            has_changed = True
-            md5 = property(lambda x: str(hash(x)))
+        X = type('X', (str, ), {
+            'has_changed': True, 'hash': property(lambda x: str(hash(x)))
+        })
 
         res = ['1', 'asd', 'asd123', 'egg', 'spam', 'ham', '3.14', '42']
         res = [X(val) for val in res]

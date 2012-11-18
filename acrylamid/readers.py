@@ -11,6 +11,7 @@ import re
 import sys
 import abc
 import locale
+import hashlib
 import traceback
 
 from os.path import join, getmtime
@@ -151,6 +152,10 @@ class Reader(object):
         return
 
     @abc.abstractproperty
+    def md5(self):
+        return
+
+    @abc.abstractproperty
     def source(self):
         return
 
@@ -250,6 +255,11 @@ class FileReader(Reader):
     @cached_property
     def hash(self):
         return hash(self.filename, self.title, self.date.ctime())
+
+    @cached_property
+    def md5(self):
+        return hashlib.md5(self.filename.encode('utf-8') +
+            self.title.encode('utf-8') + self.date.ctime().encode('utf-8')).hexdigest()
 
     @property
     def date(self):
@@ -398,7 +408,7 @@ class ContentMixin(object):
         pv = None
 
         # this is our cache filename
-        path = join(cache.cache_dir, hex(self.hash)[2:])
+        path = join(cache.cache_dir, self.md5)
 
         # growing dependencies of the filter chain
         deps = []
@@ -443,7 +453,7 @@ class ContentMixin(object):
         except AttributeError:
             pass
 
-        path = join(cache.cache_dir, hex(self.hash)[2:])
+        path = join(cache.cache_dir, self.md5)
         deps = []
 
         for fxs in self.filters.iter(self.context):
