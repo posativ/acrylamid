@@ -106,7 +106,7 @@ class Entry(Base):
         hv = md5(*entrylist, attr=lambda e: e.permalink)
 
         if memoize('entry-permalinks') != hv:
-            return memoize('entry-permalinks', hv) and True
+            return memoize('entry-permalinks', hv) or True
         return False
 
     def next(self, entrylist, i):
