@@ -9,7 +9,7 @@ import sys
 class ANSIString(object):
 
     style = 0
-    color = 0
+    color = 30
 
     def __init__(self, obj, style=None, color=None):
 
@@ -47,7 +47,7 @@ class ANSIString(object):
 
 
 normal, bold, underline = [lambda obj, x=x: ANSIString(obj, style=x)
-    for x in range(0, 3)]
+    for x in 0, 1, 4]
 
 black, red, green, yellow, blue, \
 magenta, cyan, white = [lambda obj, y=y: ANSIString(obj, color=y)
