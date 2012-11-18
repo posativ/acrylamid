@@ -25,7 +25,7 @@ class Feed(View):
         return env
 
     def generate(self, request):
-        entrylist = filter(lambda e: not e.draft, request['entrylist'])
+        entrylist = request['entrylist']
         entrylist = list(entrylist)[0:self.num_entries]
         tt = self.env.engine.fromfile('%s.xml' % self.type)
 
