@@ -6,6 +6,7 @@
 import sys
 import os
 import time
+import shutil
 import locale
 import codecs
 
@@ -231,10 +232,8 @@ def autocompile(ws, conf, env, **options):
     """Subcommand: autocompile -- automatically re-compiles when something in
     content-dir has changed and parallel serving files."""
 
-    CONF_PY = './conf.py'
-
     mtime = -1
-    cmtime = getmtime(CONF_PY)
+    cmtime = getmtime('conf.py')
 
     while True:
 
@@ -254,14 +253,14 @@ def autocompile(ws, conf, env, **options):
             mtime = ntime
         ws.wait = False
 
-        if cmtime != getmtime(CONF_PY):
-            log.info(' * Restarting due to change in %s' % (CONF_PY))
+        if cmtime != getmtime('conf.py'):
+            log.info(' * Restarting due to change in conf.py')
+            # regenerate from cache to reflect changes in conf.py
+            shutil.rmtree(conf['output_dir'])
             # Kill the webserver
             ws.shutdown()
-            # Force compilation since no template was changed
-            argv = sys.argv if options['force'] else sys.argv[:] + ["--force"]
             # Restart acrylamid
-            os.execvp(sys.argv[0], argv)
+            os.execvp(sys.argv[0], sys.argv)
 
         time.sleep(1)
 
