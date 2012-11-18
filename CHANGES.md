@@ -1,30 +1,33 @@
 # Acrylamid Changelog
 
 Version 0.5
-----------
+-----------
 
 Not released – TBD
 
 ### What is new?
 
-- \#82 – updated Atom feed to include tags, icons and provide an unique id
+- #82 – updated Atom feed to include tags, icons and provide an unique id
   for multiple destinations (Mark van Lent)
 - improved WordPress import (pages and draft recognition)
 - integrated web server blocks browser requests during (auto) compilation
-- \#78 – `acrylamid import` now uses RSS/Atom categories as tags
-- \#80 – new config variable `CONTENT_EXTENSION` to set the default filename
+- #78 – `acrylamid import` now uses RSS/Atom categories as tags
+- #80 – new config variable `CONTENT_EXTENSION` to set the default filename
   extension when using `acrylamid new`, defaults to `.txt` (Günter Kolousek)
 
 ### What changes?
 
 - `env.views` is now a list containing the actual view objects, but retains
   `if 'sitemap' in env.views` and `env.views['sitemap']` syntax.
+- entry view no longer generates drafts. This might break your `conf.py`. To
+  enable drafts, replace `"view": "entry"` with `"views": ["entry", "draft"]`
+  inside your `"/:year/:slug/"` view.
 
 ### What was fixed?
 
-- \#82 – theme files copied to output if they are not used
-- \#77 – missing items in sitemap view
-- \#75 – dotfiles not copied from the static folder (Mark van Lent)
+- #82 – theme files copied to output if they are not used
+- #77 – missing items in sitemap view
+- #75 – dotfiles not copied from the static folder (Mark van Lent)
 
 Version 0.4
 -----------
@@ -33,15 +36,15 @@ Released on September, 19th 2012 – Arrr!
 
 ### What's new?
 
-- support for translations, \#22
-- Mako as second templating engine of choice, \#39
-- opt-in for native markdown and reStructuredText metadata style, \#40
-- `acrylamid autocompile` now detects layout and conf.py changes, \#48
-- new kind of entry – page – that should be used for static sites, \#50
-- summarize by keyword, \#51
-- new Mako filter, \#52
-- asset handling, \#62
-- per-tag feeds, \#68
+- support for translations, #22
+- Mako as second templating engine of choice, #39
+- opt-in for native markdown and reStructuredText metadata style, #40
+- `acrylamid autocompile` now detects layout and conf.py changes, #48
+- new kind of entry – page – that should be used for static sites, #50
+- summarize by keyword, #51
+- new Mako filter, #52
+- asset handling, #62
+- per-tag feeds, #68
 - support for LESS, SASS and SCSS
 - new theme "shadowplay"
 - subcommand `acrylamid ping` for PingBack and Twitter announces
@@ -55,7 +58,7 @@ Released on September, 19th 2012 – Arrr!
 - discover Markdown and reST extension in `FILTERS_DIR`
 - `ENTRIES_IGNORE` was renamed to `CONTENT_IGNORE`, a list of git-like patterns
 - new `SUMMARIZE_LINK` for continue reading link instead of the old three
-  `SUMMARIZE_*` variables to allow more customization, \#45
+  `SUMMARIZE_*` variables to allow more customization, #45
 - `LAYOUT_DIR` was renamed to `THEME`
 - `PERMALINK_FORMAT` is no longer used. Acrylamid will automatically determine
   the permalink format or you can explicitly set it with `ENTRY_PERMALINK` and
@@ -74,17 +77,17 @@ Version 0.3
 ### 0.3.5
 
 - new command `acrylamid check` W3C compliance and validates external
-  links, closes \#32
+  links, closes #32
 - new command `acrylamid info` showing version, cache size and latest
   articles and number of drafted and published writings.
-- add previous and next relations to single entry, closes \#29
-- entry has now zero-padded day and month, thanks to Mark, \#37
+- add previous and next relations to single entry, closes #29
+- entry has now zero-padded day and month, thanks to Mark, #37
 - default smartypants behaviour is now unmodified, custom changes
-  require TYPOGRAPHY_MODE = "a", see \#36 (thanks to Mark)
+  require TYPOGRAPHY_MODE = "a", see #36 (thanks to Mark)
 - compilation summary and hide skip/identical by default
 - deployments are now executed in a real shell environment
 - verified python 3 support (via p3test.sh)
-- templates are now configurable per view, \#24
+- templates are now configurable per view, #24
 - use argparse instead of optparse
 - few bugfixes to core (that induces new compilation :-/)
 
@@ -124,8 +127,8 @@ Version 0.3
 - new metalogo filter by sebix
 - add explicit `static` for static pages
 - fix a serious issue where `<tag foo>` raises an exception
-- clean removes abandoned cache files as well, \#27
-- add filter version, \#26
+- clean removes abandoned cache files as well, #27
+- add filter version, #26
 
 ### 0.3.1
 

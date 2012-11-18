@@ -153,10 +153,12 @@ class cache(object):
             with io.open(join(cache.cache_dir, 'info'), 'rb') as fp:
                 cache.memoize.update(pickle.load(fp))
         except (IOError, pickle.PickleError):
-            pass
+            self.emptyrun = True
+        else:
+            self.emptyrun = False
 
     @classmethod
-    def shutdown(self):
+    def shutdown(self, prematurely=False):
         """Remove abandoned cache files that are not accessed during compilation
         process. This does not affect jinja2 templates or *.cache/info*. This
         also removes abandoned intermediates from a cache file (they may
@@ -170,6 +172,9 @@ class cache(object):
                 pickle.dump(self.memoize, fp, pickle.HIGHEST_PROTOCOL)
         except (IOError, pickle.PickleError) as e:
             log.warn('%s: %s' % (e.__class__.__name__, e))
+
+        if prematurely:
+            return
 
         # first we search for cache files from entries that have vanished
         for path in set(self._list_dir()).difference(set(self.tracked.keys())):

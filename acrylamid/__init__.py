@@ -16,7 +16,7 @@
 # those of the authors and should not be interpreted as representing official
 # policies, either expressed or implied, of posativ <info@posativ.org>.
 
-__version__ = '0.4.4'
+__version__ = '0.5.0'
 __author__ = 'posativ <info@posativ.org>'
 __url__ = 'https://github.com/posativ/acrylamid/'
 
@@ -133,8 +133,7 @@ def Acryl():
     # initialize colored logger
     log.init('acrylamid', level=options.verbosity, colors=options.colors)
 
-    env = Struct({'version': __version__, 'author': __author__, 'url': __url__})
-
+    env = Struct({'author': __author__, 'url': __url__})
     env['options'] = options
     env['globals'] = Struct()
 

@@ -18,8 +18,8 @@ from os.path import getmtime
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
-from acrylamid import readers, filters, views, assets, utils, helpers
-from acrylamid.lib import lazy
+from acrylamid import readers, filters, views, assets, utils, helpers, __version__
+from acrylamid.lib import lazy, history
 from acrylamid.core import cache
 from acrylamid.helpers import event
 
@@ -31,6 +31,18 @@ def initialize(conf, env):
     """
     # initialize cache, optional to cache_dir
     cache.init(conf.get('cache_dir', None))
+
+    env['version'] = type('Version', (object, ), dict(zip(
+        ['major', 'minor', 'patch', '__str__'],
+        chain((int(x) for x in __version__.split('.')),
+              (lambda self: __version__,)))))()
+
+    # crawl through CHANGES.md and stop when breaking changes
+    if history.check(env, cache.emptyrun) is False:
+        print "Detected version upgrade that might break your configuration. Run"
+        print "Acrylamid a second time to get rid of this message and premature exit."
+        cache.shutdown(prematurely=True)
+        raise SystemExit
 
     # rewrite static directory
     assets.initialize(conf, env)
