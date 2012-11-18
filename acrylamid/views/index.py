@@ -36,7 +36,7 @@ class Index(View):
         tt = self.env.engine.fromfile(self.template)
 
         entrylist = [entry for entry in request['entrylist'] if not entry.draft]
-        paginator = paginate(entrylist, ipp, orphans=self.conf['default_orphans'])
+        paginator = paginate(entrylist, ipp, salt=self.path, orphans=self.conf.default_orphans)
         route = self.path
 
         for (next, curr, prev), entries, has_changed in paginator:
