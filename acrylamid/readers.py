@@ -259,7 +259,7 @@ class FileReader(Reader):
 
 class MetadataMixin(object):
 
-    @property
+    @cached_property
     def slug(self):
         """ascii safe entry title"""
         slug = self.props.get('slug', None)
