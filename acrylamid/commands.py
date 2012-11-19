@@ -33,10 +33,9 @@ def initialize(conf, env):
     # initialize cache, optional to cache_dir
     cache.init(conf.get('cache_dir', None))
 
-    env['version'] = type('Version', (object, ), dict(zip(
-        ['major', 'minor', 'patch', '__str__'],
-        chain((int(x) for x in __version__.split('.')),
-              (lambda self: __version__,)))))()
+    env['version'] = type('Version', (str, ), dict(zip(
+        ['major', 'minor', 'patch'], (int(x) for x in __version__.split('.'))
+    )))(__version__)
 
     # crawl through CHANGES.md and stop when breaking changes
     if history.check(env, cache.emptyrun) is False:
