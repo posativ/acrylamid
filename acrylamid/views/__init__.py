@@ -84,9 +84,6 @@ def initialize(directories, conf, env):
             item['name'] = name
             urlmap.append((rule, item))
 
-    # views are available through env.views
-    conf.pop('views')
-
     directories += [os.path.dirname(__file__)]
     helpers.discover(directories, partial(index_views, conf, env, urlmap))
 
