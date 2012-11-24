@@ -14,7 +14,7 @@ except ImportError:
 class PyTextile(Filter):
 
     match = ['Textile', 'textile', 'pytextile', 'PyTextile']
-    version = '1.0.0'
+    version = 1
 
     conflicts = ['Markdown', 'reStructuredText', 'HTML', 'Pandoc']
     priority = 70.0

@@ -31,7 +31,7 @@ XeTeX = u"""\
 class Tex(Filter):
 
     match = ['metalogo']
-    version = '1.2.0'
+    version = 3
 
     def transform(self, text, entry, *args):
         replacings = (('LaTeX', LaTeX),

@@ -90,7 +90,7 @@ class Summarize(Filter):
     """Summarizes content up to `maxwords` (defaults to 100)."""
 
     match = ['summarize', 'sum']
-    version = '1.0.1'
+    version = 2
 
     def init(self, conf, env):
 

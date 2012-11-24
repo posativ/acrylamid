@@ -14,7 +14,7 @@ from acrylamid.errors import AcrylamidException
 class Markdown(Filter):
 
     match = ['md', 'mkdown', 'markdown', 'Markdown']
-    version = '1.0.0'
+    version = 1
 
     conflicts = ['rst', 'plain']
     priority = 70.0

@@ -11,7 +11,7 @@ from acrylamid.errors import AcrylamidException
 class Pandoc(Filter):
 
     match = ['Pandoc', 'pandoc']
-    version = '1.0.0'
+    version = 1
 
     conflicts = ['Markdown', 'reStructuredText', 'HTML']
     priority = 70.0

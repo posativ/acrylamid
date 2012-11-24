@@ -38,7 +38,7 @@ class Acrynomify(HTMLParser):
 class Acronyms(Filter):
 
     match = [re.compile('^Acronyms?$', re.I), 'abbr', 'Abbr']
-    version = '1.0.1'
+    version = 2
 
     # after Typography, so CAPS is around ABBR
     priority = 20.0

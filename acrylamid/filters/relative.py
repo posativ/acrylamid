@@ -36,7 +36,7 @@ class Href(HTMLParser):
 class Relative(Filter):
 
     match = ['relative']
-    version = '1.0.0'
+    version = 1
 
     def transform(self, text, entry, *args):
 
@@ -57,7 +57,7 @@ class Relative(Filter):
 class Absolute(Filter):
 
     match = ['absolute']
-    version = '1.0.0'
+    version = 1
 
     def init(self, conf, env):
 

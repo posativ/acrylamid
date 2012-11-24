@@ -10,7 +10,7 @@ from acrylamid.filters import Filter
 class HTML(Filter):
 
     match = [re.compile('^(pass|plain|X?HTML)$', re.I)]
-    version = '1.0.0'
+    version = 1
 
     conflicts = ['rst', 'md']
     priority = 70.0

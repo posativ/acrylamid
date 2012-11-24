@@ -11,7 +11,7 @@ class Headoffset(Filter):
     """This filter increases HTML headings by N whereas N is the suffix of
     this filter, e.g. `h2' increases headers by two."""
 
-    version = '1.0.0'
+    version = 1
 
     def transform(self, text, entry, *args):
 

@@ -21,7 +21,7 @@ except ImportError:
 class Restructuredtext(Filter):
 
     match = ['restructuredtext', 'rst', 'rest', 'reST', 'reStructuredText']
-    version = '1.0.1'
+    version = 2
 
     conflicts = ['markdown', 'plain']
     priority = 70.00

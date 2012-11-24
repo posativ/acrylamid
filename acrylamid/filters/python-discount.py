@@ -14,7 +14,7 @@ except ImportError:
 class Discount(Filter):
 
     match = ['discount', 'Discount']
-    version = '1.0.0'
+    version = 1
 
     conflicts = ['Markdown', 'reStructuredText', 'HTML', 'Pandoc', 'typography']
     priority = 70.0

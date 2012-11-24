@@ -207,7 +207,8 @@ class Filter(object):
         self.args = args
 
         # precalculate __hash__ because we need it quite often in tree
-        self.hv = hash(self.__class__.__name__ + repr(args))
+        self.hv = helpers.hash(self.__class__.__name__, tuple(self.args),
+                               self.version, self.priority)
 
     def __repr__(self):
         return "<%s@%s %2.f:%s>" % (self.__class__.__name__, self.version,

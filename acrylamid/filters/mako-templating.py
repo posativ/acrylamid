@@ -21,7 +21,7 @@ class Mako(Filter):
     written posts. XXX: and offers some Mako extensions."""
 
     match = ['Mako', 'mako']
-    version = '1.0.0'
+    version = 1
 
     priority = 90.0
 
