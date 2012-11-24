@@ -56,7 +56,7 @@ class Feed(View):
 class FeedPerTag(tag.Tag, Feed):
 
     def context(self, env, request):
-        self._populate_tags(request)
+        self.populate_tags(request)
 
         return env
 

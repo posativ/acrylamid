@@ -82,7 +82,7 @@ class Tag(View):
         self.pagination = pagination
         self.filters.append('relative')
 
-    def _populate_tags(self, request):
+    def populate_tags(self, request):
 
         tags = fetch(request['entrylist'] + request['translations'])
         self.tags = dict([(safeslug(k), v) for k, v in tags.iteritems()])
@@ -100,7 +100,7 @@ class Tag(View):
             href = lambda t: expand(self.path, {'name': safeslug(t)})
             return [Link(t, href(t)) for t in tags]
 
-        tags = self._populate_tags(request)
+        tags = self.populate_tags(request)
         env.engine.register('tagify', tagify)
         env.tag_cloud = Tagcloud(tags, self.conf['tag_cloud_steps'],
                                        self.conf['tag_cloud_max_items'],
