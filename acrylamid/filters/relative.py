@@ -14,14 +14,23 @@ class Href(HTMLParser):
         self.func = func
         super(Href, self).__init__(html)
 
+    def apply(self, attrs):
+
+        for i, (key, value) in enumerate(attrs):
+            if key in ('href', 'src'):
+                attrs[i] = (key, self.func(value))
+
+        return attrs
+
     def handle_starttag(self, tag, attrs):
-
         if tag == 'a':
-            for i, (key, value) in enumerate(attrs):
-                if key == 'href':
-                    attrs[i] = (key, self.func(value))
-
+            attrs = self.apply(attrs)
         super(Href, self).handle_starttag(tag, attrs)
+
+    def handle_startendtag(self, tag, attrs):
+        if tag == 'img':
+            attrs = self.apply(attrs)
+        super(Href, self).handle_startendtag(tag, attrs)
 
 
 class Relative(Filter):

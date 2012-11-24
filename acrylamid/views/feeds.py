@@ -95,11 +95,13 @@ class RSS(Feed):
         self.env.engine.register(
             'rfc822', lambda x: unicode(format_date_time(mktime(x.timetuple()))))
         self.type = 'rss'
+        self.filters.append('absolute')
 
 
 class AtomPerTag(FeedPerTag):
 
     def init(self, num_entries=25):
+        self.filters.append('absolute')
         self.num_entries = num_entries
         self.type = 'atom'
 
@@ -111,8 +113,8 @@ class RssPerTag(FeedPerTag):
         from wsgiref.handlers import format_date_time
         from time import mktime
 
+        self.filters.append('absolute')
         self.num_entries = num_entries
         self.env.engine.register(
             'rfc822', lambda x: format_date_time(mktime(x.timetuple())))
         self.type = 'rss'
-        self.filters.append('absolute')
