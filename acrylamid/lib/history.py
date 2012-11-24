@@ -66,7 +66,7 @@ def check(env, firstrun):
     memoize('version', (env.version.major, env.version.minor, env.version.patch))
 
     if firstrun:
-        return
+        return True
 
     safe = True
     print

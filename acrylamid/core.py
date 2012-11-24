@@ -216,11 +216,17 @@ class cache(object):
         self.tracked.pop(path, None)
 
     @classmethod
-    def clear(self):
+    def clear(self, directory=None):
+        if directory is not None:
+            self.cache_dir = directory
+
+        cache.memoize = Memory()
+        if not exists(self.cache_dir):
+            return
+
         for path in self._list_dir():
             cache.remove(path)
         cache.remove(join(self.cache_dir, 'info'))
-        cache.memoize = Memory()
 
     @classmethod
     @track

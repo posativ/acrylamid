@@ -31,7 +31,7 @@ def initialize(conf, env):
     a data dict is returned.
     """
     # initialize cache, optional to cache_dir
-    cache.init(conf.get('cache_dir', None))
+    cache.init(conf.get('cache_dir'))
 
     env['version'] = type('Version', (str, ), dict(zip(
         ['major', 'minor', 'patch'], (int(x) for x in __version__.split('.'))
@@ -128,6 +128,9 @@ def initialize(conf, env):
 def compile(conf, env, force=False, **options):
     """The compilation process."""
 
+    if force:
+        cache.clear(conf.get('cache_dir'))
+
     # time measurement
     ctime = time.time()
 
@@ -143,10 +146,6 @@ def compile(conf, env, force=False, **options):
 
     data.update(rv)
     env.globals.update(rv)
-
-    if force:
-        # acrylamid compile -f
-        cache.clear()
 
     # here we store all found filter and their aliases
     ns = defaultdict(set)
