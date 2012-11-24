@@ -454,11 +454,39 @@ Aliases       Mako, mako
 ============  ==================================================
 
 
+relative
+--------
+
+Some extension may generate relative references such as footnotes. While this
+is a good practise, it can get ambiguous when multiple posts with footnotes
+are included in an overview such as the index view does it. This ambiguity
+can be easily solved with the *relative* filter.
+
+============  ==================================================
+Requires      <built-in>
+Aliases       relative
+============  ==================================================
+
+absolute
+--------
+
+This also applies to feeds and many feed readers can't/won't resolve relative
+urls. This is where the *absolute* filter comes into play. This filter just
+expands a relative path to a valid URI. **Important:** if you ever change your
+domain, you have to force compilation otherwise this filter won't notice this
+change
+
+============  ==================================================
+Requires      <built-in>
+Aliases       absolute
+============  ==================================================
+
+
 .. _custom-filters:
 
 Custom Filters
 **************
 
 To write your own filter, take a look at the code of `already existing filters
-<https://github.com/posativ/acrylamid/acrylamid/filters>`_ shipped with
+<https://github.com/posativ/acrylamid/tree/master/acrylamid/filters>`_ shipped with
 acrylamid and also visit :doc:`extending`.

@@ -81,6 +81,7 @@ class Atom(Feed):
     def init(self, num_entries=25):
         self.num_entries = num_entries
         self.type = 'atom'
+        self.filters.append('absolute')
 
 
 class RSS(Feed):
@@ -114,3 +115,4 @@ class RssPerTag(FeedPerTag):
         self.env.engine.register(
             'rfc822', lambda x: format_date_time(mktime(x.timetuple())))
         self.type = 'rss'
+        self.filters.append('absolute')

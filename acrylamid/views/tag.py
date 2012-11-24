@@ -80,6 +80,7 @@ class Tag(View):
         self.template = template
         self.items_per_page = items_per_page
         self.pagination = pagination
+        self.filters.append('relative')
 
     def _populate_tags(self, request):
 

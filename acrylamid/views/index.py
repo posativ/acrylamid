@@ -29,6 +29,7 @@ class Index(View):
         self.template = template
         self.items_per_page = items_per_page
         self.pagination = pagination
+        self.filters.append('relative')
 
     def generate(self, request):
 
