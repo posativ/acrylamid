@@ -576,7 +576,7 @@ def reststyle(fileobj):
     if not title or not dash:
         raise AcrylamidException('No title given in %r' % fileobj.name)
 
-    if len(dash) != len(title) or dash.count(dash[0]) != len(dash):
+    if len(dash) < len(title) or dash.count(dash[0]) < len(dash):
         raise AcrylamidException('title line does not match second line %r' % fileobj.name)
 
     i = 2
