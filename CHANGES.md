@@ -7,6 +7,10 @@ Not released – TBD
 
 ### What is new?
 
+-
+- speed improvements (up to 15%) due new internal hash (Adler32 vs. MD5)
+- multiple views per rule! So, in theory you can map pages, posts, drafts
+  and translations to ``/:slug/`` – **theoretically**!
 - #82 – updated Atom feed to include tags, icons and provide an unique id
   for multiple destinations (Mark van Lent)
 - improved WordPress import (pages and draft recognition)
@@ -22,9 +26,13 @@ Not released – TBD
 - entry view no longer generates drafts. This might break your `conf.py`. To
   enable drafts, replace `"view": "entry"` with `"views": ["entry", "draft"]`
   inside your `"/:year/:slug/"` view.
+- relative URIs in feeds are now absolute per default. URI fragments such as
+  ``#fn:1`` are relative in the index and tag view. To change this behavior,
+  add ``norelative`` and ``noabsolute`` to the affected views.
 
 ### What was fixed?
 
+- compatibility with python 3 (at least 3.2)
 - #82 – theme files copied to output if they are not used
 - #77 – missing items in sitemap view
 - #75 – dotfiles not copied from the static folder (Mark van Lent)
