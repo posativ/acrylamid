@@ -230,7 +230,7 @@ def wordpress(xml):
             'title': item.find('title').text,
             'link': item.find('link').text,
 
-            'content': item.find('%sencoded' % cons).text.replace('\n', '<br />\n'),
+            'content': (item.find('%sencoded' % cons).text or '').replace('\n', '<br />\n'),
             'date': datetime.strptime(item.find('%spost_date' % wpns).text,
                 "%Y-%m-%d %H:%M:%S"),
 
