@@ -248,7 +248,7 @@ def safe(string):
     if len(string) < 2:
         return string
 
-    for char in ':%#*?{}':
+    for char in ':%#*?{}[]':
         if char in string:
             if '"' in string:
                 return '\'' + string + '\''

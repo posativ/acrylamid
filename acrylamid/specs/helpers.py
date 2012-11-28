@@ -121,6 +121,8 @@ class Helpers(attest.TestBase):
         assert helpers.safe('Hello\'s World') == 'Hello\'s World'
         assert helpers.safe('Hello "World"') == 'Hello "World"'
 
+        assert helpers.safe('[foo][bar] Baz') == '"[foo][bar] Baz"'
+
     @attest.test
     def system(self):
 

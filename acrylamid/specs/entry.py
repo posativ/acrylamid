@@ -20,8 +20,6 @@ def create(path, **kwargs):
     with open(path, 'w') as fp:
         fp.write('---\n')
         for k, v in kwargs.iteritems():
-            if isinstance(v, basestring):
-                v = safe(v)
             fp.write('%s: %s\n' % (k, v))
         fp.write('---\n')
 
