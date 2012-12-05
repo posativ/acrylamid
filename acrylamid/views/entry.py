@@ -9,9 +9,11 @@ import abc
 from os.path import isfile
 from collections import defaultdict
 
+from acrylamid import refs
+from acrylamid.refs import modified, references
 from acrylamid.views import View
-from acrylamid.helpers import expand, union, joinurl, event, link, memoize, hash
 from acrylamid.errors import AcrylamidException
+from acrylamid.helpers import expand, union, joinurl, event, link, memoize, hash
 
 
 class Base(View):
@@ -33,16 +35,10 @@ class Base(View):
     def prev(self, entrylist, i):
         return None
 
-    def modified(self, entrylist):
-        return False
-
     def generate(self, data):
 
         tt = self.env.engine.fromfile(self.template)
-        pathes = set()
-
-        entrylist = data[self.type]
-        modified = self.modified(entrylist)
+        pathes, entrylist = set(), data[self.type]
 
         for i, entry in enumerate(entrylist):
 
@@ -65,7 +61,7 @@ class Base(View):
             pathes.add(path)
             next, prev = self.next(entrylist, i), self.prev(entrylist, i)
 
-            if isfile(path) and not any([has_changed, entry.has_changed, tt.has_changed]):
+            if isfile(path) and not (tt.modified or entry.modified or modified(*references(entry))):
                 event.skip(path)
                 continue
 
@@ -101,21 +97,21 @@ class Entry(Base):
     def type(self):
         return 'entrylist'
 
-    def modified(self, entrylist):
-        # detect changes in prev and next
-        hv = hash(*entrylist, attr=lambda e: e.permalink)
-
-        if memoize('entry-permalinks') != hv:
-            return memoize('entry-permalinks', hv) or True
-        return False
-
     def next(self, entrylist, i):
-        return None if i == 0 else link(u"« " + entrylist[i-1].title,
-            entrylist[i-1].permalink.rstrip('/'), entrylist[i-1])
+
+        if i == 0:
+            return None
+
+        refs.append(entrylist[i], entrylist[i - 1])
+        return link(u"« " + entrylist[i-1].title, entrylist[i-1].permalink.rstrip('/'))
 
     def prev(self, entrylist, i):
-        return None if i == len(entrylist) - 1 else link(entrylist[i+1].title + u" »",
-            entrylist[i+1].permalink.rstrip('/'), entrylist[i+1])
+
+        if i == len(entrylist) - 1:
+            return None
+
+        refs.append(entrylist[i], entrylist[i + 1])
+        return link(entrylist[i+1].title + u" »", entrylist[i+1].permalink.rstrip('/'))
 
 
 class Page(Base):
@@ -210,6 +206,7 @@ class Translation(Base):
                     data['entrylist'].remove(entry)
                     data['translations'].append(entry)
 
+        @refs.track
         def translationsfor(entry):
 
             try:

@@ -19,7 +19,7 @@ from os.path import getmtime
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
-from acrylamid import readers, filters, views, assets, utils, helpers, __version__
+from acrylamid import readers, filters, views, assets, refs, utils, helpers, __version__
 from acrylamid.lib import lazy, history
 from acrylamid.core import cache
 from acrylamid.helpers import event
@@ -144,6 +144,9 @@ def compile(conf, env, force=False, **options):
     entrylist, pages = rv['entrylist'], rv['pages']
     translations, drafts = rv['translations'], rv['drafts']
 
+    # load references
+    refs.load(entrylist, pages, translations, drafts)
+
     data.update(rv)
     env.globals.update(rv)
 
@@ -216,6 +219,9 @@ def compile(conf, env, force=False, **options):
 
     # copy modified/missing assets to output
     assets.compile(conf, env)
+
+    # save new/changed/unchanged references
+    refs.save()
 
     # remove abandoned cache files
     cache.shutdown()

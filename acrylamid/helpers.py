@@ -34,7 +34,7 @@ try:
 except ImportError:
     unidecode = None  # NOQA
 
-__all__ = ['memoize', 'union', 'mkfile', 'md5', 'expand', 'joinurl',
+__all__ = ['memoize', 'union', 'mkfile', 'hash', 'expand', 'joinurl',
            'safeslug', 'paginate', 'safe', 'system', 'event', 'rchop',
            'discover']
 

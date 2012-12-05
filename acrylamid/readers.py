@@ -20,7 +20,7 @@ from datetime import datetime, tzinfo, timedelta
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
-from acrylamid.utils import cached_property, NestedProperties, istext, memoized
+from acrylamid.utils import cached_property, NestedProperties, istext
 from acrylamid.core import cache
 from acrylamid.filters import FilterTree
 from acrylamid.helpers import safeslug, expand, hash, rchop
