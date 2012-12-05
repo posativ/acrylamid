@@ -46,7 +46,7 @@ class Articles(View):
         tt = self.env.engine.fromfile(self.template)
         path = joinurl(self.conf['output_dir'], self.path, 'index.html')
 
-        hv = hash(*entrylist, attr=lambda o: o.hash)
+        hv = hash(*entrylist)
         rv = memoize('articles-hash')
 
         if rv == hv:

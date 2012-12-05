@@ -11,7 +11,6 @@ import re
 import sys
 import abc
 import locale
-import hashlib
 import traceback
 
 from os.path import join, getmtime
@@ -21,7 +20,7 @@ from datetime import datetime, tzinfo, timedelta
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
-from acrylamid.utils import cached_property, NestedProperties, istext
+from acrylamid.utils import cached_property, NestedProperties, istext, memoized
 from acrylamid.core import cache
 from acrylamid.filters import FilterTree
 from acrylamid.helpers import safeslug, expand, hash, rchop
@@ -49,11 +48,19 @@ def load(conf):
     # list of Entry-objects reverse sorted by date.
     entries, pages, trans, drafts = [], [], [], []
 
+    # check for hash collisions
+    seen = set([])
+
     # collect and skip over malformed entries
     for path in filelist(conf['content_dir'], conf.get('content_ignore', [])):
         if path.endswith(('.txt', '.rst', '.md')) or istext(path):
             try:
                 entry = Entry(path, conf)
+                if entry in seen:
+                    raise AcrylamidException(
+                        "REPORT THIS IMMEDIATELY: python's hash function is not safe!")
+                seen.add(entry)
+
                 if entry.draft:
                     drafts.append(entry)
                 elif entry.type == 'entry':
@@ -148,11 +155,7 @@ class Reader(object):
         self.filters = self.props.get('filters', [])
 
     @abc.abstractproperty
-    def hash(self):
-        return
-
-    @abc.abstractproperty
-    def md5(self):
+    def __hash__(self):
         return
 
     @abc.abstractproperty
@@ -252,14 +255,8 @@ class FileReader(Reader):
         errors='replace') as f:
             return ''.join(f.readlines()[self.offset:]).strip()
 
-    @cached_property
-    def hash(self):
+    def __hash__(self):
         return hash(self.filename, self.title, self.date.ctime())
-
-    @cached_property
-    def md5(self):
-        return hashlib.md5(self.filename.encode('utf-8') +
-            self.title.encode('utf-8') + self.date.ctime().encode('utf-8')).hexdigest()
 
     @property
     def date(self):
@@ -408,7 +405,7 @@ class ContentMixin(object):
         pv = None
 
         # this is our cache filename
-        path = join(cache.cache_dir, self.md5)
+        path = join(cache.cache_dir, hex(hash(self))[2:])
 
         # growing dependencies of the filter chain
         deps = []
@@ -453,7 +450,7 @@ class ContentMixin(object):
         except AttributeError:
             pass
 
-        path = join(cache.cache_dir, self.md5)
+        path = join(cache.cache_dir, hex(hash(self))[2:])
         deps = []
 
         for fxs in self.filters.iter(self.context):

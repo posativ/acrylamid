@@ -209,7 +209,7 @@ def paginate(lst, ipp, func=lambda x: x, salt=None, orphans=0):
             hkey = '%s:%s-hash-%s-%i' % (basename(frame[0]), frame[2], salt, i)
 
         # calculating hash value and retrieve memoized value
-        hv = hash(*entries, attr=lambda o: o.hash)
+        hv = hash(*entries)
         rv = cache.memoize(hkey)
 
         if rv == hv:
