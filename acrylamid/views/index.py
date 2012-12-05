@@ -40,7 +40,7 @@ class Index(View):
         paginator = paginate(entrylist, ipp, salt=self.path, orphans=self.conf.default_orphans)
         route = self.path
 
-        for (next, curr, prev), entries, has_changed in paginator:
+        for (next, curr, prev), entries, modified in paginator:
             # curr = current page, next = newer pages, prev = older pages
 
             next = None if next is None \
@@ -55,7 +55,7 @@ class Index(View):
 
             path = joinurl(self.conf['output_dir'], curr.href, 'index.html')
 
-            if exists(path) and not has_changed and not tt.has_changed:
+            if exists(path) and not modified and not tt.modified:
                 event.skip(path)
                 continue
 

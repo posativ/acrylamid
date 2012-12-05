@@ -33,7 +33,7 @@ class Base(View):
     def prev(self, entrylist, i):
         return None
 
-    def has_changed(self, entrylist):
+    def modified(self, entrylist):
         return False
 
     def generate(self, data):
@@ -42,7 +42,7 @@ class Base(View):
         pathes = set()
 
         entrylist = data[self.type]
-        has_changed = self.has_changed(entrylist)
+        modified = self.modified(entrylist)
 
         for i, entry in enumerate(entrylist):
 
@@ -101,7 +101,7 @@ class Entry(Base):
     def type(self):
         return 'entrylist'
 
-    def has_changed(self, entrylist):
+    def modified(self, entrylist):
         # detect changes in prev and next
         hv = hash(*entrylist, attr=lambda e: e.permalink)
 

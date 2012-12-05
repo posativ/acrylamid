@@ -160,7 +160,7 @@ class Reader(object):
         return
 
     @abc.abstractproperty
-    def has_changed(self):
+    def modified(self):
         return
 
     @abc.abstractproperty
@@ -428,7 +428,7 @@ class ContentMixin(object):
                     for f in fxs:
                         res = f.transform(res, self, *f.args)
                     pv = cache.set(path, key, res)
-                    self.has_changed = True
+                    self.modified = True
                 else:
                     pv = rv
             except (IndexError, AttributeError):
@@ -438,7 +438,7 @@ class ContentMixin(object):
         return pv
 
     @property
-    def has_changed(self):
+    def modified(self):
         """Check wether the entry has changed using the following conditions:
 
         - cache file does not exist -> has changed
@@ -449,7 +449,7 @@ class ContentMixin(object):
         # with new-style classes we can't delete/overwrite @property-ied methods,
         # so we try to return a fixed value otherwise continue
         try:
-            return self._has_changed
+            return self._modified
         except AttributeError:
             pass
 
@@ -466,9 +466,9 @@ class ContentMixin(object):
         else:
             return self.lastmodified > cache.getmtime(path)
 
-    @has_changed.setter
-    def has_changed(self, value):
-        self._has_changed = value
+    @modified.setter
+    def modified(self, value):
+        self._modified = value
 
 
 class Entry(ContentMixin, MetadataMixin, FileReader):

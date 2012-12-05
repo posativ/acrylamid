@@ -59,11 +59,11 @@ class Sitemap(View):
             self.files.add(path)
 
         def changed(path, *args, **kw):
-            if not self.has_changed:
-                self.has_changed = True
+            if not self.modified:
+                self.modified = True
 
         self.files = set([])
-        self.has_changed = False
+        self.modified = False
 
         # track output files
         event.register(track, to=['create', 'update', 'skip', 'identical'])
@@ -113,7 +113,7 @@ class Sitemap(View):
         path = joinurl(self.conf['output_dir'], self.path)
         sm = Map()
 
-        if exists(path) and not self.has_changed:
+        if exists(path) and not self.modified:
             event.skip(path)
             raise StopIteration
 

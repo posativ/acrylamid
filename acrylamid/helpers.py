@@ -216,16 +216,16 @@ def paginate(lst, ipp, func=lambda x: x, salt=None, orphans=0):
 
         if rv == hv:
             # check if an Entry-instance has changed
-            if any(filter(lambda e: e.has_changed, entries)):
-                has_changed = True
+            if any(filter(lambda e: e.modified, entries)):
+                modified = True
             else:
-                has_changed = False
+                modified = False
         else:
             # save new value for next run
             cache.memoize(hkey, hv)
-            has_changed = True
+            modified = True
 
-        yield (next, curr, prev), entries, has_changed
+        yield (next, curr, prev), entries, modified
 
 
 def safe(string):

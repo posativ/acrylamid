@@ -50,13 +50,13 @@ class Articles(View):
         rv = memoize('articles-hash')
 
         if rv == hv:
-            has_changed = False
+            modified = False
         else:
             # save new value for next run
             memoize('articles-hash', hv)
-            has_changed = True
+            modified = True
 
-        if exists(path) and not has_changed and not tt.has_changed:
+        if exists(path) and not modified and not tt.modified:
             event.skip(path)
             raise StopIteration
 

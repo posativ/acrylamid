@@ -125,12 +125,12 @@ class View(object):
     :func:`acrylamid.helpers.mkfile` that handles directory creation and
     event handling. Note, that a view must implement a *skip*-mechanism
     by itself. If you :func:`acrylamid.helpers.paginate` you get a
-    ``has_changed`` for the current list of entries and you only need
+    ``modified`` for the current list of entries and you only need
     to check wether the template has changed::
 
         from os.path import join
 
-        if exists(path) and not has_changed and not tt.has_changed:
+        if exists(path) and not modified and not tt.modified:
             event.skip(path)
             continue
 
@@ -192,7 +192,7 @@ class View(object):
        Load a template from ``env.engine`` and check wether it has changed::
 
            >>> tt = self.env.engine.fromfile('articles.html')
-           >>> print tt.has_changed
+           >>> print tt.modified
            True
 
        If you skip over an entry make sure you :func:`acrylamid.helpers.event.skip` it,

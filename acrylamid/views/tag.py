@@ -121,7 +121,7 @@ class Tag(View):
             paginator = paginate(entrylist, ipp, salt=tag, orphans=self.conf['default_orphans'])
             route = expand(self.path, {'name': tag}).rstrip('/')
 
-            for (next, curr, prev), entries, has_changed in paginator:
+            for (next, curr, prev), entries, modified in paginator:
 
                 # e.g.: curr = /page/3, next = /page/2, prev = /page/4
 
@@ -137,7 +137,7 @@ class Tag(View):
 
                 path = joinurl(self.conf['output_dir'], curr, 'index.html')
 
-                if exists(path) and not has_changed and not tt.has_changed:
+                if exists(path) and not modified and not tt.modified:
                     event.skip(path)
                     continue
 

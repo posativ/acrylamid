@@ -68,7 +68,7 @@ class Helpers(attest.TestBase):
     def paginate(self):
 
         X = type('X', (str, ), {
-            'has_changed': True, 'hash': property(lambda x: str(hash(x)))
+            'modified': True, 'hash': property(lambda x: str(hash(x)))
         })
 
         res = ['1', 'asd', 'asd123', 'egg', 'spam', 'ham', '3.14', '42']

@@ -49,7 +49,7 @@ class AbstractTemplate(object):
         return
 
     @abc.abstractproperty
-    def has_changed(self):
+    def modified(self):
         """Return ``True`` when the template has changed but make sure this value
         does not change over the whole compilation process. Return ``False`` if the
         template has not changed, cache this too!"""

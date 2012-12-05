@@ -37,12 +37,12 @@ class Feed(View):
         hv = hash(*entrylist, attr=lambda e: e.permalink)
         if memoize(path) != hv:
             memoize(path, hv)
-            has_changed = True
+            modified = True
         else:
-            has_changed = False
+            modified = False
 
-        if (exists(path) and not filter(lambda e: e.has_changed, entrylist) and
-            not has_changed and not tt.has_changed):
+        if (exists(path) and not filter(lambda e: e.modified, entrylist) and
+            not modified and not tt.modified):
             event.skip(path)
             raise StopIteration
 
