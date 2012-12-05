@@ -10,9 +10,7 @@ import os
 import io
 import re
 import imp
-import zlib
 import shutil
-import hashlib
 import subprocess
 
 from __builtin__ import hash as pyhash
@@ -251,7 +249,7 @@ def safe(string):
     return string
 
 
-def link(title, href=None, entry=None):
+def link(title, href=None):
     """Return a link struct, that contains title and optionally href. If only
     title is given, we use title as href too.  It provides a __unicode__ to
     be compatible with older templates (≤ 0.3.4).

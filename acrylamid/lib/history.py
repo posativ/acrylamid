@@ -8,7 +8,6 @@
 
 import io
 import re
-import textwrap
 
 from os.path import join, dirname
 

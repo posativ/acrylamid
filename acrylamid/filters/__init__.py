@@ -194,9 +194,9 @@ class Filter(object):
     __metaclass__ = meta
 
     initialized = False
-    version = "1.0.0"
-    priority = 50.0
     conflicts = []
+    priority = 50.0
+    version = 1
 
     def __init__(self, conf, env, fname, *args):
 

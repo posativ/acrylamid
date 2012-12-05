@@ -294,8 +294,8 @@ class cache(object):
     @classmethod
     @track
     def has_key(self, path, key):
-        """Check wether cache file has key and track them as used (that means
-        not abandoned)."""
+        """Check whether cache objects exists at all and test for a given
+        intermediate. Mark it as "used" afterwards."""
         return key in self.objects[path]
 
     @classmethod

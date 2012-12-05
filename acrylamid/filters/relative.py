@@ -3,6 +3,7 @@
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
+from acrylamid import log
 from acrylamid.filters import Filter
 from acrylamid.helpers import joinurl
 from acrylamid.lib.html import HTMLParser, HTMLParseError
