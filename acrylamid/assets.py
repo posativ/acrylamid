@@ -6,12 +6,13 @@
 import os
 import io
 import time
+import shutil
 
-from tempfile import mkstemp
+from tempfile import mkstemp, mkdtemp
 from itertools import chain
 from os.path import join, relpath, isfile, getmtime, splitext
 
-from acrylamid import core, helpers, log
+from acrylamid import core, helpers, log, utils
 from acrylamid.errors import AcrylamidException
 from acrylamid.helpers import mkfile, event
 from acrylamid.readers import filelist
@@ -20,28 +21,33 @@ __writers = None
 __defaultwriter = None
 
 
-class DefaultWriter(object):
-
-    enabled = True
+class Writer(object):
+    """A 'open-file-and-write-to-dest' writer.  Only operates if the source
+    file has been modified or the destination does not exists."""
 
     def __init__(self, conf, env):
-
         self.conf = conf
         self.env = env
 
+    def modified(self, src, dest):
+        return not isfile(dest) and getmtime(src) > getmtime(dest)
+
+    def generate(self, src, dest):
+        with io.open(src, 'rb') as fp:
+            return fp
+
     def write(self, src, dest, force=False, dryrun=False):
-
-        if not self.enabled:
-            return
-
-        if not force and isfile(dest) and getmtime(dest) > getmtime(src):
+        if not force and not self.modified(src, dest):
             return event.skip(dest)
 
-        with io.open(src, 'rb') as fp:
-            mkfile(fp, dest, force=force, dryrun=dryrun)
+        mkfile(generate(src, dest), dest, force=force, dryrun=dryrun)
+
+    def clean(self):
+        pass
 
 
-class HTMLWriter(DefaultWriter):
+class HTMLWriter(Writer):
+    """Copy HTML files to output if not in theme directory."""
 
     ext = '.html'
 
@@ -50,7 +56,7 @@ class HTMLWriter(DefaultWriter):
         if src.startswith(self.conf['theme'].rstrip('/') + '/'):
             return
 
-        return DefaultWriter.write(self, src, dest, **kw)
+        return super(HTMLWriter, self).write(src, dest, **kw)
 
 
 class XMLWriter(HTMLWriter):
@@ -58,7 +64,32 @@ class XMLWriter(HTMLWriter):
     ext = '.xml'
 
 
-class System(DefaultWriter):
+class Jinja2Writer(HTMLWriter):
+    """Transform HTML files using the Jinja2 markup language. You can inherit
+    from all theme files in the theme directory."""
+
+    ext = '.html'
+
+    def __init__(self, conf, env):
+        super(Jinja2Writer, self).__init__(conf, env)
+
+        self.path = mkdtemp(core.cache.cache_dir)
+        self.jinja2 = utils.import_object('acrylamid.templates.jinja2.Environment')()
+        self.jinja2.init([conf['theme'], ] + conf['static'], self.path)
+
+    def generate(self, src, dest):
+
+        for directory in self.conf['static']:
+            if src.startswith(directory.rstrip('/') + '/'):
+                src = src[len(directory.rstrip('/') + '/'):]
+
+        return self.jinja2.fromfile(src).render(env=self.env, conf=self.conf)
+
+    def clean(self):
+        shutil.rmtree(self.path)
+
+
+class System(Writer):
 
     def write(self, src, dest, force=False, dryrun=False):
 
@@ -84,6 +115,8 @@ class System(DefaultWriter):
 
             with io.open(path, 'rb') as fp:
                 mkfile(fp, dest, ctime=time.time()-tt, force=force, dryrun=dryrun)
+        finally:
+            os.unlink(path)
 
 
 class SASSWriter(System):
@@ -111,17 +144,18 @@ def initialize(conf, env):
 
     global __writers, __defaultwriter
     __writers = {}
-    __defaultwriter = DefaultWriter(conf, env)
+    __defaultwriter = Writer(conf, env)
 
 
 def compile(conf, env):
-    """Copy or compile assets to output directory.  If an asset is used as template, it
-    won't be copied to the output directory."""
+    """Copy/Compile assets to output directory.  All assets from the theme
+    directory (except for templates) and static directories can be compiled or
+    just copied using several built-in writers."""
 
     global __writers, __default
 
     ext_map = dict((cls.ext, cls) for cls in (
-        SASSWriter, SCSSWriter, LESSWriter, HTMLWriter, XMLWriter
+        globals()[writer] for writer in conf.static_filter
     ))
 
     other = [(prefix, filelist(prefix, conf['static_ignore'])) for prefix in conf['static']]
@@ -142,3 +176,6 @@ def compile(conf, env):
         src, dest = join(directory, path), join(conf['output_dir'], path)
         writer = __writers.get(ext, __defaultwriter)
         writer.write(src, dest, force=env.options.force, dryrun=env.options.dryrun)
+
+    for writer in __writers.values():
+        writer.clean()
