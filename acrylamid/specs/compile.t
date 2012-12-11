@@ -75,8 +75,8 @@ Lets try if we have really incremental rendering:
   create  [?.??s] output/2012/spam/index.html (glob)
   update  [0.??s] output/2012/die-verwandlung/index.html (glob)
   update  [?.??s] output/index.html (glob)
-  skip  output/tag/die-verwandlung/index.html
-  skip  output/tag/franz-kafka/index.html
+  identical  output/tag/die-verwandlung/index.html
+  identical  output/tag/franz-kafka/index.html
   update  [?.??s] output/atom/index.html (glob)
   update  [?.??s] output/rss/index.html (glob)
   update  [0.??s] output/sitemap.xml (glob)
