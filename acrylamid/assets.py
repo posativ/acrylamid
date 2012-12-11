@@ -46,7 +46,7 @@ class Writer(object):
         pass
 
 
-class HTMLWriter(Writer):
+class HTML(Writer):
     """Copy HTML files to output if not in theme directory."""
 
     ext = '.html'
@@ -56,22 +56,22 @@ class HTMLWriter(Writer):
         if src.startswith(self.conf['theme'].rstrip('/') + '/'):
             return
 
-        return super(HTMLWriter, self).write(src, dest, **kw)
+        return super(HTML, self).write(src, dest, **kw)
 
 
-class XMLWriter(HTMLWriter):
+class XML(HTML):
 
     ext = '.xml'
 
 
-class Jinja2Writer(HTMLWriter):
+class Jinja2(HTML):
     """Transform HTML files using the Jinja2 markup language. You can inherit
     from all theme files in the theme directory."""
 
     ext = '.html'
 
     def __init__(self, conf, env):
-        super(Jinja2Writer, self).__init__(conf, env)
+        super(Jinja2, self).__init__(conf, env)
 
         self.path = mkdtemp(core.cache.cache_dir)
         self.jinja2 = utils.import_object('acrylamid.templates.jinja2.Environment')()
@@ -119,19 +119,19 @@ class System(Writer):
             os.unlink(path)
 
 
-class SASSWriter(System):
+class SASS(System):
 
     ext, target = '.sass', '.css'
     cmd = ['sass', ]
 
 
-class SCSSWriter(System):
+class SCSS(System):
 
     ext, target = '.scss', '.css'
     cmd = ['sass', '--scss']
 
 
-class LESSWriter(System):
+class LESS(System):
 
     ext, target = '.less', '.css'
     cmd = ['lessc', ]

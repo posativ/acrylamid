@@ -37,5 +37,5 @@ conf = {
     },
 
     'engine': 'acrylamid.templates.jinja2.Environment',
-    'static_filter': ['HTMLWriter', 'XMLWriter', 'SASSWriter', 'SCSSWriter', 'LESSWriter']
+    'static_filter': ['HTML', 'XML']
 }

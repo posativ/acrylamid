@@ -21,6 +21,7 @@ licensed under BSD Style, 2 clauses.
    idea
    filters
    views
+   assets
    theming
    templating
    extending

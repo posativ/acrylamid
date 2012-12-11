@@ -84,7 +84,8 @@ Variable name (default value)                       Description
 `THEME_IGNORE` (|ignored|)                          Same as ``CONTENT_IGNORE`` but for ``THEME``.
 `STATIC` (*not set*)                                A directory or list of directories which contain
                                                     objects Acrylamid should copy to destination dir.
-`STATIC_IGNORE` (|ignored|)                         Same as ``CONTENT_IGNORE`` but for ``STATIC``,
+`STATIC_IGNORE` (|ignored|)                         Same as ``CONTENT_IGNORE`` but for ``STATIC``.
+`STATIC_FILTER` (``['HTML', 'XML']``)               See :doc:`assets` for details.
 `FILTERS_DIR` (*not set*)                           If you want add your own filters, create a directory,
                                                     put your filters into and add this directory to conf.
 `VIEWS_DIR` (*not set*)                             Like above but for custom views.
