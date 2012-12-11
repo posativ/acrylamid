@@ -312,6 +312,24 @@ Arguments     Maximum words in summarize (an Integer), defaults
 ============  ==================================================
 
 
+intro
+-----
+
+This filter is an alternative to the summarize filter mentioned above.
+With the latter it is harder to control what is shown in the entry
+listings; sometimes headings also appear in the summary if the first
+paragraph is short enough. This filter shows only up to N paragraphs.
+
+You can overwrite the amount of paragraphs shown in each entry using
+``intro.maxwords: 3`` in the metadata section.
+
+============  ==================================================
+Requires      <built-in>
+Arguments     Maximum paragraphs (an Integer), defaults
+              to ``intro+1``.
+============  ==================================================
+
+
 hyphenate
 ---------
 

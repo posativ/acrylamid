@@ -133,3 +133,14 @@ def summarize():
 
     for text, result in examples:
         assert summarize.transform(text, Entry(), '5') == result
+
+
+@tt.test
+def intro():
+
+    intro = get_filters()['intro'](conf, env, 'intro')
+    examples = [('Hello World', ''), ('<p>First</p>', '<p>First</p>'),
+                ('<p>First</p><p>Second</p>', '<p>First</p>')]
+
+    for text, result in examples:
+        assert intro.transform(text, Entry(), '1') == result
