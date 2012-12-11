@@ -3,11 +3,13 @@
 # Copyright 2012 posativ <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
-from os.path import exists
+from os.path import isfile
 from datetime import datetime, timedelta
+from itertools import ifilter
 
+from acrylamid.utils import HashableList
 from acrylamid.views import View, tag
-from acrylamid.helpers import joinurl, event, expand, union, hash, memoize
+from acrylamid.helpers import joinurl, event, expand, union
 
 
 def utc(dt, fmt='%Y-%m-%dT%H:%M:%SZ'):
@@ -20,65 +22,56 @@ class Feed(View):
 
     priority = 25.0
 
-    def context(self, env, request):
+    def context(self, conf, env, data):
         env.engine.register('utc', utc)
         return env
 
-    def generate(self, request):
-        entrylist = request['entrylist']
+    def generate(self, conf, env, data):
+        entrylist = data['entrylist']
         entrylist = list(entrylist)[0:self.num_entries]
-        tt = self.env.engine.fromfile('%s.xml' % self.type)
+        tt = env.engine.fromfile('%s.xml' % self.type)
 
-        path = joinurl(self.conf['output_dir'], self.path)
+        path = joinurl(conf['output_dir'], self.path)
         if not path.endswith(('.xml', '.html')):
             path = joinurl(path, 'index.html')
 
-        # detect removed entries
-        hv = hash(*entrylist, attr=lambda e: e.permalink)
-        if memoize(path) != hv:
-            memoize(path, hv)
-            modified = True
-        else:
-            modified = False
-
-        if (exists(path) and not filter(lambda e: e.modified, entrylist) and
-            not modified and not tt.modified):
+        modified = any(entry.modified for entry in entrylist)
+        if (isfile(path) and not (env.modified or tt.modified or modified)):
             event.skip(path)
             raise StopIteration
 
         updated = entrylist[0].date if entrylist else datetime.utcnow()
-        html = tt.render(conf=self.conf, env=union(self.env, route=self.path,
+        html = tt.render(conf=conf, env=union(env, route=self.path,
                          updated=updated, entrylist=entrylist))
-
         yield html, path
 
 
 class FeedPerTag(tag.Tag, Feed):
 
-    def context(self, env, request):
-        self.populate_tags(request)
+    def context(self, conf, env, data):
+        self.populate_tags(data)
 
         return env
 
-    def generate(self, request):
+    def generate(self, data):
 
-        entrylist = [entry for entry in request['entrylist']
+        entrylist = [entry for entry in data['entrylist']
                      if not entry.draft]
 
         self.original_path = self.path
         for tag in self.tags:
 
-            entrylist = [entry for entry in self.tags[tag]]
-            new_request = request
-            new_request['entrylist'] = entrylist
+            entrylist = HashableList(entry for entry in self.tags[tag])
+            new_data = data
+            new_data['entrylist'] = entrylist
             self.path = expand(self.original_path, {'name': tag})
-            for html, path in Feed.generate(self, new_request):
+            for html, path in Feed.generate(self, new_data):
                 yield html, path
 
 
 class Atom(Feed):
 
-    def init(self, num_entries=25):
+    def init(self, conf, env, num_entries=25):
         self.num_entries = num_entries
         self.type = 'atom'
         self.filters.append('absolute')
@@ -86,13 +79,13 @@ class Atom(Feed):
 
 class RSS(Feed):
 
-    def init(self, num_entries=25):
+    def init(self, conf, env, num_entries=25):
 
         from wsgiref.handlers import format_date_time
         from time import mktime
 
         self.num_entries = num_entries
-        self.env.engine.register(
+        env.engine.register(
             'rfc822', lambda x: unicode(format_date_time(mktime(x.timetuple()))))
         self.type = 'rss'
         self.filters.append('absolute')
@@ -100,7 +93,7 @@ class RSS(Feed):
 
 class AtomPerTag(FeedPerTag):
 
-    def init(self, num_entries=25):
+    def init(self, conf, env, num_entries=25):
         self.filters.append('absolute')
         self.num_entries = num_entries
         self.type = 'atom'
@@ -108,13 +101,13 @@ class AtomPerTag(FeedPerTag):
 
 class RssPerTag(FeedPerTag):
 
-    def init(self, num_entries=25):
+    def init(self, conf, env, num_entries=25):
 
         from wsgiref.handlers import format_date_time
         from time import mktime
 
         self.filters.append('absolute')
         self.num_entries = num_entries
-        self.env.engine.register(
+        env.engine.register(
             'rfc822', lambda x: format_date_time(mktime(x.timetuple())))
         self.type = 'rss'

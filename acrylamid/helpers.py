@@ -11,18 +11,19 @@ import io
 import re
 import imp
 import shutil
+import itertools
 import subprocess
 
-from __builtin__ import hash as pyhash
 from unicodedata import normalize
 from collections import defaultdict
-from os.path import join, dirname, basename, isdir, isfile, commonprefix
+from os.path import join, dirname, isdir, isfile, commonprefix
 
 from acrylamid import log, PY3, __file__ as PATH
 from acrylamid.errors import AcrylamidException
 
 from acrylamid.core import cache
-from acrylamid.utils import batch
+from acrylamid.refs import modified, references
+from acrylamid.utils import batch, hash
 
 try:
     import translitcodec
@@ -52,14 +53,12 @@ def memoize(key, value=None):
 
 def union(*args, **kwargs):
     """Takes a list of dictionaries and performs union of each.  Can take additional
-    key=values as parameters to overwrite or add key/value-pairs."""
+    key=values as parameters to overwrite or add key/value-pairs. No side-effects,"""
 
-    d = args[0]
-    for dikt in args[1:]:
-        d.update(dikt)
+    new = {}
+    map(new.update, itertools.chain(args, [kwargs]))
 
-    d.update(kwargs)
-    return d
+    return new
 
 
 def identical(obj, other, bs=4096):
@@ -106,14 +105,6 @@ def mkfile(fileobj, path, ctime=0.0, force=False, dryrun=False, **kw):
                 with io.open(path, 'w' + mode) as fp:
                     fp.write(fileobj.read())
         event.create(path=path, ctime=ctime)
-
-
-def hash(*objs, **kw):
-
-    xor = lambda x,y: (x & 0xffffffff)^(y & 0xffffffff)
-    attr = kw.get('attr', lambda o: o)
-
-    return reduce(xor, map(lambda o: pyhash(attr(o)), objs))
 
 
 def expand(url, obj):
@@ -201,29 +192,7 @@ def paginate(lst, ipp, func=lambda x: x, salt=None, orphans=0):
         curr = i
         prev = None if i >= j else i+1
 
-        # get caller, so we can set a unique and meaningful hash-key
-        frame = log.findCaller()
-        if salt is None:
-            hkey = '%s:%s-hash-%i' % (basename(frame[0]), frame[2], i)
-        else:
-            hkey = '%s:%s-hash-%s-%i' % (basename(frame[0]), frame[2], salt, i)
-
-        # calculating hash value and retrieve memoized value
-        hv = hash(*entries)
-        rv = cache.memoize(hkey)
-
-        if rv == hv:
-            # check if an Entry-instance has changed
-            if any(filter(lambda e: e.modified, entries)):
-                modified = True
-            else:
-                modified = False
-        else:
-            # save new value for next run
-            cache.memoize(hkey, hv)
-            modified = True
-
-        yield (next, curr, prev), entries, modified
+        yield (next, curr, prev), entries, any(filter(lambda e: e.modified, entries))
 
 
 def safe(string):

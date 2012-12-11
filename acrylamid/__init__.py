@@ -31,7 +31,7 @@ import signal
 
 from functools import partial
 
-from acrylamid import defaults, log, commands, colors, tasks
+from acrylamid import defaults, log, commands, colors, tasks, core
 from acrylamid.utils import find, execfile, Struct
 from acrylamid.errors import AcrylamidException
 
@@ -133,7 +133,7 @@ def Acryl():
     # initialize colored logger
     log.init('acrylamid', level=options.verbosity, colors=options.colors)
 
-    env = Struct({'author': __author__, 'url': __url__})
+    env = core.Environment({'author': __author__, 'url': __url__})
     env['options'] = options
     env['globals'] = Struct()
 

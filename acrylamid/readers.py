@@ -153,8 +153,9 @@ class Reader(object):
                 self.props.redirect(key, to)
 
         self.filters = self.props.get('filters', [])
+        self.hashvalue = hash(self.filename, self.title, self.date.ctime())
 
-    @abc.abstractproperty
+    @abc.abstractmethod
     def __hash__(self):
         return
 
@@ -256,7 +257,7 @@ class FileReader(Reader):
             return ''.join(f.readlines()[self.offset:]).strip()
 
     def __hash__(self):
-        return hash(self.filename, self.title, self.date.ctime())
+        return self.hashvalue
 
     @property
     def date(self):

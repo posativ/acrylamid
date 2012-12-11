@@ -6,6 +6,7 @@
 # Utilities that do not depend on any further Acrylamid object
 
 from __future__ import unicode_literals
+from __builtin__ import hash as pyhash
 
 import sys
 import os
@@ -13,6 +14,14 @@ import io
 import re
 import functools
 import itertools
+
+
+def hash(*objs, **kw):
+
+    xor = lambda x,y: (x & 0xffffffff)^(y & 0xffffffff)
+    attr = kw.get('attr', lambda o: o)
+
+    return reduce(xor, map(lambda o: pyhash(attr(o)), objs), 0)
 
 
 # Borrowed from werkzeug._internal
@@ -247,3 +256,12 @@ class Struct(dict):
             del self[name]
         except KeyError:
             raise AttributeError(name)
+
+    def __hash__(self):
+        return hash(*itertools.chain(self.keys(), self.values()))
+
+
+class HashableList(list):
+
+    def __hash__(self):
+        return hash(*self)

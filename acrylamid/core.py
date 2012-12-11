@@ -16,7 +16,7 @@ from os.path import join, exists, getmtime
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
-from acrylamid.utils import memoized, classproperty
+from acrylamid.utils import memoized, classproperty, cached_property, Struct, hash
 
 try:
     import cPickle as pickle
@@ -322,3 +322,19 @@ class cache(object):
                 filename = os.path.join(path, file)
                 res += os.path.getsize(filename)
         return res
+
+
+class Environment(Struct):
+
+    blacklist = {'engine', 'translationsfor', 'options'}
+
+    def keys(self):
+        return sorted(list(set(super(Environment, self).keys()) - self.blacklist))
+
+    def values(self):
+        for key in self.keys():
+            yield self[key]
+
+    @cached_property
+    def modified(self):
+        return hash(self) != cache.memoize('Environment')

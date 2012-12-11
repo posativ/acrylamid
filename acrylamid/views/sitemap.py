@@ -39,6 +39,16 @@ class Map(io.StringIO):
         self.write(u'</urlset>')
 
 
+def convert(www_root, link, replacements):
+    for pat, repl in replacements:
+        link = re.sub(pat, repl, link)
+
+    if link.endswith('/'):
+        link += 'index.html'
+
+    return re.compile('^' + joinurl(re.escape(www_root), link) + '$')
+
+
 class Sitemap(View):
     """Create an XML-Sitemap where permalinks have the highest priority (1.0) and do never
     change and all other ressources have a changefreq of weekly.
@@ -53,7 +63,7 @@ class Sitemap(View):
     priority = 0.0
     scores = {'page': (1.0, 'never'), 'entry': (1.0, 'never')}
 
-    def init(self):
+    def init(self, conf, env):
 
         def track(path, *args, **kw):
             self.files.add(path)
@@ -69,16 +79,7 @@ class Sitemap(View):
         event.register(track, to=['create', 'update', 'skip', 'identical'])
         event.register(changed, to=['create', 'update', 'identical'])
 
-    def convert(self, link, replacements):
-        for pat, repl in replacements:
-            link = re.sub(pat, repl, link)
-
-        if link.endswith('/'):
-            link += 'index.html'
-
-        return re.compile('^' + joinurl(re.escape(self.conf['www_root']), link) + '$')
-
-    def context(self, env, request):
+    def context(self, conf, env, data):
         """"Here we prepare the detection pattern and active views. For each view we convert
         ``view.path`` to a regular expression pattern using simple replacements."""
 
@@ -86,13 +87,13 @@ class Sitemap(View):
         replacements = [(':year', '\d+'), (':month', '\d+'), (':day', '\d+'),
                         (':num', '\d+'), (':[^/]+', '[^/]+')]
 
-        for view in self.env.views:
-            patterns[view].append(self.convert(view.path, replacements))
+        for view in env.views:
+            patterns[view].append(convert(conf['www_root'], view.path, replacements))
             if hasattr(view, 'pagination'):
-                patterns[view].append(self.convert(view.pagination, replacements))
+                patterns[view].append(convert(conf['www_root'], view.pagination, replacements))
 
         self.patterns = patterns
-        self.views = self.env.views[:]
+        self.views = env.views[:]
 
         # sort active views by frequency
         for key in 'entry', 'tag', 'index':
@@ -102,15 +103,15 @@ class Sitemap(View):
 
         return env
 
-    def generate(self, request):
+    def generate(self, conf, env, data):
         """In this step, we filter drafted entries (they should not be included into the
         Sitemap) and test each url pattern for success and write the corresponding
         changefreq and priority to the Sitemap."""
 
-        drafted = set([joinurl(self.conf['output_dir'], e.permalink, 'index.html')
-            for e in request.get('drafts', [])])
+        drafted = set([joinurl(conf['output_dir'], e.permalink, 'index.html')
+            for e in data.get('drafts', [])])
 
-        path = joinurl(self.conf['output_dir'], self.path)
+        path = joinurl(conf['output_dir'], self.path)
         sm = Map()
 
         if exists(path) and not self.modified:
@@ -121,7 +122,7 @@ class Sitemap(View):
             if fname in drafted:
                 continue
 
-            url = join(self.conf['www_root'], fname.replace(self.conf['output_dir'], ''))
+            url = join(conf['www_root'], fname.replace(conf['output_dir'], ''))
             for view in self.views:
 
                 if any(ifilter(lambda pat: pat.match(url), self.patterns[view])):

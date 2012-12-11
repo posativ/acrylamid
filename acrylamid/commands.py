@@ -19,9 +19,10 @@ from os.path import getmtime
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
-from acrylamid import readers, filters, views, assets, refs, utils, helpers, __version__
+from acrylamid import readers, filters, views, assets, refs, helpers, __version__
 from acrylamid.lib import lazy, history
 from acrylamid.core import cache
+from acrylamid.utils import hash, istext, HashableList, import_object
 from acrylamid.helpers import event
 
 
@@ -48,7 +49,7 @@ def initialize(conf, env):
     assets.initialize(conf, env)
 
     # set up templating environment
-    env.engine = utils.import_object(conf['engine'])()
+    env.engine = import_object(conf['engine'])()
 
     env.engine.init(conf['theme'], cache.cache_dir)
     env.engine.register('safeslug', helpers.safeslug)
@@ -139,7 +140,7 @@ def compile(conf, env, force=False, **options):
 
     # load pages/entries and store them in env
     rv = dict(zip(['entrylist', 'pages', 'translations', 'drafts'],
-        readers.load(conf)))
+        map(HashableList, readers.load(conf))))
 
     entrylist, pages = rv['entrylist'], rv['pages']
     translations, drafts = rv['translations'], rv['drafts']
@@ -201,7 +202,7 @@ def compile(conf, env, force=False, **options):
 
     # lets offer a last break to populate tags and such
     for v in _views:
-        env = v.context(env, data)
+        env = v.context(conf, env, data)
 
     # now teh real thing!
     for v in _views:
@@ -210,17 +211,19 @@ def compile(conf, env, force=False, **options):
             entry.context = v
 
         for var in 'entrylist', 'pages', 'translations', 'drafts':
-            data[var] = filter(v.condition, locals()[var]) if v.condition else locals()[var]
+            data[var] = HashableList(filter(v.condition, locals()[var])) \
+                if v.condition else locals()[var]
 
         tt = time.time()
-        for buf, path in v.generate(data):
+        for buf, path in v.generate(conf, env, data):
             helpers.mkfile(buf, path, time.time()-tt, **options)
             tt = time.time()
 
     # copy modified/missing assets to output
     assets.compile(conf, env)
 
-    # save new/changed/unchanged references
+    # save environment hash and new/changed/unchanged references
+    helpers.memoize('Environment', hash(env))
     refs.save()
 
     # remove abandoned cache files
@@ -244,7 +247,7 @@ def autocompile(ws, conf, env, **options):
         ws.wait = True
         ntime = max(
             max(getmtime(e) for e in readers.filelist(
-                conf['content_dir'], conf.get('content_ignore', [])) if utils.istext(e)),
+                conf['content_dir'], conf.get('content_ignore', [])) if istext(e)),
             max(getmtime(p) for p in readers.filelist(
                 conf['theme'], conf.get('theme_ignore', []))))
         if mtime != ntime:

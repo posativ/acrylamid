@@ -7,7 +7,8 @@ from functools import partial
 from itertools import imap, chain
 from collections import defaultdict
 
-from acrylamid.helpers import memoize, hash
+from acrylamid.core import cache
+from acrylamid.utils import hash
 
 __orig_refs = None
 __seen_refs = None
@@ -18,13 +19,13 @@ def load(*entries):
     global __orig_refs, __seen_refs, __entry_map
 
     __seen_refs = defaultdict(set)
-    __orig_refs = memoize('references') or defaultdict(set)
+    __orig_refs = cache.memoize('references') or defaultdict(set)
     __entry_map = dict((hash(entry), entry) for entry in chain(*entries))
 
 
 def save():
     global __seen_refs
-    memoize('references', __seen_refs)
+    cache.memoize('references', __seen_refs)
 
 
 def modified(key, refs):

@@ -4,7 +4,7 @@
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
 from acrylamid.views import View
-from acrylamid.helpers import union, joinurl, event, hash, memoize
+from acrylamid.helpers import union, joinurl, event
 
 from os.path import exists
 
@@ -36,27 +36,17 @@ class Articles(View):
 
     priority = 80.0
 
-    def init(self, template='articles.html'):
+    def init(self, conf, env, template='articles.html'):
         self.template = template
 
-    def generate(self, request):
+    def generate(self, conf, env, data):
 
-        entrylist = request['entrylist']
+        entrylist = data['entrylist']
 
-        tt = self.env.engine.fromfile(self.template)
-        path = joinurl(self.conf['output_dir'], self.path, 'index.html')
+        tt = env.engine.fromfile(self.template)
+        path = joinurl(conf['output_dir'], self.path, 'index.html')
 
-        hv = hash(*entrylist)
-        rv = memoize('articles-hash')
-
-        if rv == hv:
-            modified = False
-        else:
-            # save new value for next run
-            memoize('articles-hash', hv)
-            modified = True
-
-        if exists(path) and not modified and not tt.modified:
+        if exists(path) and not env.modified and not tt.modified:
             event.skip(path)
             raise StopIteration
 
@@ -64,8 +54,6 @@ class Articles(View):
         for entry in entrylist:
             articles.setdefault((entry.year, entry.imonth), []).append(entry)
 
-        route = self.path
-        html = tt.render(conf=self.conf, articles=articles,
-                         env=union(self.env, num_entries=len(entrylist), route=route))
-
+        html = tt.render(conf=conf, articles=articles, env=union(env,
+                         num_entries=len(entrylist), route=self.path))
         yield html, path

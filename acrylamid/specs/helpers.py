@@ -2,7 +2,7 @@
 
 import attest
 
-from acrylamid import helpers
+from acrylamid import helpers, refs
 from acrylamid import AcrylamidException
 
 
@@ -67,9 +67,7 @@ class Helpers(attest.TestBase):
     @attest.test
     def paginate(self):
 
-        X = type('X', (str, ), {
-            'modified': True, 'hash': property(lambda x: str(hash(x)))
-        })
+        X = type('X', (str, ), {'modified': True}); refs.load()
 
         res = ['1', 'asd', 'asd123', 'egg', 'spam', 'ham', '3.14', '42']
         res = [X(val) for val in res]

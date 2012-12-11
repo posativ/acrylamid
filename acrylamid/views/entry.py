@@ -13,7 +13,7 @@ from acrylamid import refs
 from acrylamid.refs import modified, references
 from acrylamid.views import View
 from acrylamid.errors import AcrylamidException
-from acrylamid.helpers import expand, union, joinurl, event, link, memoize, hash
+from acrylamid.helpers import expand, union, joinurl, event, link
 
 
 class Base(View):
@@ -26,7 +26,7 @@ class Base(View):
     def type(self):
         return None
 
-    def init(self, template='main.html'):
+    def init(self, conf, env, template='main.html'):
         self.template = template
 
     def next(self, entrylist, i):
@@ -35,17 +35,18 @@ class Base(View):
     def prev(self, entrylist, i):
         return None
 
-    def generate(self, data):
+    def generate(self, conf, env, data):
 
-        tt = self.env.engine.fromfile(self.template)
+        tt = env.engine.fromfile(self.template)
         pathes, entrylist = set(), data[self.type]
+        unmodified = not tt.modified and not env.modified
 
         for i, entry in enumerate(entrylist):
 
             if entry.hasproperty('permalink'):
-                path = joinurl(self.conf['output_dir'], entry.permalink)
+                path = joinurl(conf['output_dir'], entry.permalink)
             else:
-                path = joinurl(self.conf['output_dir'], expand(self.path, entry))
+                path = joinurl(conf['output_dir'], expand(self.path, entry))
 
             if path.endswith('/'):
                 path = joinurl(path, 'index.html')
@@ -61,12 +62,12 @@ class Base(View):
             pathes.add(path)
             next, prev = self.next(entrylist, i), self.prev(entrylist, i)
 
-            if isfile(path) and not (tt.modified or entry.modified or modified(*references(entry))):
+            if isfile(path) and unmodified and not (entry.modified or modified(*references(entry))):
                 event.skip(path)
                 continue
 
             route = expand(self.path, entry)
-            html = tt.render(conf=self.conf, entry=entry, env=union(self.env,
+            html = tt.render(conf=conf, entry=entry, env=union(env,
                              entrylist=[entry], type=self.__class__.__name__.lower(),
                              prev=prev, next=next, route=route))
 
@@ -191,7 +192,7 @@ class Translation(Base):
     def type(self):
         return 'translations'
 
-    def context(self, env, data):
+    def context(self, conf, env, data):
 
         translations = defaultdict(list)
         for entry in data['entrylist'][:]:
@@ -199,7 +200,7 @@ class Translation(Base):
             if entry.hasproperty('identifier'):
                 translations[entry.identifier].append(entry)
 
-                if entry.lang != self.conf.lang:
+                if entry.lang != conf.lang:
                     entry.props['entry_permalink'] = self.path
 
                     # remove from original entrylist

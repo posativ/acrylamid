@@ -6,7 +6,7 @@
 import os
 from functools import partial
 
-from acrylamid import helpers
+from acrylamid import helpers, utils
 from acrylamid.errors import AcrylamidException
 
 # module-wide callbacks variable contaning views, reset this on initialize!
@@ -62,8 +62,8 @@ def index_views(conf, env, urlmap, module):
             kwargs['path'] = rule
             kwargs['condition'] = kwargs.pop('if', None)
 
-            m = mem(conf, env, **kwargs)
-            m.init(**m._getkwargs())
+            m = mem(**kwargs)
+            m.init(conf, env, **m._getkwargs())
 
             __views_list.append(m)
             urlmap.remove((rule, view))
@@ -88,7 +88,7 @@ def initialize(directories, conf, env):
     helpers.discover(directories, partial(index_views, conf, env, urlmap))
 
 
-class Views(list):
+class Views(utils.HashableList):
     """A compatibility layer for the view storage. It is actually a list
     but supports ``__getitem__`` for retrieval."""
 
@@ -140,14 +140,6 @@ class View(object):
 
     A valid view only requires a :func:`generate` method.
 
-    .. attribute:: conf
-
-       Acrylamid configuration.
-
-    .. attribute:: env
-
-       Acrylamid environment.
-
     .. attribute:: priority
 
        From 0.0 to 100.0, by default 50.0. Useful if you want to run a view
@@ -167,7 +159,7 @@ class View(object):
 
        The key to which you assign a configuration dict.
 
-    .. method:: init(self, **kwargs)
+    .. method:: init(self, conf, env, **kwargs)
 
        Initializing the view with configuration parameters. You can also load
        jinja/other templates here.
@@ -182,7 +174,7 @@ class View(object):
        :param env: environment object
        :param request: reqest dictionary
 
-    .. method:: generate(self, request)
+    .. method:: generate(self, conf, env, data)
 
        Render template and yield final output with full qualified path. If you don't
        generate output, raise :class:`StopIteration`. Make use of :mod:`acrylamid.helpers`
@@ -202,7 +194,7 @@ class View(object):
 
     priority = 50.0
 
-    def __init__(self, conf, env, **kwargs):
+    def __init__(self, **kwargs):
 
         self.condition = kwargs.get('condition', None)
         self.name = kwargs.get('name', 'View')
@@ -212,9 +204,6 @@ class View(object):
         # single string --> [string, ]
         if isinstance(self.filters, basestring):
             self.filters = [self.filters, ]
-
-        self.conf = conf
-        self.env = env
 
         for k in ('condition', 'name', 'path', 'filters'):
             kwargs.pop(k, None)
@@ -227,13 +216,13 @@ class View(object):
         return self.name == other
 
     def __hash__(self):
-        return object.__hash__(self)
+        return helpers.hash(self.name, self.path)
 
     def init(self, **kwargs):
         pass
 
-    def context(self, env, request):
+    def context(self, conf, env, request):
         return env
 
-    def generate(self, request):
+    def generate(self, conf, env, request):
         raise AcrylamidException('%s.generate not implemented' % self.__class__.__name__)
