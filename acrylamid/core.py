@@ -326,7 +326,7 @@ class cache(object):
 
 class Environment(Struct):
 
-    blacklist = {'engine', 'translationsfor', 'options'}
+    blacklist = set(['engine', 'translationsfor', 'options'])
 
     def keys(self):
         return sorted(list(set(super(Environment, self).keys()) - self.blacklist))
