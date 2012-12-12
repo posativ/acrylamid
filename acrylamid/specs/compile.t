@@ -139,7 +139,7 @@ And now vice versa: we touch completely different templates:
   identical  output/rss/index.html
   identical  output/sitemap.xml
   skip  output/style.css
-  0 new, 0 updated, 10 skipped [0.??s] (glob)
+  0 new, 0 updated, 10 skipped [?.??s] (glob)
 
 Now we change the base template and should see some updates:
 
