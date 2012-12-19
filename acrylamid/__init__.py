@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 #
-# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
+# Copyright 2012 Martin Zimmermann <info@posativ.org>. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -14,10 +14,10 @@
 #
 # The views and conclusions contained in the software and documentation are
 # those of the authors and should not be interpreted as representing official
-# policies, either expressed or implied, of posativ <info@posativ.org>.
+# policies, either expressed or implied, of Martin Zimmermann <info@posativ.org>.
 
 __version__ = '0.5.0'
-__author__ = 'posativ <info@posativ.org>'
+__author__ = 'Martin Zimmermann <info@posativ.org>'
 __url__ = 'https://github.com/posativ/acrylamid/'
 
 import sys

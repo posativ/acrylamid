@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 #
 # Copyright 2012 sebix <szebi@gmx.at>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid/__init__.py
+# License: BSD Style, 2 clauses -- see LICENSE.
 # Idea by http://nitens.org/taraborelli/texlogo
 
 from acrylamid.filters import Filter

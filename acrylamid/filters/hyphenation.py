@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 #
-# License: BSD Style, 2 clauses. see acrylamid/__init__.py
+# License: BSD Style, 2 clauses -- see LICENSE.
 
 from acrylamid.filters import Filter
 from acrylamid.filters import log

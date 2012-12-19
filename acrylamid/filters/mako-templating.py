@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 #
 # Copyright 2012 moschlar <mail@moritz-schlarb.de>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid/__init__.py
+# License: BSD Style, 2 clauses -- see LICENSE.
 
 from acrylamid import log
 from acrylamid.filters import Filter
