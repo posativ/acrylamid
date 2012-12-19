@@ -12,7 +12,12 @@ from acrylamid import log
 from acrylamid.tasks import argument, task
 from acrylamid.errors import AcrylamidException
 
-arguments = [argument("task", nargs="?"), argument("args", nargs=argparse.REMAINDER)]
+arguments = [
+    argument("task", nargs="?"),
+    argument("args", nargs=argparse.REMAINDER),
+    argument("--list", dest="list", action="store_true", default=False,
+        help="list available tasks")
+]
 
 
 @task(['deploy', 'dp'], arguments, help="run task")
@@ -22,12 +27,12 @@ def run(conf, env, options):
     added to the execution environment. Every argument after ``acrylamid
     deploy task ARG1 ARG2`` is appended to cmd."""
 
-    if options.task is None:
+    if options.list:
         for task in conf.get('deployment', {}).keys():
             print >>sys.stdout, task
         sys.exit(0)
 
-    task, args = options.task, options.args
+    task, args = options.task or 'default', options.args
     cmd = conf.get('deployment', {}).get(task, None)
 
     if not cmd:
