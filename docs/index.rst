@@ -84,7 +84,7 @@ blogging features
   format of Markdown or reStructuredText.
 - support for translations (oh, and did I mention the language dependend
   hyphenation feature?)
-- a few HTML5/XHTML themes, see `Theming
+- a few HTML5 themes, see `Theming
   <http://posativ.org/acrylamid/theming.html>`_.
 - internal webserver with automatic compiling when something has changed.
 - assets management, including LESS_ and SASS_ conversion.
