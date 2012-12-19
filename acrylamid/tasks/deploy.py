@@ -37,10 +37,6 @@ def run(conf, env, options):
     # $> acrylamid deploy task arg1 -b --foo
     cmd += ' ' + ' '.join(args)
 
-    if '%s' in cmd:
-        log.warn("'%s' syntax is deprecated, use $OUTPUT_DIR variable.")
-        cmd = cmd.replace('%s', '$OUTPUT_DIR')
-
     env = os.environ
     env.update(dict([(k.upper(), v) for k, v in conf.items() if isinstance(v, basestring)]))
 
