@@ -1,3 +1,8 @@
+# -*- encoding: utf-8 -*-
+#
+# Copyright 2012 Mark van Lent <mark@vlent.nl>. All rights reserved.
+# License: BSD Style, 2 clauses.
+
 from acrylamid import log
 from acrylamid.filters import Filter
 from acrylamid.lib.html import HTMLParser, HTMLParseError
