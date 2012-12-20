@@ -1,8 +1,8 @@
 Knowledge base
 ==============
 
-Per-Tag Feed
-************
+A single per-tag Feed
+*********************
 
 A single feed pretty easy, just add this into your *conf.py*:
 
@@ -10,7 +10,8 @@ A single feed pretty easy, just add this into your *conf.py*:
 
     '/my/feed': {'view': 'feed', 'if': lambda e: 'whatever' in e.tags}
 
-To have a feed for all tags, we must use a little more python. TODO!
+To have a feed for each tag, use the newish Atom/RSS per tag view (a
+configuration is written in your ``conf.py``).
 
 Image Gallery
 *************
@@ -51,11 +52,11 @@ That will look similar to my blog article about `St. Petersburg <http://blog.pos
 Performance Tweaks
 ******************
 
-Markdown instead of reStructuredText as markup language might be faster.
-Another important factor is the typography-filter (disabled by default) which
-consumes about 40% of the whole compilation process. If you don't care about
-web typography, disable this feature gives you a huge performance boost when
-you compile your whole site.
+Markdown instead of reStructuredText as markup language might be faster. Using
+a native Markdown compiler such as Discount is even faster. Another important
+factor is the typography-filter (disabled by default) which consumes about 40%
+of the whole compilation process. If you don't care about web typography,
+disable this feature gives you a huge performance boost.
 
 A short list from slow filters (slowest to less slower):
 
@@ -65,8 +66,5 @@ A short list from slow filters (slowest to less slower):
 4. Hyphenation
 
 Though reStructuredText is not *that* slow, it takes about 300 ms just to
-initialize itself. But Typography as well as Acronyms and Hyphenation are
-limited by their underlying library, namely :class:`HTMLParser` and
-:class:`re`.
-
-.. _PCRE: http://www.pcre.org/
+initialize on import. Typography as well as Acronyms and Hyphenation are
+limited by their underlying library, namely :class:`HTMLParser` and :class:`re`.

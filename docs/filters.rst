@@ -11,20 +11,25 @@ by an offset.
 Usage
 *****
 
-There are three ways to add filters to your blog: global, per view and per
-entry. During compilation, all filters are chained, conflicting filters such as
-reST and Markdown at the same time are removed and then ordered by internal
-priorities [#]_. Each entry evaluates its own filter chain.
+There are three ways to apply filters: global_, per view_ and per entry_.
+During compilation, all filters will be chained, conflicting filters such as
+:abbr:`reST (reStructuredText)` and Markdown at the same time are removed and
+then ordered by internal priorities [#]_. Each entry evaluates its own filter
+chain.
 
 Acrylamid defines a filter as a simple object containing one or more
 identifiers [#]_ and also has a list of filters that would conflict with this
-filter. Below is a complete list of all shipped filters.
+filter. Below you can find a complete list of all built-in filters.
 
-global : [String, String, ...]
+.. _global:
+
+global : [HTML, Markdown, ...]
     If you prefer Markdown as markup language, you can set this as default
     filter like ``FILTERS = [Markdown, ]`` in your :doc:`conf.py <conf.py>`.
 
-view : String or [String, String, ...]
+.. _view:
+
+view : HTML or [Markdown, summarize, ...]
     Apply filters to specific views. For example you can provide a summarized
     feed.
 
@@ -32,7 +37,9 @@ view : String or [String, String, ...]
 
         '/rss/': {'view': 'rss', filters: 'summarize'}
 
-entry : String or [String, String, ...]
+.. _entry:
+
+entry : Jinja2 or [reST, ...]
     Switch between Markdown and reStructuredText? Use one of them as default
     filter but override it in the given article's metadata. For convenience
     both "filter" and "filters" can be used as key. An example YAML front
@@ -43,15 +50,22 @@ entry : String or [String, String, ...]
         filter: reST
         ---
 
-    Now if your default filter converts Markdown, this uses :abbr:`reST
-    (reStructuredText)`.
+    Now if your default filter converts Markdown, this article uses reST.
+
+.. [#] the evaluation order depends on an internal priority value for each
+   filter so we don't confuse our users or produce unexpected behavior.
+
+.. [#] an identifier is the name you use to enable this specific filter, most
+   filters have multiple aliases for the same filter, like "reStructuredText"
+   which you can also enable with "rst" or "reST".
+
 
 Additional Arguments
 --------------------
 
-Some filters may take additional arguments to activate builtin filters like
-Markdown's code-hilighting. Not every filter supports additional arguments,
-please refer to the actual filter documentation.
+Filters may take additional arguments to use extensions like Markdown's
+code-hilighting. Not every filter supports additional arguments, please
+refer to the actual filter documentation.
 
 **Examples**
 
@@ -84,13 +98,6 @@ syntax is the filter name (without any arguments) prefixed with "no":
 
     filters: nosummary
 
-.. [#] the evaluation order depends on the internal priority value of each
-   filter so we don't confuse our users or produce unexpected behavior.
-
-.. [#] an identifier is the name you use to enable this specific filter, most
-   filters have multiple aliases for the same filter, like "reStructuredText"
-   which you can also enable with "rst" or "reST".
-
 
 Built-in Filters
 ****************
@@ -112,10 +119,10 @@ A quick note to the following tables:
 Markdown
 --------
 
-Lets write you using Markdown which simplifies HTML generation and is a lot
-easier to write. The Markdown filter uses `the official implementation by John
-Gruber <http://freewisdom.org/projects/python-markdown/>`_ and all it's
-`available extensions`_. *Note* that pygments_ is required for codehilite_.
+Lets you write using Markdown which simplifies HTML generation and is a lot
+easier. The Markdown filter uses `the official implementation by John Gruber
+<http://freewisdom.org/projects/python-markdown/>`_ and all it's `available
+extensions`_. *Note* that pygments_ is required for codehilite_.
 
 Here's an online service converting Markdown to HTML and providing a handy
 cheat sheet: `Dingus <http://daringfireball.net/projects/markdown/dingus>`_.
@@ -157,7 +164,7 @@ and slightly more difficult to use. See their quickref_ for syntax details.
 
 Using a decent version of ``docutils`` (≥ 0.8) let you also write
 `inline math`_ with a subset of LaTeX math syntax, so there is no need of an
-additional extension like in Markdown. In addition to all standard builtin
+additional extension like in Markdown. In addition to all standard built-in
 directives, acrylamid offers three additional one:
 
 .. _quickref: http://docutils.sourceforge.net/docs/user/rst/quickref.html
@@ -321,7 +328,7 @@ listings; sometimes headings also appear in the summary if the first
 paragraph is short enough. This filter shows only up to N paragraphs.
 
 You can overwrite the amount of paragraphs shown in each entry using
-``intro.maxwords: 3`` in the metadata section.
+``intro.maxparagraphs: 3`` in the metadata section.
 
 ============  ==================================================
 Requires      <built-in>

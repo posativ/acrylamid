@@ -7,12 +7,11 @@ Not released – TBD
 
 ### What is new?
 
--
 - speed improvements (up to 15%) due new internal hash (Adler32 vs. MD5)
 - multiple views per rule! So, in theory you can map pages, posts, drafts
   and translations to ``/:slug/`` – **theoretically**!
-- #82 – updated Atom feed to include tags, icons and provide an unique id
-  for multiple destinations (Mark van Lent)
+- #82 – updated Atom feed to include tags, icon and provides a unique id for
+  multiple destinations (Mark van Lent)
 - improved WordPress import (pages and draft recognition)
 - integrated web server blocks browser requests during (auto) compilation
 - #78 – `acrylamid import` now uses RSS/Atom categories as tags
@@ -27,8 +26,8 @@ Not released – TBD
   enable drafts, replace `"view": "entry"` with `"views": ["entry", "draft"]`
   inside your `"/:year/:slug/"` view.
 - relative URIs in feeds are now absolute per default. URI fragments such as
-  ``#fn:1`` are relative in the index and tag view. To change this behavior,
-  add ``norelative`` and ``noabsolute`` to the affected views.
+  `#fn:1` are now distinct (relative to `WWW_ROOT`) in the index and tag view.
+  To change this behavior, add `norelative` and `noabsolute` to the affected views.
 
 ### What was fixed?
 

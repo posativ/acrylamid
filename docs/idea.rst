@@ -18,9 +18,9 @@ Fundamental Concepts
    layout. If the content changes, only this specific item must be re-compiled.
    If you modify your layout, all content is retrieved from cache.
 
-#. Lazy evaluation. Acrylamid is so lazy; it even delays the import of libraries.
-   If you write your current article in Markdown, why should it initialize
-   ``docutils`` that takes nearly half a second to import?
+#. Lazy evaluation. Acrylamid is that lazy; it even delays the import of
+   libraries. If you write your current article in Markdown, why should it
+   initialize ``docutils`` that takes nearly half a second to import?
 
 That is the idea behind. Now how it is actually implemented. Instead of rushing
 from beginning to the end, we do it reverse.
