@@ -24,16 +24,6 @@ def hash(*objs, **kw):
     return reduce(xor, map(lambda o: pyhash(attr(o)), objs), 0)
 
 
-# Borrowed from werkzeug._internal
-class _Missing(object):
-
-    def __repr__(self):
-        return 'no value'
-
-    def __reduce__(self):
-        return '_missing'
-
-
 class cached_property(object):
     """A property that is only computed once per instance and then replaces
     itself with an ordinary attribute. Deleting the attribute resets the
