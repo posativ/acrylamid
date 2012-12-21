@@ -181,7 +181,7 @@ def Acryl():
         try:
             while True:
                 time.sleep(1)
-        except (SystemExit, KeyboardInterrupt, Exception) as e:
+        except (SystemExit, KeyboardInterrupt) as e:
             ws.kill_received = True
             sys.exit(0)
 
@@ -193,7 +193,7 @@ def Acryl():
 
         try:
             commands.autocompile(ws, conf, env, **options.__dict__)
-        except (SystemExit, KeyboardInterrupt, Exception) as e:
+        except (SystemExit, KeyboardInterrupt) as e:
             ws.kill_received = True
             log.error(e.args[0])
             traceback.print_exc(file=sys.stdout)

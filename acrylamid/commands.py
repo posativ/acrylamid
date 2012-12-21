@@ -237,9 +237,10 @@ def autocompile(ws, conf, env, **options):
         if mtime != ntime:
             try:
                 compile(conf, env, **options)
-            except AcrylamidException as e:
+            except (SystemExit, KeyboardInterrupt) as e:
+                raise e
+            except Exception as e:
                 log.fatal(e.args[0])
-                pass
             event.reset()
             mtime = ntime
         ws.wait = False
