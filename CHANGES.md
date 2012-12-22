@@ -7,9 +7,10 @@ Not released – TBD
 
 ### What is new?
 
-- speed improvements (up to 15%) due new internal hash (Adler32 vs. MD5)
+- speed improvements (up to 25%) due new internal hash (Adler32 vs. MD5)
+  and more sophisticated and complete modification detection
 - multiple views per rule! So, in theory you can map pages, posts, drafts
-  and translations to ``/:slug/`` – **theoretically**!
+  and translations to ``/:slug/``.
 - #82 – updated Atom feed to include tags, icon and provides a unique id for
   multiple destinations (Mark van Lent)
 - improved WordPress import (pages and draft recognition)
@@ -17,6 +18,8 @@ Not released – TBD
 - #78 – `acrylamid import` now uses RSS/Atom categories as tags
 - #80 – new config variable `CONTENT_EXTENSION` to set the default filename
   extension when using `acrylamid new`, defaults to `.txt` (Günter Kolousek)
+- new asset writer: `Jinja2` for the `.html` extension
+- new filter: `intro` shows up to N paragraphs (`<p>...</p>`).
 
 ### What changes?
 
@@ -28,10 +31,17 @@ Not released – TBD
 - relative URIs in feeds are now absolute per default. URI fragments such as
   `#fn:1` are now distinct (relative to `WWW_ROOT`) in the index and tag view.
   To change this behavior, add `norelative` and `noabsolute` to the affected views.
+- SASS/SCSS and LESS conversion are no longer in Acrylamid's defaults (if
+  available), hence you have to include them via `STATIC_FILTERS += ['SASS', ...]`
 
 ### What was fixed?
 
-- compatibility with python 3 (at least 3.2)
+- compatibility with python 3.2 is now assured by the testsuite
+- #73 – LESS and SASS conversion is now optional
+- #67 – track referenced entries for updates
+- #86 – escape YAML blocks ("[" and "]") properly
+- #85 – empty posts in WordPress dump broke the import
+- #84 – TypeError in the second run during auto compilation
 - #82 – theme files copied to output if they are not used
 - #77 – missing items in sitemap view
 - #75 – dotfiles not copied from the static folder (Mark van Lent)
