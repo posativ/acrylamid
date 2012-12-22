@@ -441,15 +441,8 @@ class ContentMixin(object):
 
         return pv
 
-    @property
+    @cached_property
     def modified(self):
-        """Check wether the entry has changed using the following conditions:
-
-        - cache file does not exist -> has changed
-        - cache file does not contain required filter intermediate -> has changed
-        - entry's file is newer than the cache's one -> has changed
-        - otherwise -> not changed"""
-
         return self.lastmodified > cache.getmtime(hex(hash(self))[2:])
 
 

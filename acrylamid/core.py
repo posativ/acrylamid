@@ -187,7 +187,6 @@ class cache(object):
         return value
 
     @classmethod
-    @memoized
     def getmtime(self, path, default=0.0):
         """Get last modification timestamp from cache object but store it over
         the whole compilation process so we have the same value for different
