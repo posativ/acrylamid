@@ -39,7 +39,7 @@ if '--mako' in sys.argv:
 setup(
     name='acrylamid',
     version=version,
-    author='posativ',
+    author='Martin Zimmermann',
     author_email='info@posativ.org',
     packages=find_packages(),
     include_package_data=True,
@@ -49,7 +49,7 @@ setup(
     description='static blog compiler with incremental updates',
     long_description=open(join(dirname(__file__), 'README.rst')).read(),
     classifiers=[
-        "Development Status :: 5 - Production/Stable",
+        "Development Status :: 4 - Beta",
         "Topic :: Internet",
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content :: News/Diary",
         "Environment :: Console",
