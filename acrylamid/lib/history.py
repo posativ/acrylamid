@@ -11,15 +11,14 @@ import re
 
 from os.path import join, dirname
 
-import acrylamid
-
+from acrylamid.lib import __file__ as PATH
 from acrylamid.colors import blue, red, bold, underline
 from acrylamid.helpers import memoize
 
 
 def changesfor(version):
 
-    with io.open(join(dirname(acrylamid.__file__), '../', 'CHANGES.md')) as fp:
+    with io.open(join(dirname(PATH), 'CHANGES.md')) as fp:
 
         rv = []
         section, paragraph, safe = False, False, True
