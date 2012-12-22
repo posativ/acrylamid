@@ -30,17 +30,16 @@ class Writer(object):
         self.env = env
 
     def modified(self, src, dest):
-        return not isfile(dest) and getmtime(src) > getmtime(dest)
+        return not isfile(dest) or getmtime(src) > getmtime(dest)
 
     def generate(self, src, dest):
-        with io.open(src, 'rb') as fp:
-            return fp
+        return io.open(src, 'rb')
 
     def write(self, src, dest, force=False, dryrun=False):
         if not force and not self.modified(src, dest):
             return event.skip(dest)
 
-        mkfile(generate(src, dest), dest, force=force, dryrun=dryrun)
+        mkfile(self.generate(src, dest), dest, force=force, dryrun=dryrun)
 
     def clean(self):
         pass

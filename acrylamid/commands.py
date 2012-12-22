@@ -216,7 +216,10 @@ def compile(conf, env, force=False, **options):
 
         tt = time.time()
         for buf, path in v.generate(conf, env, data):
-            helpers.mkfile(buf, path, time.time()-tt, **options)
+            try:
+                helpers.mkfile(buf, path, time.time()-tt, **options)
+            finally:
+                buf.close()
             tt = time.time()
 
     # copy modified/missing assets to output
