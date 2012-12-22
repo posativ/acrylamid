@@ -15,7 +15,7 @@ at https://github.com/posativ/acrylamid/.
 Why?
 ----
 
-- it amazingly *fast* due incremental builds
+- it is really *fast* due incremental builds
 - support for Jinja2_ and Mako_ templates
 - many Markdown_ extensions and custom reStructuredText_ directives
 - MathML_, enhanced typography and hyphenation using soft-hyphens
