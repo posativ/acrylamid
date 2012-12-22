@@ -167,7 +167,7 @@ If we change a filter in conf.py we should see an update:
   >   sed -i "" -e s/\'hyphenate/\'nohyphenate/g conf.py
   > fi
   $ acrylamid compile -Cv
-  skip  output/articles/index.html
+  identical  output/articles/index.html
   identical  output/2012/spam/index.html
   update  [?.??s] output/2012/die-verwandlung/index.html (glob)
   update  [0.??s] output/index.html (glob)
