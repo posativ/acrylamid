@@ -97,10 +97,10 @@ An example from my personal blog:
 
 .. code-block:: python
 
-    # produce a full text version of TOPIC
-    "/TOPIC/full/" : {
+    # produce a full text version of topic
+    "/topic/full/" : {
          "filters": "hyph", "view": "index", "items_per_page": 1000,
-         "condition": lambda e: 'TOPIC' in e.tags
+         "if": lambda e: 'topic' in e.tags
     }
 
 This will create an additional routes for a specific topic to a location of my

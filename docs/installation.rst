@@ -5,8 +5,7 @@ Acrylamid doesn't reinvent the wheel. It integrates a lot of useful projects
 to provide a feature-rich user experience. You can use acrylamid in a very
 minimalistic way and write your posts in plain markdown or add more expensive
 features you may not have with dynamic web pages such as code highlighting,
-typography, mathml and hyphenation. See :doc:`about` for an overview of the
-third-party libraries used in Acrylamid.
+typography, MathML and hyphenation.
 
 Linux/Debian and OS X
 *********************
@@ -58,9 +57,10 @@ Additional Supported Modules
 Asian/Russian Users
 -------------------
 
-If you write in your native language, it is better to install ``unidecode`` for
-a better ASCII transcription of your characters. This is only required for the
-safe slug to your post.
+If you write in your native language, I recommend to install ``unidecode`` for
+a better ASCII transcription of your characters. If not, provide either a
+proper ASCII slug in your articles or use a fixed permalink with your native
+characters.
 
 Windows
 *******
@@ -70,12 +70,5 @@ Not supported.
 Python 3
 ********
 
-As of release of 0.3.4 Acrylamid has experimental support for Python 3. Although
-most parts of Acrylamid work with Python 3, it is not actively tested and
-maintained. I hope *2to3* gets automatically applied, if not:
-
-
-.. code-block:: bash
-
-	$ 2to3 -wn -x execfile acrylamid/
-	$ python setup.py install
+As of Acrylamid 0.4.4 Python 3 is covered by the testsuite. So, in theory it
+might work. Please report any issues related to Python 3.

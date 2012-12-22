@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 #
-# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid/__init__.py
+# Copyright 2012 Martin Zimmermann <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses -- see LICENSE.
 
 from acrylamid import log
 from acrylamid.filters import Filter
@@ -90,7 +90,7 @@ class Summarize(Filter):
     """Summarizes content up to `maxwords` (defaults to 100)."""
 
     match = ['summarize', 'sum']
-    version = '1.0.1'
+    version = 2
 
     def init(self, conf, env):
 

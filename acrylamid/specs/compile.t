@@ -75,8 +75,8 @@ Lets try if we have really incremental rendering:
   create  [?.??s] output/2012/spam/index.html (glob)
   update  [0.??s] output/2012/die-verwandlung/index.html (glob)
   update  [?.??s] output/index.html (glob)
-  skip  output/tag/die-verwandlung/index.html
-  skip  output/tag/franz-kafka/index.html
+  identical  output/tag/die-verwandlung/index.html
+  identical  output/tag/franz-kafka/index.html
   update  [?.??s] output/atom/index.html (glob)
   update  [?.??s] output/rss/index.html (glob)
   update  [0.??s] output/sitemap.xml (glob)
@@ -139,7 +139,7 @@ And now vice versa: we touch completely different templates:
   identical  output/rss/index.html
   identical  output/sitemap.xml
   skip  output/style.css
-  0 new, 0 updated, 10 skipped [0.??s] (glob)
+  0 new, 0 updated, 10 skipped [?.??s] (glob)
 
 Now we change the base template and should see some updates:
 
@@ -167,7 +167,7 @@ If we change a filter in conf.py we should see an update:
   >   sed -i "" -e s/\'hyphenate/\'nohyphenate/g conf.py
   > fi
   $ acrylamid compile -Cv
-  skip  output/articles/index.html
+  identical  output/articles/index.html
   identical  output/2012/spam/index.html
   update  [?.??s] output/2012/die-verwandlung/index.html (glob)
   update  [0.??s] output/index.html (glob)

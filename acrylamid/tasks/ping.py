@@ -2,8 +2,8 @@
 #
 # Copyrights:
 #    - PingBack: Иван Сагалаев (Ivan Sagalaew) <maniac@softwaremaniacs.org>
-#    - Other: posativ <info@posativ.org>
-# License: BSD Style, 2 clauses. see acrylamid/__init__.py
+#    - Other: Martin Zimmermann <info@posativ.org>
+# License: BSD Style, 2 clauses -- see LICENSE.
 
 import sys
 import re

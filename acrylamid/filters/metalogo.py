@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 #
 # Copyright 2012 sebix <szebi@gmx.at>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid/__init__.py
+# License: BSD Style, 2 clauses -- see LICENSE.
 # Idea by http://nitens.org/taraborelli/texlogo
 
 from acrylamid.filters import Filter
@@ -31,7 +31,7 @@ XeTeX = u"""\
 class Tex(Filter):
 
     match = ['metalogo']
-    version = '1.2.0'
+    version = 3
 
     def transform(self, text, entry, *args):
         replacings = (('LaTeX', LaTeX),

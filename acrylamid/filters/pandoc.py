@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 #
-# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid/__init__.py
+# Copyright 2012 Martin Zimmermann <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses -- see LICENSE.
 
 from acrylamid.filters import Filter
 from acrylamid.helpers import system
@@ -11,7 +11,7 @@ from acrylamid.errors import AcrylamidException
 class Pandoc(Filter):
 
     match = ['Pandoc', 'pandoc']
-    version = '1.0.0'
+    version = 1
 
     conflicts = ['Markdown', 'reStructuredText', 'HTML']
     priority = 70.0

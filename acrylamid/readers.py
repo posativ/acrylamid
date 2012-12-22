@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 #
-# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid/__init__.py
+# Copyright 2012 Martin Zimmermann <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses -- see LICENSE.
 
 from __future__ import unicode_literals
 
@@ -23,7 +23,7 @@ from acrylamid.errors import AcrylamidException
 from acrylamid.utils import cached_property, NestedProperties, istext
 from acrylamid.core import cache
 from acrylamid.filters import FilterTree
-from acrylamid.helpers import safeslug, expand, md5, rchop
+from acrylamid.helpers import safeslug, expand, hash, rchop
 
 try:
     import yaml
@@ -46,22 +46,32 @@ def load(conf):
     :param conf: configuration with CONTENT_DIR and CONTENT_IGNORE set"""
 
     # list of Entry-objects reverse sorted by date.
-    entrylist, pages = [], []
+    entries, pages, trans, drafts = [], [], [], []
+
+    # check for hash collisions
+    seen = set([])
 
     # collect and skip over malformed entries
     for path in filelist(conf['content_dir'], conf.get('content_ignore', [])):
         if path.endswith(('.txt', '.rst', '.md')) or istext(path):
             try:
                 entry = Entry(path, conf)
-                if entry.type == 'entry':
-                    entrylist.append(entry)
+                if entry in seen:
+                    raise AcrylamidException(
+                        "REPORT THIS IMMEDIATELY: python's hash function is not safe!")
+                seen.add(entry)
+
+                if entry.draft:
+                    drafts.append(entry)
+                elif entry.type == 'entry':
+                    entries.append(entry)
                 else:
                     pages.append(entry)
             except (ValueError, AcrylamidException) as e:
                 raise AcrylamidException('%s: %s' % (path, e.args[0]))
 
     # sort by date, reverse
-    return (sorted(entrylist, key=lambda k: k.date, reverse=True), pages)
+    return sorted(entries, key=lambda k: k.date, reverse=True), pages, trans, drafts
 
 
 def ignored(cwd, path, patterns, directory):
@@ -115,10 +125,13 @@ class Timezone(tzinfo):
     UTC awareness."""
 
     def __init__(self, offset=0):
-        self.offset = timedelta(hours=offset)
+        self.offset = offset
+
+    def __hash__(self):
+        return self.offset
 
     def utcoffset(self, dt):
-        return self.offset
+        return timedelta(hours=self.offset)
 
     def dst(self, dt):
         return timedelta()
@@ -143,9 +156,10 @@ class Reader(object):
                 self.props.redirect(key, to)
 
         self.filters = self.props.get('filters', [])
+        self.hashvalue = hash(self.filename, self.title, self.date.ctime())
 
-    @abc.abstractproperty
-    def md5(self):
+    @abc.abstractmethod
+    def __hash__(self):
         return
 
     @abc.abstractproperty
@@ -153,7 +167,7 @@ class Reader(object):
         return
 
     @abc.abstractproperty
-    def has_changed(self):
+    def modified(self):
         return
 
     @abc.abstractproperty
@@ -245,9 +259,8 @@ class FileReader(Reader):
         errors='replace') as f:
             return ''.join(f.readlines()[self.offset:]).strip()
 
-    @cached_property
-    def md5(self):
-        return md5(self.filename, self.title, self.date.ctime())
+    def __hash__(self):
+        return self.hashvalue
 
     @property
     def date(self):
@@ -257,7 +270,7 @@ class FileReader(Reader):
 
 class MetadataMixin(object):
 
-    @property
+    @cached_property
     def slug(self):
         """ascii safe entry title"""
         slug = self.props.get('slug', None)
@@ -396,7 +409,11 @@ class ContentMixin(object):
         pv = None
 
         # this is our cache filename
-        path = join(cache.cache_dir, self.md5)
+        path = hex(hash(self))[2:]
+
+        # remove *all* intermediates when entry has been modified
+        if self.lastmodified > cache.getmtime(path):
+            cache.remove(path)
 
         # growing dependencies of the filter chain
         deps = []
@@ -407,16 +424,15 @@ class ContentMixin(object):
             deps.extend(fxs)
 
             # key where we save this filter chain
-            key = md5(*deps)
+            key = hash(*deps)
 
             try:
-                rv = cache.get(path, key, mtime=self.lastmodified)
+                rv = cache.get(path, key)
                 if rv is None:
                     res = self.source if pv is None else pv
                     for f in fxs:
                         res = f.transform(res, self, *f.args)
                     pv = cache.set(path, key, res)
-                    self.has_changed = True
                 else:
                     pv = rv
             except (IndexError, AttributeError):
@@ -425,38 +441,9 @@ class ContentMixin(object):
 
         return pv
 
-    @property
-    def has_changed(self):
-        """Check wether the entry has changed using the following conditions:
-
-        - cache file does not exist -> has changed
-        - cache file does not contain required filter intermediate -> has changed
-        - entry's file is newer than the cache's one -> has changed
-        - otherwise -> not changed"""
-
-        # with new-style classes we can't delete/overwrite @property-ied methods,
-        # so we try to return a fixed value otherwise continue
-        try:
-            return self._has_changed
-        except AttributeError:
-            pass
-
-        path = join(cache.cache_dir, self.md5)
-        deps = []
-
-        for fxs in self.filters.iter(self.context):
-
-            # extend filter dependencies
-            deps.extend(fxs)
-
-            if not cache.has_key(path, md5(*deps)):
-                return True
-        else:
-            return self.lastmodified > cache.getmtime(path)
-
-    @has_changed.setter
-    def has_changed(self, value):
-        self._has_changed = value
+    @cached_property
+    def modified(self):
+        return self.lastmodified > cache.getmtime(hex(hash(self))[2:])
 
 
 class Entry(ContentMixin, MetadataMixin, FileReader):
@@ -564,7 +551,7 @@ def reststyle(fileobj):
     if not title or not dash:
         raise AcrylamidException('No title given in %r' % fileobj.name)
 
-    if len(dash) != len(title) or dash.count(dash[0]) != len(dash):
+    if len(dash) < len(title) or dash.count(dash[0]) < len(dash):
         raise AcrylamidException('title line does not match second line %r' % fileobj.name)
 
     i = 2

@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 #
-# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid/__init__.py
+# Copyright 2012 Martin Zimmermann <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses -- see LICENSE.
 
 from acrylamid.filters import Filter
 from re import sub
@@ -11,7 +11,7 @@ class Headoffset(Filter):
     """This filter increases HTML headings by N whereas N is the suffix of
     this filter, e.g. `h2' increases headers by two."""
 
-    version = '1.0.0'
+    version = 1
 
     def transform(self, text, entry, *args):
 

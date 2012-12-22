@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 #
-# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid/__init__.py
+# Copyright 2012 Martin Zimmermann <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses -- see LICENSE.
 #
 # Provide a homogenous interface to Templating Engines like Jinja2
 
@@ -49,7 +49,7 @@ class AbstractTemplate(object):
         return
 
     @abc.abstractproperty
-    def has_changed(self):
+    def modified(self):
         """Return ``True`` when the template has changed but make sure this value
         does not change over the whole compilation process. Return ``False`` if the
         template has not changed, cache this too!"""

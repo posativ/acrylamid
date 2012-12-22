@@ -47,9 +47,6 @@ setup(
     url='http://posativ.org/acrylamid/',
     license='BSD revised',
     description='static blog compiler with incremental updates',
-    data_files=[
-        'README.rst',
-    ],
     long_description=open(join(dirname(__file__), 'README.rst')).read(),
     classifiers=[
         "Development Status :: 5 - Production/Stable",

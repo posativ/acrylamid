@@ -1,4 +1,4 @@
-include README.rst
+include README.rst CHANGES.md
 recursive-exclude acrylamid/ *.pyc
 recursive-include acrylamid/filters/hyph *.txt
 recursive-include acrylamid/defaults *

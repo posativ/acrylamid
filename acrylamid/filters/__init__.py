@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 #
-# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid/__init__.py
+# Copyright 2012 Martin Zimmermann <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses -- see LICENSE.
 
 import sys
 import os
@@ -194,9 +194,9 @@ class Filter(object):
     __metaclass__ = meta
 
     initialized = False
-    version = "1.0.0"
-    priority = 50.0
     conflicts = []
+    priority = 50.0
+    version = 1
 
     def __init__(self, conf, env, fname, *args):
 
@@ -207,7 +207,8 @@ class Filter(object):
         self.args = args
 
         # precalculate __hash__ because we need it quite often in tree
-        self.hv = hash(self.__class__.__name__ + repr(args))
+        self.hv = helpers.hash(self.__class__.__name__, tuple(self.args),
+                               self.version, self.priority)
 
     def __repr__(self):
         return "<%s@%s %2.f:%s>" % (self.__class__.__name__, self.version,

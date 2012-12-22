@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 #
 # Copyright 2012 sebix <szebi@gmx.at>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid/__init__.py
+# License: BSD Style, 2 clauses -- see LICENSE.
 
 from acrylamid.filters import Filter
 
@@ -14,7 +14,7 @@ except ImportError:
 class PyTextile(Filter):
 
     match = ['Textile', 'textile', 'pytextile', 'PyTextile']
-    version = '1.0.0'
+    version = 1
 
     conflicts = ['Markdown', 'reStructuredText', 'HTML', 'Pandoc']
     priority = 70.0

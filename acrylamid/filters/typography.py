@@ -26,7 +26,7 @@ from acrylamid.filters import Filter
 class Typography(Filter):
 
     match = [re.compile('^(T|t)ypo(graphy)?$'), 'smartypants']
-    version = '1.0.1'
+    version = 2
 
     priority = 25.0
 

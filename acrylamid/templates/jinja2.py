@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 #
-# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid/__init__.py
+# Copyright 2012 Martin Zimmermann <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses -- see LICENSE.
 
 from __future__ import absolute_import
 
@@ -18,7 +18,7 @@ class ExtendedFileSystemLoader(FileSystemLoader):
     """A custom :class:`jinja2.FileSystemLoader` to work with Acrylamid's
     caching requirements. Jinja2 does track template changes using the
     modification timestamp of the compiled but we need template dependencies
-    as well as consistent has_changed values over the whole compilation
+    as well as consistent modified values over the whole compilation
     process."""
 
     # remember already resolved templates
@@ -28,7 +28,7 @@ class ExtendedFileSystemLoader(FileSystemLoader):
     used = set()
 
     def load(self, environment, name, globals=None):
-        """patched `load` to add a has_changed attribute providing information
+        """patched `load` to add a modified attribute providing information
         whether the template or its parents have changed."""
 
         def resolve(parent):
@@ -44,9 +44,9 @@ class ExtendedFileSystemLoader(FileSystemLoader):
             source, filename, uptodate = self.get_source(environment, parent)
             bucket = bcc.get_bucket(environment, parent, filename, source)
             p = bcc._get_cache_filename(bucket)
-            has_changed = getmtime(filename) > getmtime(p) if exists(p) else True
+            modified = getmtime(filename) > getmtime(p) if exists(p) else True
 
-            if has_changed:
+            if modified:
                 # updating cached template if timestamp has changed
                 code = environment.compile(source, parent, filename)
                 bucket.code = code
@@ -69,7 +69,7 @@ class ExtendedFileSystemLoader(FileSystemLoader):
 
         bcc = environment.bytecode_cache
         bucket = bcc.get_bucket(environment, name, filename, source)
-        has_changed = bool(resolve(name))
+        modified = bool(resolve(name))
 
         code = bucket.code
         if code is None:
@@ -77,7 +77,7 @@ class ExtendedFileSystemLoader(FileSystemLoader):
 
         tt = environment.template_class.from_code(environment, code,
                                                   globals, uptodate)
-        tt.has_changed = has_changed
+        tt.modified = modified
         return tt
 
 
@@ -122,5 +122,5 @@ class Template(AbstractTemplate):
         return buf
 
     @property
-    def has_changed(self):
-        return self.template.has_changed
+    def modified(self):
+        return self.template.modified

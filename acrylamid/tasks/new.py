@@ -38,10 +38,11 @@ def run(conf, env, options):
     editor = os.getenv('VISUAL') if os.getenv('VISUAL') else os.getenv('EDITOR')
     tt = formats.get((conf.get('metastyle') == 'native', ext), yaml)
 
-    if not options.title:
-        options.title = raw_input("Entry's title: ")
+    if options.title:
+        title = ' '.join(options.title)
+    else:
+        title = raw_input("Entry's title: ")
 
-    title = (' '.join(options.title))
     if not PY3:
         title = title.decode('utf-8')
 

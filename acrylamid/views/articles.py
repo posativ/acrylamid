@@ -1,10 +1,10 @@
 # -*- encoding: utf-8 -*-
 #
-# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid/__init__.py
+# Copyright 2012 Martin Zimmermann <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses -- see LICENSE.
 
 from acrylamid.views import View
-from acrylamid.helpers import union, joinurl, event, md5, memoize
+from acrylamid.helpers import union, joinurl, event
 
 from os.path import exists
 
@@ -36,28 +36,17 @@ class Articles(View):
 
     priority = 80.0
 
-    def init(self, template='articles.html'):
+    def init(self, conf, env, template='articles.html'):
         self.template = template
 
-    def generate(self, request):
+    def generate(self, conf, env, data):
 
-        entrylist = sorted((e for e in request['entrylist'] if not e.draft),
-                        key=lambda k: k.date, reverse=True)
+        entrylist = data['entrylist']
 
-        tt = self.env.engine.fromfile(self.template)
-        path = joinurl(self.conf['output_dir'], self.path, 'index.html')
+        tt = env.engine.fromfile(self.template)
+        path = joinurl(conf['output_dir'], self.path, 'index.html')
 
-        hv = md5(*entrylist, attr=lambda o: o.md5)
-        rv = memoize('articles-hash')
-
-        if rv == hv:
-            has_changed = False
-        else:
-            # save new value for next run
-            memoize('articles-hash', hv)
-            has_changed = True
-
-        if exists(path) and not has_changed and not tt.has_changed:
+        if exists(path) and not (conf.modified or env.modified or tt.modified):
             event.skip(path)
             raise StopIteration
 
@@ -65,8 +54,6 @@ class Articles(View):
         for entry in entrylist:
             articles.setdefault((entry.year, entry.imonth), []).append(entry)
 
-        route = self.path
-        html = tt.render(conf=self.conf, articles=articles,
-                         env=union(self.env, num_entries=len(entrylist), route=route))
-
+        html = tt.render(conf=conf, articles=articles, env=union(env,
+                         num_entries=len(entrylist), route=self.path))
         yield html, path

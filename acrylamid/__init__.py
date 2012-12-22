@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 #
-# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
+# Copyright 2012 Martin Zimmermann <info@posativ.org>. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -14,10 +14,10 @@
 #
 # The views and conclusions contained in the software and documentation are
 # those of the authors and should not be interpreted as representing official
-# policies, either expressed or implied, of posativ <info@posativ.org>.
+# policies, either expressed or implied, of Martin Zimmermann <info@posativ.org>.
 
-__version__ = '0.4.5'
-__author__ = 'posativ <info@posativ.org>'
+__version__ = '0.5.0'
+__author__ = 'Martin Zimmermann <info@posativ.org>'
 __url__ = 'https://github.com/posativ/acrylamid/'
 
 import sys
@@ -31,7 +31,7 @@ import signal
 
 from functools import partial
 
-from acrylamid import defaults, log, commands, colors, tasks
+from acrylamid import defaults, log, commands, colors, tasks, core
 from acrylamid.utils import find, execfile, Struct
 from acrylamid.errors import AcrylamidException
 
@@ -133,8 +133,7 @@ def Acryl():
     # initialize colored logger
     log.init('acrylamid', level=options.verbosity, colors=options.colors)
 
-    env = Struct({'version': __version__, 'author': __author__, 'url': __url__})
-
+    env = core.Environment({'author': __author__, 'url': __url__})
     env['options'] = options
     env['globals'] = Struct()
 
@@ -148,7 +147,7 @@ def Acryl():
         sys.exit(1)
 
     # -- teh real thing -- #
-    conf = Struct(defaults.conf)
+    conf = core.Configuration(defaults.conf)
 
     try:
         ns = dict([(k.upper(), v) for k, v in defaults.conf.iteritems()])

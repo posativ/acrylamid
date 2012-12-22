@@ -198,19 +198,19 @@ deploy
 
 With ``acrylamid deploy TASK`` you can run single commands, e.g. push just
 generated content to your server. Write new tasks into the DEPLOYMENT dict
-inside your ``conf.py`` like this. You can invoke *ls*, *echo* and *deploy* as
-TASK.
+inside your ``conf.py`` and then you can invoke *ls*, *echo* and *deploy*
+as TASK.
 
 .. code-block:: sh
 
-    $ acrylamid [deploy dp] [TASK]
+    $ acrylamid [deploy dp] [--list] TASK
 
 .. code-block:: python
 
     DEPLOYMENT = {
         "ls": "ls $OUTPUT_DIR",
         "echo": "echo '$OUTPUT_DIR'",
-        "upload": "rsync -av --delete $OUTPUT_DIR www@server:~/blog.example.org/"
+        "default": "rsync -av --delete $OUTPUT_DIR www@server:~/blog.example.org/"
     }
 
 The first task will print out a file listing from your output directory. The
@@ -218,7 +218,7 @@ command is pure shell, you could also use ``$HOME`` as variable. The most
 configuration parameters are added to the execution environment. The second
 task marks the substitution string as non-substituable and you'll get the
 variable itself. The last task is a simple command to deploy your blog
-directly to your server.
+directly to your server. If you don't supply TASK, Acrylamid runs *default*.
 
 .. raw:: html
 
@@ -253,6 +253,7 @@ flag/option after the task identifier is passed to:
     content/
     output/
     </pre>
+
 
 info
 ----

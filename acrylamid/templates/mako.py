@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 #
 # Copyright 2012 moschlar <mail@moritz-schlarb.de>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid/__init__.py
+# License: BSD Style, 2 clauses -- see LICENSE.
 
 from __future__ import absolute_import
 
@@ -52,9 +52,9 @@ class ExtendedLookup(TemplateLookup):
 
             filename = posixpath.normpath(posixpath.join(self.directories[0], uri))
             p = self.modulename_callable(filename, uri)
-            has_changed = getmtime(filename) > getmtime(p) if isfile(p) else True
+            modified = getmtime(filename) > getmtime(p) if isfile(p) else True
 
-            if has_changed:
+            if modified:
                 self.resolved[uri] = True
                 return True
 
@@ -77,7 +77,7 @@ class ExtendedLookup(TemplateLookup):
             template = super(ExtendedLookup, self)._load(filename, uri)
 
         try:
-            template.has_changed = resolve(basename(template.filename))
+            template.modified = resolve(basename(template.filename))
         except (OSError, IOError):
             raise exceptions.TemplateLookupException(
                                 "Can't locate template for uri %r" % uri)
@@ -134,5 +134,5 @@ class Template(AbstractTemplate):
         #    return unicode(mako_exceptions.html_error_template().render())
 
     @property
-    def has_changed(self):
-        return self.template.has_changed
+    def modified(self):
+        return self.template.modified

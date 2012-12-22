@@ -1,41 +1,55 @@
 # -*- encoding: utf-8 -*-
 #
-# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid/__init__.py
+# Copyright 2012 Martin Zimmermann <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses -- see LICENSE.
 
 import sys
 import os
 import time
+import shutil
 import locale
 import codecs
 
 from urlparse import urlsplit
 from datetime import datetime
+from itertools import chain
 from collections import defaultdict
 from os.path import getmtime
 
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
-from acrylamid import readers, filters, views, assets, utils, helpers
-from acrylamid.lib import lazy
+from acrylamid import readers, filters, views, assets, refs, helpers, __version__
+from acrylamid.lib import lazy, history
 from acrylamid.core import cache
+from acrylamid.utils import hash, istext, HashableList, import_object
 from acrylamid.helpers import event
 
 
 def initialize(conf, env):
     """Initializes Jinja2 environment, prepares locale and configure
     some minor things. Filter and View are inited with conf and env,
-    a request dict is returned.
+    a data dict is returned.
     """
     # initialize cache, optional to cache_dir
-    cache.init(conf.get('cache_dir', None))
+    cache.init(conf.get('cache_dir'))
+
+    env['version'] = type('Version', (str, ), dict(zip(
+        ['major', 'minor', 'patch'], (int(x) for x in __version__.split('.'))
+    )))(__version__)
+
+    # crawl through CHANGES.md and stop when breaking changes
+    if history.check(env, cache.emptyrun) is False:
+        print "Detected version upgrade that might break your configuration. Run"
+        print "Acrylamid a second time to get rid of this message and premature exit."
+        cache.shutdown()
+        raise SystemExit
 
     # rewrite static directory
     assets.initialize(conf, env)
 
     # set up templating environment
-    env.engine = utils.import_object(conf['engine'])()
+    env.engine = import_object(conf['engine'])()
 
     env.engine.init(conf['theme'], cache.cache_dir)
     env.engine.register('safeslug', helpers.safeslug)
@@ -115,23 +129,27 @@ def initialize(conf, env):
 def compile(conf, env, force=False, **options):
     """The compilation process."""
 
+    if force:
+        cache.clear(conf.get('cache_dir'))
+
     # time measurement
     ctime = time.time()
 
     # populate env and corrects some conf things
-    request = initialize(conf, env)
+    data = initialize(conf, env)
 
     # load pages/entries and store them in env
-    entrylist, pages = readers.load(conf)
-    env.globals['entrylist'] = entrylist
-    env.globals['pages'] = pages
+    rv = dict(zip(['entrylist', 'pages', 'translations', 'drafts'],
+        map(HashableList, readers.load(conf))))
 
-    # XXX translations should be moved out of core
-    env.globals['translations'] = translations = []
+    entrylist, pages = rv['entrylist'], rv['pages']
+    translations, drafts = rv['translations'], rv['drafts']
 
-    if force:
-        # acrylamid compile -f
-        cache.clear()
+    # load references
+    refs.load(entrylist, pages, translations, drafts)
+
+    data.update(rv)
+    env.globals.update(rv)
 
     # here we store all found filter and their aliases
     ns = defaultdict(set)
@@ -143,8 +161,8 @@ def compile(conf, env, force=False, **options):
     # ... and get all configured views
     _views = views.get_views()
 
-    # filters found in all entries, views and conf.py
-    found = sum((x.filters for x in entrylist+pages+_views), []) + request['conf']['filters']
+    # filters found in all entries, views and conf.py (skip translations, has no items)
+    found = sum((x.filters for x in chain(entrylist, pages, drafts, _views, [conf])), [])
 
     for val in found:
         # first we for `no` and get the function name and arguments
@@ -164,14 +182,14 @@ def compile(conf, env, force=False, **options):
 
         ns[fx].add(val)
 
-    for entry in entrylist + pages:
+    for entry in chain(entrylist, pages, drafts):
         for v in _views:
 
             # a list that sorts out conflicting and duplicated filters
             flst = filters.FilterList()
 
             # filters found in this specific entry plus views and conf.py
-            found = entry.filters + v.filters + request['conf']['filters']
+            found = entry.filters + v.filters + data['conf']['filters']
 
             for fn in found:
                 fx, _ = next((k for k in ns.iteritems() if fn in k[1]))
@@ -182,31 +200,32 @@ def compile(conf, env, force=False, **options):
             entry.filters.add(sorted(flst, key=lambda k: (-k.priority, k.name)),
                               context=v)
 
-    # lets offer a last break to populate tags or so
-    # XXX this API component needs a review
+    # lets offer a last break to populate tags and such
     for v in _views:
-        env = v.context(env, {'entrylist': entrylist, 'pages': pages,
-                              'translations': translations})
+        env = v.context(conf, env, data)
 
     # now teh real thing!
     for v in _views:
 
-        # XXX the entry should automatically determine its caller (using
-        # some sys magic to recursively check wether the calling class is
-        # derieved from `View`.)
-        for entry in entrylist + pages + translations:
+        for entry in chain(entrylist, pages, translations, drafts):
             entry.context = v
 
-        request['pages'], request['translations'] = pages, translations
-        request['entrylist'] = filter(v.condition, entrylist)
-        tt = time.time()
+        for var in 'entrylist', 'pages', 'translations', 'drafts':
+            data[var] = HashableList(filter(v.condition, locals()[var])) \
+                if v.condition else locals()[var]
 
-        for buf, path in v.generate(request):
+        tt = time.time()
+        for buf, path in v.generate(conf, env, data):
             helpers.mkfile(buf, path, time.time()-tt, **options)
             tt = time.time()
 
     # copy modified/missing assets to output
     assets.compile(conf, env)
+
+    # save conf/environment hash and new/changed/unchanged references
+    helpers.memoize('Configuration', hash(conf))
+    helpers.memoize('Environment', hash(env))
+    refs.save()
 
     # remove abandoned cache files
     cache.shutdown()
@@ -221,17 +240,15 @@ def autocompile(ws, conf, env, **options):
     """Subcommand: autocompile -- automatically re-compiles when something in
     content-dir has changed and parallel serving files."""
 
-    CONF_PY = './conf.py'
-
     mtime = -1
-    cmtime = getmtime(CONF_PY)
+    cmtime = getmtime('conf.py')
 
     while True:
 
         ws.wait = True
         ntime = max(
             max(getmtime(e) for e in readers.filelist(
-                conf['content_dir'], conf.get('content_ignore', [])) if utils.istext(e)),
+                conf['content_dir'], conf.get('content_ignore', [])) if istext(e)),
             max(getmtime(p) for p in readers.filelist(
                 conf['theme'], conf.get('theme_ignore', []))))
         if mtime != ntime:
@@ -245,14 +262,14 @@ def autocompile(ws, conf, env, **options):
             mtime = ntime
         ws.wait = False
 
-        if cmtime != getmtime(CONF_PY):
-            log.info(' * Restarting due to change in %s' % (CONF_PY))
+        if cmtime != getmtime('conf.py'):
+            log.info(' * Restarting due to change in conf.py')
+            # regenerate from cache to reflect changes in conf.py
+            shutil.rmtree(conf['output_dir'])
             # Kill the webserver
             ws.shutdown()
-            # Force compilation since no template was changed
-            argv = sys.argv if options['force'] else sys.argv[:] + ["--force"]
             # Restart acrylamid
-            os.execvp(sys.argv[0], argv)
+            os.execvp(sys.argv[0], sys.argv)
 
         time.sleep(1)
 

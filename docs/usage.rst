@@ -2,13 +2,13 @@ Getting Started
 ===============
 
 Acrylamid is a command line application. That means you should have at least
-a clue how to open the terminal on your operation system (excluding windows).
+a clue how to open the terminal on your operation system (except for Windows).
 
 Initialization
 --------------
 
 To create a new blog, just run ``acrylamid init``. You can choose between Mako
-and Jinja2 as templating languages. See :doc:`commands` for more details.
+and Jinja2 as templating languages. See also :doc:`commands` for more details.
 
 .. raw:: html
 
@@ -47,15 +47,15 @@ content/ : Content Directory
     destination.
 
 theme/ : Theme Directory
-    The location of your HTML tempales and other static files, that will
-    be copied during compilation.
+    The location of your HTML tempales and other static files for that theme,
+    that will be copied during compilation.
 
 
 Write a new entry
 -----------------
 
 You can either fire up your editor and write an entry somewhere below
-``content/`` or run ``acrylamid new`` that will open your favourite editor
+``content/`` or run ``acrylamid new`` which will open your favourite editor
 save the entry to its permalink. BTW it does not matter how you name your
 file. It is only important, that it doesn't contain binary in the first 512
 bytes!
@@ -67,7 +67,7 @@ title : String
 
 date : String
     A date in the format your specified in your :doc:`conf.py` and several
-    fallbacks you'll find here: `pelican/utils.py:21 <https://github.com/getpelican/pelican/blob/master/pelican/utils.py#L21>`_.
+    fallbacks you'll find here: `pelican/utils.py:21 <https://github.com/getpelican/pelican/blob/master/pelican/utils.py#L56>`_.
 
 author : String
     Overwrites author in :doc:`conf.py`.

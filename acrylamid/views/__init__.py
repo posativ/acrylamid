@@ -1,12 +1,12 @@
 # -*- encoding: utf-8 -*-
 #
-# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid/__init__.py
+# Copyright 2012 Martin Zimmermann <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses -- see LICENSE.
 
 import os
 from functools import partial
 
-from acrylamid import helpers
+from acrylamid import helpers, utils
 from acrylamid.errors import AcrylamidException
 
 # module-wide callbacks variable contaning views, reset this on initialize!
@@ -46,46 +46,49 @@ def index_views(conf, env, urlmap, module):
             view_list.append(name)
             view_map[name.lower()] = name
 
-    for view, rule in urlmap[:]:
+    for rule, view in urlmap[:]:
         mem = None
         # First try to match the view name case sensitive...
-        if view in view_list:
-            mem = getattr(module, view)
+        if view['name'] in view_list:
+            mem = getattr(module, view['name'])
         # ...then try again, but now ignore case.
         else:
-            view_class = view_map.get(view.lower(), None)
+            view_class = view_map.get(view['name'].lower(), None)
             if view_class:
                 mem = getattr(module, view_class)
 
         if mem:
-            kwargs = conf['views'][rule].copy()
+            kwargs = view.copy()
             kwargs['path'] = rule
-            try:
-                kwargs['condition'] = conf['views'][rule]['if']
-            except KeyError:
-                pass
-            kwargs.pop('if', None)
+            kwargs['condition'] = kwargs.pop('if', None)
 
-            m = mem(conf, env, **kwargs)
-            m.init(**m._getkwargs())
+            m = mem(**kwargs)
+            m.init(conf, env, **m._getkwargs())
 
             __views_list.append(m)
-            urlmap.remove((view, rule))
+            urlmap.remove((rule, view))
 
 
 def initialize(directories, conf, env):
 
     global __views_list
-    __views_list = []
+    __views_list, urlmap = [], []
 
-    # view -> path
-    urlmap = [(conf['views'][k]['view'], k) for k in conf['views']]
+    for rule, view in conf.views.iteritems():
+        if 'views' not in view:
+            view['views'] = [view.pop('view'), ]
+
+        for name in view['views']:
+            item = view.copy()
+            item.pop('views')
+            item['name'] = name
+            urlmap.append((rule, item))
 
     directories += [os.path.dirname(__file__)]
     helpers.discover(directories, partial(index_views, conf, env, urlmap))
 
 
-class Views(list):
+class Views(utils.HashableList):
     """A compatibility layer for the view storage. It is actually a list
     but supports ``__getitem__`` for retrieval."""
 
@@ -122,12 +125,12 @@ class View(object):
     :func:`acrylamid.helpers.mkfile` that handles directory creation and
     event handling. Note, that a view must implement a *skip*-mechanism
     by itself. If you :func:`acrylamid.helpers.paginate` you get a
-    ``has_changed`` for the current list of entries and you only need
+    ``modified`` for the current list of entries and you only need
     to check wether the template has changed::
 
         from os.path import join
 
-        if exists(path) and not has_changed and not tt.has_changed:
+        if exists(path) and not modified and not tt.modified:
             event.skip(path)
             continue
 
@@ -136,14 +139,6 @@ class View(object):
     evaluation (no need to initialize filters, recompile/load from cache).
 
     A valid view only requires a :func:`generate` method.
-
-    .. attribute:: conf
-
-       Acrylamid configuration.
-
-    .. attribute:: env
-
-       Acrylamid environment.
 
     .. attribute:: priority
 
@@ -164,7 +159,7 @@ class View(object):
 
        The key to which you assign a configuration dict.
 
-    .. method:: init(self, **kwargs)
+    .. method:: init(self, conf, env, **kwargs)
 
        Initializing the view with configuration parameters. You can also load
        jinja/other templates here.
@@ -179,7 +174,7 @@ class View(object):
        :param env: environment object
        :param request: reqest dictionary
 
-    .. method:: generate(self, request)
+    .. method:: generate(self, conf, env, data)
 
        Render template and yield final output with full qualified path. If you don't
        generate output, raise :class:`StopIteration`. Make use of :mod:`acrylamid.helpers`
@@ -189,7 +184,7 @@ class View(object):
        Load a template from ``env.engine`` and check wether it has changed::
 
            >>> tt = self.env.engine.fromfile('articles.html')
-           >>> print tt.has_changed
+           >>> print tt.modified
            True
 
        If you skip over an entry make sure you :func:`acrylamid.helpers.event.skip` it,
@@ -199,10 +194,10 @@ class View(object):
 
     priority = 50.0
 
-    def __init__(self, conf, env, **kwargs):
+    def __init__(self, **kwargs):
 
-        self.condition = kwargs.get('condition', lambda e: True)
-        self.name = kwargs.get('view', 'View')
+        self.condition = kwargs.get('condition', None)
+        self.name = kwargs.get('name', 'View')
         self.path = kwargs.get('path', '/')
         self.filters = kwargs.get('filters', [])
 
@@ -210,10 +205,7 @@ class View(object):
         if isinstance(self.filters, basestring):
             self.filters = [self.filters, ]
 
-        self.conf = conf
-        self.env = env
-
-        for k in ('condition', 'view', 'path', 'filters'):
+        for k in ('condition', 'name', 'path', 'filters'):
             kwargs.pop(k, None)
 
         self._getkwargs = lambda : kwargs
@@ -224,13 +216,13 @@ class View(object):
         return self.name == other
 
     def __hash__(self):
-        return object.__hash__(self)
+        return helpers.hash(self.name, self.path)
 
     def init(self, **kwargs):
         pass
 
-    def context(self, env, request):
+    def context(self, conf, env, request):
         return env
 
-    def generate(self, request):
+    def generate(self, conf, env, request):
         raise AcrylamidException('%s.generate not implemented' % self.__class__.__name__)

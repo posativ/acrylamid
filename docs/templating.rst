@@ -43,10 +43,19 @@ protocol and count of entries.
     Current view type to distuingish between single entry, tag or page view. Can be one of this list: ['entry', 'tag', 'index'].
 
 :entrylist:
-    A list of all processed FileEntry-objects.
+    A list of all posts to be rendered in a template.
 
 :globals.entrylist:
-    All entries processed by Acrylamid.
+    All entries.
+
+:globals.pages:
+    All pages.
+
+:globals.translations:
+    All translations, if the translation view is active.
+
+:globals.drafts:
+    All drafts, if the draft view is active.
 
 :num_entries:
     Count of all entries, only available in page/articles/index-view.
@@ -64,11 +73,8 @@ protocol and count of entries.
     The (expanded) path of the view, e.g. ``articles``, ``/2012/my-example`` (for ``/:year/:slug/``) or
     ``/tag/acrylamid/`` (for ``/tag/:name``).
 
-:VERSION:
-    Acrylamid's version
-
-:VERSION_SPLIT:
-    Acrylamid's version split, a three-items tupel, e.g. ``('0', '3', '0')``.
+:version:
+    Acrylamid's version.
 
 entry
 *****

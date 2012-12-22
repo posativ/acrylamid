@@ -16,6 +16,7 @@ script:
 branches:
   only:
     - master
+    - develop
 notifications:
   irc:
     channels:

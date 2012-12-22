@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 #
-# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
+# Copyright 2012 Martin Zimmermann <info@posativ.org>. All rights reserved.
 # via http://code.activestate.com/recipes/577187-python-thread-pool/
 
 """

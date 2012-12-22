@@ -31,16 +31,6 @@ Jinja2-only.
 
     $ acrylamid init --theme shadowplay
 
-XHTML
-^^^^^
-
-From the dark days, Acrylamid also ships an XHTML theme that is no longer supported but still works™.
-
-::
-
-    $ acrylamid init --theme xhtml  # --mako optional
-
-
 Where to start?
 ---------------
 

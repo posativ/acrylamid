@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 #
-# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid/__init__.py
+# Copyright 2012 Martin Zimmermann <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses -- see LICENSE.
 
 import os
 import abc
@@ -9,9 +9,11 @@ import abc
 from os.path import isfile
 from collections import defaultdict
 
+from acrylamid import refs
+from acrylamid.refs import modified, references
 from acrylamid.views import View
-from acrylamid.helpers import expand, union, joinurl, event, link, memoize, md5
 from acrylamid.errors import AcrylamidException
+from acrylamid.helpers import expand, union, joinurl, event, link
 
 
 class Base(View):
@@ -24,7 +26,7 @@ class Base(View):
     def type(self):
         return None
 
-    def init(self, template='main.html'):
+    def init(self, conf, env, template='main.html'):
         self.template = template
 
     def next(self, entrylist, i):
@@ -33,56 +35,43 @@ class Base(View):
     def prev(self, entrylist, i):
         return None
 
-    def has_changed(self, entrylist, salt):
-        return False
+    def generate(self, conf, env, data):
 
-    def generate(self, request):
+        tt = env.engine.fromfile(self.template)
+        pathes, entrylist = set(), data[self.type]
+        unmodified = not tt.modified and not env.modified and not conf.modified
 
-        tt = self.env.engine.fromfile(self.template)
-        pathes = set()
+        for i, entry in enumerate(entrylist):
 
-        nondrafts, drafts = [], []
-        for entry in request[self.type]:
-            if not entry.draft:
-                nondrafts.append(entry)
+            if entry.hasproperty('permalink'):
+                path = joinurl(conf['output_dir'], entry.permalink)
             else:
-                drafts.append(entry)
+                path = joinurl(conf['output_dir'], expand(self.path, entry))
 
-        for isdraft, entrylist in enumerate([nondrafts, drafts]):
-            has_changed = self.has_changed(entrylist, 'draft' if isdraft else 'entry')
+            if path.endswith('/'):
+                path = joinurl(path, 'index.html')
 
-            for i, entry in enumerate(entrylist):
+            if isfile(path) and path in pathes:
+                try:
+                    os.remove(path)
+                finally:
+                    f = lambda e: e is not entry and e.permalink == entry.permalink
+                    raise AcrylamidException("title collision %r in %r with %r." %
+                        (entry.permalink, entry.filename, filter(f, entrylist)[0].filename))
 
-                if entry.hasproperty('permalink'):
-                    path = joinurl(self.conf['output_dir'], entry.permalink)
-                else:
-                    path = joinurl(self.conf['output_dir'], expand(self.path, entry))
+            pathes.add(path)
+            next, prev = self.next(entrylist, i), self.prev(entrylist, i)
 
-                if path.endswith('/'):
-                    path = joinurl(path, 'index.html')
+            if isfile(path) and unmodified and not (entry.modified or modified(*references(entry))):
+                event.skip(path)
+                continue
 
-                if isfile(path) and path in pathes:
-                    try:
-                        os.remove(path)
-                    finally:
-                        f = lambda e: e is not entry and e.permalink == entry.permalink
-                        raise AcrylamidException("title collision %r in %r with %r." %
-                            (entry.permalink, entry.filename, filter(f, entrylist)[0].filename))
+            route = expand(self.path, entry)
+            html = tt.render(conf=conf, entry=entry, env=union(env,
+                             entrylist=[entry], type=self.__class__.__name__.lower(),
+                             prev=prev, next=next, route=route))
 
-                pathes.add(path)
-                next = self.next(entrylist, i) if not isdraft else None
-                prev = self.prev(entrylist, i) if not isdraft else None
-
-                if isfile(path) and not any([has_changed, entry.has_changed, tt.has_changed]):
-                    event.skip(path)
-                    continue
-
-                route = expand(self.path, entry)
-                html = tt.render(conf=self.conf, entry=entry, env=union(self.env,
-                                 entrylist=[entry], type=self.__class__.__name__.lower(),
-                                 prev=prev, next=next, route=route))
-
-                yield html, path
+            yield html, path
 
 
 class Entry(Base):
@@ -109,22 +98,21 @@ class Entry(Base):
     def type(self):
         return 'entrylist'
 
-    def has_changed(self, entrylist, salt):
-        # detect changes in prev and next
-        hv = md5(*entrylist, attr=lambda e: e.permalink)
-
-        if memoize(salt + '-permalinks') != hv:
-            memoize(salt +'-permalinks', hv)
-            return True
-        return False
-
     def next(self, entrylist, i):
-        return None if i == 0 else link(u"« " + entrylist[i-1].title,
-            entrylist[i-1].permalink.rstrip('/'), entrylist[i-1])
+
+        if i == 0:
+            return None
+
+        refs.append(entrylist[i], entrylist[i - 1])
+        return link(u"« " + entrylist[i-1].title, entrylist[i-1].permalink.rstrip('/'))
 
     def prev(self, entrylist, i):
-        return None if i == len(entrylist) - 1 else link(entrylist[i+1].title + u" »",
-            entrylist[i+1].permalink.rstrip('/'), entrylist[i+1])
+
+        if i == len(entrylist) - 1:
+            return None
+
+        refs.append(entrylist[i], entrylist[i + 1])
+        return link(entrylist[i+1].title + u" »", entrylist[i+1].permalink.rstrip('/'))
 
 
 class Page(Base):
@@ -204,21 +192,22 @@ class Translation(Base):
     def type(self):
         return 'translations'
 
-    def context(self, env, request):
+    def context(self, conf, env, data):
 
         translations = defaultdict(list)
-        for entry in request['entrylist'][:]:
+        for entry in data['entrylist'][:]:
 
             if entry.hasproperty('identifier'):
                 translations[entry.identifier].append(entry)
 
-                if entry.lang != self.conf.lang:
+                if entry.lang != conf.lang:
                     entry.props['entry_permalink'] = self.path
 
                     # remove from original entrylist
-                    request['entrylist'].remove(entry)
-                    request['translations'].append(entry)
+                    data['entrylist'].remove(entry)
+                    data['translations'].append(entry)
 
+        @refs.track
         def translationsfor(entry):
 
             try:
@@ -233,3 +222,12 @@ class Translation(Base):
         env.translationsfor = translationsfor
 
         return env
+
+
+class Draft(Base):
+    """Create an drafted post that is not linked by the articles overview or
+    regular posts."""
+
+    @property
+    def type(self):
+        return 'drafts'

@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 #
-# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid/__init__.py
+# Copyright 2012 Martin Zimmermann <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses -- see LICENSE.
 
 import os
 import datetime
@@ -72,7 +72,10 @@ def ago(date, now=datetime.datetime.now()):
 def do_summary(conf, env, options):
 
     limit = options.max if options.max > 0 else 5
-    entrylist, pages = readers.load(conf)
+    entrylist, pages, translations, drafts = readers.load(conf)
+
+    entrylist = sorted(entrylist + translations + drafts,
+        key=lambda k: k.date, reverse=True)
 
     print
     print 'acrylamid', blue(env['version']) + ',',

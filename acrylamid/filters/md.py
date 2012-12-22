@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 #
-# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid/__init__.py
+# Copyright 2012 Martin Zimmermann <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses -- see LICENSE.
 
 import os
 import imp
@@ -14,7 +14,7 @@ from acrylamid.errors import AcrylamidException
 class Markdown(Filter):
 
     match = ['md', 'mkdown', 'markdown', 'Markdown']
-    version = '1.0.0'
+    version = 1
 
     conflicts = ['rst', 'plain']
     priority = 70.0

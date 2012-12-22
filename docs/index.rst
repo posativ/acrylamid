@@ -3,12 +3,14 @@ Welcome to Acrylamid
 
 Acrylamid is a mixture of `nanoc <http://nanoc.stoneship.org/>`_, `Pyblosxom
 <http://pyblosxom.bluesock.org/>`_ and `Pelican <http://blog.getpelican.com/>`_
-licensed under BSD Style, 2 clauses.
+licensed under BSD Style, 2 clauses. It is actively developed and maintained
+at https://github.com/posativ/acrylamid/.
 
 |Build Status|_
 
 .. _Build Status: http://travis-ci.org/posativ/acrylamid
 .. |Build Status| image:: https://secure.travis-ci.org/posativ/acrylamid.png?branch=master
+
 
 .. toctree::
    :maxdepth: 1
@@ -30,13 +32,13 @@ licensed under BSD Style, 2 clauses.
 Why?
 ----
 
-- it is *fast* due incremental builds
+- it amazingly *fast* due incremental builds
 - support for Jinja2_ and Mako_ templates
 - many Markdown_ extensions and custom reStructuredText_ directives
 - MathML_, enhanced typography and hyphenation using soft-hyphens
 
 Oh, and it can also generate a static blog with articles, static pages, tags,
-RSS/Atom feeds (also per tag) and an article overview.
+RSS/Atom feeds (also per tag), article listing and a sitemap.
 
 .. _Jinja2: http://jinja.pocoo.org/
 .. _Mako: http://www.makotemplates.org/
@@ -44,6 +46,12 @@ RSS/Atom feeds (also per tag) and an article overview.
 
 Overview
 --------
+
+With Acrylamid you can write your weblog entries with your editor of choice in
+Markdown, reStructuredText or textile. With several content filters you can
+pimp your HTML (typography, math, hyphenation). Acrylamid provides a very
+sophisticated CLI and integrates perfectly with any DVCes. It generates
+completely static HTML you can host everywhere.
 
 supported markup languages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -84,7 +92,7 @@ blogging features
   format of Markdown or reStructuredText.
 - support for translations (oh, and did I mention the language dependend
   hyphenation feature?)
-- a few HTML5/XHTML themes, see `Theming
+- a few HTML5 themes, see `Theming
   <http://posativ.org/acrylamid/theming.html>`_.
 - internal webserver with automatic compiling when something has changed.
 - assets management, including LESS_ and SASS_ conversion.
@@ -185,9 +193,11 @@ overview.
 Need Help?
 ----------
 
-Join ``#acrylamid`` on Freenode_!
+Join ``#acrylamid`` on Freenode_! If you found a bug, please report it on
+`GitHub Issues`_.
 
 .. _Freenode: http://freenode.net/
+.. _Github Issues: https://github.com/posativ/acrylamid/issues?state=open
 
 API Reference
 -------------

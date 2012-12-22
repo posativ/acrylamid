@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 #
-# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
-# License: BSD Style, 2 clauses. see acrylamid/__init__.py
+# Copyright 2012 Martin Zimmermann <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses -- see LICENSE.
 #
 # This module contains helper objects and function for writing third-party code.
 
@@ -11,18 +11,18 @@ import io
 import re
 import imp
 import shutil
-import hashlib
+import itertools
 import subprocess
 
 from unicodedata import normalize
 from collections import defaultdict
-from os.path import join, dirname, basename, isdir, isfile, commonprefix
+from os.path import join, dirname, isdir, isfile, commonprefix
 
 from acrylamid import log, PY3, __file__ as PATH
 from acrylamid.errors import AcrylamidException
 
 from acrylamid.core import cache
-from acrylamid.utils import batch
+from acrylamid.utils import batch, hash
 
 try:
     import translitcodec
@@ -34,7 +34,7 @@ try:
 except ImportError:
     unidecode = None  # NOQA
 
-__all__ = ['memoize', 'union', 'mkfile', 'md5', 'expand', 'joinurl',
+__all__ = ['memoize', 'union', 'mkfile', 'hash', 'expand', 'joinurl',
            'safeslug', 'paginate', 'safe', 'system', 'event', 'rchop',
            'discover']
 
@@ -52,14 +52,12 @@ def memoize(key, value=None):
 
 def union(*args, **kwargs):
     """Takes a list of dictionaries and performs union of each.  Can take additional
-    key=values as parameters to overwrite or add key/value-pairs."""
+    key=values as parameters to overwrite or add key/value-pairs. No side-effects,"""
 
-    d = args[0]
-    for dikt in args[1:]:
-        d.update(dikt)
+    new = {}
+    map(new.update, itertools.chain(args, [kwargs]))
 
-    d.update(kwargs)
-    return d
+    return new
 
 
 def identical(obj, other, bs=4096):
@@ -106,26 +104,6 @@ def mkfile(fileobj, path, ctime=0.0, force=False, dryrun=False, **kw):
                 with io.open(path, 'w' + mode) as fp:
                     fp.write(fileobj.read())
         event.create(path=path, ctime=ctime)
-
-
-def md5(*objs, **kw):
-    """A multifunctional hash function that can take one or more objects
-    and a getter from which you want calculate the MD5 sum.
-
-    :param obj: one or more objects
-    :param attr: a getter, defaults to ``lambda o: o.__str__()``"""
-
-    # positional arguments before *args issue
-    attr = kw.get('attr', lambda o: o.encode('utf-8') if isinstance(o, unicode) else o.__str__())
-    h = hashlib.md5()
-
-    for obj in objs:
-        try:
-            h.update(attr(obj))
-        except (TypeError, UnicodeEncodeError):
-            h.update(attr(obj).encode('utf-8'))
-
-    return h.hexdigest()
 
 
 def expand(url, obj):
@@ -213,29 +191,7 @@ def paginate(lst, ipp, func=lambda x: x, salt=None, orphans=0):
         curr = i
         prev = None if i >= j else i+1
 
-        # get caller, so we can set a unique and meaningful hash-key
-        frame = log.findCaller()
-        if salt is None:
-            hkey = '%s:%s-hash-%i' % (basename(frame[0]), frame[2], i)
-        else:
-            hkey = '%s:%s-hash-%s-%i' % (basename(frame[0]), frame[2], salt, i)
-
-        # calculating hash value and retrieve memoized value
-        hv = md5(*entries, attr=lambda o: o.md5)
-        rv = cache.memoize(hkey)
-
-        if rv == hv:
-            # check if an Entry-instance has changed
-            if any(filter(lambda e: e.has_changed, entries)):
-                has_changed = True
-            else:
-                has_changed = False
-        else:
-            # save new value for next run
-            cache.memoize(hkey, hv)
-            has_changed = True
-
-        yield (next, curr, prev), entries, has_changed
+        yield (next, curr, prev), entries, any(filter(lambda e: e.modified, entries))
 
 
 def safe(string):
@@ -261,7 +217,7 @@ def safe(string):
     return string
 
 
-def link(title, href=None, entry=None):
+def link(title, href=None):
     """Return a link struct, that contains title and optionally href. If only
     title is given, we use title as href too.  It provides a __unicode__ to
     be compatible with older templates (≤ 0.3.4).
