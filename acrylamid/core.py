@@ -8,22 +8,22 @@
 import os
 import io
 import zlib
+import types
 import tempfile
 
-from collections import defaultdict
-from os.path import join, exists, getmtime
+from os.path import join, exists, getmtime, getsize
 
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
-from acrylamid.utils import memoized, classproperty, cached_property, Struct, hash
+from acrylamid.utils import memoized, classproperty, cached_property, Struct, hash, HashableList
 
 try:
     import cPickle as pickle
 except ImportError:
     import pickle  # NOQA
 
-__all__ = ['Memory', 'cache']
+__all__ = ['Memory', 'cache', 'Environment', 'Configuration']
 
 
 class Memory(dict):
@@ -33,72 +33,28 @@ class Memory(dict):
     __call__ = lambda self, k, v=None: self.__setitem__(k, v) if v else self.get(k, None)
 
 
-def track(func):
-    """Decorator to track accessed cache objects that return something != None.
-
-    :param func: function to decorate
-    """
-    def dec(cls, path, key, *args, **kw):
-
-        rv = func(cls, path, key, *args, **kw)
-
-        if rv is not None:
-            cls.tracked[path].add(key)
-
-        return rv
-    return dec
-
-
 class cache(object):
     """A cache that stores all intermediates of an entry zlib-compressed on
     file system. Inspired from ``werkzeug.contrib.cache``, but heavily modified
     to fit our needs.
 
-    This cache is a bit more advanced and can track used cache objects to
-    remove them afterwards, it reduces I/O so we can call `has_key` very
-    often. After a run, we can automatically remove dead objects from cache.
+    Terminology: A cache object is a pickled dictionary into a single file. An
+    intermediate (object) is a key/value pair that we store into a cache object.
+    An intermediate is the content of an entry that is the same for a chain of
+    filters used in different views.
 
-    Terminology: A cache object is a pickled dictionary into a single file in
-    cache. An intermediate (object) is a key/value pair that we store into a
-    cache object. An intermediate is the content of an entry that is the same
-    for an amount of filters.
-
-    cache is designed as global singleton and should not be constructed.
+    :class:`cache` is designed as global singleton and should not be constructed.
 
     .. attribute:: cache_dir
 
-       Location where all cache objects are being stored, defaults to *.cache/*
+       Location where all cache objects are being stored, defaults to `.cache/`.
 
-    .. attribute:: tracked
-
-       A bunch of cache objects with all tracked (used) intermediate objects
-
-    .. attribute:: objects
-
-       Internal cache for less I/O on cache objects containing all cache objects
-       and keys belong to them. On :func:`init` we parse all existent cache
-       objects and update them when it's necessary (we delete or update an
-       cache object).
-
-    >>> cache.init('.mycache/')
-    >>> cache.get(obj, key, default=None, mtime=0.0)
-    None
-    >>> cache.set("My Object's name", "mykey", value)
-    `value`
-    >>> cache.get("My Object's name", "mykey", value)
-    `value`
-    >>> cache.has_key("My objects's key", "mykey")
-    True
-    >>> cache.has_key("Foo", "Bar")
-    False
-    """
+    The :class:`cache` does no longer maintain used/unused intermediates and cache
+    objects due performance reasons (and an edge case described in #67)."""
 
     _fs_transaction_suffix = '.__ac_cache'
     cache_dir = '.cache/'
     mode = 0600
-
-    tracked = defaultdict(set)
-    objects = defaultdict(set)
 
     memoize = Memory()
 
@@ -109,12 +65,11 @@ class cache(object):
         jinja2 suffixes cached templates with .cache
         for mako, we prefix cached templates with cache_
         """
-        return [join(self.cache_dir, fn) for fn in os.listdir(self.cache_dir)
-                if not (fn.endswith('.cache') or fn.startswith('cache_') or
-                        fn == '__pycache__')]
+        return [fn for fn in os.listdir(self.cache_dir) if not
+            (fn.endswith('.cache') or fn.startswith('cache_') or fn == '__pycache__')]
 
     @classmethod
-    def init(self, cache_dir=None, mode=0600):
+    def init(self, cache_dir=None):
         """Initialize cache object by creating the cache_dir if non-existent,
         read all available cache objects and restore memoized key/values.
 
@@ -123,137 +78,76 @@ class cache(object):
         """
         if cache_dir:
             self.cache_dir = cache_dir
-        if mode:
-            self.mode = mode
+
         if not exists(self.cache_dir):
             try:
                 os.mkdir(self.cache_dir, 0700)
             except OSError:
-                raise AcrylamidException("could not create directory '%s'" %
-                                         self.cache_dir)
-
-        # get all cache objects
-        for path in self._list_dir():
-            try:
-                with io.open(path, 'rb') as fp:
-                    self.objects[path] = set(pickle.load(fp).keys())
-            except pickle.PickleError:
-                os.remove(path)
-            except (AttributeError, EOFError):
-                # this may happen after a refactor
-                log.info('notice  stale cache objects')
-                for obj in self._list_dir():
-                    cache.remove(obj)
-                break
-            except IOError:
-                continue
+                raise AcrylamidException("could not create directory '%s'" % self.cache_dir)
 
         # load memorized items
         try:
-            with io.open(join(cache.cache_dir, 'info'), 'rb') as fp:
-                cache.memoize.update(pickle.load(fp))
+            with io.open(join(self.cache_dir, 'info'), 'rb') as fp:
+                self.memoize.update(pickle.load(fp))
         except (IOError, pickle.PickleError):
             self.emptyrun = True
         else:
             self.emptyrun = False
 
     @classmethod
-    def shutdown(self, prematurely=False):
-        """Remove abandoned cache files that are not accessed during compilation
-        process. This does not affect jinja2 templates or *.cache/info*. This
-        also removes abandoned intermediates from a cache file (they may
-        accumulate over time)."""
-
-        # save memoized items to disk
+    def shutdown(self):
+        """Write memoized key-value pairs to disk."""
         try:
-            path = join(self.cache_dir, 'info')
-            self.tracked[path] = set(self.memoize.keys())
-            with io.open(path, 'wb') as fp:
+            with io.open(join(self.cache_dir, 'info'), 'wb') as fp:
                 pickle.dump(self.memoize, fp, pickle.HIGHEST_PROTOCOL)
         except (IOError, pickle.PickleError) as e:
             log.warn('%s: %s' % (e.__class__.__name__, e))
 
-        if prematurely:
-            return
-
-        # first we search for cache files from entries that have vanished
-        for path in set(self._list_dir()).difference(set(self.tracked.keys())):
-            os.remove(path)
-
-        # next we clean the cache files itself
-        for path, keys in self.tracked.iteritems():
-
-            try:
-                with io.open(path, 'rb') as fp:
-                    obj = pickle.load(fp)
-                    found = set(obj.keys())
-            except (IOError, pickle.PickleError):
-                obj, found = {}, set([])
-
-            try:
-                for key in found.difference(set(keys)):
-                    obj.pop(key)
-                with io.open(path, 'wb') as fp:
-                    pickle.dump(obj, fp, pickle.HIGHEST_PROTOCOL)
-            except pickle.PickleError:
-                try:
-                    os.remove(path)
-                except OSError as e:
-                    log.warn('OSError: %s' % e)
-            except IOError:
-                pass
-
     @classmethod
     def remove(self, path):
-        """Remove a cache object completely from disk, objects and tracked
-        files."""
+        """Remove a cache object completely from disk and `objects`."""
         try:
-            os.remove(path)
+            os.remove(join(self.cache_dir, path))
         except OSError as e:
             log.debug('OSError: %s' % e)
 
-        self.objects.pop(path, None)
-        self.tracked.pop(path, None)
-
     @classmethod
     def clear(self, directory=None):
+        """Wipe current cache objects and reset all stored informations.
+
+        :param directory: directory to clean (defaults to `.cache/`"""
+
         if directory is not None:
             self.cache_dir = directory
 
-        cache.memoize = Memory()
+        self.memoize = Memory()
         if not exists(self.cache_dir):
             return
 
+        self.remove('info')
         for path in self._list_dir():
-            cache.remove(path)
-        cache.remove(join(self.cache_dir, 'info'))
+            self.remove(path)
 
     @classmethod
-    @track
-    def get(self, path, key, default=None, mtime=0.0):
+    def get(self, path, key, default=None):
         """Restore value from obj[key] if mtime has not changed or return
         default.
 
         :param path: path of this cache object
         :param key: key of this value
         :param default: default return value
-        :param mtime: modification timestamp as float value
         """
         try:
-            if mtime > getmtime(path):
-                cache.remove(path)
-                return default
-            with io.open(path, 'rb') as fp:
+            with io.open(join(self.cache_dir, path), 'rb') as fp:
                 return zlib.decompress(pickle.load(fp)[key]).decode('utf-8')
-        except (OSError, KeyError):
+        except KeyError:
             pass
         except (IOError, pickle.PickleError, zlib.error):
-            cache.remove(path)
+            self.remove(join(self.cache_dir, path))
 
         return default
 
     @classmethod
-    @track
     def set(self, path, key, value):
         """Save a key, value pair into a blob using pickle and moderate zlib
         compression (level 6). We simply save a dictionary containing all
@@ -263,12 +157,14 @@ class cache(object):
         :param key: dictionary key where we store the value
         :param value: a string we compress with zlib and afterwards save
         """
+        path = join(self.cache_dir, path)
+
         if exists(path):
             try:
                 with io.open(path, 'rb') as fp:
                     rv = pickle.load(fp)
             except (pickle.PickleError, IOError):
-                cache.remove(path)
+                self.remove(path)
                 rv = {}
             try:
                 with io.open(path, 'wb') as fp:
@@ -288,15 +184,7 @@ class cache(object):
             except (IOError, OSError, pickle.PickleError, zlib.error) as e:
                 log.warn('%s: %s' % (e.__class__.__name__, e))
 
-        self.objects[path].add(key)
         return value
-
-    @classmethod
-    @track
-    def has_key(self, path, key):
-        """Check whether cache objects exists at all and test for a given
-        intermediate. Mark it as "used" afterwards."""
-        return key in self.objects[path]
 
     @classmethod
     @memoized
@@ -309,23 +197,31 @@ class cache(object):
         :param default: default value if an :class:`OSError` occurs
         """
         try:
-            return getmtime(path)
+            return getmtime(join(self.cache_dir, path))
         except OSError:
             return default
 
     @classproperty
     @classmethod
     def size(self):
-        res = 0
+        """return size of all cacheobjects in bytes"""
+        res = getsize(join(self.cache_dir, 'info'))
         for (path, dirs, files) in os.walk(self.cache_dir):
             for file in files:
                 filename = os.path.join(path, file)
-                res += os.path.getsize(filename)
+                res += getsize(filename)
         return res
 
 
 class Environment(Struct):
+    """Use *only* for the environment container.  This class hides un-hashable
+    keys from :class:`Struct` hash function.
 
+    .. attribute:: modified
+
+        Return whether the Environment has changed between two runs. This
+        attribute must only be accessed after all modifications to the environment!
+    """
     blacklist = set(['engine', 'translationsfor', 'options'])
 
     def keys(self):
@@ -337,4 +233,23 @@ class Environment(Struct):
 
     @cached_property
     def modified(self):
-        return hash(self) != cache.memoize('Environment')
+        return hash(self) != cache.memoize(self.__class__.__name__)
+
+
+class Configuration(Environment):
+    """Similar to :class:`Environment` but allows hashing of a literarily
+    defined dictionary (that's the conf.py)."""
+
+    blacklist = set(['if'])
+
+    def values(self):
+        for key in self.keys():
+            if isinstance(self[key], types.FunctionType):
+                continue
+
+            if isinstance(self[key], list):
+                yield HashableList(self[key])
+            elif isinstance(self[key], dict):
+                yield Configuration(self[key])
+            else:
+                yield self[key]

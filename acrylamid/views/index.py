@@ -54,7 +54,7 @@ class Index(View):
 
             path = joinurl(conf['output_dir'], curr.href, 'index.html')
 
-            if isfile(path) and not (modified or tt.modified or env.modified):
+            if isfile(path) and not (modified or tt.modified or env.modified or conf.modified):
                 event.skip(path)
                 continue
 

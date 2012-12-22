@@ -5,7 +5,6 @@
 
 from os.path import isfile
 from datetime import datetime, timedelta
-from itertools import ifilter
 
 from acrylamid.utils import HashableList
 from acrylamid.views import View, tag
@@ -36,7 +35,7 @@ class Feed(View):
             path = joinurl(path, 'index.html')
 
         modified = any(entry.modified for entry in entrylist)
-        if (isfile(path) and not (env.modified or tt.modified or modified)):
+        if isfile(path) and not (conf.modified or env.modified or tt.modified or modified):
             event.skip(path)
             raise StopIteration
 

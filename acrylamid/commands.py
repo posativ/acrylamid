@@ -42,7 +42,7 @@ def initialize(conf, env):
     if history.check(env, cache.emptyrun) is False:
         print "Detected version upgrade that might break your configuration. Run"
         print "Acrylamid a second time to get rid of this message and premature exit."
-        cache.shutdown(prematurely=True)
+        cache.shutdown()
         raise SystemExit
 
     # rewrite static directory
@@ -222,7 +222,8 @@ def compile(conf, env, force=False, **options):
     # copy modified/missing assets to output
     assets.compile(conf, env)
 
-    # save environment hash and new/changed/unchanged references
+    # save conf/environment hash and new/changed/unchanged references
+    helpers.memoize('Configuration', hash(conf))
     helpers.memoize('Environment', hash(env))
     refs.save()
 

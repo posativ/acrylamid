@@ -22,7 +22,6 @@ from acrylamid import log, PY3, __file__ as PATH
 from acrylamid.errors import AcrylamidException
 
 from acrylamid.core import cache
-from acrylamid.refs import modified, references
 from acrylamid.utils import batch, hash
 
 try:

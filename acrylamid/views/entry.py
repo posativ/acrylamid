@@ -39,7 +39,7 @@ class Base(View):
 
         tt = env.engine.fromfile(self.template)
         pathes, entrylist = set(), data[self.type]
-        unmodified = not tt.modified and not env.modified
+        unmodified = not tt.modified and not env.modified and not conf.modified
 
         for i, entry in enumerate(entrylist):
 

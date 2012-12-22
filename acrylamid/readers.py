@@ -125,10 +125,13 @@ class Timezone(tzinfo):
     UTC awareness."""
 
     def __init__(self, offset=0):
-        self.offset = timedelta(hours=offset)
+        self.offset = offset
+
+    def __hash__(self):
+        return self.offset
 
     def utcoffset(self, dt):
-        return self.offset
+        return timedelta(hours=self.offset)
 
     def dst(self, dt):
         return timedelta()
@@ -406,7 +409,11 @@ class ContentMixin(object):
         pv = None
 
         # this is our cache filename
-        path = join(cache.cache_dir, hex(hash(self))[2:])
+        path = hex(hash(self))[2:]
+
+        # remove *all* intermediates when entry has been modified
+        if self.lastmodified > cache.getmtime(path):
+            cache.remove(path)
 
         # growing dependencies of the filter chain
         deps = []
@@ -420,13 +427,12 @@ class ContentMixin(object):
             key = hash(*deps)
 
             try:
-                rv = cache.get(path, key, mtime=self.lastmodified)
+                rv = cache.get(path, key)
                 if rv is None:
                     res = self.source if pv is None else pv
                     for f in fxs:
                         res = f.transform(res, self, *f.args)
                     pv = cache.set(path, key, res)
-                    self.modified = True
                 else:
                     pv = rv
             except (IndexError, AttributeError):
@@ -444,29 +450,7 @@ class ContentMixin(object):
         - entry's file is newer than the cache's one -> has changed
         - otherwise -> not changed"""
 
-        # with new-style classes we can't delete/overwrite @property-ied methods,
-        # so we try to return a fixed value otherwise continue
-        try:
-            return self._modified
-        except AttributeError:
-            pass
-
-        path = join(cache.cache_dir, hex(hash(self))[2:])
-        deps = []
-
-        for fxs in self.filters.iter(self.context):
-
-            # extend filter dependencies
-            deps.extend(fxs)
-
-            if not cache.has_key(path, hash(*deps)):
-                return True
-        else:
-            return self.lastmodified > cache.getmtime(path)
-
-    @modified.setter
-    def modified(self, value):
-        self._modified = value
+        return self.lastmodified > cache.getmtime(hex(hash(self))[2:])
 
 
 class Entry(ContentMixin, MetadataMixin, FileReader):

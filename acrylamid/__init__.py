@@ -147,7 +147,7 @@ def Acryl():
         sys.exit(1)
 
     # -- teh real thing -- #
-    conf = Struct(defaults.conf)
+    conf = core.Configuration(defaults.conf)
 
     try:
         ns = dict([(k.upper(), v) for k, v in defaults.conf.iteritems()])

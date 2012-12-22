@@ -5,7 +5,7 @@ import attest
 
 from os.path import join, isfile
 
-from acrylamid import utils, log, helpers
+from acrylamid import core, log, utils, helpers
 from acrylamid.commands import compile
 from acrylamid.defaults import conf
 
@@ -50,8 +50,8 @@ class SingleEntry(attest.TestBase):
             with open('layouts/main.html', 'w') as fp:
                 fp.write('{{ env.entrylist[0].content }}\n')
 
-            self.conf = utils.Struct(conf)
-            self.env = utils.Struct({'options': options, 'globals': utils.Struct()})
+            self.conf = core.Configuration(conf)
+            self.env = core.Environment({'options': options, 'globals': utils.Struct()})
 
             self.conf['filters'] = ['HTML']
             self.conf['views'] = {'/:year/:slug/': {'view': 'entry'}}
@@ -130,8 +130,8 @@ class MultipleEntries(attest.TestBase):
             with open('layouts/atom.xml', 'w') as fp:
                 fp.write("{% for entry in env.entrylist %}\n{{ entry.content ~ '\n' }}\n{% endfor %}")
 
-            self.conf = utils.Struct(conf)
-            self.env = utils.Struct({'options': options, 'globals': utils.Struct()})
+            self.conf = core.Configuration(conf)
+            self.env = core.Environment({'options': options, 'globals': utils.Struct()})
 
             self.conf['filters'] = ['Markdown', 'h1']
             self.conf['views'] = {'/:year/:slug/': {'view': 'entry'},
