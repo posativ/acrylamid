@@ -23,6 +23,7 @@ at https://github.com/posativ/acrylamid/.
    idea
    filters
    views
+   assets
    theming
    templating
    extending

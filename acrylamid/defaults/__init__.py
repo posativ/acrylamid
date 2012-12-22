@@ -36,5 +36,6 @@ conf = {
     'views': {
     },
 
-    'engine': 'acrylamid.templates.jinja2.Environment'
+    'engine': 'acrylamid.templates.jinja2.Environment',
+    'static_filter': ['HTML', 'XML']
 }
