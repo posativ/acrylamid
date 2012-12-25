@@ -266,8 +266,6 @@ def autocompile(ws, conf, env, **options):
 
         if cmtime != getmtime('conf.py'):
             log.info(' * Restarting due to change in conf.py')
-            # regenerate from cache to reflect changes in conf.py
-            shutil.rmtree(conf['output_dir'])
             # Kill the webserver
             ws.shutdown()
             # Restart acrylamid
