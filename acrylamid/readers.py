@@ -29,6 +29,8 @@ try:
     import yaml
 except ImportError:
     yaml = None  # NOQA
+else:
+    yaml.Loader.add_constructor(u'tag:yaml.org,2002:timestamp', lambda x, y: y.value)
 
 
 def load(conf):
