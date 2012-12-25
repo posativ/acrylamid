@@ -38,11 +38,10 @@ def initialize(conf, env):
         ['major', 'minor', 'patch'], (int(x) for x in __version__.split('.'))
     )))(__version__)
 
-    # crawl through CHANGES.md and stop when breaking changes
-    if history.check(env, cache.emptyrun) is False:
+    # crawl through CHANGES.md and stop on breaking changes
+    if history.breaks(env, cache.emptyrun):
         print "Detected version upgrade that might break your configuration. Run"
         print "Acrylamid a second time to get rid of this message and premature exit."
-        cache.shutdown()
         raise SystemExit
 
     # rewrite static directory

@@ -17,6 +17,7 @@ from acrylamid.helpers import memoize
 
 
 def changesfor(version):
+    """return CHANGES for `version` and whether it *breaks*."""
 
     with io.open(join(dirname(PATH), 'CHANGES.md')) as fp:
 
@@ -50,33 +51,33 @@ colorize = lambda text: \
     re.sub('`([^`]+)`', lambda m: bold(blue(m.group(1))).encode('utf-8'),
     re.sub('`([A-Z_*]+)`', lambda m: bold(m.group(1)).encode('utf-8'),
     re.sub('(#\d+)', lambda m: underline(m.group(1)).encode('utf-8'),
-    re.sub('(breaks?)', lambda m: red(m.group(1)).encode('utf-8'), text))))
+    re.sub('(breaks?)', lambda m: red(bold(m.group(1))).encode('utf-8'), text))))
 
 
-def check(env, firstrun):
-    """Return whether the new version is compatible/safe with the last and
-    print all changes between the current and new version."""
+def breaks(env, firstrun):
+    """Return whether the new version may break current configuration and print
+    all changes between the current and new version."""
 
     version = memoize('version') or (0, 4)
     if version >= (env.version.major, env.version.minor):
-        return True
+        return False
 
     memoize('version', (env.version.major, env.version.minor, env.version.patch))
 
     if firstrun:
-        return True
+        return False
 
-    safe = True
+    broken = False
     print
 
     for major in range(version[0], env.version.major or 1):
         for minor in range(version[1], env.version.minor):
-            broken, hints = changesfor('%i.%i' % (major, minor + 1))
-            safe = min(broken, safe)
+            rv, hints = changesfor('%i.%i' % (major, minor + 1))
+            broken = broken or rv
 
             print (blue('acrylamid') + ' %i.%s' % (major, minor+1) + u' – changes').encode('utf-8'),
 
-            if not safe:
+            if broken:
                 print (u'– ' + red('may break something.')).encode('utf-8')
             else:
                 print
@@ -85,4 +86,4 @@ def check(env, firstrun):
             print colorize(hints).encode('utf-8')
             print
 
-    return safe
+    return broken
