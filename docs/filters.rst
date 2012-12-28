@@ -210,6 +210,24 @@ directives, acrylamid offers three additional one:
          :privacy:
          :ssl:
 
+- Vimeo directive for easy embedding (`:options:` are optional).
+
+  .. code-block:: restructuredtext
+
+      .. vimeo:: 6455561
+         :align: center
+         :height: 1280
+         :width: 720
+         :border: 1px
+         :color: ffffff
+         :nobyline:
+         :noportrait:
+         :nobyline:
+         :notitle:
+         :autoplay:
+         :loop:
+
+
 ============  ==================================================
 Requires      ``docutils`` (or ``python-docutils``), optional
               ``pygments`` for syntax highlighting
