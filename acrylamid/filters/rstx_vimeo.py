@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 #
-# Copyright 2012 posativ <info@posativ.org>. All rights reserved.
+# Copyright 2012 the_metalgamer <the_metalgamer@hackerspace.lu>. All rights reserved.
 # License: BSD Style, 2 clauses. see acrylamid/__init__.py
 
 from docutils import nodes
