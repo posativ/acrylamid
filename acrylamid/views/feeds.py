@@ -21,6 +21,10 @@ class Feed(View):
 
     priority = 25.0
 
+    def init(self, conf, env):
+        self.filters.append('absolute')
+        self.route = self.path
+
     def context(self, conf, env, data):
         env.engine.register('utc', utc)
         return env
@@ -30,7 +34,7 @@ class Feed(View):
         entrylist = list(entrylist)[0:self.num_entries]
         tt = env.engine.fromfile('%s.xml' % self.type)
 
-        path = joinurl(conf['output_dir'], self.path)
+        path = joinurl(conf['output_dir'], self.route)
         if not path.endswith(('.xml', '.html')):
             path = joinurl(path, 'index.html')
 
@@ -40,7 +44,7 @@ class Feed(View):
             raise StopIteration
 
         updated = entrylist[0].date if entrylist else datetime.utcnow()
-        html = tt.render(conf=conf, env=union(env, route=self.path,
+        html = tt.render(conf=conf, env=union(env, route=self.route,
                          updated=updated, entrylist=entrylist))
         yield html, path
 
@@ -52,33 +56,31 @@ class FeedPerTag(tag.Tag, Feed):
 
         return env
 
-    def generate(self, data):
+    def generate(self, conf, env, data):
 
-        entrylist = [entry for entry in data['entrylist']
-                     if not entry.draft]
-
-        self.original_path = self.path
         for tag in self.tags:
 
             entrylist = HashableList(entry for entry in self.tags[tag])
             new_data = data
             new_data['entrylist'] = entrylist
-            self.path = expand(self.original_path, {'name': tag})
-            for html, path in Feed.generate(self, new_data):
+            self.route = expand(self.path, {'name': tag})
+            for html, path in Feed.generate(self, conf, env, new_data):
                 yield html, path
 
 
 class Atom(Feed):
 
     def init(self, conf, env, num_entries=25):
+        super(Atom, self).init(conf, env)
+
         self.num_entries = num_entries
         self.type = 'atom'
-        self.filters.append('absolute')
 
 
 class RSS(Feed):
 
     def init(self, conf, env, num_entries=25):
+        super(RSS, self).init(conf, env)
 
         from wsgiref.handlers import format_date_time
         from time import mktime
@@ -87,13 +89,13 @@ class RSS(Feed):
         env.engine.register(
             'rfc822', lambda x: unicode(format_date_time(mktime(x.timetuple()))))
         self.type = 'rss'
-        self.filters.append('absolute')
 
 
 class AtomPerTag(FeedPerTag):
 
     def init(self, conf, env, num_entries=25):
-        self.filters.append('absolute')
+        super(AtomPerTag, self).init(conf, env)
+
         self.num_entries = num_entries
         self.type = 'atom'
 
@@ -101,11 +103,11 @@ class AtomPerTag(FeedPerTag):
 class RssPerTag(FeedPerTag):
 
     def init(self, conf, env, num_entries=25):
+        super(RssPerTag, self).init(conf, env)
 
         from wsgiref.handlers import format_date_time
         from time import mktime
 
-        self.filters.append('absolute')
         self.num_entries = num_entries
         env.engine.register(
             'rfc822', lambda x: format_date_time(mktime(x.timetuple())))
