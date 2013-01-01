@@ -40,6 +40,7 @@ def initialize(conf, env):
 
     # crawl through CHANGES.md and stop on breaking changes
     if history.breaks(env, cache.emptyrun):
+        cache.shutdown()
         print "Detected version upgrade that might break your configuration. Run"
         print "Acrylamid a second time to get rid of this message and premature exit."
         raise SystemExit

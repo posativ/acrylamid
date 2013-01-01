@@ -44,7 +44,7 @@ def changesfor(version):
                 if 'break' in line:
                     safe = False
 
-    return safe, '\n'.join(rv)
+    return not safe, '\n'.join(rv)
 
 
 colorize = lambda text: \
