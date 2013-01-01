@@ -65,7 +65,7 @@ class TestEntry(attest.TestBase):
         create(self.path, title='foo')
         entry = Entry(self.path, conf)
 
-        assert entry.permalink == '/2012/foo/'
+        assert entry.permalink == '/2013/foo/'
 
         create(self.path, title='foo', permalink='/hello/world/')
         entry = Entry(self.path, conf)
@@ -75,7 +75,7 @@ class TestEntry(attest.TestBase):
         create(self.path, title='foo', permalink_format='/:year/:slug/index.html')
         entry = Entry(self.path, conf)
 
-        assert entry.permalink == '/2012/foo/'
+        assert entry.permalink == '/2013/foo/'
 
     @attest.test
     def tags(self):
