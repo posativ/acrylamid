@@ -71,13 +71,13 @@ Variable name (default value)                       Description
 `ENCODING` (``'utf-8'``)                            Default encoding of your text files, only global.
 `FILTERS` (|filter|)                                Global list of filters.
 `VIEWS` (see example conf.py)                       Dictionary of views set in conf.py.
-`WWW_ROOT` (``'http://localhost:8000'``)            Your actual website link where you host this blog.
-                                                    It's used to build absolute urls (required for disqus
-                                                    and feeds).
+`WWW_ROOT` (``'http://localhost:8000/'``)           Your actual website link where you host this blog to
+                                                    build absolute urls (required for Disqus and feeds).
+                                                    You can also set a sub URI like ``example.org/blog``.
 `OUTPUT_DIR` (``output/``)                          Directory where the output goes to.
-`CONTENT_DIR` (``content/``)                        Directory where you write your posts to.
-`CONTENT_EXTENSION` (``.txt``)                      Filename extension used for
-                                                    creating new entries.
+`CONTENT_DIR` (``content/``)                        Directory where you posts are located. No assets will
+                                                    be copied from this directory!
+`CONTENT_EXTENSION` (``.txt``)                      Filename extension used for creating new entries.
 `CONTENT_IGNORE` (|ignored|)                        A list of filename/directory-patterns [#]_ which
                                                     Acrylamid should ignore.
 `THEME` (``layouts/``)                              Directory where you place your jinja2 templates.
@@ -128,8 +128,8 @@ URL Settings
 ------------
 
 When it comes to URLs, Acrylamid follows two simple rules: always add a
-*index.html* to an URL with trailing slash. Secondly: substitution variables
-begin with a double dash and then the wished attribute:
+*index.html* to an URL with a trailing slash. Second: substitution variables
+begin with a double dash and and the attribute name:
 
 - ``/2012/hello-world/`` gets a ``index.html`` as filename for nice URLs
 - ``/atom/index.html`` gets not touched anywhere and uses ``index.html``
@@ -144,12 +144,11 @@ variable name substitutions in a current view.
 Variable name (default value)                       Description
 ================================================    =====================================================
 `ENTRY_PERMALINK` (*not set*)                       A substitution string where all entries were saved
-                                                    to By default you don’t need to set this parameter
-                                                    because it takes the route where the view is entry
-                                                    But if your url routes for the entry view are
-                                                    ambiguous, set this parameter.
-`PAGE_PERMALINK` (*not set*)                        Same for ENTRY_PERMALINK but for static pages and the
-                                                    static view.
+                                                    to. By default you don’t need to set this parameter
+                                                    because it takes the route where the view is `entry`.
+                                                    If your url routes for the entry view are ambiguous,
+                                                    you might need to set this parameter.
+`PAGE_PERMALINK` (*not set*)                        Same for ENTRY_PERMALINK but for static pages.
 ================================================    =====================================================
 
 Date format and locale
@@ -204,12 +203,12 @@ Variable name (default value)                       Description
 `SUMMARIZE_MODE` (``1``)                            Mode *0* this injects the link to the end of the
                                                     current tag, *1* after some black-listed tags and
                                                     *2* after all tags as standalone link.
-`SUMMARIZE_LINK` (|link|)                           Simple string template for the continue reading link.
+`SUMMARIZE_LINK` (|link|)                           String template for the continue reading link.
                                                     Default uses an ellipsis (three typographical dots,
                                                     …), a link with the css class ``continue`` and the
                                                     text ``continue`` and a single dot afterwards.
-                                                    This string must contain one ``%s`` where the link
-                                                    address will be inserted.
+                                                    This string must contain ``%s`` where this link
+                                                    location will be inserted.
 ================================================    =====================================================
 
 .. [#] Note, disqus only knows a given URL. If you change the title of an entry
