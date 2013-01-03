@@ -107,10 +107,10 @@ def initialize(conf, env):
         conf['views_dir'] = [conf['views_dir'], ]
 
     lazy.enable()
-    filters.initialize(conf["filters_dir"], conf, env)
+    filters.initialize(conf["filters_dir"][:], conf, env)
     lazy.disable()  # this has weird side effects with jinja2, so disabled after filters
 
-    views.initialize(conf["views_dir"], conf, env)
+    views.initialize(conf["views_dir"][:], conf, env)
     env.views = views.Views(view for view in views.get_views())
 
     entryfmt, pagefmt = '/:year/:slug/', '/:slug/'

@@ -13,11 +13,14 @@ from acrylamid import log, helpers
 from acrylamid.errors import AcrylamidException
 from acrylamid.lib.lazy import _demandmod as LazyModule
 
+# module-level variable to store all used filters during compilation
+__filter_list = None
+
 
 def get_filters():
 
-    global callbacks
-    return callbacks
+    global __filter_list
+    return __filter_list
 
 
 def index_filters(conf, env, module):
@@ -29,14 +32,14 @@ def index_filters(conf, env, module):
     :param env: environment
     """
 
-    global callbacks
+    global __filter_list
 
     cs = [getattr(module, c) for c in dir(module) if not c.startswith('_')]
     for mem in cs:
         if isinstance(mem, LazyModule):
             continue  # weird things happen when instance-checking with meta
         if isinstance(mem, meta) and hasattr(mem, 'match'):
-            callbacks.append(mem)
+            __filter_list.append(mem)
 
 
 def discover(directories, filterfunc=lambda filename: True):
@@ -57,6 +60,9 @@ def initialize(directories, conf, env):
     :param directories: list of directories
     :param conf: user config
     :param env: environment"""
+
+    global __filter_list
+    __filter_list = FilterList()
 
     directories += [os.path.dirname(__file__)]
     helpers.discover(
@@ -346,6 +352,3 @@ class FilterTree(list):
                 raise StopIteration
 
             yield ls
-
-
-callbacks = FilterList()
