@@ -78,7 +78,7 @@ def do_summary(conf, env, options):
         key=lambda k: k.date, reverse=True)
 
     print
-    print 'acrylamid', blue(env['version']) + ',',
+    print 'Acrylamid', blue(env['version']) + ',',
     print 'cache size:', blue('%0.2f' % (cache.size / 1024.0**2)) + ' mb'
     print
 

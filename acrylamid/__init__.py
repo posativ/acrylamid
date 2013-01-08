@@ -76,8 +76,10 @@ def Acryl():
         help="less verbose", const=log.WARN)
     parser.add_argument("-C", "--no-color", action="store_false", dest="colors",
         help="disable color", default=True)
+    parser.add_argument("--conf", dest="conf", help="alternate conf.py",
+        type=lambda arg: os.path.basename(arg), default="conf.py", metavar="/path/to/conf")
     parser.add_argument("--version", action="version",
-        version=colors.blue('acrylamid ') + __version__)
+        version=colors.blue('Acrylamid ') + __version__)
 
     subparsers = parser.add_subparsers(dest="parser")
 
@@ -151,8 +153,8 @@ def Acryl():
 
     try:
         ns = dict([(k.upper(), v) for k, v in defaults.conf.iteritems()])
-        os.chdir(os.path.dirname(find('conf.py', os.getcwd())))
-        execfile('conf.py', ns)
+        os.chdir(os.path.dirname(find(options.conf, os.getcwd())))
+        execfile(options.conf, ns)
         conf.update(dict([(k.lower(), ns[k]) for k in ns if k.upper() == k]))
     except IOError:
         log.critical('no conf.py found. Try "acrylamid init".')
@@ -166,7 +168,7 @@ def Acryl():
     if options.parser in ('gen', 'generate', 'co', 'compile'):
         log.setLevel(options.verbosity)
         try:
-            commands.compile(conf, env, **options.__dict__)
+            commands.compile(conf, env)
         except AcrylamidException as e:
             log.fatal(e.args[0])
             sys.exit(1)
@@ -191,7 +193,7 @@ def Acryl():
         log.info(' * Running on http://127.0.0.1:%i/' % options.port)
 
         try:
-            commands.autocompile(ws, conf, env, **options.__dict__)
+            commands.autocompile(ws, conf, env)
         except (SystemExit, KeyboardInterrupt) as e:
             ws.kill_received = True
             log.error(e.args[0])

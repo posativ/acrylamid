@@ -126,10 +126,10 @@ def initialize(conf, env):
     return {'conf': conf, 'env': env}
 
 
-def compile(conf, env, force=False, **options):
+def compile(conf, env):
     """The compilation process."""
 
-    if force:
+    if env.options.force:
         cache.clear(conf.get('cache_dir'))
 
     # time measurement
@@ -217,7 +217,7 @@ def compile(conf, env, force=False, **options):
         tt = time.time()
         for buf, path in v.generate(conf, env, data):
             try:
-                helpers.mkfile(buf, path, time.time()-tt, **options)
+                helpers.mkfile(buf, path, time.time()-tt, **env.options.__dict__)
             finally:
                 buf.close()
             tt = time.time()
@@ -239,7 +239,7 @@ def compile(conf, env, force=False, **options):
              time.time() - ctime)
 
 
-def autocompile(ws, conf, env, **options):
+def autocompile(ws, conf, env):
     """Subcommand: autocompile -- automatically re-compiles when something in
     content-dir has changed and parallel serving files."""
 
@@ -256,7 +256,7 @@ def autocompile(ws, conf, env, **options):
                 conf['theme'], conf.get('theme_ignore', []))))
         if mtime != ntime:
             try:
-                compile(conf, env, **options)
+                compile(conf, env)
             except (SystemExit, KeyboardInterrupt) as e:
                 raise e
             except Exception as e:

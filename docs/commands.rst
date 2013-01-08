@@ -6,11 +6,17 @@ uses positional arguments for each task. Long options are used for special
 flags like force or dry run. The basic call is ``acrylamid <subcommand>
 [options] [args]``.
 
--q, --quiet     less verbose
--v, --verbose   more verbose
--C, --no-color  disable color
--h, --help      show this help message and exit
---version       print version details
+Note that Acrylamid always will change to the directory containing the
+``conf.py``. In addition Acrylamid will first look for a configuration
+file in the current directory named ``conf.py`` and then in any folder
+above.
+
+-h, --help            show this help message and exit
+-v, --verbose         more verbose
+-q, --quiet           less verbose
+-C, --no-color        disable color
+--conf /path/to/conf  alternate conf.py
+--version             show program's version number and exit
 
 
 init

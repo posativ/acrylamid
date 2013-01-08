@@ -10,7 +10,9 @@ Not released – TBD
 - speed improvements (up to 25%) due new internal hash (Adler32 vs. MD5)
   and more sophisticated and complete modification detection
 - multiple views per rule! So, in theory you can map pages, posts, drafts
-  and translations to ``/:slug/``.
+  and translations to `/:slug/`.
+- #90 – specify alternate configuration file via `--conf /path/to/conf.py`
+- #87 – new reStructuredText directive for Vimeo
 - #82 – updated Atom feed to include tags, icon and provides a unique id for
   multiple destinations (Mark van Lent)
 - improved WordPress import (pages and draft recognition)
@@ -37,6 +39,7 @@ Not released – TBD
 ### What was fixed?
 
 - compatibility with python 3.2 is now assured by the testsuite
+- auto compilation gets slower for each iteration
 - #73 – LESS and SASS conversion is now optional
 - #67 – track referenced entries for updates
 - #86 – escape YAML blocks ("[" and "]") properly

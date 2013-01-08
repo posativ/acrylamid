@@ -11,7 +11,7 @@ from acrylamid.defaults import conf
 
 # supress warnings
 log.init('acrylamid', 40)
-options = type('Options', (object, ), {'ignore': False})
+options = type('Options', (object, ), {'ignore': False, 'force': False})
 
 
 def entry(**kw):
@@ -62,7 +62,7 @@ class SingleEntry(attest.TestBase):
         with open('content/bla.txt', 'w') as fp:
             fp.write(entry())
 
-        compile(self.conf, self.env, options)
+        compile(self.conf, self.env)
         assert isfile(join('output/', '2012', 'haensel-and-gretel', 'index.html'))
 
     @attest.test
@@ -70,7 +70,7 @@ class SingleEntry(attest.TestBase):
         with open('content/bla.txt', 'w') as fp:
             fp.write(entry(permalink='/about/me.asp'))
 
-        compile(self.conf, self.env, options)
+        compile(self.conf, self.env)
         assert isfile(join('output/', 'about', 'me.asp'))
 
     @attest.test
@@ -78,7 +78,7 @@ class SingleEntry(attest.TestBase):
         with open('content/bla.txt', 'w') as fp:
             fp.write(entry(permalink='/about/me/'))
 
-        compile(self.conf, self.env, options)
+        compile(self.conf, self.env)
         assert isfile(join('output/', 'about', 'me', 'index.html'))
 
     @attest.test
@@ -86,7 +86,7 @@ class SingleEntry(attest.TestBase):
         with open('content/bla.txt', 'w') as fp:
             fp.write(entry(permalink='/'))
 
-        compile(self.conf, self.env, options)
+        compile(self.conf, self.env)
 
         expected = '# Test\n\nThis is supercalifragilisticexpialidocious.'
         assert open('output/index.html').read() == expected
@@ -96,7 +96,7 @@ class SingleEntry(attest.TestBase):
         with open('content/bla.txt', 'w') as fp:
             fp.write(entry(permalink='/', filter='[Markdown]'))
 
-        compile(self.conf, self.env, options)
+        compile(self.conf, self.env)
 
         expected = '<h1>Test</h1>\n<p>This is supercalifragilisticexpialidocious.</p>'
         assert open('output/index.html').read() == expected
@@ -106,7 +106,7 @@ class SingleEntry(attest.TestBase):
         with open('content/bla.txt', 'w') as fp:
             fp.write(entry(permalink='/', filter='[Markdown, h1, hyphenate]', lang='en'))
 
-        compile(self.conf, self.env, options)
+        compile(self.conf, self.env)
 
         expected = ('<h2>Test</h2>\n<p>This is su&shy;per&shy;cal&shy;ifrag&shy;'
                     'ilis&shy;tic&shy;ex&shy;pi&shy;ali&shy;do&shy;cious.</p>')
@@ -145,7 +145,7 @@ class MultipleEntries(attest.TestBase):
         with open('content/bar.txt', 'w') as fp:
             fp.write(entry(title='Bar'))
 
-        compile(self.conf, self.env, options)
+        compile(self.conf, self.env)
 
         expected = '<h2>Test</h2>\n<p>This is supercalifragilisticexpialidocious.</p>'
         assert open('output/2012/foo/index.html').read() == expected
