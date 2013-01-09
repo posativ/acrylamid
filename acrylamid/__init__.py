@@ -29,6 +29,7 @@ import argparse
 import traceback
 import signal
 
+from os.path import dirname, basename
 from functools import partial
 
 from acrylamid import defaults, log, commands, colors, tasks, core
@@ -36,7 +37,7 @@ from acrylamid.utils import find, execfile, Struct
 from acrylamid.errors import AcrylamidException
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
-sys.path.append(os.path.dirname(__file__))
+sys.path.append(dirname(__file__))
 
 
 class AcrylFormatter(argparse.HelpFormatter):
@@ -77,7 +78,7 @@ def Acryl():
     parser.add_argument("-C", "--no-color", action="store_false", dest="colors",
         help="disable color", default=True)
     parser.add_argument("--conf", dest="conf", help="alternate conf.py",
-        type=lambda arg: os.path.basename(arg), default="conf.py", metavar="/path/to/conf")
+        default="conf.py", metavar="/path/to/conf")
     parser.add_argument("--version", action="version",
         version=colors.blue('Acrylamid ') + __version__)
 
@@ -153,7 +154,7 @@ def Acryl():
 
     try:
         ns = dict([(k.upper(), v) for k, v in defaults.conf.iteritems()])
-        os.chdir(os.path.dirname(find(options.conf, os.getcwd())))
+        os.chdir(dirname(find(basename(options.conf), dirname(options.conf) or os.getcwd())))
         execfile(options.conf, ns)
         conf.update(dict([(k.lower(), ns[k]) for k in ns if k.upper() == k]))
     except IOError:
