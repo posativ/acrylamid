@@ -85,7 +85,8 @@ def initialize(directories, conf, env):
             urlmap.append((rule, item))
 
     directories += [os.path.dirname(__file__)]
-    helpers.discover(directories, partial(index_views, conf, env, urlmap))
+    helpers.discover(directories, partial(index_views, conf, env, urlmap),
+        lambda path: path.rpartition('.')[0] != __file__.rpartition('.')[0])
 
 
 class Views(utils.HashableList):
@@ -218,7 +219,7 @@ class View(object):
     def __hash__(self):
         return helpers.hash(self.name, self.path)
 
-    def init(self, **kwargs):
+    def init(self, conf, env, **kwargs):
         pass
 
     def context(self, conf, env, request):

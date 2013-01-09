@@ -510,6 +510,7 @@ Requires      <built-in>
 Aliases       relative
 ============  ==================================================
 
+
 absolute
 --------
 
@@ -524,6 +525,20 @@ Requires      <built-in>
 Aliases       absolute
 ============  ==================================================
 
+
+strip
+-----
+
+Strip tags and attributes from HTML to produce a clean text version. Primary
+used by the static site search.  By default, this filter includes everything
+between ``<tag>...</tag>`` but you can supply additional arguments to remove
+code listings wrapped in ``<pre>`` from the site search.
+
+============  ==================================================
+Requires      <built-in>
+Aliases       strip
+Arguments     ignored tags (such as ``pre``)
+============  ==================================================
 
 .. _custom-filters:
 

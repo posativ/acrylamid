@@ -3,10 +3,11 @@
 # Copyright 2012 Martin Zimmermann <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses -- see LICENSE.
 
-import sys
 import os
+import sys
 import traceback
 
+from os.path import join, dirname, basename
 from functools import partial
 
 from acrylamid import log, helpers
@@ -50,7 +51,7 @@ def discover(directories, filterfunc=lambda filename: True):
         for root, dirs, files in os.walk(directory):
             for fname in files:
                 if fname.endswith('.py') and filterfunc(fname):
-                    yield os.path.join(root, fname)
+                    yield join(root, fname)
 
 
 def initialize(directories, conf, env):
@@ -64,10 +65,10 @@ def initialize(directories, conf, env):
     global __filter_list
     __filter_list = FilterList()
 
-    directories += [os.path.dirname(__file__)]
+    directories += [dirname(__file__)]
     helpers.discover(
         directories, partial(index_filters, conf, env),
-        lambda path: not path.startswith(('_', 'mdx_', 'rstx_'))
+        lambda path: not basename(path).startswith(('_', 'mdx_', 'rstx_'))
     )
 
 
