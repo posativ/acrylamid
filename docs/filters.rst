@@ -525,6 +525,24 @@ Aliases       absolute
 ============  ==================================================
 
 
+Priorities
+**********
+
+  * 90.0 : pre
+      Jinja2, Mako
+  * 70.0 : markup
+      HTML, Markdown, pandoc, reST, textile
+  * 50.0 : default
+      metalogo, head_offset
+  * 25.0 : post
+      typography
+  * 20.0 : post (conflict with typography)
+      acronyms, hyphenate
+  * 15.0 : shorten HTML
+      intro, summarize
+  * 10.0 : fix links
+      relative, absolute
+
 .. _custom-filters:
 
 Custom Filters

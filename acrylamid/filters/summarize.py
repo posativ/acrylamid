@@ -91,6 +91,7 @@ class Summarize(Filter):
 
     match = ['summarize', 'sum']
     version = 2
+    priority = 15.0
 
     def init(self, conf, env):
 

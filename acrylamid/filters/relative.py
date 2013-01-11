@@ -38,6 +38,7 @@ class Relative(Filter):
 
     match = ['relative']
     version = 1
+    priority = 15.0
 
     def transform(self, text, entry, *args):
 
@@ -59,6 +60,7 @@ class Absolute(Filter):
 
     match = ['absolute']
     version = 1
+    priority = 15.0
 
     def init(self, conf, env):
 
