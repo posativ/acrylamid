@@ -14,6 +14,10 @@ templates_path = ['_templates']
 source_suffix = '.rst'
 master_doc = 'index'
 
+# ADJUST IT TO FIT YOUR NEEDS!1
+# blockdiag_fontpath = '/usr/share/fonts/truetype/ipafont/ipagp.ttf'
+blockdiag_fontpath = '/Users/ich/Library/Fonts/DejaVuSans-Bold.ttf'
+
 # General information about the project.
 project = u'Acrylamid'
 copyright = u'2012, posativ'

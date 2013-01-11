@@ -69,8 +69,8 @@ path can be used more than once:
 .. blockdiag::
 
     blockdiag concept {
-      orientation = portrait
-      Markdown -> "h3" -> "/atom/";
+      orientation = portrait;
+      Markdown -> "h3" -> "/atom/" [default_fontsize = 20];
       Markdown -> hyphenation -> "h1" -> "/:year/:slug/";
       Markdown -> hyphenation -> "h1" -> summarize -> "/";
     }
