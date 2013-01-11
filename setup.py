@@ -15,6 +15,7 @@ kw = {}
 if sys.version_info[0] >= 3:
     kw["use_2to3"] = True
     kw['use_2to3_exclude_fixers'] = ['lib2to3.fixes.execfile', ]
+    requires.append('unidecode')
 else:
     requires.append('translitcodec>=0.2')
 
@@ -28,7 +29,6 @@ if '--full' in sys.argv:
         'smartypants',
         'asciimathml',
         'textile',
-        'unidecode',
         'PyYAML'
     ])
 

@@ -177,7 +177,7 @@ class Hyphenate(Filter):
             try:
                 hyphenate_word = build(entry.lang.replace('_', '-'))
             except HyphenPatternNotFound as e:
-                log.once(warn=e.args[0])
+                log.warn(e.args[0])
                 hyphenate_word = lambda x: [x]
         else:
             hyphenate_word = self.default

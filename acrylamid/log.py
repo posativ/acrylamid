@@ -4,29 +4,13 @@
 # License: BSD Style, 2 clauses -- see LICENSE.
 
 import sys
-import os
 import logging
 import warnings
 from logging import INFO, WARN, DEBUG
-from acrylamid.errors import AcrylamidException
 from acrylamid.colors import bold, red, green, yellow, black
 
 SKIP = 15
-STORE = []
 logger = fatal = critical = warn = warning = info = skip = debug = error = None
-
-
-# next bit filched from 1.5.2's inspect.py
-def currentframe():
-    """Return the frame object for the caller's stack frame."""
-    try:
-        raise Exception
-    except:
-        return sys.exc_info()[2].tb_frame.f_back
-
-if hasattr(sys, '_getframe'):
-    currentframe = lambda: sys._getframe(3)
-# done filching
 
 
 class TerminalHandler(logging.StreamHandler):
@@ -125,55 +109,6 @@ def level():
     return logger.level
 
 
-def findCaller():
-    """See python2.x/logging/__init__.py for details."""
-    if __file__[-4:].lower() in ['.pyc', '.pyo']:
-        _srcfile = __file__[:-4] + '.py'
-    else:
-        _srcfile = __file__
-    _srcfile = os.path.normcase(_srcfile)
-
-    f = currentframe()
-    rv = "(unknown file)", 0, "(unknown function)"
-    while hasattr(f, "f_code"):
-        co = f.f_code
-        filename = os.path.normcase(co.co_filename)
-        if filename == _srcfile:
-            f = f.f_back
-            continue
-        rv = (co.co_filename, f.f_lineno, co.co_name)
-        break
-    return rv
-
-
-def once(args=[], **kwargs):
-    """log only once even when a loop calls this function multiple times.
-
-    :param args: args as in log.info(msg, *args).
-    :param **kwargs: should be a valid logger with the message as argument.
-
-    Example: log.once(info='Hello World, %s!', args=['Peter', ])."""
-
-    if len(kwargs) != 1:
-        raise AcrylamidException('incorrect usage of log.once()')
-    log, msg = kwargs.items()[0]
-
-    if not log in ('critical', 'fatal', 'warn', 'warning', 'info', 'skip', 'debug'):
-        raise AcrylamidException('no such logger: %s' % log)
-
-    try:
-        key = findCaller()
-    except ValueError:
-        key = None
-
-    if key is None:
-        # unable to determine call frame
-        globals()[log](msg, *args)
-    elif key not in STORE:
-        globals()[log](msg, *args)
-        STORE.append(key)
-
-
 def showwarning(msg, cat, path, lineno):
     print path + ':%i' % lineno
     print '%s: %s' % (cat().__class__.__name__, msg)
@@ -181,13 +116,3 @@ def showwarning(msg, cat, path, lineno):
 
 __all__ = ['fatal', 'warn', 'info', 'skip', 'debug', 'error',
            'WARN', 'INFO', 'SKIP', 'DEBUG', 'setLevel', 'level']
-
-if __name__ == '__main__':
-    init('test', 20)
-    setLevel(10)
-    level()
-    logger.warn('foo')
-    logger.info('update dich')
-    logger.info('create kekse')
-    logger.skip('skip unused')
-    logger.debug('debug test')

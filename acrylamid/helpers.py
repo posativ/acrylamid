@@ -143,13 +143,11 @@ def safeslug(slug):
 
     result = []
     if translitcodec:
-        slug = u"" + slug.encode('translit/long').strip()
+        slug = u"" + slug.encode('translit/long')
     if unidecode:
         slug = u"" + unidecode(slug)
     for word in _slug_re.split(slug.lower()):
         word = normalize('NFKD', word).encode('ascii', 'ignore').decode('utf-8').strip()
-        if not PY3 and (translitcodec is None or unidecode is None):
-            log.once(warn="no 'translitcodec' found, using NFKD algorithm")
         if word:
             result.append(word)
     return u'-'.join(result)
