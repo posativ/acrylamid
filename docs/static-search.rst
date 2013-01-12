@@ -18,12 +18,13 @@ So, what is a prefix?  The idea is, that a user does mostly search for a
 single keyword a single time and maybe with a refinement afterwards. The user
 does not need to load the whole site index just to query for "python" or
 "python project". With (compressed) suffix trees, it is possible to split
-the index to one-character prefixes. In the example, `p` for `python` and
-fortunately even for `project`. Acrylamid can construct in :math:`O(n \log n)`
-for a constant size alphabet. The alphabet use 26 lowercase ascii characters
-and a tree for everything else, hence :math:`O(\frac{1}{27} n \log n)` space
-efficiency per sub tree. In practice (due tree compression) this is more
-space-efficient than a global index (42k versus 375k in average for 170 posts).
+the index into one-character prefixes; in the example, `p` for `python` and
+fortunately even for `project`. Acrylamid can construct a CST in
+:math:`O(n \log n)` for a constant size alphabet. The alphabet use 26
+lowercase ascii characters and a tree for everything else, hence
+:math:`O(\frac{1}{27} n \log n)` space efficiency per sub tree. In practice
+(due tree compression and repitive language) this is more space-efficient
+than a global index (42k versus 375k in average for 170 posts).
 
 Like Sphinx_ the index only links to the article containing the keyword and
 does not provide any context.  Hence, the search view renders a plain text
