@@ -144,3 +144,18 @@ def intro():
 
     for text, result in examples:
         assert intro.transform(text, Entry(), '1') == result
+
+
+@tt.test
+def strip():
+
+    strip = get_filters()['strip'](conf, env, 'strip')
+    examples = [
+        ('<em>Foo</em>', 'Foo'), ('<a href="#">Bar</a>', 'Bar'),
+        ('<video src="#" />', '')]
+
+    for text, result in examples:
+        assert strip.transform(text, Entry()) == result
+
+    assert strip.transform('<pre>...</pre>', Entry(), 'pre') == ''
+    assert strip.transform('<pre>&lt;</pre>', Entry(), 'pre') == ''

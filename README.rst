@@ -74,12 +74,12 @@ blogging features
 - coming from Pelican_? Acrylamid has also support for metadata in the native
   format of Markdown or reStructuredText.
 - support for translations (oh, and did I mention the language dependend
-  hyphenation feature?)
-- a few HTML5/XHTML themes, see `Theming
-  <http://posativ.org/acrylamid/theming.html>`_.
+  hyphenation feature?).
+- a few HTML5 themes, see `Theming <http://posativ.org/acrylamid/theming.html>`_.
 - internal webserver with automatic compiling when something has changed.
 - assets management, including LESS_ and SASS_ conversion.
 - uni-directional PingBack support.
+- static site search.
 
 .. _YAML front matter: https://github.com/mojombo/jekyll/wiki/YAML-Front-Matter
 .. _Jekyll: http://jekyllrb.com/

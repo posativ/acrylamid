@@ -99,8 +99,10 @@ def Acryl():
         help="clear cache before compilation", default=False)
     generate.add_argument("-n", "--dry-run", dest="dryrun", action='store_true',
         help="show what would have been compiled", default=False)
-    generate.add_argument("-i", "--ignore", dest="ignore", action="store_true",
+    generate.add_argument("--ignore", dest="ignore", action="store_true",
         help="ignore critical errors", default=False)
+    generate.add_argument("--search", dest="search", action="store_true",
+        help="build search index", default=False)
 
     # --- webserver params --- #
     view = subparsers.add_parser('view', help="fire up built-in webserver", parents=[default])
@@ -114,8 +116,10 @@ def Acryl():
         help="clear cache before compilation", default=False)
     autocompile.add_argument("-n", "--dry-run", dest="dryrun", action='store_true',
         help="show what would have been compiled", default=False)
-    autocompile.add_argument("-i", "--ignore", dest="ignore", action="store_true",
+    autocompile.add_argument("--ignore", dest="ignore", action="store_true",
         help="ignore critical errors", default=False)
+    autocompile.add_argument("--search", dest="search", action="store_true",
+        help="build search index", default=False)
     autocompile.add_argument("-p", "--port", dest="port", type=int, default=8000,
         help="webserver port")
 

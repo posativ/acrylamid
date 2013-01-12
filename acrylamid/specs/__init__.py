@@ -2,7 +2,7 @@
 from attest import Tests
 
 from acrylamid.specs import (lib, readers, filters, filters_builtin, helpers,
-                             imprt, views, utils, entry, content, core)
+                             imprt, views, utils, entry, content, core, search)
 
 
 testsuite = Tests()
@@ -23,3 +23,4 @@ testsuite.register(entry.TestEntry)
 testsuite.register(content.SingleEntry)
 testsuite.register(content.MultipleEntries)
 testsuite.register(core.Cache)
+testsuite.register(search.tt)

@@ -381,11 +381,11 @@ def discover(directories, index, filterfunc=lambda filename: True):
         for directory in directories:
             for root, dirs, files in os.walk(directory):
                 for fname in files:
-                    if fname.endswith('.py') and filterfunc(fname):
-                        yield os.path.join(root, fname)
+                    if fname.endswith('.py') and filterfunc(join(root, fname)):
+                        yield join(root, fname)
 
     for filename in find(directories, filterfunc):
-        modname, ext = os.path.splitext(os.path.basename(filename))
+        modname, ext = os.path.splitext(os.path.basename(rchop(filename, '/__init__.py')))
         fp, path, descr = imp.find_module(modname, directories)
 
         prefix = commonprefix((PATH, filename))
