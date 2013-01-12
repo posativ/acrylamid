@@ -83,7 +83,8 @@ content size it may take some time.
 
 -f, --force     clear cache before compilation
 -n, --dry-run   show what would have been compiled
--i, --ignore    ignore critical errors (e.g. missing module used in a filter)
+--ignore        ignore critical errors (e.g. missing module used in a filter)
+--search        build search index (if search view is enabled)
 
 .. raw:: html
 

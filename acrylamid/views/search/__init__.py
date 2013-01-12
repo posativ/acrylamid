@@ -3,36 +3,6 @@
 # Copyright 2013 Martin Zimmermann <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses -- see LICENSE.
 
-"""
-Static Site Search
-~~~~~~~~~~~~~~~~~~
-
-A full text search using compressed `suffix trees`_ (CST).  In comparison to a
-single index file like in Sphinx_ this has several advantages:
-
-  - O(1/27 * n log n) instead of O(n) space efficency (one character prefix versus index)
-  - full text search with no arbitrary limitation of the character set
-  - finds all exact matches and substrings in O(log n)
-
-For the record (index for aroun 170 posts):
-
-  - JSON index with no special characters allowed (such as dash): 375k (132k gzipped)
-  - CST  index with special characters (except punctuation): 42k (12k gzipped) per prefix
-
-So, what is a prefix?  The idea is, that a user does mainly search for a single
-term and a single prefix such as `python` where `p` is a prefix of the term and
-in a suffix tree we can construct in O(n * log n) for a constant size alphabet.
-As alphabet, we use 26 lowercase ascii characters and a tree for everything
-else, hence O(1/27 * n log n) space efficency per sub tree, which is better
-that O(n) in practise (see the numbers above).
-
-When the user now enters a search term, the browser only needs to load the sub
-tree that contains all suffixes for this term, in average 42k (12 gzipped) with
-much more search features \o/.
-
-.. _suffix trees: https://en.wikipedia.org/wiki/Suffix_tree
-.. _Sphinx: http://sphinx-doc.org/"""
-
 import re
 import io
 import json
