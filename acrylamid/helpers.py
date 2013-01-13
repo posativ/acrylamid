@@ -164,7 +164,7 @@ def safeslug(slug):
     return u'-'.join(result)
 
 
-def paginate(lst, ipp, func=lambda x: x, salt=None, orphans=0):
+def paginate(lst, ipp, salt="", orphans=0):
     """paginate(lst, ipp, func=lambda x: x, salt=None, orphans=0)
 
     Yields a triple ((next, current, previous), list of entries, has
@@ -174,7 +174,6 @@ def paginate(lst, ipp, func=lambda x: x, salt=None, orphans=0):
 
     :param lst: the entrylist containing Entry instances.
     :param ipp: items per page
-    :param func: filter list of entries by this function
     :param salt: uses as additional identifier in memoize
     :param orphans: avoid N orphans on last page
 
@@ -184,9 +183,11 @@ def paginate(lst, ipp, func=lambda x: x, salt=None, orphans=0):
     (0, 1, 2), [entries 7..12]
     (1, 2, None), [entries 12..20]"""
 
-    # apply filter function and prepare pagination with ipp
-    res = filter(func, lst)
-    res = list(batch(res, ipp))
+    # detect removed or newly added entries
+    modified = cache.memoize('paginate-' + salt, hash(*lst))
+
+    # slice into batches
+    res = list(batch(lst, ipp))
 
     if len(res) >= 2 and len(res[-1]) <= orphans:
         res[-2].extend(res[-1])
@@ -200,7 +201,7 @@ def paginate(lst, ipp, func=lambda x: x, salt=None, orphans=0):
         curr = i
         prev = None if i >= j else i+1
 
-        yield (next, curr, prev), entries, any(filter(lambda e: e.modified, entries))
+        yield (next, curr, prev), entries, modified or any(e.modified for e in entries)
 
 
 def safe(string):

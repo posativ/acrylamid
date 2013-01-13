@@ -120,9 +120,9 @@ class Tag(View):
 
         for tag in self.tags:
 
-            entrylist = [entry for entry in self.tags[tag]]
-            paginator = paginate(entrylist, ipp, salt=tag, orphans=conf['default_orphans'])
             route = expand(self.path, {'name': tag}).rstrip('/')
+            entrylist = [entry for entry in self.tags[tag]]
+            paginator = paginate(entrylist, ipp, route, conf['default_orphans'])
 
             for (next, curr, prev), entries, modified in paginator:
 

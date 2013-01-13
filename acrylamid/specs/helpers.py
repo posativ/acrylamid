@@ -75,8 +75,6 @@ class Helpers(attest.TestBase):
         # default stuff
         assert list(helpers.paginate(res, 4)) == \
             [((None, 1, 2), res[:4], True), ((1, 2, None), res[4:], True)]
-        assert list(helpers.paginate(res, 4, lambda x: x.isdigit())) == \
-            [((None, 1, None), [X('1'), X('42')], True), ]
         assert list(helpers.paginate(res, 7)) == \
             [((None, 1, 2), res[:7], True), ((1, 2, None), res[7:], True)]
 
