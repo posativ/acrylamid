@@ -4,6 +4,7 @@ from acrylamid import log, utils
 from acrylamid.filters import initialize, get_filters
 
 import attest
+
 tt = attest.Tests()
 
 log.init('foo', 35)
@@ -139,8 +140,9 @@ def summarize():
 def intro():
 
     intro = get_filters()['intro'](conf, env, 'intro')
-    examples = [('Hello World', ''), ('<p>First</p>', '<p>First</p>'),
-                ('<p>First</p><p>Second</p>', '<p>First</p>')]
+    examples = [('Hello World', ''),
+                ('<p>First</p>', '<p>First</p><span>&#8230;<a href="/foo/" class="continue">continue</a>.</span>'),
+                ('<p>First</p><p>Second</p>', '<p>First</p><span>&#8230;<a href="/foo/" class="continue">continue</a>.</span>')]
 
     for text, result in examples:
         assert intro.transform(text, Entry(), '1') == result
