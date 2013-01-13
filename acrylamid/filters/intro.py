@@ -9,12 +9,15 @@ from acrylamid.lib.html import HTMLParser, HTMLParseError
 
 
 class Introducer(HTMLParser):
+    paragraph_list = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'ul', 'ol', 'pre', 'p']
+    """List of root elements, which may be treated as paragraphs"""
 
     def __init__(self, html, maxparagraphs=1, intro_link='', href=''):
         self.maxparagraphs = maxparagraphs
         self.paragraphs = 0
         self.intro_link = intro_link
         self.href = href
+
         super(Introducer, self).__init__(html)
 
     def handle_starttag(self, tag, attrs):
@@ -22,16 +25,16 @@ class Introducer(HTMLParser):
             super(Introducer, self).handle_starttag(tag, attrs)
 
     def handle_data(self, data):
-        if len(self.stack) < 1 or (self.stack[0] != 'p' and self.stack[-1] != 'p'):
+        if self.paragraphs >= self.maxparagraphs:
             pass
-        elif self.paragraphs >= self.maxparagraphs:
+        elif len(self.stack) < 1 or (self.stack[0] not in self.paragraph_list and self.stack[-1] not in self.paragraph_list):
             pass
         else:
             self.result.append(data)
 
     def handle_endtag(self, tag):
         if self.paragraphs < self.maxparagraphs:
-            if tag == 'p':
+            if tag in self.paragraph_list:
                 self.paragraphs += 1
             super(Introducer, self).handle_endtag(tag)
 
