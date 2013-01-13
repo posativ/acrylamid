@@ -30,7 +30,13 @@ class Memory(dict):
     """A callable dictionary object described at
     :func:`acrylamid.helpers.memoize`."""
 
-    __call__ = lambda self, k, v=None: self.__setitem__(k, v) if v else self.get(k, None)
+    def __call__(self, key, value=None):
+        if value is None:
+            return self.get(key)
+
+        rv = self.get(key)
+        self[key] = value
+        return rv != value
 
 
 class cache(object):

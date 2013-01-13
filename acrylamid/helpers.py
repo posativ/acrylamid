@@ -43,6 +43,17 @@ _slug_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
 
 def memoize(key, value=None):
     """Persistent memory for small values, set and get in a single function.
+    If you set a value, it returns whether the new value is different to the
+    previous.
+
+    >>> memoize("Foo", 1)
+    False
+    >>> memoize("Foo", 1)
+    True
+    >>> memoize("Foo", 2)
+    False
+    >>> memoize("Foo")
+    2
 
     :param key: get value saved to key, if key does not exist, return None.
     :param value: set key to value
