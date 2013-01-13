@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 
 import attest
-from acrylamid.utils import NestedProperties
+from acrylamid.utils import Metadata
 
 
-class TestNestedProperties(attest.TestBase):
+class TestMetadata(attest.TestBase):
 
     @attest.test
     def works(self):
 
-        dct = NestedProperties()
+        dct = Metadata()
         dct['hello.world'] = 1
 
         assert dct['hello']['world'] == 1
@@ -33,12 +33,26 @@ class TestNestedProperties(attest.TestBase):
     @attest.test
     def redirects(self):
 
-        dct = NestedProperties()
+        dct = Metadata()
         alist = [1, 2, 3]
 
         dct['foo'] = alist
         dct.redirect('foo', 'baz')
 
-        assert 'foo' in dct
+        assert 'foo' not in dct
         assert 'baz' in dct
         assert dct['baz'] == alist
+
+
+    @attest.test
+    def update(self):
+
+        dct = Metadata()
+        dct.update({'hello.world': 1})
+
+        assert 'hello' in dct
+        assert dct.hello.world == 1
+
+    @attest.test
+    def init(self):
+        assert Metadata({'hello.world': 1}).hello.world == 1

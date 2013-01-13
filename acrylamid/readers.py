@@ -20,7 +20,7 @@ from datetime import datetime, tzinfo, timedelta
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
-from acrylamid.utils import cached_property, NestedProperties, istext
+from acrylamid.utils import cached_property, Metadata, istext
 from acrylamid.core import cache
 from acrylamid.filters import FilterTree
 from acrylamid.helpers import safeslug, expand, hash, rchop
@@ -145,7 +145,7 @@ class Reader(object):
 
     def __init__(self, conf, meta):
 
-        self.props = NestedProperties((k, v) for k, v in conf.iteritems()
+        self.props = Metadata((k, v) for k, v in conf.iteritems()
             if k in ['author', 'lang', 'encoding', 'email',
                      'date_format', 'entry_permalink', 'page_permalink'])
 

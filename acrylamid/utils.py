@@ -124,44 +124,32 @@ def batch(iterable, count):
         yield result
 
 
-class NestedProperties(dict):
+class Metadata(dict):
+    """A nested :class:`dict` used for post metadata."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, dikt={}):
+        super(Metadata, self).__init__(self)
+        self.update(dict(dikt))
 
-        self.redirects = dict()
-        dict.__init__(self, *args, **kwargs)
 
     def __setitem__(self, key, value):
         try:
             key, other = key.split('.', 1)
-            self.setdefault(key, NestedProperties())[other] = value
+            self.setdefault(key, Metadata())[other] = value
         except ValueError:
-            dict.__setitem__(self, key, value)
+            super(Metadata, self).__setitem__(key, value)
 
     def __getattr__(self, attr):
-        try:
-            return self[attr]
-        except KeyError:
-            return self[self.redirects[attr]]
+        return self[attr]
 
-    def __contains__(self, key):
-
-        if key in self.redirects:
-            key = self.redirects[key]
-        return dict.__contains__(self, key)
-
-    def update(self, dikt, **kw):
-        if hasattr(dikt, 'keys'):
-            for k in dikt:
-                self[k] = dikt[k]
-        for k in kw:
-            self[k] = kw[k]
+    def update(self, dikt):
+        for key, value in dikt.iteritems():
+            self[key] = value
 
     def redirect(self, old, new):
 
         self[new] = self[old]
         del self[old]
-        self.redirects[old] = new
 
 
 def import_object(name):
@@ -203,8 +191,6 @@ def istext(path, blocksize=512, chars=(
 
 class Struct(dict):
     """A dictionary that provides attribute-style access."""
-
-    __getitem__ = dict.__getitem__
 
     def __getattr__(self, name):
         try:
