@@ -10,9 +10,11 @@ from acrylamid.lib.html import HTMLParser, HTMLParseError
 
 class Introducer(HTMLParser):
 
-    def __init__(self, html, maxparagraphs=1):
+    def __init__(self, html, maxparagraphs=1, intro_link='', href=''):
         self.maxparagraphs = maxparagraphs
         self.paragraphs = 0
+        self.intro_link = intro_link
+        self.href = href
         super(Introducer, self).__init__(html)
 
     def handle_starttag(self, tag, attrs):
@@ -32,9 +34,12 @@ class Introducer(HTMLParser):
             if tag == 'p':
                 self.paragraphs += 1
             super(Introducer, self).handle_endtag(tag)
-        else:
-            for x in self.stack[:]:
-                self.result.append('</%s>' % self.stack.pop())
+
+            if self.paragraphs == self.maxparagraphs:
+                for x in self.stack[:]:
+                    self.result.append('</%s>' % self.stack.pop())
+                if self.intro_link != '' and self.href != '':
+                    self.result.append(self.intro_link % self.href)
 
     def handle_startendtag(self, tag, attrs):
         if self.paragraphs < self.maxparagraphs:
@@ -57,6 +62,12 @@ class Introduction(Filter):
 
     match = ['intro', ]
 
+    def init(self, conf, env):
+
+        self.path = env.path
+        self.intro_link = conf.get('intro_link',
+            '<span>&#8230;<a href="%s" class="continue">continue</a>.</span>')
+
     def transform(self, content, entry, *args):
         try:
             maxparagraphs = int(entry.intro.maxparagraphs)
@@ -70,7 +81,7 @@ class Introduction(Filter):
                 maxparagraphs = 1
 
         try:
-            return ''.join(Introducer(content, maxparagraphs).result)
+            return ''.join(Introducer(content, maxparagraphs, self.intro_link, self.path + entry.permalink).result)
         except HTMLParseError as e:
             log.warn('%s: %s in %s' % (e.__class__.__name__, e.msg,
                                        entry.filename))
