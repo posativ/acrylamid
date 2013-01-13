@@ -348,6 +348,10 @@ paragraph is short enough. This filter shows only up to N paragraphs.
 You can overwrite the amount of paragraphs shown in each entry using
 ``intro.maxparagraphs: 3`` in the metadata section.
 
+By default, outputs "Continue" link at the end of intro if post is longer than 
+``maxparagraphs``. You can control link format by setting ``INTRO_LINK`` variable 
+in :doc:`conf.py`. To disable intro link output, set ``INTRO_LINK=''``.
+
 ============  ==================================================
 Requires      <built-in>
 Arguments     Maximum paragraphs (an Integer), defaults
