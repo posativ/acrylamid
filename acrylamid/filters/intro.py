@@ -20,7 +20,7 @@ class Introducer(HTMLParser):
             super(Introducer, self).handle_starttag(tag, attrs)
 
     def handle_data(self, data):
-        if len(self.stack) < 1 or self.stack[0] != 'p':
+        if len(self.stack) < 1 or (self.stack[0] != 'p' and self.stack[-1] != 'p'):
             pass
         elif self.paragraphs >= self.maxparagraphs:
             pass
@@ -32,6 +32,9 @@ class Introducer(HTMLParser):
             if tag == 'p':
                 self.paragraphs += 1
             super(Introducer, self).handle_endtag(tag)
+        else:
+            for x in self.stack[:]:
+                self.result.append('</%s>' % self.stack.pop())
 
     def handle_startendtag(self, tag, attrs):
         if self.paragraphs < self.maxparagraphs:
