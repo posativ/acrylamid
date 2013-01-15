@@ -117,7 +117,7 @@ def mkfile(fileobj, path, ctime=0.0, force=False, dryrun=False, **kw):
         event.create(path=path, ctime=ctime)
 
 
-def expand(url, obj):
+def expand(url, obj, re=re.compile(r':(\w+)')):
     """Substitutes/expands URL parameters beginning with a colon.
 
     :param url: a URL with zero or more :key words
@@ -126,11 +126,10 @@ def expand(url, obj):
     >>> expand('/:year/:slug/', {'year': 2012, 'slug': 'awesome title'})
     '/2011/awesome-title/'
     """
-
-    for k in obj:
-        if not k.endswith('/') and (':' + k) in url:
-            url = url.replace(':'+k, unicode(obj[k]))
-    return url
+    if isinstance(obj, dict):
+        return re.sub(lambda m: unicode(obj.get(m.group(1), m.group(1))), url)
+    else:
+        return re.sub(lambda m: unicode(getattr(obj, m.group(1), m.group(1))), url)
 
 
 def joinurl(*args):

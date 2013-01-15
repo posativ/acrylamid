@@ -61,8 +61,11 @@ class Helpers(attest.TestBase):
     def expand(self):
 
         assert helpers.expand('/:foo/:bar/', {'foo': 1, 'bar': 2}) == '/1/2/'
-        assert helpers.expand('/:foo/:spam/', {'foo': 1, 'bar': 2}) == '/1/:spam/'
-        assert helpers.expand('/:foo/', {'bar': 2}) == '/:foo/'
+        assert helpers.expand('/:foo/:spam/', {'foo': 1, 'bar': 2}) == '/1/spam/'
+        assert helpers.expand('/:foo/', {'bar': 2}) == '/foo/'
+
+        assert helpers.expand('/:slug.html', {'slug': 'foo'}) == '/foo.html'
+        assert helpers.expand('/:slug.:slug.html', {'slug': 'foo'}) == '/foo.foo.html'
 
     @attest.test
     def paginate(self):
