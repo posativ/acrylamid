@@ -18,6 +18,28 @@ def utc(dt, fmt='%Y-%m-%dT%H:%M:%SZ'):
 
 
 class Feed(View):
+    """Atom and RSS feed generation.  The feeds module provides several classes
+    to generate feeds:
+
+      - RSS -- RSS feed for all entries
+      - Atom  -- same for Atom
+      - RSSPerTag -- RSS feed for all entries for a given tag
+      - AtomPerTag -- same for Atom
+
+    All feed views have a ``num_entries`` argument that defaults to 25 and
+    limits the list of posts to the 25 latest ones. In addition RSSPerTag and
+    AtomPerTag expand ``:name`` to the current tag in your route.
+
+    Examples:
+
+    .. code-block:: python
+
+        # per tag Atom feed
+        '/tag/:name/feed/': {'filters': ..., 'view': 'atompertag'}
+
+        # full Atom feed
+        '/atom/full/': {'filters': ..., 'view': 'atom', 'num_entries': 1000}
+    """
 
     priority = 25.0
 
