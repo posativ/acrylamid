@@ -21,6 +21,7 @@ Setup in current directory?
 Now set up in a given directory:
 
   $ rm -rf ./theme ./content conf.py
+  $ cd ../
   $ acrylamid init -C foo
   create  foo/content/sample-entry.txt
   create  foo/theme/base.html

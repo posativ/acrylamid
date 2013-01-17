@@ -100,3 +100,7 @@ But if we edit the title, the references should check for any updates.
   update  [0.??s] output/sitemap.xml (glob)
   skip  output/style.css
   1 new, 1 updated, 9 skipped [?.??s] (glob)
+
+Clean up.
+
+  $ rm -rf output/ theme/ content/ .cache/ conf.py
