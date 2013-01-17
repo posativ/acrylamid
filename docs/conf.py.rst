@@ -20,16 +20,13 @@ python script and therefore must be valid python code!):
         '/': {'filters': 'summarize', 'view': 'index',
               'pagination': '/page/:num'},
 
-        '/:year/:slug/': {'view': 'entry'},
+        '/:year/:slug/': {'views': ['entry', 'draft']},
 
         '/tag/:name/': {'filters': 'summarize', 'view':'tag',
                         'pagination': '/tag/:name/:num'},
 
         '/atom/': {'filters': ['h2', 'nohyphenate'], 'view': 'atom'},
         '/rss/': {'filters': ['h2', 'nohyphenate'], 'view': 'rss'},
-
-        '/tag/:name/atom/': {'filters': ['h2', 'nohyphenate'], 'view': 'atompertag'},
-        '/tag/:name/rss/': {'filters': ['h2', 'nohyphenate'], 'view': 'rsspertag'},
 
         '/articles/': {'view': 'articles'},
     }

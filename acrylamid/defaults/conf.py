@@ -13,24 +13,23 @@ VIEWS = {
     '/': {'filters': 'summarize', 'view': 'index',
           'pagination': '/page/:num'},
 
-    '/:year/:slug/': {'view': 'entry'},
+    '/:year/:slug/': {'views': ['entry', 'draft']},
 
     '/tag/:name/': {'filters': 'summarize', 'view':'tag',
                     'pagination': '/tag/:name/:num'},
 
-    # per tag Atom or RSS feed. Just uncomment to generate them.
-
-    # '/tag/:name/atom/': {'filters': ['h2', 'nohyphenate'], 'view': 'atompertag'},
-    # '/tag/:name/rss/': {'filters': ['h2', 'nohyphenate'], 'view': 'rsspertag'},
-
     '/atom/': {'filters': ['h2', 'nohyphenate'], 'view': 'atom'},
     '/rss/': {'filters': ['h2', 'nohyphenate'], 'view': 'rss'},
+
+    # # per tag Atom or RSS feed. Just uncomment to generate them.
+    # '/tag/:name/atom/': {'filters': ['h2', 'nohyphenate'], 'view': 'atompertag'},
+    # '/tag/:name/rss/': {'filters': ['h2', 'nohyphenate'], 'view': 'rsspertag'},
 
     '/articles/': {'view': 'articles'},
 
     '/sitemap.xml': {'view': 'sitemap'},
 
-    # Here are some more examples
+    # # Here are some more examples
 
     # # '/:slug/' is a slugified url of your static page's title
     # '/:slug/': {'view': 'page'}
@@ -45,6 +44,9 @@ VIEWS = {
     # # a full typography features entry including MathML and Footnotes
     # '/:year/:slug': {'filters': ['typography', 'Markdown+Footnotes+MathML'],
     #                  'view': 'entry'}
+
+    # # translations!
+    # '/:year/:slug/:lang/': {'view': 'translation'}
 }
 
 THEME = '${theme}'
