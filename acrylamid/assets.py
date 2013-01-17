@@ -6,6 +6,7 @@
 import os
 import io
 import time
+import stat
 import shutil
 
 from tempfile import mkstemp, mkdtemp
@@ -101,6 +102,9 @@ class System(Writer):
 
         tt = time.time()
         fd, path = mkstemp(dir=core.cache.cache_dir)
+
+        # make destination group/world-readable as other files from Acrylamid
+        os.chmod(path, os.stat(path).st_mode | stat.S_IRGRP | stat.S_IROTH)
 
         try:
             res = helpers.system(self.cmd + [src])
