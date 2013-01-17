@@ -87,7 +87,7 @@ Now with templates. We have patched jinja2 template loader so we have a
 recognition wether a template (including its parent templates) has changed.
 *Note*, that this required BSD touch, too.
 
-Let's change some mtimes ...
+Edit some modification timestamps.
 
   $ touch theme/articles.html
   $ touch theme/entry.html
