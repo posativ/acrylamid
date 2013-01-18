@@ -134,6 +134,12 @@ This installs Acrylamid with Jinja2_ as templating engine. For Mako_ use
 required dependencies: ``Markdown`` and ``translitcodec``. To get a list of
 all supported modules, head over to `additional supported modules`_.
 
+If you rather use non-ascii characters, you're better off with:
+
+::
+
+    easy_install -U acrylamid python-magic unidecode
+
 .. _additional supported modules: http://posativ.org/acrylamid/installation.html#additional-supported-modules
 
 Initialize the base structure, edit *conf.py* and *layouts/* and compile with:

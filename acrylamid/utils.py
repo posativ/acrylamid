@@ -15,6 +15,13 @@ import locale
 import functools
 import itertools
 
+try:
+    import magic
+except ImportError as e:
+    if e.message.find('libmagic') > -1:
+        raise
+    magic = None
+
 
 def hash(*objs, **kw):
 
@@ -211,7 +218,13 @@ def istext(path, blocksize=512, chars=(
     the chars in the block are non-text, or there are NUL ('\x00') bytes in
     the block, assume this is a binary file.
 
+    If ``python-magic`` is available, we use this rather than detecting ASCII
+    characters (in e.g. cyrillic or chinese).
+
     -- via http://eli.thegreenplace.net/2011/10/19/perls-guess-if-file-is-text-or-binary-implemented-in-python/"""
+
+    if magic:
+        return magic.from_file(path, mime=True).startswith('text/')
 
     with open(path, 'rb') as fp:
         block = fp.read(blocksize)
