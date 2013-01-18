@@ -48,6 +48,8 @@ Additional Supported Modules
 +-----------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
 | cyrillic/chinese ascii slugs                                                            | `unidecode <http://pypi.python.org/pypi/Unidecode/>`_                      |
 +-----------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
+| non-ASCII text detection                                                                | `python-magic <https://pypi.python.org/pypi/python-magic/>`_               |
++-----------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
 | Mako Templating                                                                         | `mako <http://www.makotemplates.org/>`_                                    |
 +-----------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
 | exact YAML parser                                                                       | `PyYAML <http://pyyaml.org/>`_                                             |
@@ -62,6 +64,10 @@ If you write in your native language, I recommend to install ``unidecode`` for
 a better ASCII transcription of your characters. If not, provide either a
 proper ASCII slug in your articles or use a fixed permalink with your native
 characters.
+
+Acrylamid also tries to detect text files, but that might fail if your post
+has less than 30% ASCII characters within the first 512 bytes. Therefore you
+can optionally install ``python-magic`` to circumvent this issue.
 
 Windows
 *******
