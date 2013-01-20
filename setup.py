@@ -22,20 +22,6 @@ else:
 if sys.version_info < (2, 7):
     requires.append('argparse')
 
-if '--full' in sys.argv:
-    requires.extend([
-        'pygments',
-        'docutils',
-        'smartypants',
-        'asciimathml',
-        'textile',
-        'PyYAML'
-    ])
-
-if '--mako' in sys.argv:
-    requires.remove('Jinja2>=2.4')
-    requires.append('Mako')
-
 setup(
     name='acrylamid',
     version=version,
@@ -63,6 +49,11 @@ setup(
         "Programming Language :: Python :: 3.2",
     ],
     install_requires=requires,
+    extras_require={
+        'full': ['pygments', 'docutils', 'smartypants', 'asciimathml',
+                 'textile', 'unidecode', 'PyYAML', 'twitter', 'discount'],
+        'mako': ['mako'],
+    },
     test_require=['Attest', 'cram', 'docutils'],
     test_loader='attest:auto_reporter.test_loader',
     test_suite='acrylamid.specs.testsuite',

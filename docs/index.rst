@@ -122,7 +122,7 @@ Quickstart
     easy_install -U acrylamid
 
 This installs Acrylamid with Jinja2_ as templating engine. For Mako_ use
-``easy_install -U acrylamid --mako``. This installs two additional but not
+``easy_install -U acrylamid[mako]``. This installs two additional but not
 required dependencies: ``Markdown`` and ``translitcodec``. To get a list of
 all supported modules, head over to `additional supported modules`_.
 
@@ -133,7 +133,7 @@ Initialize the base structure, edit *conf.py* and *layouts/* and compile with:
 .. raw:: html
 
     <pre>
-    $ acrylamid init myblog
+    $ acrylamid init myblog  <span style="color: #999"># --mako, defaults to --jinja2</span>
       <span style="font-weight: bold; color: #00aa00">   create</span>  myblog/output/conf.py
         ...
     $ cd myblog/

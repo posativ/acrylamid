@@ -20,7 +20,8 @@ already installed (10.6 or later).
     $> easy_install -U acrylamid
 
 And you are done with the simplest setup (by the way even markdown and
-translitcodec are not must-have dependency).
+translitcodec are not must-have dependency). You can install all supprted
+modules via ``easy_install -U acrylamid[full]``.
 
 .. note::
 
