@@ -3,16 +3,20 @@
 Version 0.5
 -----------
 
-Not released – TBD
+Released on January, 20th 2013 – Winter Is Coming!
 
 ### What is new?
 
 - speed improvements (up to 25%) due new internal hash (Adler32 vs. MD5)
-  and more sophisticated and complete modification detection
+  and detection of changes in your configuration, environment and posts.
+- #7 –  static site search backend (not yet integrated into any theme, still
+  waiting for a new default theme based on `syte`. The static site search is
+  documented in docs/ and Acrylamid ships a python script to query the index.
 - multiple views per rule! So, in theory you can map pages, posts, drafts
   and translations to `/:slug/`.
+- #95 – add "read more" support for intro filter (Alexander Zhirov)
 - #90 – specify alternate configuration file via `--conf /path/to/conf.py`
-- #87 – new reStructuredText directive for Vimeo
+- #87 – new reStructuredText directive for Vimeo (the\_metalgamer)
 - #82 – updated Atom feed to include tags, icon and provides a unique id for
   multiple destinations (Mark van Lent)
 - improved WordPress import (pages and draft recognition)
@@ -40,6 +44,8 @@ Not released – TBD
 
 - compatibility with python 3.2 is now assured by the testsuite
 - auto compilation gets slower for each iteration
+- #95 – fix assets not being copied when multiple directories (Christoph Polcin)
+- #94 – more accurate intro generation (Alexander Zhirov)
 - #73 – LESS and SASS conversion is now optional
 - #67 – track referenced entries for updates
 - #86 – escape YAML blocks ("[" and "]") properly
