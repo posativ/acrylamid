@@ -37,6 +37,12 @@ SCSS : .scss -> .css
 LESS : .less -> .css
     compiles LESS_ to CSS (requires ``lessc`` to be in your ``PATH``)
 
+CoffeeScript : .coffee -> .js
+    compiles CoffeeScript_ to JavaScript (requires ``coffee`` to be in your ``PATH``)
+
+IcedCoffeeScript : .iced -> .js
+    compiles IcedCoffeeScript_ to JavaScript (requires ``iced`` to be in your ``PATH``)
+
 Jinja2 : .html -> .html
     renders Jinja2 templates
 
@@ -49,3 +55,5 @@ XML : .xml -> .xml
 .. _SASS: http://sass-lang.com/docs/yardoc/file.INDENTED_SYNTAX.html
 .. _SCSS: http://sass-lang.com/
 .. _LESS: http://lesscss.org/
+.. _CoffeeScript: http://coffeescript.org/
+.. _IcedCoffeeScript: http://maxtaco.github.com/coffee-script/
