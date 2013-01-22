@@ -140,6 +140,18 @@ class LESS(System):
     cmd = ['lessc', ]
 
 
+class CoffeeScript(System):
+
+    ext, target = '.coffee', '.js'
+    cmd = ['coffee', '-cp']
+
+
+class IcedCoffeeScript(System):
+
+    ext, target = '.iced', '.js'
+    cmd = ['iced', '-cp']
+
+
 def initialize(conf, env):
 
     if isinstance(conf.setdefault('static', []), basestring):
