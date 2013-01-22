@@ -13,7 +13,7 @@ import abc
 import locale
 import traceback
 
-from os.path import join, getmtime
+from os.path import join, getmtime, relpath
 from fnmatch import fnmatch
 from datetime import datetime, tzinfo, timedelta
 
@@ -112,6 +112,13 @@ def filelist(directory, patterns=[]):
             if ignored(root, dir+'/', patterns, directory):
                 dirs.remove(dir)
 
+def relfilelist(directory, patterns=[], excludes=[]):
+    """Gathers identical files like filelist but with relative paths."""
+
+    for path in filelist(directory, patterns):
+        path = relpath(path, directory)
+        if path not in excludes:
+            yield (path, directory)
 
 class Date(datetime):
     """A :class:`datetime.datetime` object that returns unicode on ``strftime``."""
