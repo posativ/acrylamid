@@ -612,8 +612,7 @@ def reststyle(fileobj):
 
 
 def pandocstyle(fileobj):
-    """
-    A function to parse the so called 'Title block' out of Pandoc-formatted documents.
+    """A function to parse the so called 'Title block' out of Pandoc-formatted documents.
     Provides very simple parsing so that Acrylamid won't choke on plain Pandoc documents.
 
     See here:
@@ -622,17 +621,16 @@ def pandocstyle(fileobj):
      - Formatting within title blocks
      - Man-page writer title block extensions
 
-    If there appears to be a Pandoc title block, but it is not valid then we raise an AcrylamidException.
-
-    If advanced and page-specific Pandoc features are required YAML fron't matter (Acrylamid's default) will need to be used.
+    If there appears to be a Pandoc title block, but it is not valid then we raise an
+    AcrylamidException. If advanced and page-specific Pandoc features are required YAML
+    front matter (Acrylamid's default) will need to be used.
     """
 
     meta_pan_re = re.compile(r'^[ ]{0,3}%+\s*(?P<value>.*)')
     meta_pan_more_re = re.compile(r'^\s*(?P<value>.*)')
     meta_pan_authsplit = re.compile(r';+\s*')
 
-    i = 0
-    j = 0
+    i, j = 0, 0
     meta, key = {}, None
     poss_keys = ['title', 'author', 'date']
     ispandoc = False
@@ -681,8 +679,6 @@ def pandocstyle(fileobj):
     if len(meta) > 3:
             raise AcrylamidException("%r has too many items to be a valid title block."  % fileobj.name)
 
-    print meta
-
     if len(meta['title']) > 1:
         meta['title'] = ' '.join(meta['title'])
 
@@ -700,7 +696,8 @@ def pandocstyle(fileobj):
         log.warn('%s does not have an Author in the Pandoc title block.' % fileobj.name)
 
     ispandoc = True
-    return i, meta, ispandoc
+    return i, meta
+
 
 def yamlstyle(fileobj):
     """Open and read content using the specified encoding and return position
