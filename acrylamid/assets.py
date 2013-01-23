@@ -11,12 +11,12 @@ import shutil
 
 from tempfile import mkstemp, mkdtemp
 from itertools import chain
-from os.path import join, relpath, isfile, getmtime, splitext
+from os.path import join, isfile, getmtime, splitext
 
 from acrylamid import core, helpers, log, utils
 from acrylamid.errors import AcrylamidException
 from acrylamid.helpers import mkfile, event
-from acrylamid.readers import filelist
+from acrylamid.readers import relfilelist
 
 __writers = None
 __defaultwriter = None
@@ -173,18 +173,10 @@ def compile(conf, env):
         globals()[writer] for writer in conf.static_filter
     ))
 
-    other = [(prefix, filelist(prefix, conf['static_ignore'])) for prefix in conf['static']]
-    if len(other):
-        other_tmp = []
-        for prefix, generator in other:
-            other_tmp += [(relpath(path, prefix), prefix) for path in generator]
-        other = other_tmp
+    files = [relfilelist(prefix, conf['static_ignore']) for prefix in conf['static']]
+    files.append(relfilelist(conf['theme'], conf['theme_ignore'], env.engine.templates));
 
-    files = ((path, conf['theme']) for path in filelist(conf['theme'], conf['theme_ignore']))
-    files = ((relpath(path, prefix), prefix) for path, prefix in files)
-    files = ((path, prefix) for path, prefix in files if path not in env.engine.templates)
-
-    for path, directory in chain(files, other):
+    for path, directory in chain(*files):
 
         # initialize writer for extension if not already there
         _, ext = splitext(path)
