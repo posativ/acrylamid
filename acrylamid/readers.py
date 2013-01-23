@@ -229,31 +229,31 @@ class FileReader(Reader):
 
         native = conf.get('metastyle', '').lower() == 'native'
         filters = conf.get('filters', '')
-        
+
         for filt in filters:
-        	if 'pandoc' in filt.lower():
-        		pandoc = True
-        	else:
-        		pandoc = False
-        
+            if 'pandoc' in filt.lower():
+                pandoc = True
+            else:
+                pandoc = False
+
         with io.open(path, 'r', encoding=conf['encoding'], errors='replace') as fp:
-			
-			ispandoc = False
-			
-			if pandoc and native:
-				# This will try to parse the Pandoc title block.
-				# Could also be implemented as a try/catch, but this works too.
-				i, meta, ispandoc = pandocstyle(fp)
-				if not ispandoc:
-					log.debug('%s does not have a Pandoc title block. Moving on to other options...' % fp.name)
-			
-			if not ispandoc:
-				if native and path.endswith(('.md', '.mkdown')):
-					i, meta = markdownstyle(fp)
-				elif native and path.endswith(('.rst', '.rest')):
-					i, meta = reststyle(fp)
-				else:
-					i, meta = yamlstyle(fp)
+
+            ispandoc = False
+
+            if pandoc and native:
+                # This will try to parse the Pandoc title block.
+                # Could also be implemented as a try/catch, but this works too.
+                i, meta, ispandoc = pandocstyle(fp)
+                if not ispandoc:
+                    log.debug('%s does not have a Pandoc title block. Moving on to other options...' % fp.name)
+
+            if not ispandoc:
+                if native and path.endswith(('.md', '.mkdown')):
+                    i, meta = markdownstyle(fp)
+                elif native and path.endswith(('.rst', '.rest')):
+                    i, meta = reststyle(fp)
+                else:
+                    i, meta = yamlstyle(fp)
 
         meta['title'] = unicode(meta['title'])  # YAML can convert 42 to an int
 
@@ -612,96 +612,96 @@ def reststyle(fileobj):
 
 
 def pandocstyle(fileobj):
-	"""
-	A function to parse the so called 'Title block' out of Pandoc-formatted documents.
-	Provides very simple parsing so that Acrylamid won't choke on plain Pandoc documents.
-	
-	See here:
-	http://johnmacfarlane.net/pandoc/README.html#title-block
-	Currently not implemented:
-	 - Formatting within title blocks
-	 - Man-page writer title block extensions
-	
-	If there appears to be a Pandoc title block, but it is not valid then we raise an AcrylamidException.
-	
-	If advanced and page-specific Pandoc features are required YAML fron't matter (Acrylamid's default) will need to be used.
-	"""
-	
-	meta_pan_re = re.compile(r'^[ ]{0,3}%+\s*(?P<value>.*)')
-	meta_pan_more_re = re.compile(r'^\s*(?P<value>.*)')
-	meta_pan_authsplit = re.compile(r';+\s*')
-	
-	i = 0
-	j = 0
-	meta, key = {}, None
-	poss_keys = ['title', 'author', 'date']
-	ispandoc = False
-	
-	while True:
-		line = fileobj.readline(); i += 1
-		
-		if i==1 and line.strip()[0] != '%':
-			# Very first character isn't a '%'. 
-			# It cannot be a valid be a Pandoc title block.
-			return i, meta, ispandoc 
-		
-		if line.strip() == '':
-			break  # blank line - done		
-		
-		if j+1 > len(poss_keys):
-			raise AcrylamidException("%r has too many items in the Pandoc title block."  % fileobj.name)
-		
-		m1 = meta_pan_re.match(line)
-		if m1:
-			key = poss_keys[j]; j += 1
-			valstrip = m1.group('value').strip()
-			if len(valstrip)>0:
-				value = distinguish(m1.group('value').strip())
-			else:
-				value = ' '
-			if key == 'author':
-				value = value.strip(';')
-				value = meta_pan_authsplit.split(value)
-			meta.setdefault(key, []).append(value)
-		else:
-			m2 = meta_pan_more_re.match(line)
-			if m2 and key:
-				# Add another line to existing key
-				value = m2.group('value').strip()
-				if key == 'author':
-					value = value.strip(';')
-					value = meta_pan_authsplit.split(value)
-				meta[key].append(value)
-			else:
-				break  # no meta data - done
-	
-	if len(meta) < 3:
-			raise AcrylamidException("%r does not have a complete title block."  % fileobj.name)
-	
-	if len(meta) > 3:
-			raise AcrylamidException("%r has too many items to be a valid title block."  % fileobj.name)
-	
-	print meta
-	
-	if len(meta['title']) > 1:
-		meta['title'] = ' '.join(meta['title'])
-	
-	meta['author'] = [item for sublist in meta['author'] for item in sublist]
+    """
+    A function to parse the so called 'Title block' out of Pandoc-formatted documents.
+    Provides very simple parsing so that Acrylamid won't choke on plain Pandoc documents.
 
-	for key, values in meta.iteritems():
-		if len(values) == 1:
-			meta[key] = values[0]
-	
-	if meta['title'].strip() == '':
-		 raise AcrylamidException('No title given in %r' % fileobj.name)
-		 
-	if len(meta['author']) == 1 and meta['author'].strip() == '':
-		del meta['author']
-		log.warn('%s does not have an Author in the Pandoc title block.' % fileobj.name)
-	
-	ispandoc = True
-	return i, meta, ispandoc
-	
+    See here:
+    http://johnmacfarlane.net/pandoc/README.html#title-block
+    Currently not implemented:
+     - Formatting within title blocks
+     - Man-page writer title block extensions
+
+    If there appears to be a Pandoc title block, but it is not valid then we raise an AcrylamidException.
+
+    If advanced and page-specific Pandoc features are required YAML fron't matter (Acrylamid's default) will need to be used.
+    """
+
+    meta_pan_re = re.compile(r'^[ ]{0,3}%+\s*(?P<value>.*)')
+    meta_pan_more_re = re.compile(r'^\s*(?P<value>.*)')
+    meta_pan_authsplit = re.compile(r';+\s*')
+
+    i = 0
+    j = 0
+    meta, key = {}, None
+    poss_keys = ['title', 'author', 'date']
+    ispandoc = False
+
+    while True:
+        line = fileobj.readline(); i += 1
+
+        if i==1 and line.strip()[0] != '%':
+            # Very first character isn't a '%'.
+            # It cannot be a valid be a Pandoc title block.
+            return i, meta, ispandoc
+
+        if line.strip() == '':
+            break  # blank line - done
+
+        if j+1 > len(poss_keys):
+            raise AcrylamidException("%r has too many items in the Pandoc title block."  % fileobj.name)
+
+        m1 = meta_pan_re.match(line)
+        if m1:
+            key = poss_keys[j]; j += 1
+            valstrip = m1.group('value').strip()
+            if len(valstrip)>0:
+                value = distinguish(m1.group('value').strip())
+            else:
+                value = ' '
+            if key == 'author':
+                value = value.strip(';')
+                value = meta_pan_authsplit.split(value)
+            meta.setdefault(key, []).append(value)
+        else:
+            m2 = meta_pan_more_re.match(line)
+            if m2 and key:
+                # Add another line to existing key
+                value = m2.group('value').strip()
+                if key == 'author':
+                    value = value.strip(';')
+                    value = meta_pan_authsplit.split(value)
+                meta[key].append(value)
+            else:
+                break  # no meta data - done
+
+    if len(meta) < 3:
+            raise AcrylamidException("%r does not have a complete title block."  % fileobj.name)
+
+    if len(meta) > 3:
+            raise AcrylamidException("%r has too many items to be a valid title block."  % fileobj.name)
+
+    print meta
+
+    if len(meta['title']) > 1:
+        meta['title'] = ' '.join(meta['title'])
+
+    meta['author'] = [item for sublist in meta['author'] for item in sublist]
+
+    for key, values in meta.iteritems():
+        if len(values) == 1:
+            meta[key] = values[0]
+
+    if meta['title'].strip() == '':
+         raise AcrylamidException('No title given in %r' % fileobj.name)
+
+    if len(meta['author']) == 1 and meta['author'].strip() == '':
+        del meta['author']
+        log.warn('%s does not have an Author in the Pandoc title block.' % fileobj.name)
+
+    ispandoc = True
+    return i, meta, ispandoc
+
 def yamlstyle(fileobj):
     """Open and read content using the specified encoding and return position
     where the actual content begins and all collected properties.
