@@ -628,17 +628,16 @@ def pandocstyle(fileobj):
         if line.strip() == '':
             break  # blank line - done
 
-        if j+1 > len(poss_keys):
+        if j + 1 > len(poss_keys):
             raise AcrylamidException("%r has too many items in the Pandoc title block."  % fileobj.name)
 
         m1 = meta_pan_re.match(line)
         if m1:
             key = poss_keys[j]; j += 1
             valstrip = m1.group('value').strip()
-            if len(valstrip)>0:
-                value = distinguish(m1.group('value').strip())
-            else:
-                value = ' '
+            if not valstrip:
+                continue
+            value = distinguish(m1.group('value').strip())
             if key == 'author':
                 value = value.strip(';')
                 value = meta_pan_authsplit.split(value)
@@ -655,27 +654,20 @@ def pandocstyle(fileobj):
             else:
                 break  # no meta data - done
 
-    if len(meta) < 3:
-            raise AcrylamidException("%r does not have a complete title block."  % fileobj.name)
-
-    if len(meta) > 3:
-            raise AcrylamidException("%r has too many items to be a valid title block."  % fileobj.name)
+    if 'title' not in meta:
+         raise AcrylamidException('No title given in %r' % fileobj.name)
 
     if len(meta['title']) > 1:
         meta['title'] = ' '.join(meta['title'])
 
-    meta['author'] = [item for sublist in meta['author'] for item in sublist]
+    if 'author' in meta:
+        meta['author'] = sum(meta['author'], [])
+    else:
+        log.warn('%s does not have an Author in the Pandoc title block.' % fileobj.name)
 
     for key, values in meta.iteritems():
         if len(values) == 1:
             meta[key] = values[0]
-
-    if meta['title'].strip() == '':
-         raise AcrylamidException('No title given in %r' % fileobj.name)
-
-    if len(meta['author']) == 1 and meta['author'].strip() == '':
-        meta.pop('author')
-        log.warn('%s does not have an Author in the Pandoc title block.' % fileobj.name)
 
     return i, meta
 
