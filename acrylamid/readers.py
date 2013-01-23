@@ -230,30 +230,16 @@ class FileReader(Reader):
         native = conf.get('metastyle', '').lower() == 'native'
         filters = conf.get('filters', '')
 
-        for filt in filters:
-            if 'pandoc' in filt.lower():
-                pandoc = True
-            else:
-                pandoc = False
-
         with io.open(path, 'r', encoding=conf['encoding'], errors='replace') as fp:
 
-            ispandoc = False
-
-            if pandoc and native:
-                # This will try to parse the Pandoc title block.
-                # Could also be implemented as a try/catch, but this works too.
-                i, meta, ispandoc = pandocstyle(fp)
-                if not ispandoc:
-                    log.debug('%s does not have a Pandoc title block. Moving on to other options...' % fp.name)
-
-            if not ispandoc:
-                if native and path.endswith(('.md', '.mkdown')):
-                    i, meta = markdownstyle(fp)
-                elif native and path.endswith(('.rst', '.rest')):
-                    i, meta = reststyle(fp)
-                else:
-                    i, meta = yamlstyle(fp)
+            if native and ispandoc(fp):
+                i, meta = pandocstyle(fp)
+            elif native and path.endswith(('.md', '.mkdown')):
+                i, meta = markdownstyle(fp)
+            elif native and path.endswith(('.rst', '.rest')):
+                i, meta = reststyle(fp)
+            else:
+                i, meta = yamlstyle(fp)
 
         meta['title'] = unicode(meta['title'])  # YAML can convert 42 to an int
 
@@ -611,19 +597,21 @@ def reststyle(fileobj):
     return i, meta
 
 
+def ispandoc(fileobj):
+    """Check for pandoc block (a percentage symbol within the first few bytes)"""
+    chunk = fileobj.read(4); fileobj.seek(0)
+    return chunk.strip().startswith('%')
+
+
 def pandocstyle(fileobj):
     """A function to parse the so called 'Title block' out of Pandoc-formatted documents.
     Provides very simple parsing so that Acrylamid won't choke on plain Pandoc documents.
 
-    See here:
-    http://johnmacfarlane.net/pandoc/README.html#title-block
+    See http://johnmacfarlane.net/pandoc/README.html#title-block
+
     Currently not implemented:
      - Formatting within title blocks
      - Man-page writer title block extensions
-
-    If there appears to be a Pandoc title block, but it is not valid then we raise an
-    AcrylamidException. If advanced and page-specific Pandoc features are required YAML
-    front matter (Acrylamid's default) will need to be used.
     """
 
     meta_pan_re = re.compile(r'^[ ]{0,3}%+\s*(?P<value>.*)')
@@ -633,15 +621,9 @@ def pandocstyle(fileobj):
     i, j = 0, 0
     meta, key = {}, None
     poss_keys = ['title', 'author', 'date']
-    ispandoc = False
 
     while True:
         line = fileobj.readline(); i += 1
-
-        if i==1 and line.strip()[0] != '%':
-            # Very first character isn't a '%'.
-            # It cannot be a valid be a Pandoc title block.
-            return i, meta, ispandoc
 
         if line.strip() == '':
             break  # blank line - done
@@ -692,10 +674,9 @@ def pandocstyle(fileobj):
          raise AcrylamidException('No title given in %r' % fileobj.name)
 
     if len(meta['author']) == 1 and meta['author'].strip() == '':
-        del meta['author']
+        meta.pop('author')
         log.warn('%s does not have an Author in the Pandoc title block.' % fileobj.name)
 
-    ispandoc = True
     return i, meta
 
 
