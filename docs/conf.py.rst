@@ -192,7 +192,8 @@ Variable name (default value)                       Description
 `METASTYLE` (*not set*)                             With ``native`` you can Acrylamid parse Markdown's or
                                                     or reST's native meta data section if the filename
                                                     ends with ``.rst`` or ``.md`` and ``.mkdown``
-                                                    respectively.
+                                                    respectively. It will also recognize `Pandoc's title
+                                                    block`_ on any filename extension.
 `DISQUS_SHORTNAME` (*not set*)                      Enables `Disqus <https://disqus.com/>`_ integration
                                                     with your site identifier [#]_.
 `DEFAULT_ORPHANS` (``0``)                           The minimum number of articles allowed on the last
@@ -217,6 +218,8 @@ Variable name (default value)                       Description
                                                     location will be inserted. If set to empty string,
                                                     no link is produced.
 ================================================    =====================================================
+
+.. _pandoc's title block: http://johnmacfarlane.net/pandoc/README.html#title-block
 
 .. [#] Note, disqus only knows a given URL. If you change the title of an entry
    and you don't setup recirect codes or leave the original url by setting
