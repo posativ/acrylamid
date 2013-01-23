@@ -9,7 +9,7 @@
     % if 'sitemap' in env.views:
         <link href="${ env.views['sitemap'].path }" type="application/xml" rel="sitemap" title="Sitemap">
     % endif
-  <link href="${ env.path + '/' }" rel="home" />
+  <link href="${ env.path + '/' }" rel="home start" />
   <link href="${ env.path + '/atom/' }" type="application/atom+xml" rel="alternate" title="Atom Feed" />
   <link href="${ env.path + '/rss/' }" type="application/rss+xml" rel="alternate" title="RSS Feed" />
   <!--[if lt IE 9]>
@@ -19,13 +19,13 @@
 </head>
 <body>
   <header>
-    <h1><a href="${ env.path + '/' }" class="blogtitle">${ conf.sitename }</a></h1>
+    <h1><a href="${ env.path + '/' }" rel="home start" class="blogtitle">${ conf.sitename }</a></h1>
     <nav>
       <ul>
-        <li><a href="${ env.path + '/' }">blog</a></li>
-        <li><a href="${ env.path + '/atom/' }">atom</a></li>
-        <li><a href="${ env.path + '/rss/' }">rss</a></li>
-        <li><a href="${ env.path + '/articles/' }">articles</a></li>
+        <li><a href="${ env.path + '/' }" rel="home start">blog</a></li>
+        <li><a href="${ env.path + '/atom/' }" rel="alternate">atom</a></li>
+        <li><a href="${ env.path + '/rss/' }" rel="alternate">rss</a></li>
+        <li><a href="${ env.path + '/articles/' }" rel="contents">articles</a></li>
       </ul>
     </nav>
   </header>
@@ -36,7 +36,7 @@
   <footer>
     <%block name="footer">
     <p>written by <a href="mailto:${ conf.email }">${ conf.author }</a></p>
-    <a href="http://creativecommons.org/licenses/by-nc-sa/2.0/de/" rel="copyright">
+    <a href="http://creativecommons.org/licenses/by-nc-sa/2.0/de/" rel="copyright license">
         <img src="http://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png" alt="by-nc-sa" />
     </a>
     </%block>

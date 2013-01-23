@@ -10,7 +10,7 @@
     {% if 'sitemap' in env.views -%}
         <link href="{{ env.views.sitemap.path }}" type="application/xml" title="Sitemap">
     {%- endif%}
-  <link href="{{ env.path + '/' }}" rel="home" />
+  <link href="{{ env.path + '/' }}" rel="home start" />
   <link href="{{ env.path + '/atom/' }}" type="application/atom+xml" rel="alternate" title="Atom Feed" />
   <link href="{{ env.path + '/rss/' }}" type="application/rss+xml" rel="alternate" title="RSS Feed" />
   <!--[if lt IE 9]>
@@ -25,7 +25,7 @@
       <div id="logo">
         <div id="logo_text">
           <!-- class="logo_colour", allows you to change the colour of the text -->
-          <h1><a href="{{ env.path + '/' }}">{{ conf.title | first }}
+          <h1><a href="{{ env.path + '/' }}" rel="home start">{{ conf.title | first }}
               <span class="logo_colour">{{ conf.title | last }}</span>
           </a></h1>
           <h2>{{ conf.sitename }}</h2>
@@ -33,11 +33,11 @@
       </div>
       <nav>
         <ul>
-          <li><a href="{{ env.path + '/' }}">blog</a></li>
-          <li><a href="{{ env.path + '/atom/' }}">atom</a></li>
-          <li><a href="{{ env.path + '/rss/' }}">rss</a></li>
-          <li><a href="{{ env.path + '/articles/' }}">articles</a></li>
-          <li><a href="{{ env.path + '/about/' }}">about</a></li>
+          <li><a href="{{ env.path + '/' }}" rel="home start">blog</a></li>
+          <li><a href="{{ env.path + '/atom/' }}" rel="alternate">atom</a></li>
+          <li><a href="{{ env.path + '/rss/' }}" rel="alternate">rss</a></li>
+          <li><a href="{{ env.path + '/articles/' }}" rel="contents">articles</a></li>
+          <li><a href="{{ env.path + '/about/' }}" tel="author me">about</a></li>
         </ul>
       </nav>
     </header>
@@ -48,7 +48,7 @@
         <h3>Tags</h3>
         <ul>
         {% for tag in env.tag_cloud if tag.step < 2 %}
-          <li class="tag-{{ tag.step }}"><a href="/tag/{{ tag.name | safeslug }}/">{{ tag.name }}</a></li>
+          <li class="tag-{{ tag.step }}"><a href="/tag/{{ tag.name | safeslug }}/" rel="tag">{{ tag.name }}</a></li>
         {% endfor %}
         </ul>
         <h3>Links</h3>
