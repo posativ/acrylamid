@@ -72,7 +72,7 @@ blogging features
 
 - you like the `YAML front matter`_ from Jekyll_ or nanoc_? First choice in Acrylamid!
 - coming from Pelican_? Acrylamid has also support for metadata in the native
-  format of Markdown or reStructuredText.
+  format of Markdown, reStructuredText and even Pandoc.
 - support for translations (oh, and did I mention the language dependend
   hyphenation feature?).
 - a few HTML5 themes, see `Theming <http://posativ.org/acrylamid/theming.html>`_.

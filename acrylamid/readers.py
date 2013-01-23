@@ -235,9 +235,13 @@ class FileReader(Reader):
         self.tzinfo = conf.get('tzinfo', None)
 
         native = conf.get('metastyle', '').lower() == 'native'
+        filters = conf.get('filters', '')
+
         with io.open(path, 'r', encoding=conf['encoding'], errors='replace') as fp:
 
-            if native and path.endswith(('.md', '.mkdown')):
+            if native and ispandoc(fp):
+                i, meta = pandocstyle(fp)
+            elif native and path.endswith(('.md', '.mkdown')):
                 i, meta = markdownstyle(fp)
             elif native and path.endswith(('.rst', '.rest')):
                 i, meta = reststyle(fp)
@@ -596,6 +600,81 @@ def reststyle(fileobj):
                 value = value.replace('\n', ' ')  # linebreaks in wrapped sentences
 
             meta[name] = distinguish(value.split('\n\n') if '\n\n' in value else value)
+
+    return i, meta
+
+
+def ispandoc(fileobj):
+    """Check for pandoc block (a percentage symbol within the first few bytes)"""
+    chunk = fileobj.read(4); fileobj.seek(0)
+    return chunk.strip().startswith('%')
+
+
+def pandocstyle(fileobj):
+    """A function to parse the so called 'Title block' out of Pandoc-formatted documents.
+    Provides very simple parsing so that Acrylamid won't choke on plain Pandoc documents.
+
+    See http://johnmacfarlane.net/pandoc/README.html#title-block
+
+    Currently not implemented:
+     - Formatting within title blocks
+     - Man-page writer title block extensions
+    """
+
+    meta_pan_re = re.compile(r'^[ ]{0,3}%+\s*(?P<value>.*)')
+    meta_pan_more_re = re.compile(r'^\s*(?P<value>.*)')
+    meta_pan_authsplit = re.compile(r';+\s*')
+
+    i, j = 0, 0
+    meta, key = {}, None
+    poss_keys = ['title', 'author', 'date']
+
+    while True:
+        line = fileobj.readline(); i += 1
+
+        if line.strip() == '':
+            break  # blank line - done
+
+        if j + 1 > len(poss_keys):
+            raise AcrylamidException("%r has too many items in the Pandoc title block."  % fileobj.name)
+
+        m1 = meta_pan_re.match(line)
+        if m1:
+            key = poss_keys[j]; j += 1
+            valstrip = m1.group('value').strip()
+            if not valstrip:
+                continue
+            value = distinguish(m1.group('value').strip())
+            if key == 'author':
+                value = value.strip(';')
+                value = meta_pan_authsplit.split(value)
+            meta.setdefault(key, []).append(value)
+        else:
+            m2 = meta_pan_more_re.match(line)
+            if m2 and key:
+                # Add another line to existing key
+                value = m2.group('value').strip()
+                if key == 'author':
+                    value = value.strip(';')
+                    value = meta_pan_authsplit.split(value)
+                meta[key].append(value)
+            else:
+                break  # no meta data - done
+
+    if 'title' not in meta:
+         raise AcrylamidException('No title given in %r' % fileobj.name)
+
+    if len(meta['title']) > 1:
+        meta['title'] = ' '.join(meta['title'])
+
+    if 'author' in meta:
+        meta['author'] = sum(meta['author'], [])
+    else:
+        log.warn('%s does not have an Author in the Pandoc title block.' % fileobj.name)
+
+    for key, values in meta.iteritems():
+        if len(values) == 1:
+            meta[key] = values[0]
 
     return i, meta
 

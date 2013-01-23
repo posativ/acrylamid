@@ -7,6 +7,7 @@ import attest
 
 tt = attest.Tests()
 from acrylamid.readers import reststyle, markdownstyle, distinguish, ignored
+from acrylamid.readers import pandocstyle
 
 
 @tt.test
@@ -56,6 +57,22 @@ def mkdown():
     assert 'John Doe' in meta['authors']
     assert meta['date'] == 'October 2, 2007'
     assert meta['blank-value'] == None
+
+
+@tt.test
+def pandoc():
+
+    header = ["% title",
+    "% Author; Another",
+    "% June 15, 2006",
+    "",
+    "Here comes the regular text"]
+
+    i, meta = pandocstyle(io.StringIO('\n'.join(header)))
+    assert i == len(header) - 1
+
+    assert 'Another' in meta['author']
+    assert meta['date'] == 'June 15, 2006'
 
 
 @tt.test
