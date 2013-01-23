@@ -681,11 +681,10 @@ def pandocstyle(fileobj):
 	if len(meta) > 3:
 			raise AcrylamidException("%r has too many items to be a valid title block."  % fileobj.name)
 	
-	print meta
-	
 	if len(meta['title']) > 1:
 		meta['title'] = ' '.join(meta['title'])
 	
+	print len(meta['author'])
 	meta['author'] = [item for sublist in meta['author'] for item in sublist]
 
 	for key, values in meta.iteritems():
