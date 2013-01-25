@@ -42,8 +42,9 @@ def run(conf, env, options):
     # $> acrylamid deploy task arg1 -b --foo
     cmd += ' ' + ' '.join(args)
 
+    enc = sys.getfilesystemencoding()
     env = os.environ
-    env.update(dict([(k.upper(), v) for k, v in conf.items() if isinstance(v, basestring)]))
+    env.update(dict([(k.upper(), v.encode(enc, 'replace')) for k, v in conf.items() if isinstance(v, basestring)]))
 
     log.info('execute  %s', cmd)
     p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
