@@ -140,7 +140,7 @@ def run(conf, env, options):
 
     for entry in entrylist if options.all else entrylist[:options.max or 1]:
 
-        for href in sum([re.findall(pat, entry.source) for pat in patterns], []):
+        for href in sum([re.findall(pat, entry.source, re.M) for pat in patterns], []):
             pool.add_task(ping, *[entry.permalink, href])
 
         try:
