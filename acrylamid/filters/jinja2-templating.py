@@ -69,7 +69,7 @@ class Jinja2(Filter):
         with io.open(path) as fp:
             text = fp.read()
 
-        return "{%% from 'macros.html' import %s %%}\n" % ', '.join(
+        return "{%% from 'macros.html' import %s with context %%}\n" % ', '.join(
             re.findall('^\{% macro ([^\(]+)', text, re.MULTILINE))
 
     def transform(self, content, entry):
