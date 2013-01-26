@@ -5,12 +5,14 @@
 
 import os
 import io
+import re
 import time
 import stat
 import shutil
 
 from tempfile import mkstemp, mkdtemp
-from itertools import chain
+from functools import partial
+from collections import defaultdict
 from os.path import join, isfile, getmtime, splitext
 
 from acrylamid import core, helpers, log, utils
@@ -26,9 +28,33 @@ class Writer(object):
     """A 'open-file-and-write-to-dest' writer.  Only operates if the source
     file has been modified or the destination does not exists."""
 
+    uses = None
+
     def __init__(self, conf, env):
         self.conf = conf
         self.env = env
+
+    def filter(self, input, directory):
+        """Filter input set for includes and imports using `uses` pattern.
+        The pattern must include a group 'file' that holds the included item.
+        If the pattern is the empty string (the default), return input.
+
+        Note, that Acrylamid will only read the first 512 bytes of a file
+        to check for includes. Therefore, do not move your includes to the
+        end of file."""
+
+        if not self.uses:
+            return input
+
+        imports = set()
+        for path in input:
+            with io.open(join(directory, path)) as fp:
+                text = fp.read(512)
+
+            for m in re.finditer(self.uses, text, re.MULTILINE):
+                imports.add(m.group('file'))
+
+        return input.difference(imports)
 
     def modified(self, src, dest):
         return not isfile(dest) or getmtime(src) > getmtime(dest)
@@ -42,7 +68,7 @@ class Writer(object):
 
         mkfile(self.generate(src, dest), dest, force=force, dryrun=dryrun)
 
-    def clean(self):
+    def shutdown(self):
         pass
 
 
@@ -85,7 +111,7 @@ class Jinja2(HTML):
 
         return self.jinja2.fromfile(src).render(env=self.env, conf=self.conf)
 
-    def clean(self):
+    def shutdown(self):
         shutil.rmtree(self.path)
 
 
@@ -127,17 +153,26 @@ class SASS(System):
     ext, target = '.sass', '.css'
     cmd = ['sass', ]
 
+    # matches @import 'foo.sass' (and optionally without quotes)
+    uses = r'^@import ["\']?(?P<file>.+?\.sass)["\']?'
+
 
 class SCSS(System):
 
     ext, target = '.scss', '.css'
     cmd = ['sass', '--scss']
 
+    # matches @import 'foo.scss', we do not support import 'foo'; or url(foo);
+    uses = r'^@import ["\'](?P<file>.+?\.scss)["\'];'
+
 
 class LESS(System):
 
     ext, target = '.less', '.css'
     cmd = ['lessc', ]
+
+    # matches @import 'foo.less'; and @import-once ...
+    uses = r'^@import(-once)? ["\'](?P<file>.+?\.less)["\'];'
 
 
 class CoffeeScript(System):
@@ -162,6 +197,19 @@ def initialize(conf, env):
     __defaultwriter = Writer(conf, env)
 
 
+def worker(conf, env, args):
+    """Compile each file extension for each folder in its own process.
+    """
+    ext, directory, items = args[0][0], args[0][1], args[1]
+    writer = __writers.get(ext, __defaultwriter)
+
+    for path in writer.filter(items, directory):
+        src, dest = join(directory, path), join(conf['output_dir'], path)
+        writer.write(src, dest, force=env.options.force, dryrun=env.options.dryrun)
+
+    writer.shutdown()
+
+
 def compile(conf, env):
     """Copy/Compile assets to output directory.  All assets from the theme
     directory (except for templates) and static directories can be compiled or
@@ -169,23 +217,16 @@ def compile(conf, env):
 
     global __writers, __default
 
-    ext_map = dict((cls.ext, cls) for cls in (
-        globals()[writer] for writer in conf.static_filter
+    files = defaultdict(set)
+    __writers = dict((cls.ext, cls) for cls in (
+        globals()[writer](conf, env) for writer in conf.static_filter
     ))
 
-    files = [relfilelist(prefix, conf['static_ignore']) for prefix in conf['static']]
-    files.append(relfilelist(conf['theme'], conf['theme_ignore'], env.engine.templates));
+    for path, directory in relfilelist(conf['theme'], conf['theme_ignore'], env.engine.templates):
+        files[(splitext(path)[1], directory)].add(path)
 
-    for path, directory in chain(*files):
+    for prefix in conf['static']:
+        for path, directory in relfilelist(prefix, conf['static_ignore']):
+            files[(splitext(path)[1], directory)].add(path)
 
-        # initialize writer for extension if not already there
-        _, ext = splitext(path)
-        if ext in ext_map and ext not in __writers:
-            __writers[ext] = ext_map[ext](conf, env)
-
-        src, dest = join(directory, path), join(conf['output_dir'], path)
-        writer = __writers.get(ext, __defaultwriter)
-        writer.write(src, dest, force=env.options.force, dryrun=env.options.dryrun)
-
-    for writer in __writers.values():
-        writer.clean()
+    map(partial(worker, conf, env), files.iteritems())
