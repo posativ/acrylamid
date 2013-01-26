@@ -156,8 +156,10 @@ Real World Examples?
 
 - `Practicing web development <http://www.vlent.nl/>`_ – Mark van Lent
   [`source <https://github.com/markvl/www.vlent.nl>`_]
-- `mecker. mecker. mecker. <http://blog.posativ.org/>`_ – posativ
+- `mecker. mecker. mecker. <http://blog.posativ.org/>`_ – Martin Zimmermann
   [`source <https://github.com/posativ/blog.posativ.org/>`_]
+- `Groovematic <http://groovematic.com/>`_ –  Isman Firmansyah
+  [`source <https://github.com/iromli/groovematic>`_]
 
 Commands
 --------
