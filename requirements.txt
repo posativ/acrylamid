@@ -1,0 +1,18 @@
+# testing
+Attest-latest==0.6dev-20121124
+cram==0.5
+
+# requirements
+Jinja2==2.6
+Markdown==2.2.1
+translitcodec==0.3
+
+# optional
+Mako==0.7.3
+Pygments==1.6rc1
+docutils==0.10
+
+# docs
+Sphinx==1.1.3
+sphinxcontrib-blockdiag==1.2.0
+blockdiag==1.2.4
