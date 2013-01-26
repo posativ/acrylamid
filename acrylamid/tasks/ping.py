@@ -129,8 +129,10 @@ def run(conf, env, options):
     # not possible yet.
 
     patterns = [
-        re.compile(r'(?<=\n)\[.*?\]:\s?(https?://.+)$'),  # markdown
-        re.compile(r'(?<=\n)\.\.\s+[^:]+:\s+(https?://.+)$'),  # docutils
+        r'(?<=\n)\[.*?\]:\s?(https?://.+)$',  # referenced markdown
+        r'\[[^\]]+\]\((https?://[^\)]+)\)',  # inline markdown
+        r'(?<=\n)\.\.\s+[^:]+:\s+(https?://.+)$',  # referenced docutils
+        r'`[^<]+ <(https?://[^>]+)>`_',  # inline docutils
     ]
 
     pool = Threadpool(options.jobs)
