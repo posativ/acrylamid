@@ -3,6 +3,10 @@
 # Copyright 2012 Martin Zimmermann <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses -- see LICENSE.
 
+import io
+import re
+from os.path import join, isfile
+
 from acrylamid import log
 from acrylamid.filters import Filter
 from acrylamid.helpers import system as defaultsystem
@@ -35,7 +39,11 @@ class Jinja2(Filter):
         # jinja2 is stupid and can't import any module
         import time, datetime, urllib
 
-        self.jinja2_env = Environment(cache_size=0)
+        if hasattr(env.engine, 'jinja2'):
+            self.jinja2_env = env.engine.jinja2.overlay(cache_size=0)
+        else:
+            self.jinja2_env = Environment(cache_size=0)
+
         self.jinja2_env.filters['system'] = system
         self.jinja2_env.filters['split'] = unicode.split
         self.jinja2_env.filters.update({
@@ -49,10 +57,25 @@ class Jinja2(Filter):
 
                 self.jinja2_env.filters[module.__name__ + '.' + name] = getattr(module, name)
 
+    @property
+    def macros(self):
+        """Import macros from ``THEME/macro.html`` into context of the
+        post environment.  Very hackish, but it should work."""
+
+        path = join(self.conf['theme'], 'macros.html')
+        if not (isfile(path) and hasattr(self.env.engine, 'jinja2')):
+            return ''
+
+        with io.open(path) as fp:
+            text = fp.read()
+
+        return "{%% from 'macros.html' import %s %%}\n" % ', '.join(
+            re.findall('^\{% macro ([^\(]+)', text, re.MULTILINE))
+
     def transform(self, content, entry):
 
         try:
-            tt = self.jinja2_env.from_string(content)
+            tt = self.jinja2_env.from_string(self.macros + content)
             return tt.render(conf=self.conf, env=self.env, entry=entry)
         except (TemplateError, AcrylamidException) as e:
             log.warn('%s: %s in %r' % (e.__class__.__name__, e.args[0], entry.filename))

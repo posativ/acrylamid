@@ -348,8 +348,8 @@ paragraph is short enough. This filter shows only up to N paragraphs.
 You can overwrite the amount of paragraphs shown in each entry using
 ``intro.maxparagraphs: 3`` in the metadata section.
 
-By default, outputs "Continue" link at the end of intro if post is longer than 
-``maxparagraphs``. You can control link format by setting ``INTRO_LINK`` variable 
+By default, outputs "Continue" link at the end of intro if post is longer than
+``maxparagraphs``. You can control link format by setting ``INTRO_LINK`` variable
 in :doc:`conf.py`. To disable intro link output, set ``INTRO_LINK=''``.
 
 ============  ==================================================
@@ -478,9 +478,15 @@ rebuilt this content, the output might differ).
 
     .. _here: {{ env.prev }}
 
-Environment variables are the same as in :doc:`templating` plus
-some imported modules from Python namely: ``time``, ``datetime``
-and ``urllib`` since you can't import anything from Jinja2.
+Environment variables are the same as in :doc:`templating` plus some imported
+modules from Python namely: ``time``, ``datetime`` and ``urllib`` because you
+can't import anything from Jinja2. You can also access the root templating
+environment when Jinja2. This means, you can import and inherit from templates
+located in your theme folder.
+
+For convenience, the Jinja2 filter automatically imports every macro from
+``macros.html`` into your post context, so there is no need for a
+``{% from 'macros.html' import foo %}``.
 
 ============  ==================================================
 Requires      <built-in>
