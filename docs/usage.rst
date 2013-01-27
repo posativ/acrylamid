@@ -101,6 +101,10 @@ draft : Boolean
     listings. It will only show up as full text entry, so you can only access
     it when you know the path.
 
+layout : String
+  A user-defined template to use for the full-text (entry, page and translation) view,
+  fallback to the view's default template.
+
 
 YAML front matter
 ^^^^^^^^^^^^^^^^^

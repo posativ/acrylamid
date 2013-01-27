@@ -160,7 +160,7 @@ class Reader(object):
         self.type = meta.get('type', 'entry')
 
         # redirect singular -> plural
-        for key, to in {'tag': 'tags', 'filter': 'filters'}.iteritems():
+        for key, to in {'tag': 'tags', 'filter': 'filters', 'template': 'layout'}.items():
             if key in self.props:
                 self.props.redirect(key, to)
 
@@ -636,7 +636,8 @@ def pandocstyle(fileobj):
             break  # blank line - done
 
         if j + 1 > len(poss_keys):
-            raise AcrylamidException("%r has too many items in the Pandoc title block."  % fileobj.name)
+            raise AcrylamidException(
+                "%r has too many items in the Pandoc title block."  % fileobj.name)
 
         m1 = meta_pan_re.match(line)
         if m1:

@@ -37,9 +37,8 @@ class Base(View):
 
     def generate(self, conf, env, data):
 
-        tt = env.engine.fromfile(self.template)
         pathes, entrylist = set(), data[self.type]
-        unmodified = not tt.modified and not env.modified and not conf.modified
+        unmodified = not env.modified and not conf.modified
 
         for i, entry in enumerate(entrylist):
 
@@ -62,7 +61,11 @@ class Base(View):
             pathes.add(path)
             next, prev = self.next(entrylist, i), self.prev(entrylist, i)
 
-            if isfile(path) and unmodified and not (entry.modified or modified(*references(entry))):
+            # per-entry template
+            tt = env.engine.fromfile(entry.props.get('layout', self.template))
+
+            if all([isfile(path), unmodified, not tt.modified, not entry.modified,
+            not modified(*references(entry))]):
                 event.skip(path)
                 continue
 
