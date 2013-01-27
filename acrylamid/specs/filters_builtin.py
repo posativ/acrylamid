@@ -9,8 +9,8 @@ tt = attest.Tests()
 
 log.init('foo', 35)
 
-conf = {'lang': 'en'}
-env = utils.Struct({'path': '', 'options': type('X', (), {'ignore': False})})
+conf = {'lang': 'en', 'theme': ''}
+env = utils.Struct({'path': '', 'engine': None, 'options': type('X', (), {'ignore': False})})
 initialize([], conf, env)
 
 # now we have filters in path
