@@ -122,7 +122,7 @@ class Sitemap(View):
             if fname in drafted:
                 continue
 
-            url = join(conf['www_root'], fname.replace(conf['output_dir'], ''))
+            url = joinurl(conf['www_root'], fname.replace(conf['output_dir'], ''))
             for view in self.views:
 
                 if any(ifilter(lambda pat: pat.match(url), self.patterns[view])):
