@@ -27,6 +27,13 @@ RSS/Atom feeds (also per tag), article listing and a sitemap.
 .. _Mako: http://www.makotemplates.org/
 .. _MathML: http://www1.chapman.edu/~jipsen/mathml/asciimath.html
 
+Why the name “Acrylamid”?
+-------------------------
+
+I'm studying bioinformatics and I was experimenting with Acrylamide at this
+time. I'm really bad at naming. If you have a better name, please tell me!
+Two requirements: reasonably speakable and tab-completion after 3 characters.
+
 Overview
 --------
 
@@ -91,7 +98,6 @@ what is missing
 ~~~~~~~~~~~~~~~
 
 - No comments. You have to use Disqus_ or `this approach`_.
-- No search. But it's on the roadmap, Sphinx_ too.
 
 .. _Disqus: http://disqus.com/
 .. _this approach: http://hezmatt.org/~mpalmer/blog/2011/07/19/static-comments-in-jekyll.html

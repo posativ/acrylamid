@@ -46,6 +46,13 @@ RSS/Atom feeds (also per tag), article listing and a sitemap.
 .. _Mako: http://www.makotemplates.org/
 .. _MathML: http://www1.chapman.edu/~jipsen/mathml/asciimath.html
 
+Why the name “Acrylamid”?
+-------------------------
+
+I'm studying bioinformatics and I was experimenting with Acrylamide at this
+time. I'm really bad at naming. If you have a better name, please tell me!
+Two requirements: reasonably speakable and tab-completion after 3 characters.
+
 Overview
 --------
 
