@@ -14,7 +14,7 @@ from acrylamid.errors import AcrylamidException
 class Markdown(Filter):
 
     match = ['md', 'mkdown', 'markdown', 'Markdown']
-    version = 1
+    version = 2
 
     conflicts = ['rst', 'plain']
     priority = 70.0
@@ -63,5 +63,7 @@ class Markdown(Filter):
                 elif not self.ignore:
                     raise AcrylamidException('Markdown: %s' % '\n'.join(self.failed))
 
-        md = markdown.Markdown(extensions=[self.extensions[m] for m in val])
-        return md.convert(text)
+        return markdown.Markdown(
+            extensions=[self.extensions[m] for m in val],
+            output_format='xhtml5'
+        ).convert(text)
