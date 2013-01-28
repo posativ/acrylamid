@@ -167,6 +167,8 @@ Real World Examples?
   [`source <https://github.com/posativ/blog.posativ.org/>`_]
 - `Groovematic <http://groovematic.com/>`_ –  Isman Firmansyah
   [`source <https://github.com/iromli/groovematic>`_]
+- `Christoph Polcin <http://www.christoph-polcin.com/>`_ – Christoph Polcin
+  [`source <http://git.christoph-polcin.com/blog/>`_, `theme <http://git.christoph-polcin.com/acrylamid-theme-bipolar/>`_]
 
 Commands
 --------
