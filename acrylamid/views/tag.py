@@ -129,14 +129,14 @@ class Tag(View):
                 # e.g.: curr = /page/3, next = /page/2, prev = /page/4
 
                 next = None if next is None \
-                else link(u'« Next', expand(self.path, {'name': tag}).rstrip('/')) if next == 1 \
-                    else link(u'« Next', expand(self.pagination, {'name': tag, 'num': next}))
+                else link(u'Next', expand(self.path, {'name': tag}).rstrip('/')) if next == 1 \
+                    else link(u'Next', expand(self.pagination, {'name': tag, 'num': next}))
 
                 curr = link(curr, expand(self.path, {'name': tag})) if curr == 1 \
                     else link(expand(self.pagination, {'num': curr, 'name': tag}))
 
                 prev = None if prev is None \
-                    else link(u'Previous »', expand(self.pagination, {'name': tag, 'num': prev}))
+                    else link(u'Previous', expand(self.pagination, {'name': tag, 'num': prev}))
 
                 path = joinurl(conf['output_dir'], curr, 'index.html')
 

@@ -107,7 +107,7 @@ class Entry(Base):
             return None
 
         refs.append(entrylist[i], entrylist[i - 1])
-        return link(u"« " + entrylist[i-1].title, entrylist[i-1].permalink.rstrip('/'))
+        return link(entrylist[i-1].title, entrylist[i-1].permalink.rstrip('/'))
 
     def prev(self, entrylist, i):
 
@@ -115,7 +115,7 @@ class Entry(Base):
             return None
 
         refs.append(entrylist[i], entrylist[i + 1])
-        return link(entrylist[i+1].title + u" »", entrylist[i+1].permalink.rstrip('/'))
+        return link(entrylist[i+1].title, entrylist[i+1].permalink.rstrip('/'))
 
 
 class Page(Base):
