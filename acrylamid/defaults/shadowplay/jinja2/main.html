@@ -22,12 +22,12 @@
     {% endfor %}
     {% if env.prev is not none %}
         <a href="{{ env.path ~ env.prev ~ '/' }}" class="page floatright">
-        {{ env.prev.title }}
+        {{ env.prev.title }} &raquo;
         </a>
     {% endif %}
     {% if env.next is not none %}
         <a href="{{ env.path ~ env.next ~ '/' }}" class="page floatleft">
-        {{ env.next.title }}
+        &laquo; {{ env.next.title }}
         </a>
     {%- endif  %}
 {% endblock %}
