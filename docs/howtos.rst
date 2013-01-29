@@ -11,7 +11,7 @@ A single feed pretty easy, just add this into your *conf.py*:
     '/my/feed': {'view': 'feed', 'if': lambda e: 'whatever' in e.tags}
 
 To have a feed for each tag, use the newish Atom/RSS per tag view (a
-configuration is written in your ``conf.py``).
+configuration example is in your ``conf.py``).
 
 Image Gallery
 *************

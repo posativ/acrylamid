@@ -40,8 +40,8 @@ arguments = [
         help="keep permanent links", default=False),
     argument("-p", "--pandoc", dest="pandoc", action="store_true",
         help="use pandoc first", default=False),
-    argument("-a", dest="args", nargs="+", action="store", type=str,
-    help="add argument to header section", default=[]),
+    argument("-a", dest="args", nargs="+", action="store", metavar="ARG",
+        type=str, help="add argument to header section", default=[]),
 ]
 
 if sys.version_info < (2, 7):

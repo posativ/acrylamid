@@ -153,14 +153,28 @@ import
 
 Acrylamid features a basic RSS and Atom feed importer as well as a WordPress
 dump importer to make it more easy to move to Acrylamid. To import a feed,
-point to an URL or local FILE. By default, all HTML is reconversed to Markdown
-using, first html2text_ if found then pandoc_ if found, otherwise plain HTML.
-reStructuredText is also supported via html2rest_ and optionally by pandoc_.
+point to any URL or local FILE. By default, all HTML is reconversed to Markdown
+using, first html2text_ if found then pandoc_ if found, otherwise it uses the
+HTML. reStructuredText is also supported via html2rest_ and optionally by pandoc_.
+
+The table below shows the current status for the supported import methods.
+
+==============  ===  ====  =========
+Feature         RSS  Atom  WordPress
+==============  ===  ====  =========
+posts           yes  yes   yes
+pages           no   no    yes
+drafts          no   no    yes
+tags            no   yes   yes
+repair HTML     n/a  n/a   yes
+basic conf.py   yes  yes   yes
+==============  ===  ====  =========
 
 Migrating from WordPress is more difficult than an RSS/Atom feed because WP does
 not store a valid HTML content but a pre-HTML state. Thus we fix this with some
-stupid <br />-Tags to convert it back to Markdown/reStructuredText. It is not
-recommended to import WordPress blogs as pure HTML because it does not validate!
+stupid <br />-foo to allow conversion back to Markdown/reStructuredText. It is
+not recommended to import WordPress blogs as without any reconversion due the
+broken HTML.
 
 .. _html2text: http://www.aaronsw.com/2002/html2text/
 .. _html2rest: http://pypi.python.org/pypi/html2rest
@@ -169,7 +183,7 @@ recommended to import WordPress blogs as pure HTML because it does not validate!
 .. raw:: html
 
     <pre>
-    $ acrylamid init foo  # we need a base structure before we import
+    $ acrylamid init .  # we need a base structure before we import
 
     $ acrylamid import http://example.com/rss/
       <span style="font-weight: bold; color: #00aa00">   create</span>  content/2012/entry.txt
@@ -184,7 +198,7 @@ recommended to import WordPress blogs as pure HTML because it does not validate!
 .. note::
 
     If you get a *critical  Entry already exists u'content/2012/update.txt'*,
-    you may change your ``PERMALINK_FORMAT`` to a more fine-grained
+    you may need to change your ``PERMALINK_FORMAT`` to a more fine-grained
     ``"/:year/:month/:day/:slug/index.html"`` import strategy. If you don't
     wish a re-layout of your entries, you can use ``--keep-links`` to use the
     permalink as path.
@@ -197,6 +211,7 @@ recommended to import WordPress blogs as pure HTML because it does not validate!
                     structure in that way. This does *not* work, if you links
                     are like this: ``/?p=23``.
 -p, --pandoc        use pandoc first, then ``html2rest`` or ``html2text``
+-a  ARG [ARG ...]   add arg to header section, such as ``-a "imported: True"``.
 
 .. _deploy:
 
