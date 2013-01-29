@@ -11,7 +11,7 @@ import traceback
 import argparse
 
 from os.path import dirname, basename, join
-sys.path.insert(0, dirname(__file__))
+from acrylamid.helpers import discover
 
 # we get them from acrylamid/__init__.py
 subparsers, default = None, None
@@ -25,13 +25,8 @@ def initialize(_subparsers, _default, ext_dir='tasks/'):
     global subparsers, default
     subparsers, default = _subparsers, _default
 
-    for mem in glob.glob(join(dirname(__file__), "*.py")):
-        if mem.startswith('__'):
-            continue
-        try:
-            mem = __import__(basename(mem).rsplit('.', 1)[0])
-        except Exception:
-            traceback.print_exc(file=sys.stdout)
+    discover([dirname(__file__), ], lambda x: x,
+        lambda path: path.rpartition('.')[0] != __file__.rpartition('.')[0])
 
 
 def register(aliases, arguments=[], help=argparse.SUPPRESS, func=lambda *z: None, parents=True):
