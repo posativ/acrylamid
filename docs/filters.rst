@@ -198,6 +198,13 @@ directives, acrylamid offers three additional one:
           <link type="text/css" rel="stylesheet" href="http://alexgorbatchev.com/pub/sh/current/styles/shCoreDefault.css"/>
           <script type="text/javascript">SyntaxHighlighter.defaults.toolbar=false; SyntaxHighlighter.all();</script>
 
+- `GitHub:Gist <https://gist.github.com/>`_ embedding via ``gist`` optionally with a filename.
+
+  .. code-block:: restructuredtext
+
+      .. gist:: 4145152
+         :file: transmission.rb
+
 - YouTube directive for easy embedding (`:options:` are optional).
 
   .. code-block:: restructuredtext
