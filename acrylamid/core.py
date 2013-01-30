@@ -227,7 +227,7 @@ class Environment(Struct):
         Return whether the Environment has changed between two runs. This
         attribute must only be accessed after all modifications to the environment!
     """
-    blacklist = set(['engine', 'translationsfor', 'options'])
+    blacklist = set(['engine', 'translationsfor', 'options', 'archives'])
 
     def keys(self):
         return sorted(list(set(super(Environment, self).keys()) - self.blacklist))
