@@ -139,9 +139,9 @@ class Archive(View):
             modified = memoize('archive-' + salt, hash(*group)) or any(e.modified for e in group)
 
             if prev:
-                prev = link(u'/'.join(str(i) for i in prev[0]), expand(self.path, prev[1][0]))
+                prev = link(u'/'.join('%02i' % i for i in prev[0]), expand(self.path, prev[1][0]))
             if next:
-                next = link(u'/'.join(str(i) for i in next[0]), expand(self.path, next[1][0]))
+                next = link(u'/'.join('%02i' % i for i in next[0]), expand(self.path, next[1][0]))
 
             route = joinurl(conf['output_dir'], expand(self.path, group[0]))
             path  = joinurl(route, 'index.html')
