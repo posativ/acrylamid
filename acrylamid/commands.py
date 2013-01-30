@@ -257,10 +257,10 @@ def autocompile(ws, conf, env):
         if mtime != ntime:
             try:
                 compile(conf, env)
-            except (SystemExit, KeyboardInterrupt) as e:
-                raise e
-            except Exception as e:
-                log.fatal(e.args[0])
+            except (SystemExit, KeyboardInterrupt):
+                raise
+            except Exception:
+                log.exception("uncaught exception during auto-compilation")
             event.reset()
             mtime = ntime
         ws.wait = False

@@ -10,7 +10,7 @@ from logging import INFO, WARN, DEBUG
 from acrylamid.colors import bold, red, green, yellow, black
 
 SKIP = 15
-logger = fatal = critical = warn = warning = info = skip = debug = error = None
+logger = fatal = critical = warn = info = skip = debug = error = exception = None
 
 
 class TerminalHandler(logging.StreamHandler):
@@ -74,7 +74,7 @@ class SkipHandler(logging.Logger):
 
 def init(name, level, colors=True):
 
-    global logger, critical, fatal, warn, warning, info, skip, debug, error
+    global logger, critical, fatal, warn, info, skip, debug, error, exception
 
     logging.setLoggerClass(SkipHandler)
     logger = logging.getLogger(name)
@@ -94,6 +94,7 @@ def init(name, level, colors=True):
     info = logger.info
     skip = logger.skip
     debug = logger.debug
+    exception = logger.exception
 
     warnings.resetwarnings()
     warnings.showwarning = showwarning if level == DEBUG else lambda *x: None
