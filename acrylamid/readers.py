@@ -254,7 +254,7 @@ class FileReader(Reader):
         Reader.__init__(self, conf, meta)
 
     def __repr__(self):
-        return "<FileReader f'%s'>" % self.filename
+        return "<FileReader f'%s'>" % repr(self.filename)[2:-1]
 
     @property
     def extension(self):
