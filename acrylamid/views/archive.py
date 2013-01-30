@@ -148,7 +148,7 @@ class Archive(View):
 
             # an object storing year, zero-padded month and day as attributes (may be None)
             key = type('Archive', (object, ), dict(zip(('year', 'month', 'day'),
-                map(lambda x, y: '%02i' % (x + y) if y else None, *((0, 0, 0), keyfunc(group[0])))
+                map(lambda x: '%02i' % x if x else None, keyfunc(group[0]))
             )))()
 
             if isfile(path) and not (modified or tt.modified or env.modified or conf.modified):
