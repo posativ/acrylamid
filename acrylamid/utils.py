@@ -124,6 +124,22 @@ def batch(iterable, count):
         yield result
 
 
+def groupby(iterable, keyfunc=lambda x: x):
+    """:func:`itertools.groupby` wrapper for :func:`neighborhood`."""
+    for k, g in itertools.groupby(iterable, keyfunc):
+        yield k, list(g)
+
+
+def neighborhood(iterable, prev=None):
+    """yield previous and next values while iterating"""
+    iterator = iter(iterable)
+    item = iterator.next()
+    for next in iterator:
+        yield (prev, item, next)
+        prev, item = item, next
+    yield (prev, item, None)
+
+
 class Metadata(dict):
     """A nested :class:`dict` used for post metadata."""
 

@@ -25,7 +25,7 @@ VIEWS = {
     # '/tag/:name/atom/': {'filters': ['h2', 'nohyphenate'], 'view': 'atompertag'},
     # '/tag/:name/rss/': {'filters': ['h2', 'nohyphenate'], 'view': 'rsspertag'},
 
-    '/articles/': {'view': 'articles'},
+    '/articles/': {'view': 'archive', 'template': 'articles.html'},
 
     '/sitemap.xml': {'view': 'sitemap'},
 
