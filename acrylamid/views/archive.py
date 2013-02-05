@@ -19,11 +19,11 @@ class Day(object):
 
     @property
     def abbr(self):
-        return day_abbr[self.name].decode('latin-1')  # uhm, what?
+        return day_abbr[self.name].decode('utf-8')
 
     @property
     def full(self):
-        return day_name[self.name].decode('latin-1')
+        return day_name[self.name].decode('utf-8')
 
     def __str__(self):
         return '%02i' % self.name
@@ -43,11 +43,11 @@ class Month(Day):
 
     @property
     def abbr(self):
-        return month_abbr[self.name].decode('latin-1')
+        return month_abbr[self.name].decode('utf-8')
 
     @property
     def full(self):
-        return month_name[self.name].decode('latin-1')
+        return month_name[self.name].decode('utf-8')
 
 
 class Year(Month):
