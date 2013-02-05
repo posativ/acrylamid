@@ -113,6 +113,8 @@ class Archive(View):
     Month and Day objects have ``full`` and ``abbr`` attributes to access the
     fullname or abbreviation in your current location."""
 
+    priority = 80.0
+
     def init(self, conf, env, template='listing.html'):
         self.template = template
 

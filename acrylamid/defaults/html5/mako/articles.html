@@ -5,18 +5,18 @@
 <%block name="content">
 <article>
     <table id="arc">
-    % for year in env.globals.entrylist | archives
-        % for month in year
+    % for year in archivesfor(env.globals.entrylist):
+        % for month in year:
             <tr>
-            % if
-                <th>${ year + ' ' + month.full }</th>
-            % else
+            % if loop.first:
+                <th>${ str(year) + ' ' + month.full }</th>
+            % else:
                 <th>${ month.full }</th>
             % endif
             <td></td>
             </tr>
 
-            % for entry in month.items
+            % for entry in month.items:
                 <tr>
                     <th>${ entry.date.day }</th>
                     <td><a href="${ entry.permalink }" rel="bookmark canonical">${ entry.title }</a></td>
