@@ -4,24 +4,26 @@
 
 <%block name="content">
 <article>
-  <table id="arc">
-  <% year = -1 %>
-  % for key, months in sorted(articles.iteritems(), reverse=True):
-    <tr>
-        % if year != key[0]:
-          <% year = key[0] %>
-          <th>${ str(key[0]) + ' ' + months[0]['date'].strftime('%B') }</th>
-        % else:
-          <th>${ months[0]['date'].strftime('%B') }</th>
-        % endif
-        <td></td>
-    </tr>
-    % for entry in months:
-      <tr><th>${ entry.date.day }</th>
-          <td><a href="${ entry.permalink }" rel="bookmark canonical">${ entry.title }</a></td>
-      </tr>
+    <table id="arc">
+    % for year in env.globals.entrylist | archives
+        % for month in year
+            <tr>
+            % if
+                <th>${ year + ' ' + month.full }</th>
+            % else
+                <th>${ month.full }</th>
+            % endif
+            <td></td>
+            </tr>
+
+            % for entry in month.items
+                <tr>
+                    <th>${ entry.date.day }</th>
+                    <td><a href="${ entry.permalink }" rel="bookmark canonical">${ entry.title }</a></td>
+                </tr>
+            % endfor
+        % endfor
     % endfor
-  % endfor
-  </table>
+    </table>
 </article>
 </%block>
