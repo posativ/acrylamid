@@ -15,3 +15,7 @@ Test Mako tempating in Acrylamid.
   create  [0.??s] output/sitemap.xml (glob)
   create  output/style.css
   9 new, 0 updated, 0 skipped [?.??s] (glob)
+
+Clean up:
+
+  $ rm -rf output/ theme/ content/ .cache/ conf.py
