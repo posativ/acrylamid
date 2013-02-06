@@ -1,5 +1,32 @@
 # Acrylamid Changelog
 
+Version 0.6
+-----------
+
+Not released – TBD
+
+### What's new?
+
+- #105 – new archive view to render yearly, monthly and/or daily archives and
+  has replaced the article view in the themes. The article view remains in
+  the Acrylamid core but is likely to become deprecated in the future.
+- Jinja2 content filter imports macros from theme/macros.html
+  automatically into your entry namespace.
+- #102 – enrich HTML metadata
+- #101 – pandoc metadata recognition (initial implementation by Daniel Pritchard)
+- #91  – CoffeeScript and IcedCoffeScript conversion for assets
+
+### What has been fixed?
+
+- improved Mako support and tests
+- double angle quotes hardcoded into the entry view have been moved into the
+  theme, you should adapt your theme as well.
+- changed Markdown HTML output from XHTML1 to XHTML5
+- better link recognition for the PingBack feature
+- ignore files included by the `@import` statement in SASS/SCSS/LESS
+- #103 – pass encoded values into `os.environ` to allow fancy unicode
+  characters such as » or Aкриламид.
+
 Version 0.5
 -----------
 
