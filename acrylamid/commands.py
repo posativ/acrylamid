@@ -252,6 +252,10 @@ def autocompile(ws, conf, env):
         ntime = max(
             max(getmtime(e) for e in readers.filelist(
                 conf['content_dir'], conf.get('content_ignore', [])) if istext(e)),
+            max(
+                max(getmtime(s) for s in readers.filelist(static_dir, conf.get('static_ignore', [])))
+                    for static_dir in conf.get('static', [])
+                ),
             max(getmtime(p) for p in readers.filelist(
                 conf['theme'], conf.get('theme_ignore', []))))
         if mtime != ntime:
