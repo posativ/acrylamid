@@ -30,12 +30,26 @@ conf = {
     'content_ignore': ['.git*', '.hg*', '.svn'],
     'theme': 'layouts/',
     'theme_ignore': ['.git*', '.hg*', '.svn'],
+    'static': [],
     'static_ignore': ['.git*', '.hg*', '.svn'],
+    'static_filter': ['HTML', 'XML'],
 
     'filters': ['markdown+codehilite(css_class=highlight)', 'hyphenate'],
     'views': {
     },
 
     'engine': 'acrylamid.templates.jinja2.Environment',
-    'static_filter': ['HTML', 'XML']
 }
+
+
+def normalize(conf):
+
+    for key in 'content_dir', 'theme', 'output_dir':
+        if not conf[key].endswith('/'):
+            conf[key] += '/'
+
+    for key in 'static', 'views_dir', 'filters_dir':
+        if isinstance(conf[key], basestring):
+            conf[key] = [conf[key], ]
+
+    return conf

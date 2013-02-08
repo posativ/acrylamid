@@ -169,6 +169,9 @@ def Acryl():
         traceback.print_exc(file=sys.stdout)
         sys.exit(1)
 
+    # append trailing slash to *_dir and place certain values into an array
+    conf = defaults.normalize(conf)
+
     # -- run -- #
     if options.parser in ('gen', 'generate', 'co', 'compile'):
         log.setLevel(options.verbosity)

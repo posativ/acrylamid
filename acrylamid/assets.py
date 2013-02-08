@@ -189,9 +189,6 @@ class IcedCoffeeScript(System):
 
 def initialize(conf, env):
 
-    if isinstance(conf.setdefault('static', []), basestring):
-        conf['static'] = [conf['static'], ]
-
     global __writers, __defaultwriter
     __writers = {}
     __defaultwriter = Writer(conf, env)

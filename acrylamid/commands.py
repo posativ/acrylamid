@@ -99,13 +99,6 @@ def initialize(conf, env):
     except LookupError:
         raise AcrylamidException('no such encoding available: %r' % conf['encoding'])
 
-    # prepare, import and initialize filters and views
-    if isinstance(conf['filters_dir'], basestring):
-        conf['filters_dir'] = [conf['filters_dir'], ]
-
-    if isinstance(conf['views_dir'], basestring):
-        conf['views_dir'] = [conf['views_dir'], ]
-
     lazy.enable()
     filters.initialize(conf["filters_dir"][:], conf, env)
     lazy.disable()  # this has weird side effects with jinja2, so disabled after filters
