@@ -44,7 +44,7 @@ def convert(www_root, link, replacements):
         link = re.sub(pat, repl, link)
 
     if link.endswith('/'):
-        link += 'index.html'
+        link += r'index\.html'
 
     return re.compile('^' + joinurl(re.escape(www_root), link) + '$')
 
@@ -108,9 +108,7 @@ class Sitemap(View):
         Sitemap) and test each url pattern for success and write the corresponding
         changefreq and priority to the Sitemap."""
 
-        drafted = set([joinurl(conf['output_dir'], e.permalink, 'index.html')
-            for e in data.get('drafts', [])])
-
+        drafted = [joinurl(conf['output_dir'], e.permalink) for e in data['drafts']]
         path = joinurl(conf['output_dir'], self.path)
         sm = Map()
 
@@ -122,10 +120,13 @@ class Sitemap(View):
             if fname in drafted:
                 continue
 
-            url = joinurl(conf['www_root'], fname.replace(conf['output_dir'], ''))
+            url = conf['www_root'] + '/' + fname.replace(conf['output_dir'], '')
             for view in self.views:
 
                 if any(ifilter(lambda pat: pat.match(url), self.patterns[view])):
+                    if view.name == 'draft':
+                        break
+
                     priority, changefreq = self.scores.get(view.name, (0.5, 'weekly'))
                     sm.add(rchop(url, 'index.html'), getmtime(fname), changefreq, priority)
 
