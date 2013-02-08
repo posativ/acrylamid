@@ -81,7 +81,7 @@ class Summarizer(HTMLParser):
         if self.words < self.maxwords:
             super(Summarizer, self).handle_charref(char)
 
-    def handle_comment(self, comment, keywords=['excerpt', 'summary', 'break']):
+    def handle_comment(self, comment, keywords=['excerpt', 'summary', 'break', 'more']):
         if self.words < self.maxwords and filter(lambda word: word in comment.lower(), keywords):
             self.words = self.maxwords
 
