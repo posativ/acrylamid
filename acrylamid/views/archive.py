@@ -128,8 +128,10 @@ class Archive(View):
     def generate(self, conf, env, data):
 
         tt = env.engine.fromfile(self.template)
-        keyfunc = lambda k: (k.year, )
+        keyfunc = lambda k: ( )
 
+        if '/:year' in self.path:
+            keyfunc = lambda k: (k.year, )
         if '/:month' in self.path:
             keyfunc = lambda k: (k.year, k.imonth)
         if '/:day' in self.path:

@@ -40,7 +40,7 @@ If we change the modification, it should re-render!
   $ touch content/sample-entry.txt
 
   $ acrylamid compile -Cv
-  skip  output/articles/index.html
+  identical  output/articles/index.html
   identical  output/2012/die-verwandlung/index.html
   identical  output/index.html
   identical  output/tag/die-verwandlung/index.html
@@ -56,7 +56,7 @@ Acrylamid should update a file if the content changes!
   $ sleep 1
   $ echo "Foo." >> content/sample-entry.txt
   $ acrylamid compile -Cv
-  skip  output/articles/index.html
+  identical  output/articles/index.html
   update  [?.??s] output/2012/die-verwandlung/index.html (glob)
   identical  output/index.html
   identical  output/tag/die-verwandlung/index.html
