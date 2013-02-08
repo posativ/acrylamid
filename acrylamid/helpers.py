@@ -16,7 +16,7 @@ import subprocess
 
 from unicodedata import normalize
 from collections import defaultdict
-from os.path import join, dirname, isdir, isfile, commonprefix
+from os.path import join, dirname, isdir, isfile, commonprefix, normpath
 
 from acrylamid import log, PY3, __file__ as PATH
 from acrylamid.errors import AcrylamidException
@@ -134,17 +134,16 @@ def expand(url, obj, re=re.compile(r':(\w+)')):
 
 def joinurl(*args):
     """Joins multiple urls pieces to one single URL without loosing the root
-    (first element).
+    (first element). If the URL ends with a slash, Acrylamid automatically
+    appends ``index.html``.
 
     >>> joinurl('/hello/', '/world/')
-    '/hello/world/'
+    '/hello/world/index.html'
     """
-    r = []
-    for i, mem in enumerate(args):
-        if i > 0:
-            mem = unicode(mem).lstrip('/')
-        r.append(mem)
-    return join(*r)
+    rv = [unicode(mem) for mem in args]
+    if rv[-1].endswith('/'):
+        rv.append('index.html')
+    return normpath('/'.join(rv))
 
 
 def safeslug(slug):

@@ -13,12 +13,12 @@ EMAIL = 'mail@example.com'
 FILTERS = ['markdown+codehilite(css_class=highlight)', 'hyphenate', 'h1']
 VIEWS = {
     '/': {'filters': 'summarize', 'view': 'index',
-          'pagination': '/page/:num'},
+          'pagination': '/page/:num/'},
 
     '/:year/:slug/': {'view': 'entry'},
 
     '/tag/:name/': {'filters': 'summarize', 'view':'tag',
-                    'pagination': '/tag/:name/:num'},
+                    'pagination': '/tag/:name/:num/'},
 
     '/atom/': {'filters': ['h2', 'nohyphenate'], 'view': 'atom'},
     '/rss/': {'filters': ['h2', 'nohyphenate'], 'view': 'rss'},

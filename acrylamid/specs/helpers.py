@@ -52,7 +52,8 @@ class Helpers(attest.TestBase):
                     (['/hello', 'world'], '/hello/world'),
                     (['hello', '/world'], 'hello/world'),
                     (['/hello', '/world'], '/hello/world'),
-                    (['/hello/', '/world/'], '/hello/world/'))
+                    (['/hello/', '/world/'], '/hello/world/index.html'),
+                    (['/bar/', '/'], '/bar/index.html'))
 
         for value, expected in examples:
             assert helpers.joinurl(*value) == expected

@@ -145,8 +145,8 @@ class Archive(View):
             if next:
                 next = link(u'/'.join('%02i' % i for i in next[0]), expand(self.path, next[1][0])[:-1])
 
-            route = joinurl(conf['output_dir'], expand(self.path, group[0]))
-            path  = joinurl(route, 'index.html')
+            route = expand(self.path, group[0])
+            path = joinurl(conf['output_dir'], route)
 
             # an object storing year, zero-padded month and day as attributes (may be None)
             key = type('Archive', (object, ), dict(zip(('year', 'month', 'day'),
@@ -159,6 +159,6 @@ class Archive(View):
 
             html = tt.render(conf=conf, env=union(env, entrylist=group,
                 type='archive', prev=prev, curr=link(route), next=next,
-                num_entries=len(group), route=path, archive=key))
+                num_entries=len(group), route=route, archive=key))
 
             yield html, path

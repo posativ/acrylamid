@@ -19,7 +19,7 @@ class Index(View):
         '/' : {
             'view': 'index',
             'template': 'main.html',
-            'pagination': '/page/:num',
+            'pagination': '/page/:num/',
             'items_per_page': 10
         }
     """
@@ -52,7 +52,7 @@ class Index(View):
             prev = None if prev is None \
                else link(u'Previous', expand(self.pagination, {'num': prev}))
 
-            path = joinurl(conf['output_dir'], curr.href, 'index.html')
+            path = joinurl(conf['output_dir'], curr.href)
 
             if isfile(path) and not (modified or tt.modified or env.modified or conf.modified):
                 event.skip(path)

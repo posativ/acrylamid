@@ -16,8 +16,18 @@ Not released – TBD
 - #101 – pandoc metadata recognition (initial implementation by Daniel Pritchard)
 - #91  – CoffeeScript and IcedCoffeScript conversion for assets
 
+### What changes?
+
+- the index pagination route has been changed to `/page/:num/`, notice the
+  trailing slash. If you use the default index pagination route, this will
+  immediately break as Acrylamid tries to create a file named `:num`. This
+  also applies to the tag pagination.
+
 ### What has been fixed?
 
+- automatically adding the index.html to any route without checking if the
+  path has already an extension. Now, Acrylamid only appends an `index.html`
+  to a final URL if the location ends with a trailing slash.
 - improved Mako support and tests
 - double angle quotes hardcoded into the entry view have been moved into the
   theme, you should adapt your theme as well.

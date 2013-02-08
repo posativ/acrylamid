@@ -138,7 +138,7 @@ class Tag(View):
                 prev = None if prev is None \
                     else link(u'Previous', expand(self.pagination, {'name': tag, 'num': prev}))
 
-                path = joinurl(conf['output_dir'], curr, 'index.html')
+                path = joinurl(conf['output_dir'], curr)
 
                 if isfile(path) and not (modified or tt.modified or env.modified or conf.modified):
                     event.skip(path)

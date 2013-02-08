@@ -57,10 +57,8 @@ class Feed(View):
         tt = env.engine.fromfile('%s.xml' % self.type)
 
         path = joinurl(conf['output_dir'], self.route)
-        if not path.endswith(('.xml', '.html')):
-            path = joinurl(path, 'index.html')
-
         modified = any(entry.modified for entry in entrylist)
+
         if isfile(path) and not (conf.modified or env.modified or tt.modified or modified):
             event.skip(path)
             raise StopIteration

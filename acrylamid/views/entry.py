@@ -47,9 +47,6 @@ class Base(View):
             else:
                 path = joinurl(conf['output_dir'], expand(self.path, entry))
 
-            if path.endswith('/'):
-                path = joinurl(path, 'index.html')
-
             if isfile(path) and path in pathes:
                 try:
                     os.remove(path)
@@ -69,10 +66,9 @@ class Base(View):
                 event.skip(path)
                 continue
 
-            route = expand(self.path, entry)
             html = tt.render(conf=conf, entry=entry, env=union(env,
                              entrylist=[entry], type=self.__class__.__name__.lower(),
-                             prev=prev, next=next, route=route))
+                             prev=prev, next=next, route=expand(self.path, entry)))
 
             yield html, path
 
