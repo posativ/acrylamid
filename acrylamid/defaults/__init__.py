@@ -16,27 +16,36 @@ conf = {
     'encoding': 'utf-8',
     'permalink_format': '/:year/:slug/',
 
+    # pagination
     'default_orphans': 0,
 
+    # tag cloud
     'tag_cloud_max_items': 100,
     'tag_cloud_steps': 4,
     'tag_cloud_start_index': 0,
+    'tag_cloud_shuffle': False,
 
+    # filter & view configuration
     'filters_dir': [],
     'views_dir': [],
-    'output_dir': 'output/',
-    'output_ignore': ['.git*', '.hg*', '.svn'],
-    'content_dir': 'content/',
-    'content_ignore': ['.git*', '.hg*', '.svn'],
-    'theme': 'layouts/',
-    'theme_ignore': ['.git*', '.hg*', '.svn'],
-    'static': [],
-    'static_ignore': ['.git*', '.hg*', '.svn'],
-    'static_filter': ['HTML', 'XML'],
 
     'filters': ['markdown+codehilite(css_class=highlight)', 'hyphenate'],
     'views': {
     },
+
+    # user dirs
+    'output_dir': 'output/',
+    'output_ignore': ['.git*', '.hg*', '.svn'],
+
+    'content_dir': 'content/',
+    'content_ignore': ['.git*', '.hg*', '.svn'],
+
+    'theme': 'layouts/',
+    'theme_ignore': ['.git*', '.hg*', '.svn'],
+
+    'static': [],
+    'static_ignore': ['.git*', '.hg*', '.svn'],
+    'static_filter': ['HTML', 'XML'],
 
     'engine': 'acrylamid.templates.jinja2.Environment',
 }

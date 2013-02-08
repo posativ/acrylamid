@@ -244,13 +244,13 @@ def autocompile(ws, conf, env):
         ws.wait = True
         ntime = max(
             max(getmtime(e) for e in readers.filelist(
-                conf['content_dir'], conf.get('content_ignore', [])) if istext(e)),
+                conf['content_dir'], conf['content_ignore']) if istext(e)),
             max(
-                max(getmtime(s) for s in readers.filelist(static_dir, conf.get('static_ignore', [])))
-                    for static_dir in conf.get('static', [])
+                max(getmtime(s) for s in readers.filelist(static_dir, conf['static_ignore']))
+                    for static_dir in conf['static']
                 ),
             max(getmtime(p) for p in readers.filelist(
-                conf['theme'], conf.get('theme_ignore', []))))
+                conf['theme'], conf['theme_ignore'])))
         if mtime != ntime:
             try:
                 compile(conf, env)

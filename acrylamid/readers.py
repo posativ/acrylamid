@@ -54,7 +54,7 @@ def load(conf):
     seen = set([])
 
     # collect and skip over malformed entries
-    for path in filelist(conf['content_dir'], conf.get('content_ignore', [])):
+    for path in filelist(conf['content_dir'], conf['content_ignore']):
         if path.endswith(('.txt', '.rst', '.md')) or istext(path):
             try:
                 entry = Entry(path, conf)
@@ -235,8 +235,6 @@ class FileReader(Reader):
         self.tzinfo = conf.get('tzinfo', None)
 
         native = conf.get('metastyle', '').lower() == 'native'
-        filters = conf.get('filters', '')
-
         with io.open(path, 'r', encoding=conf['encoding'], errors='replace') as fp:
 
             if native and ispandoc(fp):

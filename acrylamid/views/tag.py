@@ -108,7 +108,7 @@ class Tag(View):
         env.tag_cloud = Tagcloud(tags, conf['tag_cloud_steps'],
                                        conf['tag_cloud_max_items'],
                                        conf['tag_cloud_start_index'],
-                                       conf.get('tag_cloud_shuffle', False))
+                                       conf['tag_cloud_shuffle'])
 
         return env
 
