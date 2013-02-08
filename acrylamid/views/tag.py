@@ -14,15 +14,13 @@ from acrylamid.helpers import union, joinurl, safeslug, event
 from acrylamid.helpers import paginate, expand, link, hash
 
 
-def fetch(entrylist, skip=lambda x: False):
-    """Fetch tags from list of entries but don't include items from skip function."""
-
+def fetch(entrylist):
+    """Fetch tags from list of entries and map tags to most common tag name
+    """
     tags = defaultdict(list)
     tmap = defaultdict(int)
 
     for e in entrylist:
-        if skip(e):
-            continue
         for tag in e.tags:
             tags[tag.lower()].append(e)
             tmap[tag] += 1

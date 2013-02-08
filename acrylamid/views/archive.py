@@ -109,7 +109,7 @@ class Archive(View):
     This generates a listing that shows the amount of postings during the
     period. You can also iterate over each month to get to the days.
     :class:`Year`, :class:`Month` and :class:`Day` objects always evaluate to
-    a zero-padded date unit such as 2012 (year) or 01 (January. In addition,
+    a zero-padded date unit such as 2012 (year) or 01 (January). In addition,
     Month and Day objects have ``full`` and ``abbr`` attributes to access the
     fullname or abbreviation in your current location."""
 

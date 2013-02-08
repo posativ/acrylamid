@@ -173,7 +173,7 @@ basic conf.py   yes  yes   yes
 Migrating from WordPress is more difficult than an RSS/Atom feed because WP does
 not store a valid HTML content but a pre-HTML state. Thus we fix this with some
 stupid <br />-foo to allow conversion back to Markdown/reStructuredText. It is
-not recommended to import WordPress blogs as without any reconversion due the
+not recommended to import WordPress blogs without any reconversion due to the
 broken HTML.
 
 .. _html2text: http://www.aaronsw.com/2002/html2text/

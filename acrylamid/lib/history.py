@@ -75,7 +75,7 @@ def breaks(env, firstrun):
             rv, hints = changesfor('%i.%i' % (major, minor + 1))
             broken = broken or rv
 
-            print (blue('acrylamid') + ' %i.%s' % (major, minor+1) + u' – changes').encode('utf-8'),
+            print (blue('Acrylamid') + ' %i.%s' % (major, minor+1) + u' – changes').encode('utf-8'),
 
             if broken:
                 print (u'– ' + red('may break something.')).encode('utf-8')
