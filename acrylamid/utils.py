@@ -133,10 +133,10 @@ def groupby(iterable, keyfunc=lambda x: x):
 def neighborhood(iterable, prev=None):
     """yield previous and next values while iterating"""
     iterator = iter(iterable)
-    item = iterator.next()
-    for next in iterator:
-        yield (prev, item, next)
-        prev, item = item, next
+    item = next(iterator)
+    for new in iterator:
+        yield (prev, item, new)
+        prev, item = item, new
     yield (prev, item, None)
 
 

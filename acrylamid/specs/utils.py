@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from acrylamid.utils import Metadata, groupby, neighborhood
+
 import attest
-from acrylamid.utils import Metadata
+tt = attest.Tests()
 
 
 class TestMetadata(attest.TestBase):
@@ -56,3 +58,10 @@ class TestMetadata(attest.TestBase):
     @attest.test
     def init(self):
         assert Metadata({'hello.world': 1}).hello.world == 1
+
+
+@tt.test
+def neighbors():
+
+    assert list(neighborhood([1, 2, 3])) == \
+        [(None, 1, 2), (1, 2, 3), (2, 3, None)]
