@@ -131,6 +131,9 @@ def Acryl():
 
     subparsers._name_parser_map['aco'] = autocompile
 
+    # temporary log to catch issues during task initialization
+    log.init('temporary', level=log.WARN, colors=False)
+
     # initialize other tasks
     tasks.initialize(subparsers, default)
 
