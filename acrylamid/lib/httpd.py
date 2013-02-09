@@ -15,7 +15,7 @@ from threading import Thread
 from SocketServer import TCPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 
-from acrylamid.helpers import joinurl
+from acrylamid.helpers import joinurl, rchop
 
 
 class ReuseAddressServer(TCPServer):
@@ -39,7 +39,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
     log_error = lambda x, *y: None
 
     def do_GET(self):
-        self.path = joinurl(self.www_root, self.path)
+        self.path = rchop(joinurl(self.www_root, self.path), 'index.html')
         SimpleHTTPRequestHandler.do_GET(self)
 
     def end_headers(self):
