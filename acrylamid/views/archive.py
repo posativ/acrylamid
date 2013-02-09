@@ -9,6 +9,7 @@ from os.path import isfile
 from acrylamid.utils import neighborhood, groupby
 from acrylamid.views import View
 from acrylamid.helpers import union, joinurl, event, expand, memoize, hash, link
+from acrylamid.readers import Date
 
 
 class Day(object):
@@ -19,11 +20,11 @@ class Day(object):
 
     @property
     def abbr(self):
-        return day_abbr[self.name].decode('utf-8')
+        return Date(2001, 1, self.name).strftime('%a')
 
     @property
     def full(self):
-        return day_name[self.name].decode('utf-8')
+        return Date(2001, 1, self.name).strftime('%A')
 
     def __str__(self):
         return '%02i' % self.name
@@ -43,11 +44,11 @@ class Month(Day):
 
     @property
     def abbr(self):
-        return month_abbr[self.name].decode('utf-8')
+        return Date(2001, self.name, 1).strftime('%b')
 
     @property
     def full(self):
-        return month_name[self.name].decode('utf-8')
+        return Date(2001, self.name, 1).strftime('%B')
 
 
 class Year(Month):
