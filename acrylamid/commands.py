@@ -236,6 +236,9 @@ def autocompile(ws, conf, env):
     """Subcommand: autocompile -- automatically re-compiles when something in
     content-dir has changed and parallel serving files."""
 
+    # store lang to avoid incorrect encoding during repeating runs
+    lang = conf.get('lang')
+
     mtime = -1
     cmtime = getmtime('conf.py')
 
@@ -257,6 +260,10 @@ def autocompile(ws, conf, env):
                 raise
             except Exception:
                 log.exception("uncaught exception during auto-compilation")
+            else:
+                conf.pop('lang')
+                if lang is not None:
+                    conf['lang'] = lang
             event.reset()
             mtime = ntime
         ws.wait = False
