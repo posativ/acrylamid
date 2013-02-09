@@ -47,7 +47,7 @@ class Articles(View):
         path = joinurl(conf['output_dir'], self.path, 'index.html')
 
         if exists(path) and not (conf.modified or env.modified or tt.modified):
-            event.skip(path)
+            event.skip('article', path)
             raise StopIteration
 
         articles = {}

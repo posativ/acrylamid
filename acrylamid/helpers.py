@@ -82,7 +82,7 @@ def identical(obj, other, bs=4096):
     return a == b
 
 
-def mkfile(fileobj, path, ctime=0.0, force=False, dryrun=False, **kw):
+def mkfile(fileobj, path, ctime=0.0, ns=None, force=False, dryrun=False):
     """Creates entry in filesystem. Overwrite only if fileobj differs.
 
     :param fileobj: rendered html/xml as file-like object
@@ -97,14 +97,14 @@ def mkfile(fileobj, path, ctime=0.0, force=False, dryrun=False, **kw):
     if isfile(path):
         with io.open(path, 'r' + mode) as other:
             if identical(fileobj, other):
-                return event.identical(path)
+                return event.identical(ns, path)
         if not dryrun:
             if hasattr(fileobj, 'name'):
                 shutil.copy(fileobj.name, path)
             else:
                 with io.open(path, 'w' + mode) as fp:
                     fp.write(fileobj.read())
-        event.update(path=path, ctime=ctime)
+        event.update(ns, path, ctime)
     else:
         if not dryrun and not isdir(dirname(path)):
             os.makedirs(dirname(path))
@@ -114,7 +114,7 @@ def mkfile(fileobj, path, ctime=0.0, force=False, dryrun=False, **kw):
             else:
                 with io.open(path, 'w' + mode) as fp:
                     fp.write(fileobj.read())
-        event.create(path=path, ctime=ctime)
+        event.create(ns, path, ctime)
 
 
 def expand(url, obj, re=re.compile(r':(\w+)')):
@@ -282,9 +282,9 @@ def metavent(cls, parents, attrs):
         """decorator which calls callback registered to this method."""
         name, doc = func.func_name, func.__doc__
 
-        def dec(cls, path, *args, **kwargs):
+        def dec(cls, ns, path, *args, **kwargs):
             for callback in  cls.callbacks[name]:
-                callback(path, *args, **kwargs)
+                callback(ns, path)
             if name in events:
                 attrs['counter'][name] += 1
             return func(cls, path, *args, **kwargs)
@@ -302,10 +302,35 @@ def metavent(cls, parents, attrs):
 
 class event:
     """This helper class provides an easy mechanism to give user feedback of
-    created, changed or deleted files.  As side-effect every non-destructive
-    call will add the given path to the global tracking list and makes it
-    possible to remove unused files (e.g. after you've changed your permalink
-    scheme or just reworded your title).
+    created, changed or deleted files.  As side-effect every it allows you to
+    register your own functions to these events.
+
+    Acrylamid has the following, fairly self-explanatory events: ``create``,
+    ``update``, ``skip``, ``identical`` and ``remove``. A callback receives
+    the current namespace and the path. The namespace might be None if not
+    specified by the originator, but it is recommended to achieve a informal
+    standard:
+
+       * the views supply their lowercase name such as ``'entry'`` or
+         ``'archive'`` as namespace.
+       * asset generation uses the ``'assets'`` namespace.
+       * the init, import and new task use their name as namespace.
+
+    To make this clear, the following example just records all newly created
+    items from the entry view:
+
+    .. code-block:: python
+
+        from acrylamid.hepers import event
+
+        skipped = []
+
+        def callback(ns, path):
+
+            if ns == 'entry':
+                skipped.add(path)
+
+        event.register(callback, to=['create'])
 
     .. Note:: This class is a singleton and should not be initialized
 
@@ -341,29 +366,24 @@ class event:
             self.counter[key] = 0
 
     def create(self, path, ctime=None):
-        """:param path: path\n:param ctime: computing time"""
         if ctime:
             log.info("create  [%.2fs] %s", ctime, path)
         else:
             log.info("create  %s", path)
 
     def update(self, path, ctime=None):
-        """:param path: path\n:param ctime: computing time"""
         if ctime:
             log.info("update  [%.2fs] %s", ctime, path)
         else:
             log.info("update  %s", path)
 
     def skip(self, path):
-        """:param path: path"""
         log.skip("skip  %s", path)
 
     def identical(self, path):
-        """:param path: path"""
         log.skip("identical  %s", path)
 
     def remove(self, path):
-        """:param path: path"""
         log.info("remove  %s", path)
 
 

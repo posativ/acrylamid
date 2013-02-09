@@ -63,7 +63,7 @@ class Base(View):
 
             if all([isfile(path), unmodified, not tt.modified, not entry.modified,
             not modified(*references(entry))]):
-                event.skip(path)
+                event.skip(self.name, path)
                 continue
 
             html = tt.render(conf=conf, entry=entry, env=union(env,

@@ -157,7 +157,7 @@ class Archive(View):
             )))()
 
             if isfile(path) and not (modified or tt.modified or env.modified or conf.modified):
-                event.skip(path)
+                event.skip('archive', path)
                 continue
 
             html = tt.render(conf=conf, env=union(env, entrylist=group,

@@ -351,7 +351,7 @@ def build(conf, env, defaults, items, options):
         if isfile(filepath) and not options.force:
             raise AcrylamidException('Entry already exists %r' % filepath)
         shutil.move(tmp, filepath)
-        event.create(filepath)
+        event.create('import', filepath)
 
     for item in filter(lambda x: x, items):
 

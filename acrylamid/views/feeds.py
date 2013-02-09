@@ -60,7 +60,7 @@ class Feed(View):
         modified = any(entry.modified for entry in entrylist)
 
         if isfile(path) and not (conf.modified or env.modified or tt.modified or modified):
-            event.skip(path)
+            event.skip(self.name, path)
             raise StopIteration
 
         updated = entrylist[0].date if entrylist else datetime.utcnow()

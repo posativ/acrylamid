@@ -210,7 +210,8 @@ def compile(conf, env):
         tt = time.time()
         for buf, path in v.generate(conf, env, data):
             try:
-                helpers.mkfile(buf, path, time.time()-tt, **env.options.__dict__)
+                helpers.mkfile(buf, path, time.time()-tt, ns=v.name,
+                    force=env.options.force, dryrun=env.options.dryrun)
             finally:
                 buf.close()
             tt = time.time()

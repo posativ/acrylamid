@@ -113,7 +113,7 @@ class Sitemap(View):
         sm = Map()
 
         if exists(path) and not self.modified:
-            event.skip(path)
+            event.skip('sitemap', path)
             raise StopIteration
 
         for fname in self.files:

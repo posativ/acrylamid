@@ -139,8 +139,8 @@ def init(env, options):
 
         if options.overwrite or not exists(dest):
             write(src, dest)
-            event.create(dest)
+            event.create('init', dest)
         else:
-            event.skip(dest)
+            event.skip('init', dest)
 
     log.info('Created your fresh new blog at %r. Enjoy!', options.dest)
