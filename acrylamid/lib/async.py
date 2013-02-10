@@ -14,7 +14,7 @@ Example usage::
     >>> def takes(long=10):
     ...     sleep(long)
     ...
-    >>> pool = ThreadPool(5)
+    >>> pool = Threadpool(5)
     >>> for x in range(10):
     ...     pool.add_task(takes, x)
     >>> pool.wait_completion()
@@ -50,14 +50,15 @@ class Threadpool:
     """Initialize pool with number of workers, that run a function with
     given arguments and catch all exceptions."""
 
-    def __init__(self, num_threads):
-        self.tasks = Queue(num_threads)
+    def __init__(self, num_threads, wait=True):
+        self.tasks = Queue(num_threads if wait else 0)
+        self.wait = wait
         for _ in range(num_threads):
             Worker(self.tasks)
 
     def add_task(self, func, *args, **kargs):
         """Add a task to the queue"""
-        self.tasks.put((func, args, kargs))
+        self.tasks.put((func, args, kargs), self.wait)
 
     def wait_completion(self):
         """Wait for completion of all the tasks in the queue"""
