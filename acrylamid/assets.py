@@ -66,7 +66,7 @@ class Writer(object):
 
     def write(self, src, dest, force=False, dryrun=False):
         if not force and not self.modified(src, dest):
-            return event.skip('assets', dest)
+            return event.skip(ns, dest)
 
         mkfile(self.generate(src, dest), dest, ns=ns, force=force, dryrun=dryrun)
 
@@ -139,7 +139,7 @@ class System(Writer):
         except (OSError, AcrylamidException) as e:
             if isfile(dest):
                 os.unlink(dest)
-            log.warn('%s: %s' % (e.__class__.__name__, e.args[0]))
+            log.exception('%s: %s' % (e.__class__.__name__, e.args[0]))
         else:
             with os.fdopen(fd, 'w') as fp:
                 fp.write(res)

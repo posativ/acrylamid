@@ -429,7 +429,7 @@ def discover(directories, index, filterfunc=lambda filename: True):
             try:
                 mod = imp.load_module(modname, fp, path, descr)
             except (ImportError, SyntaxError, ValueError) as e:
-                log.warn('%r %s: %s', modname, e.__class__.__name__, e)
+                log.exception('%r %s: %s', modname, e.__class__.__name__, e)
                 continue
 
         index(mod)

@@ -42,7 +42,7 @@ class Worker(Thread):
             try:
                 func(*args, **kargs)
             except Exception as e:
-                log.warn('%s: %s' % (e.__class__.__name__, unicode(e)))
+                log.exception('%s: %s' % (e.__class__.__name__, unicode(e)))
             self.tasks.task_done()
 
 
