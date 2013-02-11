@@ -23,7 +23,6 @@
             <atom:link href="${ conf.www_root + env.views['atom'].path }" rel="self" type="application/rss+xml" />
         % endif
         % for entry in env.entrylist:
-        ##TODO: Indentation
             ${ render_item(env, conf, entry) }
         % endfor
     </channel>

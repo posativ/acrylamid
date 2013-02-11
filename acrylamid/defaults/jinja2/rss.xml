@@ -21,7 +21,7 @@
             <atom:link href="{{ conf.www_root + conf.views.atom.path }}" rel="self" type="application/rss+xml" />
         {% endif %}
         {%- for entry in env.entrylist %}
-            {{ render_item(env, conf, entry) | indent(8)}}
+            {{ render_item(env, conf, entry) }}
         {% endfor -%}
     </channel>
 </rss>

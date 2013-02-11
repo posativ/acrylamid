@@ -31,6 +31,6 @@
     <updated>{{ env.updated | utc }}</updated>
     <generator uri="{{ env.url }}" version="{{ env.version }}">acrylamid</generator>
     {%- for entry in env.entrylist %}
-        {{ render_item(env, conf, entry) | indent(8) }}
+        {{ render_item(env, conf, entry) }}
     {% endfor -%}
 </feed>

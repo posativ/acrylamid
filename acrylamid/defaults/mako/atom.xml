@@ -31,7 +31,6 @@
     <updated>${ utc(env.updated) }</updated>
     <generator uri="${ env.url }" version="${ env.version }">acrylamid</generator>
     % for entry in env.entrylist:
-    ##TODO: Indentation
         ${ render_item(env, conf, entry) }
     % endfor
 </feed>
