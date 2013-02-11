@@ -11,12 +11,14 @@ import zlib
 import types
 import tempfile
 
-from os.path import join, exists, getmtime, getsize
+from os.path import join, exists, getmtime, getsize, dirname, basename
 
-from acrylamid import log
+from acrylamid import log, defaults
 from acrylamid.errors import AcrylamidException
 
-from acrylamid.utils import memoized, classproperty, cached_property, Struct, hash, HashableList
+from acrylamid.utils import (
+    classproperty, cached_property, Struct, hash, HashableList, find, execfile
+)
 
 try:
     import cPickle as pickle
@@ -216,6 +218,21 @@ class cache(object):
                 filename = os.path.join(path, file)
                 res += getsize(filename)
         return res
+
+
+def load(path):
+    """Load default configuration, prepare namespace and update configuration
+    with `conf.py`'s uppercase values and normalizes ambiguous values.
+    """
+    conf = Configuration(defaults.conf)
+    ns = dict([(k.upper(), v) for k, v in defaults.conf.iteritems()])
+
+    os.chdir(dirname(find(basename(path), dirname(path) or os.getcwd())))
+    execfile(path, ns)
+    conf.update(dict([(k.lower(), ns[k]) for k in ns if k.upper() == k]))
+
+    # append trailing slash to *_dir and place certain values into an array
+    return defaults.normalize(conf)
 
 
 class Environment(Struct):

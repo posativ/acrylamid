@@ -23,17 +23,16 @@ __url__ = 'https://github.com/posativ/acrylamid/'
 import sys
 PY3 = sys.version_info[0] == 3
 
-import os
 import time
 import argparse
 import traceback
 import signal
 
-from os.path import dirname, basename
+from os.path import dirname
 from functools import partial
 
-from acrylamid import defaults, log, commands, colors, tasks, core
-from acrylamid.utils import find, execfile, Struct
+from acrylamid import log, commands, colors, tasks, core
+from acrylamid.utils import Struct
 from acrylamid.errors import AcrylamidException
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -156,14 +155,8 @@ def Acryl():
         log.fatal(e.args[0])
         sys.exit(1)
 
-    # -- teh real thing -- #
-    conf = core.Configuration(defaults.conf)
-
     try:
-        ns = dict([(k.upper(), v) for k, v in defaults.conf.iteritems()])
-        os.chdir(dirname(find(basename(options.conf), dirname(options.conf) or os.getcwd())))
-        execfile(options.conf, ns)
-        conf.update(dict([(k.lower(), ns[k]) for k in ns if k.upper() == k]))
+        conf = core.load(options.conf)
     except IOError:
         log.critical('no conf.py found. Try "acrylamid init".')
         sys.exit(1)
@@ -172,8 +165,6 @@ def Acryl():
         traceback.print_exc(file=sys.stdout)
         sys.exit(1)
 
-    # append trailing slash to *_dir and place certain values into an array
-    conf = defaults.normalize(conf)
 
     # -- run -- #
     if options.parser in ('gen', 'generate', 'co', 'compile'):

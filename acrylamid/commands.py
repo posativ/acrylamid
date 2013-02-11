@@ -6,7 +6,6 @@
 import sys
 import os
 import time
-import shutil
 import locale
 import codecs
 
@@ -21,7 +20,7 @@ from acrylamid.errors import AcrylamidException
 
 from acrylamid import readers, filters, views, assets, refs, helpers, __version__
 from acrylamid.lib import lazy, history
-from acrylamid.core import cache
+from acrylamid.core import cache, load
 from acrylamid.utils import hash, istext, HashableList, import_object
 from acrylamid.helpers import event
 
@@ -92,6 +91,9 @@ def initialize(conf, env):
     # take off the trailing slash for www_root and path
     conf['www_root'] = conf['www_root'].rstrip('/')
     env['path'] = env['path'].rstrip('/')
+
+    if env['path']:
+        conf['output_dir'] = conf['output_dir'] + env['path']
 
     # check if encoding is available
     try:
@@ -236,9 +238,6 @@ def autocompile(ws, conf, env):
     """Subcommand: autocompile -- automatically re-compiles when something in
     content-dir has changed and parallel serving files."""
 
-    # store lang to avoid incorrect encoding during repeating runs
-    lang = conf.get('lang')
-
     mtime = -1
     cmtime = getmtime('conf.py')
 
@@ -261,9 +260,7 @@ def autocompile(ws, conf, env):
             except Exception:
                 log.exception("uncaught exception during auto-compilation")
             else:
-                conf.pop('lang')
-                if lang is not None:
-                    conf['lang'] = lang
+                conf = load(env.options.conf)
             event.reset()
             mtime = ntime
         ws.wait = False
