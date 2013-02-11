@@ -7,6 +7,10 @@ Acrylamid allows you to hook into its events (create, update and so on). This
 allows you to do something witht the generated files, for example generating
 image thumbnails on-the-fly and/or compress the produced HTML.
 
+By default, all hooks are executed in parallel (not affected by the GIL if you
+run external processes/commands), you can disable this behavior by setting
+``HOOKS_MT`` to ``False``.
+
 There are two different types of hooks. The simple hook "listens" on the
 create and update events and simply calls your function with the namespace [#1] of
 the event and the path, in this order. Whereas the advanced hook hooks into

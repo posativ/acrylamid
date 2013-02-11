@@ -91,8 +91,8 @@ def initialize(conf, env):
 
     global pool
 
-    hooks = conf.get('hooks', {})
-    pool = Threadpool(multiprocessing.cpu_count(), wait=False)
+    hooks, blocks = conf.get('hooks', {}), not conf.get('hooks_mt', True)
+    pool = Threadpool(1 if blocks else multiprocessing.cpu_count(), wait=blocks)
 
     force = env.options.force
     normalize = lambda path: path.replace(conf['output_dir'], '')
