@@ -29,7 +29,7 @@ def run(conf, env, options):
     ``acrylamid new My fresh new Entry`` or interactively via ``acrylamid new``
     and the file will be created using the preferred permalink format."""
 
-    # we need the actual defaults values
+    # we need the actual default values
     commands.initialize(conf, env)
 
     ext = conf.get('content_extension', '.txt')
@@ -64,7 +64,7 @@ def run(conf, env, options):
     event.create('new', filepath)
 
     if datetime.now().hour == 23 and datetime.now().minute > 45:
-        log.info("notice  consider editing entry.date-day after you passed mignight!")
+        log.info("notice  don't forget to update entry.date-day after mignight!")
 
     if log.level() >= log.WARN:
         return
