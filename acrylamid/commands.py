@@ -48,7 +48,7 @@ def initialize(conf, env):
     assets.initialize(conf, env)
 
     # register hooks
-    if env.options.parser.startswith(('co', 'gen', 'auto')):
+    if env.options.parser.startswith(('co', 'gen', 'auto', 'aco')):
         hooks.initialize(conf, env)
 
     # set up templating environment

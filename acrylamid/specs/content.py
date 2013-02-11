@@ -11,7 +11,8 @@ from acrylamid.defaults import conf
 
 # supress warnings
 log.init('acrylamid', 40)
-options = type('Options', (object, ), {'ignore': False, 'force': False, 'dryrun': False})
+options = type('Options', (object, ), {
+    'ignore': False, 'force': False, 'dryrun': False, 'parser': 'compile'})
 
 
 def entry(**kw):
