@@ -132,7 +132,7 @@ class View(object):
         from os.path import join
 
         if exists(path) and not modified and not tt.modified:
-            event.skip(path)
+            event.skip('ns', path)
             continue
 
     See the source of acrylamid's built-in views that all have implemented

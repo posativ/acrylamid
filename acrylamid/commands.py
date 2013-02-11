@@ -18,7 +18,7 @@ from os.path import getmtime
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
-from acrylamid import readers, filters, views, assets, refs, helpers, __version__
+from acrylamid import readers, filters, views, assets, refs, hooks, helpers, __version__
 from acrylamid.lib import lazy, history
 from acrylamid.core import cache, load
 from acrylamid.utils import hash, istext, HashableList, import_object
@@ -46,6 +46,9 @@ def initialize(conf, env):
 
     # rewrite static directory
     assets.initialize(conf, env)
+
+    # register hooks
+    hooks.initialize(conf, env)
 
     # set up templating environment
     env.engine = import_object(conf['engine'])()
@@ -212,13 +215,17 @@ def compile(conf, env):
         tt = time.time()
         for buf, path in v.generate(conf, env, data):
             try:
-                helpers.mkfile(buf, path, time.time()-tt, **env.options.__dict__)
+                helpers.mkfile(buf, path, time.time()-tt, ns=v.name,
+                    force=env.options.force, dryrun=env.options.dryrun)
             finally:
                 buf.close()
             tt = time.time()
 
     # copy modified/missing assets to output
     assets.compile(conf, env)
+
+    # wait for unfinished hooks
+    hooks.shutdown()
 
     # save conf/environment hash and new/changed/unchanged references
     helpers.memoize('Configuration', hash(conf))

@@ -262,7 +262,7 @@ class Configuration(Environment):
     """Similar to :class:`Environment` but allows hashing of a literarily
     defined dictionary (that's the conf.py)."""
 
-    blacklist = set(['if'])
+    blacklist = set(['if', 'hooks'])
 
     def values(self):
         for key in self.keys():

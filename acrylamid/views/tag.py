@@ -139,7 +139,7 @@ class Tag(View):
                 path = joinurl(conf['output_dir'], curr)
 
                 if isfile(path) and not (modified or tt.modified or env.modified or conf.modified):
-                    event.skip(path)
+                    event.skip('tag', path)
                     continue
 
                 html = tt.render(conf=conf, env=union(env, entrylist=entries,

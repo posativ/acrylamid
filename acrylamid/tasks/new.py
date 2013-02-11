@@ -61,7 +61,7 @@ def run(conf, env, options):
     if isfile(filepath):
         raise AcrylamidException('Entry already exists %r' % filepath)
     shutil.move(tmp, filepath)
-    event.create(filepath)
+    event.create('new', filepath)
 
     if datetime.now().hour == 23 and datetime.now().minute > 45:
         log.info("notice  consider editing entry.date-day after you passed mignight!")

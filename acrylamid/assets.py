@@ -20,6 +20,8 @@ from acrylamid.errors import AcrylamidException
 from acrylamid.helpers import mkfile, event
 from acrylamid.readers import relfilelist
 
+ns = "assets"
+
 __writers = None
 __defaultwriter = None
 
@@ -64,9 +66,9 @@ class Writer(object):
 
     def write(self, src, dest, force=False, dryrun=False):
         if not force and not self.modified(src, dest):
-            return event.skip(dest)
+            return event.skip(ns, dest)
 
-        mkfile(self.generate(src, dest), dest, force=force, dryrun=dryrun)
+        mkfile(self.generate(src, dest), dest, ns=ns, force=force, dryrun=dryrun)
 
     def shutdown(self):
         pass
@@ -121,7 +123,7 @@ class System(Writer):
 
         dest = dest.replace(self.ext, self.target)
         if not force and isfile(dest) and getmtime(dest) > getmtime(src):
-            return event.skip(dest)
+            return event.skip(ns, dest)
 
         if isinstance(self.cmd, basestring):
             self.cmd = [self.cmd, ]
@@ -137,13 +139,13 @@ class System(Writer):
         except (OSError, AcrylamidException) as e:
             if isfile(dest):
                 os.unlink(dest)
-            log.warn('%s: %s' % (e.__class__.__name__, e.args[0]))
+            log.exception('%s: %s' % (e.__class__.__name__, e.args[0]))
         else:
             with os.fdopen(fd, 'w') as fp:
                 fp.write(res)
 
             with io.open(path, 'rb') as fp:
-                mkfile(fp, dest, ctime=time.time()-tt, force=force, dryrun=dryrun)
+                mkfile(fp, dest, time.time()-tt, ns, force, dryrun)
         finally:
             os.unlink(path)
 

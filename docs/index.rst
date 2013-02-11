@@ -24,6 +24,7 @@ at https://github.com/posativ/acrylamid/.
    filters
    views
    assets
+   hooks
    static-search
    theming
    templating

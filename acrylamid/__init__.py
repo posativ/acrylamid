@@ -172,7 +172,7 @@ def Acryl():
         try:
             commands.compile(conf, env)
         except AcrylamidException as e:
-            log.fatal(e.args[0])
+            log.exception(e.args[0])
             sys.exit(1)
 
     elif options.parser in ('srv', 'serve', 'view'):
