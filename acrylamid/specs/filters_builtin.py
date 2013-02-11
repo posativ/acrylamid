@@ -135,6 +135,20 @@ def summarize():
     for text, result in examples:
         assert summarize.transform(text, Entry(), '5') == result
 
+    conf['summarize_mode'] = 0
+    summarize = get_filters()['summarize'](conf, env, 'summarize')
+
+    assert summarize.transform((
+        '<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod '
+        'tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam</p>'
+        '\n'
+        '<p>Here it breaks ...</p>'),
+        Entry(), '20') == (
+        '<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod '
+        'tempor incididunt ut labore et dolore magna aliqua. Ut '
+        '<span>&#8230;<a href="/foo/" class="continue">continue</a>.</span></p>')
+
+
 
 @tt.test
 def intro():

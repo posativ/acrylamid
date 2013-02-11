@@ -53,6 +53,7 @@ class Summarizer(HTMLParser):
             # this injects the link to the end of the current tag
             if self.mode == 0:
                 self.result.append(self.link % self.href)
+                self.mode = -1
 
             # now we append all stored tags
             for x in self.stack[:]:
