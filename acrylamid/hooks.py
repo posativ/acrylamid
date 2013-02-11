@@ -94,7 +94,7 @@ def initialize(conf, env):
     hooks = conf.get('hooks', {})
     pool = Threadpool(multiprocessing.cpu_count(), wait=False)
 
-    force = False
+    force = env.options.force
     normalize = lambda path: path.replace(conf['output_dir'], '')
 
     for pattern, action in hooks.iteritems():
