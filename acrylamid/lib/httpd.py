@@ -9,13 +9,14 @@ Internal Webserver
 
 Launch a dumb webserver as thread."""
 
+import os
 import time
 
 from threading import Thread
 from SocketServer import TCPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 
-from acrylamid.helpers import joinurl, rchop
+from acrylamid.helpers import joinurl
 
 
 class ReuseAddressServer(TCPServer):
@@ -38,9 +39,9 @@ class RequestHandler(SimpleHTTPRequestHandler):
     www_root = '.'
     log_error = lambda x, *y: None
 
-    def do_GET(self):
-        self.path = rchop(joinurl(self.www_root, self.path), 'index.html')
-        SimpleHTTPRequestHandler.do_GET(self)
+    def translate_path(self, path):
+        path = SimpleHTTPRequestHandler.translate_path(self, path)
+        return joinurl(os.getcwd(), self.www_root, path[len(os.getcwd()):])
 
     def end_headers(self):
         self.wfile.write('Cache-Control: max-age=0, must-revalidate\r\n')
