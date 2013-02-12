@@ -3,18 +3,21 @@
 Version 0.6
 -----------
 
-Not released – TBD
+Released onf February, 12th, 2013 – Almost stable.
 
 ### What's new?
 
 - #105 – new archive view to render yearly, monthly and/or daily archives and
   has replaced the article view in the themes. The article view remains in
   the Acrylamid core but is likely to become deprecated in the future.
+- #104 – simple and advanced, multhithreaded hooks during compilation, see
+  http://posativ.org/acrylamid/hooks.rst for more information.
 - Jinja2 content filter imports macros from theme/macros.html
   automatically into your entry namespace.
 - #102 – enrich HTML metadata
 - #101 – pandoc metadata recognition (initial implementation by Daniel Pritchard)
 - #91  – CoffeeScript and IcedCoffeScript conversion for assets
+- summarize filter accepts `<!-- more -->` as additional break keyword.
 
 ### What changes?
 
@@ -25,9 +28,18 @@ Not released – TBD
 
 ### What has been fixed?
 
+- the Jinja2 Atom and RSS templates do not longer indent the content as this
+  causes unexpected indentation inside `<pre>` tags. This does not affect the
+  Mako templates.
+- #117 – fix a redirection issue where `/foo` has been resolved to
+  `/output/foo/` instead of `/foo/` solely.
+- #116 – serving from non-root path has been fixed
+- #111 – prevent duplicate summarize link insertion for modus 0
+- sitemap may have included drafts unintentional if routed through `'/drafts/'`
 - automatically adding the index.html to any route without checking if the
   path has already an extension. Now, Acrylamid only appends an `index.html`
   to a final URL if the location ends with a trailing slash.
+- auto-compilation now detects changes in the static directories (if any)
 - improved Mako support and tests
 - double angle quotes hardcoded into the entry view have been moved into the
   theme, you should adapt your theme as well.
