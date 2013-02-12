@@ -3,8 +3,8 @@ Welcome to Acrylamid
 
 Acrylamid is a mixture of `nanoc <http://nanoc.stoneship.org/>`_, `Pyblosxom
 <http://pyblosxom.bluesock.org/>`_ and `Pelican <http://blog.getpelican.com/>`_
-licensed under BSD Style, 2 clauses. It is actively developed and maintained
-at https://github.com/posativ/acrylamid/.
+licensed under BSD Style, 2 clauses. It is actively developed at
+https://github.com/posativ/acrylamid/.
 
 |Build Status|_
 
@@ -206,10 +206,12 @@ Need Help?
 ----------
 
 Join ``#acrylamid`` on Freenode_! If you found a bug, please report it on
-`GitHub Issues`_.
+`GitHub Issues`_. The project has also a mailing list [Archive_], just send
+an email to ``acrylamid@librelist.com`` and you have subscribed .
 
 .. _Freenode: http://freenode.net/
 .. _Github Issues: https://github.com/posativ/acrylamid/issues?state=open
+.. _Archive: http://librelist.com/browser/acrylamid/
 
 API Reference
 -------------
