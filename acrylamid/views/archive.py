@@ -61,7 +61,7 @@ class Archive(View):
     """A view that lists all posts per year/month/day -- usually found in
     WordPress blogs. Configuration syntax:
 
-    .. code-bock:: python
+    .. code-block:: python
 
         '/:year/': {'view': 'archive'},
         '/:year/:month/': {'view': 'archive'},
@@ -72,7 +72,7 @@ class Archive(View):
     the latter two may be ``None`` in case of a route without month or day.
     To determine the current archive name, you can use the following snippet:
 
-    .. code-block:: html+jinja2
+    .. code-block:: html+jinja
 
         {% set archivesname = env.archive.year
                             ~ (('/' ~ env.archive.month) if env.archive.month else '')
@@ -81,7 +81,7 @@ class Archive(View):
 
     Rendering a list of entries is the same like in other views:
 
-    .. code-block:: html+jinja2
+    .. code-block:: html+jinja
 
         {% for entry in env.entrylist %}
         <a href="{{ entry.permalink }}">{{ entry.title | e }}</a>
@@ -93,7 +93,7 @@ class Archive(View):
     does only includes years, months and/or days where you have at least a
     single post.
 
-    .. code-block:: html+jinja2
+    .. code-block:: html+jinja
 
         {% for year in env.globals.entrylist | archivesfor %}
         <h2>{{ year ~ ' (' ~ year | count ~ ')' }}</h2>

@@ -53,6 +53,8 @@ To see, what variables are available during templating, consult :doc:`templating
 Built-in Views
 **************
 
+.. autoclass:: acrylamid.views.archive.Archive()
+
 .. autoclass:: acrylamid.views.articles.Articles()
 
 .. autoclass:: acrylamid.views.entry.Entry()
