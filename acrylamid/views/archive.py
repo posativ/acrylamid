@@ -63,9 +63,9 @@ class Archive(View):
 
     .. code-bock:: python
 
-        '/:year/': {'view': 'archvie'},
-        '/:year/:month/': {'view': 'archvie'},
-        '/:year/:month/:day/': {'view': 'archvie'}
+        '/:year/': {'view': 'archive'},
+        '/:year/:month/': {'view': 'archive'},
+        '/:year/:month/:day/': {'view': 'archive'}
 
     During templating you can access the current archive year/month/day via
     ``env.archive`` which basically holds the year, month and day, although
