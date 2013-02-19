@@ -101,9 +101,9 @@ def tweet(entry, conf, dryrun=False):
                 log.warn("Twitter: something went wrong...")
 
 
-@task('ping', arguments, "notify ressources")
+@task('ping', arguments, "notify resources")
 def run(conf, env, options):
-    """Subcommand: ping -- notify external ressources via Pingback etc."""
+    """Subcommand: ping -- notify external resources via Pingback etc."""
 
     commands.initialize(conf, env)
     entrylist = [entry for entry in readers.load(conf)[0] if not entry.draft]
