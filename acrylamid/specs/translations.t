@@ -11,7 +11,7 @@ Add a german and english post. No translation route so far.
   > ---
   > title: Hallo Welt
   > lang: de
-  > date: 12.12.2012, 13:23
+  > date: 12.12.2012, 13:24
   > identifier: hello
   > ---
   > Hallo Welt!
@@ -41,7 +41,7 @@ Add a german and english post. No translation route so far.
   11 new, 0 updated, 0 skipped [?.??s] (glob)
 
 Now we add the translation view to /:year/:slug/:lang/, this should affect a
-re-generation of all views since an entries has vanished.
+re-generation of all views since an entry has vanished.
 
   $ if [ `uname` = "Linux" ]; then
   >   sed -i -e /translation/,/translation/s/[#].// conf.py
