@@ -26,7 +26,7 @@ class ExtendedLookup(TemplateLookup):
     resolved = {}
 
     # used templates
-    used = set()
+    used = set(['macros.html', ])
 
     def get_template(self, uri):
         """This is stolen and truncated from mako.lookup:TemplateLookup."""
@@ -50,7 +50,11 @@ class ExtendedLookup(TemplateLookup):
             if uri in self.resolved:
                 return self.resolved[uri]
 
-            filename = posixpath.normpath(posixpath.join(self.directories[0], uri))
+            for directory in self.directories:
+                filename = posixpath.normpath(posixpath.join(directory, uri))
+                if isfile(filename):
+                    break
+
             p = self.modulename_callable(filename, uri)
             modified = getmtime(filename) > getmtime(p) if isfile(p) else True
 
@@ -105,9 +109,16 @@ class Environment(AbstractEnvironment):
     def fromfile(self, path):
         return Template(self.mako.get_template(path), self.filters)
 
+    def extend(self, path):
+        self.mako.directories.append(path)
+
     @property
     def templates(self):
         return self.mako.used
+
+    @property
+    def extension(self):
+        return ['.html', '.mako']
 
 
 class Template(AbstractTemplate):

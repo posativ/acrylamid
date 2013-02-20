@@ -45,7 +45,7 @@ conf = {
 
     'static': [],
     'static_ignore': ['.git*', '.hg*', '.svn'],
-    'static_filter': ['HTML', 'XML'],
+    'static_filter': ['Template', 'XML'],
 
     'engine': 'acrylamid.templates.jinja2.Environment',
 }

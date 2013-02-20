@@ -33,6 +33,16 @@ class AbstractEnvironment(object):
         :class:`AbstractTemplate`-like class`."""
         return
 
+    @abc.abstractmethod
+    def extend(self, path):
+        """Extend search path for templates by `path`."""
+        return
+
+    @abc.abstractproperty
+    def extension(self):
+        """Return the default templating extension(s)."""
+        return
+
     @abc.abstractproperty
     def templates(self):
         """Return the path of all currently processed templates."""

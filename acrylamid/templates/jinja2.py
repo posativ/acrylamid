@@ -25,7 +25,7 @@ class ExtendedFileSystemLoader(FileSystemLoader):
     resolved = {}
 
     # used templates
-    used = set()
+    used = set(['macros.html', ])
 
     def load(self, environment, name, globals=None):
         """patched `load` to add a modified attribute providing information
@@ -106,9 +106,16 @@ class Environment(AbstractEnvironment):
     def fromfile(self, path):
         return Template(self.jinja2.get_template(path))
 
+    def extend(self, path):
+        self.jinja2.loader.searchpath.append(path)
+
     @property
     def templates(self):
         return self.jinja2.loader.used
+
+    @property
+    def extension(self):
+        return ['.html', '.j2']
 
 
 class Template(AbstractTemplate):

@@ -12,18 +12,7 @@ To include assets, just add a bunch of directories to your :doc:`conf.py`:
     STATIC = ['assets', 'static']
 
 In addition all files from your theme are assets, too (except for HTML and XML
-templates by default).  The next examples shows you how to compile static
-pages using the Jinja2_ markup language:
-
-.. _Jinja2: http://jinja.pocoo.org/
-
-.. code-block:: python
-
-    STATIC_FILTER += ['Jinja2']
-
-Now with an HTML file in ``static/projects.html`` you can inherit from all
-templates inside the ``THEME`` directory using Jinja2_.
-
+templates by default) and will be copied to the output directory.
 
 Available Writers
 -----------------
@@ -43,8 +32,10 @@ CoffeeScript : .coffee -> .js
 IcedCoffeeScript : .iced -> .js
     compiles IcedCoffeeScript_ to JavaScript (requires ``iced`` to be in your ``PATH``)
 
-Jinja2 : .html -> .html
-    renders Jinja2 templates
+Template : .html -> .html
+    renders HTML (and engine specific extensions) with your current templating
+    engine. You can inherit from your theme directory as well from all
+    templates inside your static directory.
 
 HTML : .html -> .html
     Copy HTML files to output if not in theme directory.

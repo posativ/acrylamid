@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 #
-# Copyright 2012 Martin Zimmermann <info@posativ.org>. All rights reserved.
+# Copyright 2013 Martin Zimmermann <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses -- see LICENSE.
 
 import os
@@ -8,14 +8,13 @@ import io
 import re
 import time
 import stat
-import shutil
 
-from tempfile import mkstemp, mkdtemp
+from tempfile import mkstemp
 from functools import partial
 from collections import defaultdict
-from os.path import join, isfile, getmtime, splitext
+from os.path import join, isfile, getmtime, split, splitext
 
-from acrylamid import core, helpers, log, utils
+from acrylamid import core, helpers, log
 from acrylamid.errors import AcrylamidException
 from acrylamid.helpers import mkfile, event
 from acrylamid.readers import relfilelist
@@ -92,26 +91,27 @@ class XML(HTML):
     ext = '.xml'
 
 
-class Jinja2(HTML):
-    """Transform HTML files using the Jinja2 markup language. You can inherit
-    from all theme files in the theme directory."""
-
-    ext = '.html'
+class Template(HTML):
+    """Transform HTML files using the current markup engine. You can inherit
+    from all theme files inside the theme directory."""
 
     def __init__(self, conf, env):
-        super(Jinja2, self).__init__(conf, env)
-
-        self.path = mkdtemp(core.cache.cache_dir)
-        self.jinja2 = utils.import_object('acrylamid.templates.jinja2.Environment')()
-        self.jinja2.init([conf['theme'], ] + conf['static'], self.path)
+        map(env.engine.extend, conf['static'])
+        super(Template, self).__init__(conf, env)
 
     def generate(self, src, dest):
+        relpath = split(src[::-1])[0][::-1]  # (head, tail) but reversed behavior
+        return self.env.engine.fromfile(relpath).render(env=self.env, conf=self.conf)
 
-        for directory in self.conf['static']:
-            if src.startswith(directory.rstrip('/') + '/'):
-                src = src[len(directory.rstrip('/') + '/'):]
+    def write(self, src, dest, force=False, dryrun=False):
+        dest = dest.replace(splitext(src)[-1], self.target)
+        return super(Template, self).write(src, dest, force=force, dryrun=dryrun)
 
-        return self.jinja2.fromfile(src).render(env=self.env, conf=self.conf)
+    @property
+    def ext(self):
+        return tuple(self.env.engine.extension)
+
+    target = '.html'
 
 
 class System(Writer):
@@ -186,17 +186,10 @@ class IcedCoffeeScript(System):
     cmd = ['iced', '-cp']
 
 
-def initialize(conf, env):
-
-    global __writers, __defaultwriter
-    __writers = {}
-    __defaultwriter = Writer(conf, env)
-
-
 def worker(conf, env, args):
     """Compile each file extension for each folder in its own process.
     """
-    ext, directory, items = args[0][0], args[0][1], args[1]
+    (ext, directory), items = args[0], args[1]
     writer = __writers.get(ext, __defaultwriter)
 
     for path in writer.filter(items, directory):
@@ -209,7 +202,9 @@ def compile(conf, env):
     directory (except for templates) and static directories can be compiled or
     just copied using several built-in writers."""
 
-    global __writers, __default
+    global __writers, __defaultwriter
+    __writers = {}
+    __defaultwriter = Writer(conf, env)
 
     files = defaultdict(set)
     __writers = dict((cls.ext, cls) for cls in (

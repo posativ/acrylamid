@@ -45,9 +45,6 @@ def initialize(conf, env):
         print "Acrylamid a second time to get rid of this message and premature exit."
         raise SystemExit
 
-    # rewrite static directory
-    assets.initialize(conf, env)
-
     # register hooks
     if env.options.parser.startswith(('co', 'gen', 'auto', 'aco')):
         hooks.initialize(conf, env)
