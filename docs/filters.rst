@@ -328,10 +328,9 @@ summarize
 ---------
 
 Summarizes content to make listings of text previews (used in tag/page by
-default). You can customize the ellipsis, CSS-class, link-text and the behaviour
-how the link appears in your :doc:`conf.py`. You can override single or all
-configurations made in :doc:`conf.py` with ``summarize.maxwords: 10`` and so on
-in the entry header.
+default). You can customize the ellipsis, CSS-class, link-text and the
+behaviour how the link appears in your :doc:`conf.py`. You can override the
+maximum words per entry using ``summarize.maxwords: 10`` in your metadata.
 
 With ``<!-- break -->`` you can end the summarizing process preliminary. For
 convenience ``excerpt``, ``summary`` and ``more`` will also work as keyword.
@@ -343,6 +342,29 @@ Arguments     Maximum words in summarize (an Integer), defaults
               to ``summarize+200``.
 ============  ==================================================
 
+You can define the following additional :doc:`conf.py` parameters for the
+summarize filter. You can overwrite all configuration values per entry
+with ``summarize.link``, ``summarize.mode`` and ``summarize.ignore``.
+
+SUMMARIZE_MODE : an integer value
+
+    * 0 -- inject the link directly after the tag, which content has
+      exceeded maxwords.
+    * 1 -- inject link after certain blacklisted tags such as ``pre``, ``a``
+      and ``b`` to avoid accidental miss-interpretion of the continuation link.
+    * 2 -- close currently open tags and insert link afterwards.
+
+SUMMARIZE_LINK : a continuation string with a ``%s`` inside
+
+    String template for the continue reading link. Default uses an ellipsis
+    (three typographical dots, …), a link with the css class ``continue`` and
+    the text ``continue`` and a single dot afterwards. This string must contain
+    ``%s`` where the link location will be inserted.
+
+SUMMARIZE_IGNORE : a list of tags
+
+    Ignores given self-closed HTML tags in the output generation, defaults to
+    ``['img', 'video', 'audio']``. With ``[]`` you can disable this behavior.
 
 intro
 -----
@@ -355,15 +377,24 @@ paragraph is short enough. This filter shows only up to N paragraphs.
 You can overwrite the amount of paragraphs shown in each entry using
 ``intro.maxparagraphs: 3`` in the metadata section.
 
-By default, outputs "Continue" link at the end of intro if post is longer than
-``maxparagraphs``. You can control link format by setting ``INTRO_LINK`` variable
-in :doc:`conf.py`. To disable intro link output, set ``INTRO_LINK=''``.
-
 ============  ==================================================
 Requires      <built-in>
 Arguments     Maximum paragraphs (an Integer), defaults
               to ``intro+1``.
 ============  ==================================================
+
+Additional :doc:`conf.py` parameters for the introduction filter. You can
+overwrite both configuration values per entry with ``intro.link`` and
+``intro.ignore`` respectively.
+
+INTRO_LINK : a string (may be empty)
+
+    Same default value and usage like the ``SUMMARIZE_LINK`` but you can
+    disable the intro link output, by setting ``INTRO_LINK=''``.
+
+INTRO_IGNORE : a list of tags
+
+    see ``SUMMARIZE_IGNORE``
 
 
 hyphenate
