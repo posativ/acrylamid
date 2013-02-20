@@ -17,7 +17,8 @@ from acrylamid import log, defaults
 from acrylamid.errors import AcrylamidException
 
 from acrylamid.utils import (
-    classproperty, cached_property, Struct, hash, HashableList, find, execfile
+    classproperty, cached_property, Struct, hash, HashableList, find, execfile,
+    lchop
 )
 
 try:
@@ -263,6 +264,9 @@ class Configuration(Environment):
     defined dictionary (that's the conf.py)."""
 
     blacklist = set(['if', 'hooks'])
+
+    def fetch(self, ns):
+        return dict((lchop(k, ns), v) for k, v in self.iteritems() if k.startswith(ns))
 
     def values(self):
         for key in self.keys():

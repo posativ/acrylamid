@@ -3,7 +3,7 @@
 # Copyright 2012 Mark van Lent <mark@vlent.nl>. All rights reserved.
 # License: BSD Style, 2 clauses.
 
-from acrylamid import log
+from acrylamid import log, helpers
 from acrylamid.filters import Filter
 from acrylamid.lib.html import HTMLParser, HTMLParseError
 
@@ -12,10 +12,10 @@ class Introducer(HTMLParser):
     paragraph_list = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'ul', 'ol', 'pre', 'p']
     """List of root elements, which may be treated as paragraphs"""
 
-    def __init__(self, html, maxparagraphs=1, intro_link='', href=''):
+    def __init__(self, html, maxparagraphs, href, options):
         self.maxparagraphs = maxparagraphs
         self.paragraphs = 0
-        self.intro_link = intro_link
+        self.options = options
         self.href = href
 
         super(Introducer, self).__init__(html)
@@ -41,11 +41,11 @@ class Introducer(HTMLParser):
             if self.paragraphs == self.maxparagraphs:
                 for x in self.stack[:]:
                     self.result.append('</%s>' % self.stack.pop())
-                if self.intro_link != '' and self.href != '':
-                    self.result.append(self.intro_link % self.href)
+                if self.options['link'] != '':
+                    self.result.append(self.options['link'] % self.href)
 
     def handle_startendtag(self, tag, attrs):
-        if self.paragraphs < self.maxparagraphs:
+        if self.paragraphs < self.maxparagraphs and tag not in self.options['ignored']:
             super(Introducer, self).handle_startendtag(tag, attrs)
 
     def handle_entityref(self, name):
@@ -64,27 +64,33 @@ class Introducer(HTMLParser):
 class Introduction(Filter):
 
     match = ['intro', ]
+    version = 2
+    priority = 15.0
 
-    def init(self, conf, env):
-
-        self.path = env.path
-        self.intro_link = conf.get('intro_link',
-            '<span>&#8230;<a href="%s" class="continue">continue</a>.</span>')
+    defaults = {
+        'ignored': ['img', 'video', 'audio'],
+        'link': '<span>&#8230;<a href="%s" class="continue">continue</a>.</span>'
+    }
 
     def transform(self, content, entry, *args):
-        try:
-            maxparagraphs = int(entry.intro.maxparagraphs)
-        except (AttributeError, KeyError, ValueError) as e:
-            try:
-                maxparagraphs = int(args[0])
-            except (ValueError, IndexError) as e:
-                if e.__class__.__name__ == 'ValueError':
-                    log.warn('Introduction: invalid maxparagraphs argument %r',
-                             args[0])
-                maxparagraphs = 1
+        options = helpers.union(Introduction.defaults, self.conf.fetch('intro_'))
 
         try:
-            return ''.join(Introducer(content, maxparagraphs, self.intro_link, self.path + entry.permalink).result)
+            options.update(entry.intro)
+        except AttributeError:
+            pass
+
+        try:
+            maxparagraphs = int(options.get('maxparagraphs') or args[0])
+        except (IndexError, ValueError) as ex:
+            if isinstance(ex, ValueError):
+                log.warn('Introduction: invalid maxparagraphs argument %r',
+                         options.get('maxparagraphs') or args[0])
+            maxparagraphs = 1
+
+        try:
+            return ''.join(Introducer(
+                content, maxparagraphs, self.env.path+entry.permalink, options).result)
         except HTMLParseError as e:
             log.warn('%s: %s in %s' % (e.__class__.__name__, e.msg,
                                        entry.filename))
