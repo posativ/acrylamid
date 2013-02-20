@@ -14,7 +14,7 @@ script:
 branches:
   only:
     - master
-    - develop
+    - /^feature\/.*$/
 notifications:
   irc:
     channels:
@@ -22,3 +22,4 @@ notifications:
     on_success: change
     on_failure: change
     template: "%{repository} (%{commit}) : %{message}, %{build_url}"
+    skip_join: true
