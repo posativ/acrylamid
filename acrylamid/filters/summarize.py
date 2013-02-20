@@ -72,7 +72,7 @@ class Summarizer(HTMLParser):
                 self.result.append(self.options['link'] % self.href)
 
     def handle_startendtag(self, tag, attrs):
-        if self.words < self.maxwords and tag not in self.options['ignored']:
+        if self.words < self.maxwords and tag not in self.options['ignore']:
             super(Summarizer, self).handle_startendtag(tag, attrs)
 
     def handle_entityref(self, entity):
@@ -97,7 +97,7 @@ class Summarize(Filter):
 
     defaults = {
         'mode': 1,
-        'ignored': ['img', 'video', 'audio'],
+        'ignore': ['img', 'video', 'audio'],
         'link': '<span>&#8230;<a href="%s" class="continue">continue</a>.</span>'
     }
 

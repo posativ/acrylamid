@@ -45,7 +45,7 @@ class Introducer(HTMLParser):
                     self.result.append(self.options['link'] % self.href)
 
     def handle_startendtag(self, tag, attrs):
-        if self.paragraphs < self.maxparagraphs and tag not in self.options['ignored']:
+        if self.paragraphs < self.maxparagraphs and tag not in self.options['ignore']:
             super(Introducer, self).handle_startendtag(tag, attrs)
 
     def handle_entityref(self, name):
@@ -68,7 +68,7 @@ class Introduction(Filter):
     priority = 15.0
 
     defaults = {
-        'ignored': ['img', 'video', 'audio'],
+        'ignore': ['img', 'video', 'audio'],
         'link': '<span>&#8230;<a href="%s" class="continue">continue</a>.</span>'
     }
 
