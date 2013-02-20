@@ -20,10 +20,10 @@ from datetime import datetime, tzinfo, timedelta
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
-from acrylamid.utils import cached_property, Metadata, istext
+from acrylamid.utils import cached_property, Metadata, istext, rchop
 from acrylamid.core import cache
 from acrylamid.filters import FilterTree
-from acrylamid.helpers import safeslug, expand, hash, rchop
+from acrylamid.helpers import safeslug, expand, hash
 
 try:
     import yaml
