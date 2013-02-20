@@ -35,6 +35,18 @@ def rchop(original_string, substring):
     return original_string
 
 
+def lchop(string, prefix):
+    """Return the given string after chopping the prefix from the begin.
+
+    :param string: the original string
+    :oaram prefix: prefix to chop of
+    """
+
+    if string.startswith(prefix):
+        return string[len(prefix):]
+    return string
+
+
 class cached_property(object):
     """A property that is only computed once per instance and then replaces
     itself with an ordinary attribute. Deleting the attribute resets the
