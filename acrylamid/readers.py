@@ -147,6 +147,34 @@ class Timezone(tzinfo):
 
 
 class Reader(object):
+    """This class represents a single entry. Every property from this class is
+    available during templating including custom key-value pairs from the
+    header. The formal structure is first a YAML with some key/value pairs and
+    then the actual content. For example::
+
+        ---
+        title: My Title
+        date: 12.04.2012, 14:12
+        tags: [some, values]
+
+        custom: key example
+        image: /path/to/my/image.png
+        ---
+
+        Here we start!
+
+    Where you can access the image path via ``entry.image``.
+
+    For convenience Acrylamid maps "filter" and "tag" automatically to "filters"
+    and "tags" and also converts a single string into an array containing only
+    one string.
+
+    :param filename: valid path to an entry
+    :param conf: acrylamid configuration
+
+    .. attribute:: lang
+
+       Language used in this article. This is important for the hyphenation pattern."""
 
     __metaclass__ = abc.ABCMeta
 
@@ -376,34 +404,7 @@ class MetadataMixin(object):
 
 
 class ContentMixin(object):
-    """This class represents a single entry. Every property from this class is
-    available during templating including custom key-value pairs from the
-    header. The formal structure is first a YAML with some key/value pairs and
-    then the actual content. For example::
-
-        ---
-        title: My Title
-        date: 12.04.2012, 14:12
-        tags: [some, values]
-
-        custom: key example
-        image: /path/to/my/image.png
-        ---
-
-        Here we start!
-
-    Where you can access the image path via ``entry.image``.
-
-    For convenience Acrylamid maps "filter" and "tag" automatically to "filters"
-    and "tags" and also converts a single string into an array containing only
-    one string.
-
-    :param filename: valid path to an entry
-    :param conf: acrylamid configuration
-
-    .. attribute:: lang
-
-       Language used in this article. This is important for the hyphenation pattern."""
+    """Lazy evaluation and content caching + filtering."""
 
     @property
     def content(self):
