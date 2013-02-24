@@ -101,6 +101,10 @@ class Summarize(Filter):
         'link': '<span>&#8230;<a href="%s" class="continue">continue</a>.</span>'
     }
 
+    @property
+    def uses(self):
+        return self.env.path
+
     def transform(self, content, entry, *args):
         options = helpers.union(Summarize.defaults, self.conf.fetch('summarize_'))
 

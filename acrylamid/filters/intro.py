@@ -72,6 +72,10 @@ class Introduction(Filter):
         'link': '<span>&#8230;<a href="%s" class="continue">continue</a>.</span>'
     }
 
+    @property
+    def uses(self):
+        return self.env.path
+
     def transform(self, content, entry, *args):
         options = helpers.union(Introduction.defaults, self.conf.fetch('intro_'))
 
