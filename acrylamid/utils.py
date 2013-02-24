@@ -24,6 +24,29 @@ def hash(*objs, **kw):
     return reduce(xor, map(lambda o: pyhash(attr(o)), objs), 0)
 
 
+def rchop(original_string, substring):
+    """Return the given string after chopping of a substring from the end.
+
+    :param original_string: the original string
+    :param substring: the substring to chop from the end
+    """
+    if original_string.endswith(substring):
+        return original_string[:-len(substring)]
+    return original_string
+
+
+def lchop(string, prefix):
+    """Return the given string after chopping the prefix from the begin.
+
+    :param string: the original string
+    :oaram prefix: prefix to chop of
+    """
+
+    if string.startswith(prefix):
+        return string[len(prefix):]
+    return string
+
+
 class cached_property(object):
     """A property that is only computed once per instance and then replaces
     itself with an ordinary attribute. Deleting the attribute resets the

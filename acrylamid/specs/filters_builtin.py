@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from acrylamid import log, utils
+from acrylamid import log, utils, core
 from acrylamid.filters import initialize, get_filters
 
 import attest
@@ -9,7 +9,7 @@ tt = attest.Tests()
 
 log.init('foo', 35)
 
-conf = {'lang': 'en', 'theme': ''}
+conf = core.Configuration({'lang': 'en', 'theme': ''})
 env = utils.Struct({'path': '', 'engine': None, 'options': type('X', (), {'ignore': False})})
 initialize([], conf, env)
 

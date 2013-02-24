@@ -22,7 +22,7 @@ from acrylamid import log, PY3, __file__ as PATH
 from acrylamid.errors import AcrylamidException
 
 from acrylamid.core import cache
-from acrylamid.utils import batch, hash, Struct
+from acrylamid.utils import batch, hash, rchop
 
 try:
     import translitcodec
@@ -61,12 +61,12 @@ def memoize(key, value=None):
     return cache.memoize(key, value)
 
 
-def union(*args, **kwargs):
+def union(first, *args, **kwargs):
     """Takes a list of dictionaries and performs union of each.  Can take additional
     key=values as parameters to overwrite or add key/value-pairs. No side-effects,"""
 
-    new = Struct()
-    map(new.update, itertools.chain(args, [kwargs]))
+    new = first.__class__()
+    map(new.update, itertools.chain([first], args, [kwargs]))
 
     return new
 
@@ -385,17 +385,6 @@ class event:
 
     def remove(self, path):
         log.info("remove  %s", path)
-
-
-def rchop(original_string, substring):
-    """Return the given string after chopping of a substring from the end.
-
-    :param original_string: the original string
-    :param substring: the substring to chop from the end
-    """
-    if original_string.endswith(substring):
-        return original_string[:-len(substring)]
-    return original_string
 
 
 def discover(directories, index, filterfunc=lambda filename: True):

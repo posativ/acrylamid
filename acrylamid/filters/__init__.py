@@ -24,7 +24,7 @@ def get_filters():
     return __filter_list
 
 
-def index_filters(conf, env, module):
+def index_filters(module):
     """Goes through the modules' contents and indexes all classes derieved
     from Filter and have a `match` attribute.
 
@@ -67,7 +67,7 @@ def initialize(directories, conf, env):
 
     directories += [dirname(__file__)]
     helpers.discover(
-        directories, partial(index_filters, conf, env),
+        directories, index_filters,
         lambda path: not basename(path).startswith(('_', 'mdx_', 'rstx_'))
     )
 
@@ -115,7 +115,8 @@ class meta(type):
             return func
 
         init = dct.get('init', lambda s, x, y: None)
-        transform = lambda cls, x, y, *z: initialize(cls, dct.get('transform', bases[0].transform))(cls, x, y, *z)
+        transform = lambda cls, x, y, *z: initialize(
+            cls, dct.get('transform', bases[0].transform))(cls, x, y, *z)
 
         super(meta, cls).__init__(name, bases, dct)
         setattr(cls, 'init', init)
@@ -171,6 +172,16 @@ class Filter(object):
        'textile']``. It is sufficient that one filter provides conflicting
        filters.
 
+    .. property:: uses
+
+       Override this property to include configuration and/or environment
+       parameters. They are used to determine whether a cache object is still
+       valid or not.
+
+       You don't have to include configuration variables within the namespace
+       of the filter yourself, as ``conf.fetch(self.cname)`` is automatically
+       included into the filter hash.
+
     .. method:: init(self, conf, env)
 
        At demand initialization. A filter gets only initialized when he's
@@ -210,22 +221,27 @@ class Filter(object):
         self.conf = conf
         self.env = env
 
+        self.cname = self.__class__.__name__.lower()  # common name
         self.name = fname
         self.args = args
 
         # precalculate __hash__ because we need it quite often in tree
-        self.hv = helpers.hash(self.__class__.__name__, tuple(self.args),
-                               self.version, self.priority)
+        self.hv = helpers.hash(
+            self.cname, tuple(self.args), self.version, self.priority,
+            helpers.hash(self.uses), helpers.hash(self.conf.fetch(self.cname + '_')))
 
     def __repr__(self):
-        return "<%s@%s %2.f:%s>" % (self.__class__.__name__, self.version,
-                                    self.priority, self.name)
+        return "<%s@%s %2.f:%s>" % (self.cname, self.version, self.priority, self.name)
 
     def __hash__(self):
         return self.hv
 
     def __eq__(self, other):
         return True if hash(other) == hash(self) else False
+
+    @property
+    def uses(self):
+        return ''
 
 
 def disable(fx):
