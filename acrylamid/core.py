@@ -266,7 +266,8 @@ class Configuration(Environment):
     blacklist = set(['if', 'hooks'])
 
     def fetch(self, ns):
-        return dict((lchop(k, ns), v) for k, v in self.iteritems() if k.startswith(ns))
+        return Configuration((lchop(k, ns), v)
+            for k, v in self.iteritems() if k.startswith(ns))
 
     def values(self):
         for key in self.keys():
