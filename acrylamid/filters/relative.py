@@ -59,7 +59,7 @@ class Relative(Filter):
 class Absolute(Filter):
 
     match = ['absolute']
-    version = 1
+    version = 2
     priority = 15.0
 
     def init(self, conf, env):
@@ -71,12 +71,13 @@ class Absolute(Filter):
         def absolutify(part):
 
             if part.startswith('/'):
-                return joinurl(self.www_root, part)
+
+                return self.conf.www_root + part
 
             if part.find('://') == part.find('/') - 1:
                 return part
 
-            return joinurl(self.www_root, entry.permalink, part)
+            return self.conf.www_root + joinurl(entry.permalink, part)
 
         try:
             return ''.join(Href(text, absolutify).result)
