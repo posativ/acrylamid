@@ -96,7 +96,7 @@ class Template(HTML):
     from all theme files inside the theme directory."""
 
     def __init__(self, conf, env):
-        map(env.engine.extend, conf['static'])
+        env.engine.extend(conf['static'])
         super(Template, self).__init__(conf, env)
 
     def generate(self, src, dest):
@@ -214,8 +214,7 @@ def compile(conf, env):
     for path, directory in relfilelist(conf['theme'], conf['theme_ignore'], env.engine.templates):
         files[(splitext(path)[1], directory)].add(path)
 
-    for prefix in conf['static']:
-        for path, directory in relfilelist(prefix, conf['static_ignore']):
-            files[(splitext(path)[1], directory)].add(path)
+    for path, directory in relfilelist(conf['static'], conf['static_ignore']):
+        files[(splitext(path)[1], directory)].add(path)
 
     map(partial(worker, conf, env), files.iteritems())

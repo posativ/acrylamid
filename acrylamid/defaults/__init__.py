@@ -5,6 +5,8 @@ from __future__ import unicode_literals
 import io
 from os.path import join, dirname
 
+from acrylamid import log
+
 copy = lambda path: io.open(join(dirname(__file__), path), 'rb')
 
 conf = {
@@ -43,7 +45,7 @@ conf = {
     'theme': 'layouts/',
     'theme_ignore': ['.git*', '.hg*', '.svn'],
 
-    'static': [],
+    'static': None,
     'static_ignore': ['.git*', '.hg*', '.svn'],
     'static_filter': ['Template', 'XML'],
 
@@ -53,11 +55,16 @@ conf = {
 
 def normalize(conf):
 
-    for key in 'content_dir', 'theme', 'output_dir':
-        if not conf[key].endswith('/'):
+    if isinstance(conf['static'], list):
+        conf['static'] = conf['static'][0]
+        log.warn("multiple static directories has been deprecated, " + \
+                 "Acrylamid continues with '%s'.", conf['static'])
+
+    for key in 'content_dir', 'theme', 'static', 'output_dir':
+        if conf[key] is not None and not conf[key].endswith('/'):
             conf[key] += '/'
 
-    for key in 'static', 'views_dir', 'filters_dir':
+    for key in 'views_dir', 'filters_dir':
         if isinstance(conf[key], basestring):
             conf[key] = [conf[key], ]
 

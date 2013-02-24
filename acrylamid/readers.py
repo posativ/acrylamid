@@ -100,7 +100,11 @@ def ignored(cwd, path, patterns, directory):
 
 def filelist(directory, patterns=[]):
     """Gathers all files in directory but excludes file by patterns. Note, that
-    this generator won't raise any (IOError, OSError)."""
+    this generator won't raise any (IOError, OSError).  If directory is `None`
+    yield nothing."""
+
+    if directory is None:
+        raise StopIteration
 
     for root, dirs, files in os.walk(directory):
         for path in files:
