@@ -281,5 +281,7 @@ class Configuration(Environment):
                 yield HashableList(self[key])
             elif isinstance(self[key], dict):
                 yield Configuration(self[key])
+            elif isinstance(self[key], types.NoneType):
+                yield -1
             else:
                 yield self[key]
