@@ -3,12 +3,13 @@
 import re
 import attest
 
+from acrylamid.core import Configuration
 from acrylamid.filters import FilterList, FilterTree
 from acrylamid.filters import Filter, disable
 
 
 def build(name, **kw):
-    return type(name, (Filter, ), kw)({}, {}, name)
+    return type(name, (Filter, ), kw)(Configuration({}), {}, name)
 
 
 class TestFilterlist(attest.TestBase):

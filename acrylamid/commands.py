@@ -153,8 +153,7 @@ def compile(conf, env):
     # here we store all found filter and their aliases
     ns = defaultdict(set)
 
-    # get available filter list, something like with obj.get-function
-    # list = [<class head_offset.Headoffset at 0x1014882c0>, <class html.HTML at 0x101488328>,...]
+    # [<class head_offset.Headoffset at 0x1014882c0>, <class html.HTML at 0x101488328>,...]
     aflist = filters.get_filters()
 
     # ... and get all configured views
@@ -180,6 +179,9 @@ def compile(conf, env):
                 raise AcrylamidException('no such filter: %s' % val)
 
         ns[fx].add(val)
+
+    # include actual used filters to trigger modified state
+    env.filters = HashableList(ns.keys())
 
     for entry in chain(entrylist, pages, drafts):
         for v in _views:

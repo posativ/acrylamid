@@ -10,6 +10,7 @@
 # This is a port of PyBlosxom's acronyms plugin as acrylamid
 # filter. All credits go to Pyblosxom's and blosxom's authors.
 
+import os
 import io
 import re
 
@@ -42,6 +43,13 @@ class Acronyms(Filter):
 
     # after Typography, so CAPS is around ABBR
     priority = 20.0
+
+    @property
+    def uses(self):
+        try:
+            return os.path.getmtime(self.conf['acronyms_file'])
+        except KeyError:
+            return ACRONYMS
 
     def init(self, conf, env):
 

@@ -1,9 +1,26 @@
 # Acrylamid Changelog
 
+Version 0.7
+-----------
+
+Not released – TBD
+
+### What's new?
+
+- filter configuration is now part of its internal hash and will mark the
+  cache object as invalid to force recompilation. Appendum to #118.
+- #124 – summarize and intro filter ignore img, audio & video tags by default
+
+### What changes?
+
+
+### What has been fixed?
+
+
 Version 0.6
 -----------
 
-Released onf February, 12th, 2013 – Almost stable.
+Released on February, 12th, 2013 – Almost stable.
 
 ### What's new?
 
