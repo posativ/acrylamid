@@ -20,7 +20,7 @@ from datetime import datetime, tzinfo, timedelta
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
-from acrylamid.utils import cached_property, Metadata, istext
+from acrylamid.utils import cached_property, Metadata, istext, force_unicode as u
 from acrylamid.core import cache
 from acrylamid.filters import FilterTree
 from acrylamid.helpers import safeslug, expand, hash, rchop
@@ -124,9 +124,7 @@ class Date(datetime):
     """A :class:`datetime.datetime` object that returns unicode on ``strftime``."""
 
     def strftime(self, fmt):
-        if sys.version_info < (3, 0):
-            return u"" + datetime.strftime(self, fmt).decode(locale.getlocale()[1] or 'utf-8')
-        return datetime.strftime(self, fmt)
+        return u(datetime.strftime(self, fmt))
 
 
 class Timezone(tzinfo):

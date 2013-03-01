@@ -12,6 +12,7 @@ import sys
 import os
 import io
 import re
+import locale
 import functools
 import itertools
 
@@ -22,6 +23,17 @@ def hash(*objs, **kw):
     attr = kw.get('attr', lambda o: o)
 
     return reduce(xor, map(lambda o: pyhash(attr(o)), objs), 0)
+
+
+def force_unicode(string):  # This function can be removed with Python 3
+
+    if isinstance(string, unicode):
+        return string
+
+    try:
+        return string.decode('utf-8')
+    except UnicodeDecodeError:
+        return string.decode(locale.getpreferredencoding())
 
 
 class cached_property(object):
