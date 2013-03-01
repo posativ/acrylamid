@@ -55,10 +55,22 @@ conf = {
 
 def normalize(conf):
 
+    # deprecated since 0.8
     if isinstance(conf['static'], list):
         conf['static'] = conf['static'][0]
         log.warn("multiple static directories has been deprecated, " + \
                  "Acrylamid continues with '%s'.", conf['static'])
+
+    # deprecated since 0.8
+    for fx in 'Jinja2', 'Mako':
+        try:
+            conf['static_filter'].remove(fx)
+        except ValueError:
+            pass
+        else:
+            log.warn("%s asset filter has been renamed to `Template` and is "
+                     "included by default.", fx)
+
 
     for key in 'content_dir', 'theme', 'static', 'output_dir':
         if conf[key] is not None and not conf[key].endswith('/'):
