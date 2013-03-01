@@ -12,6 +12,7 @@ import sys
 import os
 import io
 import re
+import locale
 import functools
 import itertools
 
@@ -45,6 +46,17 @@ def lchop(string, prefix):
     if string.startswith(prefix):
         return string[len(prefix):]
     return string
+
+
+def force_unicode(string):  # This function can be removed with Python 3
+
+    if isinstance(string, unicode):
+        return string
+
+    try:
+        return string.decode('utf-8')
+    except UnicodeDecodeError:
+        return string.decode(locale.getpreferredencoding())
 
 
 class cached_property(object):

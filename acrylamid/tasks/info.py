@@ -14,7 +14,7 @@ from itertools import izip_longest as izip
 
 from acrylamid import readers, commands
 from acrylamid.core import cache
-from acrylamid.utils import batch
+from acrylamid.utils import batch, force_unicode as u
 from acrylamid.tasks import task, argument
 from acrylamid.colors import white, blue, green, normal
 from acrylamid.views.tag import fetch
@@ -91,7 +91,7 @@ def do_summary(conf, env, options):
     print '%s drafted articles' % blue(len([e for e in entrylist if e.draft]))
 
     time = localtime(getmtime(join(conf.get('cache_dir', '.cache/'), 'info')))
-    print 'last compilation at %s' % blue(strftime('%d. %B %Y, %H:%M', time))
+    print 'last compilation at %s' % blue(u(strftime(u'%d. %B %Y, %H:%M', time)))
 
 
 # This function was written by Alex Martelli

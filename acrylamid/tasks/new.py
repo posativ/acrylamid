@@ -1,3 +1,7 @@
+# -*- encoding: utf-8 -*-
+#
+# Copyright 2013 Martin Zimmermann <info@posativ.org>. All rights reserved.
+# License: BSD Style, 2 clauses -- see LICENSE.
 
 import sys
 import io
@@ -9,10 +13,11 @@ import shutil
 from os.path import join, dirname, isfile
 from datetime import datetime
 
-from acrylamid import PY3, log, readers, commands
+from acrylamid import PY3, log, readers, commands, utils
 from acrylamid.errors import AcrylamidException
 
 from acrylamid.tasks import task, argument
+from acrylamid.utils import force_unicode as u
 from acrylamid.helpers import safe, event
 
 yaml, rst, md = \
@@ -39,12 +44,9 @@ def run(conf, env, options):
     tt = formats.get((conf.get('metastyle') == 'native', ext), yaml)
 
     if options.title:
-        title = ' '.join(options.title)
+        title = u(' '.join(options.title))
     else:
-        title = raw_input("Entry's title: ")
-
-    if not PY3:
-        title = title.decode('utf-8')
+        title = u(raw_input("Entry's title: "))
 
     with io.open(fd, 'w') as f:
         f.write(tt(title, datetime.now().strftime(conf['date_format'])))
