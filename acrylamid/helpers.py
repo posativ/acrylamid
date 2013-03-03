@@ -95,14 +95,14 @@ def mkfile(fileobj, path, ctime=0.0, ns=None, force=False, dryrun=False):
     mode = "t" if isinstance(fileobj, io.TextIOBase) else "b"
 
     if isfile(path):
-        with io.open(path, 'r' + mode) as other:
+        with io.open(path, 'rb') as other:
             if identical(fileobj, other):
                 return event.identical(ns, path)
         if not dryrun:
             if hasattr(fileobj, 'name'):
                 shutil.copy(fileobj.name, path)
             else:
-                with io.open(path, 'w' + mode) as fp:
+                with io.open(path, 'w' + mode, encoding='utf-8') as fp:
                     fp.write(fileobj.read())
         event.update(ns, path, ctime)
     else:
@@ -112,7 +112,7 @@ def mkfile(fileobj, path, ctime=0.0, ns=None, force=False, dryrun=False):
             if hasattr(fileobj, 'name'):
                 shutil.copy(fileobj.name, path)
             else:
-                with io.open(path, 'w' + mode) as fp:
+                with io.open(path, 'w' + mode, encoding='utf-8') as fp:
                     fp.write(fileobj.read())
         event.create(ns, path, ctime)
 
