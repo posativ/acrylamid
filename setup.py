@@ -54,7 +54,7 @@ setup(
                  'textile', 'unidecode', 'PyYAML', 'twitter', 'discount'],
         'mako': ['mako'],
     },
-    tests_require=['Attest', 'cram', 'docutils'],
+    tests_require=['Attest-latest', 'cram', 'docutils'],
     test_loader='attest:auto_reporter.test_loader',
     test_suite='acrylamid.specs.testsuite',
     entry_points={
