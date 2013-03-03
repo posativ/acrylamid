@@ -7,7 +7,7 @@ from os.path import join, dirname
 from setuptools import setup, find_packages
 
 version = re.search("__version__ = '([^']+)'",
-                    open(r'acrylamid/__init__.py').read()).group(1)
+                    open('acrylamid/__init__.py').read()).group(1)
 
 requires = ['Jinja2>=2.4', 'Markdown>=2.0.1']
 kw = {}
