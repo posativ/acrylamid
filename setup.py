@@ -6,8 +6,9 @@ import re
 from os.path import join, dirname
 from setuptools import setup, find_packages
 
-version = re.search("__version__ = '([^']+)'",
-                    open('acrylamid/__init__.py').read()).group(1)
+#version = re.search("__version__ = '([^']+)'",
+#                    open(r'acrylamid/__init__.py').read()).group(1)
+version = '0.6.2'
 
 requires = ['Jinja2>=2.4', 'Markdown>=2.0.1']
 kw = {}
@@ -54,7 +55,7 @@ setup(
                  'textile', 'unidecode', 'PyYAML', 'twitter', 'discount'],
         'mako': ['mako'],
     },
-    test_require=['Attest', 'cram', 'docutils'],
+    tests_require=['Attest', 'cram', 'docutils'],
     test_loader='attest:auto_reporter.test_loader',
     test_suite='acrylamid.specs.testsuite',
     entry_points={
