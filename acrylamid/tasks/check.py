@@ -103,7 +103,7 @@ def validate(paths, jobs):
     # -- validation
     for path in paths:
 
-        with io.open(path, 'r') as fp:
+        with io.open(path, 'r', encoding='utf-8') as fp:
             data = fp.read()
 
         for match in ahref.finditer(data):

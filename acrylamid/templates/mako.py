@@ -58,7 +58,7 @@ class ExtendedLookup(TemplateLookup):
                 self.resolved[uri] = True
                 return True
 
-            with io.open(filename) as fp:
+            with io.open(filename, encoding='utf-8') as fp:
                 source = fp.read()
 
             for match in self.inherits.finditer(source):

@@ -66,7 +66,7 @@ class Jinja2(Filter):
         if not (isfile(path) and hasattr(self.env.engine, 'jinja2')):
             return ''
 
-        with io.open(path) as fp:
+        with io.open(path, encoding='utf-8') as fp:
             text = fp.read()
 
         return "{%% from 'macros.html' import %s with context %%}\n" % ', '.join(
