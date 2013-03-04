@@ -315,7 +315,7 @@ def build(conf, env, defaults, items, options):
         global USED_WORDPRESS
         fd, tmp = tempfile.mkstemp(suffix='.txt')
 
-        with io.open(fd, 'w') as f:
+        with io.open(fd, 'w', encoding='utf-8') as f:
             f.write(u'---\n')
             f.write(u'title: %s\n' % safe(item['title']))
             if item.get('author') != defaults.get('author'):

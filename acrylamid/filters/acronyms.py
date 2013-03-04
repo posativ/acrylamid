@@ -46,7 +46,7 @@ class Acronyms(Filter):
     def init(self, conf, env):
 
         if conf.get('acronyms_file', None):
-            with io.open(conf['acronyms_file'], 'r') as fp:
+            with io.open(conf['acronyms_file'], 'r', encoding='utf-8') as fp:
                 data = fp.readlines()
         else:
             global ACRONYMS

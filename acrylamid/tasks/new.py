@@ -48,7 +48,7 @@ def run(conf, env, options):
     else:
         title = u(raw_input("Entry's title: "))
 
-    with io.open(fd, 'w') as f:
+    with io.open(fd, 'w', encoding='utf-8') as f:
         f.write(tt(title, datetime.now().strftime(conf['date_format'])))
 
     entry = readers.Entry(tmp, conf)

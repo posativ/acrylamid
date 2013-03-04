@@ -19,7 +19,7 @@ from acrylamid.helpers import memoize
 def changesfor(version):
     """return CHANGES for `version` and whether it *breaks*."""
 
-    with io.open(join(dirname(PATH), 'CHANGES.md')) as fp:
+    with io.open(join(dirname(PATH), 'CHANGES.md'), encoding='utf-8') as fp:
 
         rv = []
         section, paragraph, safe = False, False, True
