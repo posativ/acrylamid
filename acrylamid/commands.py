@@ -21,7 +21,7 @@ from acrylamid.errors import AcrylamidException
 from acrylamid import readers, filters, views, assets, refs, hooks, helpers, __version__
 from acrylamid.lib import lazy, history
 from acrylamid.core import cache, load
-from acrylamid.utils import hash, istext, HashableList, import_object
+from acrylamid.utils import hash, istext, HashableList, import_object, total_seconds
 from acrylamid.helpers import event
 
 
@@ -85,8 +85,7 @@ def initialize(conf, env):
 
     # figure out timezone and set offset, more verbose for 2.6 compatibility
     td = (datetime.now() - datetime.utcnow())
-    total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
-    offset = round(total_seconds / 3600.0)
+    offset = round(total_seconds(td) / 3600.0)
     conf['tzinfo'] = readers.Timezone(offset)
 
     # determine http(s), host and path

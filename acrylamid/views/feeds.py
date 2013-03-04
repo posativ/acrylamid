@@ -6,9 +6,12 @@
 from os.path import isfile
 from datetime import datetime, timedelta
 
-from acrylamid.utils import HashableList
+from acrylamid.utils import HashableList, total_seconds
 from acrylamid.views import View, tag
 from acrylamid.helpers import joinurl, event, expand, union
+from acrylamid.readers import Timezone
+
+epoch = datetime.utcfromtimestamp(0).replace(tzinfo=Timezone(0))
 
 
 def utc(dt, fmt='%Y-%m-%dT%H:%M:%SZ'):
@@ -107,7 +110,7 @@ class RSS(Feed):
 
         self.num_entries = num_entries
         env.engine.register(
-            'rfc822', lambda x: unicode(format_date_time(mktime(x.timetuple()))))
+            'rfc822', lambda dt: format_date_time(total_seconds(dt - epoch)))
         self.type = 'rss'
 
 
@@ -130,5 +133,5 @@ class RssPerTag(FeedPerTag):
 
         self.num_entries = num_entries
         env.engine.register(
-            'rfc822', lambda x: format_date_time(mktime(x.timetuple())))
+            'rfc822', lambda dt: format_date_time(total_seconds(dt - epoch)))
         self.type = 'rss'
