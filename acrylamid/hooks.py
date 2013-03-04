@@ -49,7 +49,7 @@ def run(cmd, ns, src, dest=None):
 
     if dest is None:
         fd, path = mkstemp()
-        with io.open(fd, 'w') as fp:
+        with io.open(fd, 'w', encoding='utf-8') as fp:
             fp.write(rv)
         shutil.move(path, src)
         log.info('update  %s', src)

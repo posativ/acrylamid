@@ -103,7 +103,7 @@ class Search(View):
                   joinurl(conf['output_dir'], self.path, 'src', '%i.txt' % i)
 
         # CST algorithm with `meta` data
-        with io.open(join(dirname(__file__), 'search.js')) as fp:
+        with io.open(join(dirname(__file__), 'search.js'), encoding='utf-8') as fp:
             javascript = fp.read()
 
         fp = io.StringIO((javascript
