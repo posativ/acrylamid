@@ -113,9 +113,6 @@ class Jinja2(HTML):
 
         return self.jinja2.fromfile(src).render(env=self.env, conf=self.conf)
 
-    def shutdown(self):
-        shutil.rmtree(self.path)
-
 
 class System(Writer):
 
@@ -205,8 +202,6 @@ def worker(conf, env, args):
     for path in writer.filter(items, directory):
         src, dest = join(directory, path), join(conf['output_dir'], path)
         writer.write(src, dest, force=env.options.force, dryrun=env.options.dryrun)
-
-    writer.shutdown()
 
 
 def compile(conf, env):
