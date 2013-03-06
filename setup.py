@@ -22,6 +22,9 @@ else:
 if sys.version_info < (2, 7):
     requires.append('argparse')
 
+if sys.platform == 'win32':
+    requires.append('colorama')
+
 setup(
     name='acrylamid',
     version=version,

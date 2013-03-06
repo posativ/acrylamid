@@ -5,6 +5,10 @@
 
 import sys
 
+if sys.platform == 'win32':
+    import colorama
+    colorama.init()
+
 
 class ANSIString(object):
 
