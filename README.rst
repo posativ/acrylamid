@@ -142,13 +142,13 @@ Real World Examples?
 ~~~~~~~~~~~~~~~~~~~~
 
 - `Practicing web development <http://www.vlent.nl/>`_ – Mark van Lent
-  [`source <https://github.com/markvl/www.vlent.nl>`_]
+  [`source <https://github.com/markvl/www.vlent.nl>`__]
 - `mecker. mecker. mecker. <http://blog.posativ.org/>`_ – Martin Zimmermann
-  [`source <https://github.com/posativ/blog.posativ.org/>`_]
+  [`source <https://github.com/posativ/blog.posativ.org/>`__]
 - `Groovematic <http://groovematic.com/>`_ –  Isman Firmansyah
-  [`source <https://github.com/iromli/groovematic>`_]
+  [`source <https://github.com/iromli/groovematic>`__]
 - `Christoph Polcin <http://www.christoph-polcin.com/>`_ – Christoph Polcin
-  [`source <http://git.christoph-polcin.com/blog/>`_, `theme <http://git.christoph-polcin.com/acrylamid-theme-bipolar/>`_]
+  [`source <http://git.christoph-polcin.com/blog/>`__, `theme <http://git.christoph-polcin.com/acrylamid-theme-bipolar/>`__]
 
 Commands
 --------
