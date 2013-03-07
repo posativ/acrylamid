@@ -66,7 +66,7 @@ characters.
 Windows
 *******
 
-Not supported.
+Works, but remains uncovered by the developer and test suite.
 
 Python 3
 ********
