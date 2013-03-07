@@ -220,7 +220,7 @@ def compile(conf, env):
                 helpers.mkfile(buf, path, time.time()-tt, ns=v.name,
                     force=env.options.force, dryrun=env.options.dryrun)
             except UnicodeError:
-                log.fatal(path)
+                log.exception(path)
             finally:
                 buf.close()
             tt = time.time()
