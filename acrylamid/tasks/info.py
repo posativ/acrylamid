@@ -9,7 +9,7 @@ import argparse
 
 from math import ceil
 from time import localtime, strftime
-from os.path import join, getmtime
+from os.path import join, getmtime, isfile
 from itertools import izip_longest as izip
 
 from acrylamid import readers, commands
@@ -89,6 +89,9 @@ def do_summary(conf, env, options):
     print
     print '%s published,' % blue(len([e for e in entrylist if not e.draft])),
     print '%s drafted articles' % blue(len([e for e in entrylist if e.draft]))
+
+    if not isfile(join(conf.get('cache_dir', '.cache/'), 'info')):
+        return
 
     time = localtime(getmtime(join(conf.get('cache_dir', '.cache/'), 'info')))
     print 'last compilation at %s' % blue(u(strftime(u'%d. %B %Y, %H:%M', time)))

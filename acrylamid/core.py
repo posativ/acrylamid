@@ -213,7 +213,10 @@ class cache(object):
     @classmethod
     def size(self):
         """return size of all cacheobjects in bytes"""
-        res = getsize(join(self.cache_dir, 'info'))
+        try:
+            res = getsize(join(self.cache_dir, 'info'))
+        except OSError:
+            res = 0
         for (path, dirs, files) in os.walk(self.cache_dir):
             for file in files:
                 filename = os.path.join(path, file)
