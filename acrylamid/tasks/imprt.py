@@ -252,7 +252,6 @@ def wordpress(xml):
         raise InputError('no well-formed XML')
 
     # wordpress name spaces
-    wpns = '{http://wordpress.org/export/1.1/}'
     dcns = '{http://purl.org/dc/elements/1.1/}'
     cons = '{http://purl.org/rss/1.0/modules/content/}'
 
@@ -261,7 +260,9 @@ def wordpress(xml):
         'www_root': tree.find('channel/link').text
     }
 
-    return defaults, map(generate, tree.findall('channel/item'))
+    for version in range(1, 10):
+        wpns = '{http://wordpress.org/export/1.%i/}' % version
+        return defaults, map(generate, tree.findall('channel/item'))
 
 
 def fetch(url, auth=None):
