@@ -419,13 +419,13 @@ def discover(directories, index, filterfunc=lambda filename: True):
                         yield join(root, fname)
 
     for filename in find(directories, filterfunc):
-        modname, ext = os.path.splitext(os.path.basename(rchop(filename, '/__init__.py')))
+        modname, ext = os.path.splitext(os.path.basename(rchop(filename, os.sep + '__init__.py')))
         fp, path, descr = imp.find_module(modname, directories)
 
         prefix = commonprefix((PATH, filename))
         if prefix:
             modname = 'acrylamid.'
-            modname += rchop(filename[len(prefix):].replace('/', '.'), '.py')
+            modname += rchop(filename[len(prefix):].replace(os.sep, '.'), '.py')
 
         try:
             mod = sys.modules[modname]
