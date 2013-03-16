@@ -91,6 +91,14 @@ def quotes():
 
 
 @tt.test
+def backslash():
+
+    assert distinguish('\\_bar') == '_bar'
+    assert distinguish('foo\\_') == 'foo_'
+    assert distinguish('foo\\\\bar') == 'foo\\bar'
+
+
+@tt.test
 def ignore():
 
     assert ignored('/path/', 'foo', ['foo', 'fo*', '/foo'], '/path/')

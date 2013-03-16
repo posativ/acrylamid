@@ -463,14 +463,15 @@ class Entry(ContentMixin, MetadataMixin, FileReader):
 def unsafe(string):
     """Try to remove YAML string escape characters safely from `string`.
 
-    ---
-    title: "AttributeError: queryMethodId" when creating an object
-    ---
+    Title: "AttributeError: get\_id" when creating an object
 
-    should retain the quotations around AttributeError."""
+    Should retain the quotations around AttributeError. Single backslashes
+    are removed if not preceded by another backslash."""
 
     if len(string) < 2:
         return string
+
+    string = re.sub(r'\\\\', r'\\', re.sub(r'([^\\]|^)\\([^\\])', r'\1\2', string))
 
     for char in "'", '"':
         if string == 2*char:
