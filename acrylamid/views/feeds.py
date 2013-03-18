@@ -110,7 +110,7 @@ class RSS(Feed):
 
         self.num_entries = num_entries
         env.engine.register(
-            'rfc822', lambda dt: format_date_time(total_seconds(dt - epoch)))
+            'rfc822', lambda dt: unicode(format_date_time(total_seconds(dt - epoch))))
         self.type = 'rss'
 
 
@@ -133,5 +133,5 @@ class RssPerTag(FeedPerTag):
 
         self.num_entries = num_entries
         env.engine.register(
-            'rfc822', lambda dt: format_date_time(total_seconds(dt - epoch)))
+            'rfc822', lambda dt: unicode(format_date_time(total_seconds(dt - epoch))))
         self.type = 'rss'
