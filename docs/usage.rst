@@ -69,6 +69,11 @@ date : String
     A date in the format your specified in your :doc:`conf.py` and several
     fallbacks you'll find here: `pelican/utils.py:21 <https://github.com/getpelican/pelican/blob/master/pelican/utils.py#L56>`_.
 
+    Acrylamid supports date time objects beginning from 01.01.1900, but keep in
+    mind that datetimes before 1990 are not supported by python's datetime API
+    and the exact beginning may vary. I live in UTC+1 and can't use the
+    1.1.1990 because it is actually 1899-12-31 at 23:00.
+
 author : String
     Overwrites author in :doc:`conf.py`.
 
