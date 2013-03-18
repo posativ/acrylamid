@@ -9,7 +9,7 @@ https://github.com/posativ/acrylamid/.
 |Build Status|_
 
 .. _Build Status: http://travis-ci.org/posativ/acrylamid
-.. |Build Status| image:: https://secure.travis-ci.org/posativ/acrylamid.png?branch=master
+.. |Build Status| image:: https://secure.travis-ci.org/posativ/acrylamid.png?branch=legacy/0.7
 
 
 Why?
