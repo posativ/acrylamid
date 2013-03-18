@@ -19,7 +19,7 @@ from acrylamid.helpers import memoize
 def changesfor(version):
     """return CHANGES for `version` and whether it *breaks*."""
 
-    with io.open(join(dirname(PATH), 'CHANGES.md'), encoding='utf-8') as fp:
+    with io.open(join(dirname(PATH), 'CHANGES'), encoding='utf-8') as fp:
 
         rv = []
         section, paragraph, safe = False, False, True
@@ -29,7 +29,7 @@ def changesfor(version):
             if not line:
                 continue
 
-            m = re.match('^version (\d\.\d)$', line, re.IGNORECASE)
+            m = re.match(r'^(\d\.\d) \(\d{4}-\d{2}-\d{2}\)$', line)
 
             if m:
                 section = m.group(1) == version
@@ -62,19 +62,22 @@ def breaks(env, firstrun):
     if version >= (env.version.major, env.version.minor):
         return False
 
-    memoize('version', (env.version.major, env.version.minor, env.version.patch))
+    memoize('version', (env.version.major, env.version.minor))
 
     if firstrun:
         return False
 
     broken = False
-    print
 
     for major in range(version[0], env.version.major or 1):
         for minor in range(version[1], env.version.minor):
             rv, hints = changesfor('%i.%i' % (major, minor + 1))
             broken = broken or rv
 
+            if not hints:
+                continue
+
+            print
             print (blue('Acrylamid') + ' %i.%s' % (major, minor+1) + u' – changes').encode('utf-8'),
 
             if broken:

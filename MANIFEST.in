@@ -4,7 +4,7 @@ recursive-exclude acrylamid *.pyc
 recursive-include acrylamid/filters/hyph *.txt
 recursive-include acrylamid/defaults *
 
-include acrylamid/lib/CHANGES.md
+include acrylamid/lib/CHANGES
 include acrylamid/views/search/search.js
 
 include acrylamid/specs/samples/blog.posativ.org.xml

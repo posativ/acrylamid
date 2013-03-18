@@ -2,6 +2,9 @@
 Attest-latest==0.6dev-20121124
 cram==0.5
 
+# releasing
+zest.releaser
+
 # requirements
 Jinja2==2.6
 Markdown==2.2.1

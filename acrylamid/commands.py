@@ -15,10 +15,12 @@ from itertools import chain
 from collections import defaultdict
 from os.path import getmtime
 
+from distutils.version import LooseVersion
+
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
-from acrylamid import readers, filters, views, assets, refs, hooks, helpers, __version__
+from acrylamid import readers, filters, views, assets, refs, hooks, helpers, dist
 from acrylamid.lib import lazy, history
 from acrylamid.core import cache, load
 from acrylamid.utils import hash, istext, HashableList, import_object, total_seconds
@@ -34,8 +36,7 @@ def initialize(conf, env):
     cache.init(conf.get('cache_dir'))
 
     env['version'] = type('Version', (str, ), dict(zip(
-        ['major', 'minor', 'patch'], (int(x) for x in __version__.split('.'))
-    )))(__version__)
+        ['major', 'minor'], LooseVersion(dist.version).version[:2])))(dist.version)
 
     # crawl through CHANGES.md and stop on breaking changes
     if history.breaks(env, cache.emptyrun):

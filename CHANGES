@@ -1,9 +1,8 @@
-# Acrylamid Changelog
+Changelog for Acrylamid
+=======================
 
-Version 0.7
------------
-
-Not released – TBD
+0.7 (unreleased)
+----------------
 
 ### What's new?
 
@@ -17,8 +16,8 @@ Not released – TBD
 ### What has been fixed?
 
 
-Version 0.6
------------
+0.6 (2013-02-12)
+----------------
 
 Released on February, 12th, 2013 – Almost stable.
 
@@ -66,8 +65,8 @@ Released on February, 12th, 2013 – Almost stable.
 - #103 – pass encoded values into `os.environ` to allow fancy unicode
   characters such as » or Aкриламид.
 
-Version 0.5
------------
+0.5 (2013-01-20)
+----------------
 
 Released on January, 20th 2013 – Winter Is Coming!
 
@@ -121,8 +120,8 @@ Released on January, 20th 2013 – Winter Is Coming!
 - #77 – missing items in sitemap view
 - #75 – dotfiles not copied from the static folder (Mark van Lent)
 
-Version 0.4
------------
+0.4 (2012-09-19)
+----------------
 
 Released on September, 19th 2012 – Arrr!
 
@@ -163,8 +162,8 @@ thank @markvl, @moschlar and @t-8ch for their patches and patience to test
 broken builds.
 
 
-Version 0.3
------------
+0.3 (2012-04-11)
+----------------
 
 ### 0.3.5
 
@@ -258,35 +257,26 @@ Released on April, 1th 2012 – Aprilscherz
 - some unit tests
 - speed improvements
 
-Version 0.2
------------
-
-### 0.2.2
+0.2 (2011-12-16)
+----------------
 
 - add static page support (see docs/howtows.rst)
 - fix update when entry moved/drafted
-
-### 0.2.1
-
 - new draft feature that excludes entries from everything except entry view
 - minor bugfixes
-
-### 0.2.0
-
-Released on 16th December 2011
-
 - introduced caching
 - lazy evaluation for expensive operations
 - first docs
 
-Version 0.1.11
---------------
+0.1 (2011-11-16)
+----------------
 
-- Tag-View
-- pass-through filter
-- removed pyyaml dependency
+Initial release.
 
-Version 0.1.10
---------------
-
-Initial release, released on November 16th 2011
+- german hyphenation support
+- summarizing page/items
+- reStructuredText and Markdown Markup Support
+- RSS and Atom feed generation
+- theming support using Jinja2
+- flat file database
+- powerful callback API

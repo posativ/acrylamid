@@ -16,7 +16,9 @@
 # those of the authors and should not be interpreted as representing official
 # policies, either expressed or implied, of Martin Zimmermann <info@posativ.org>.
 
-__version__ = '0.6.0'
+import pkg_resources
+dist = pkg_resources.get_distribution("acrylamid")
+
 __author__ = 'Martin Zimmermann <info@posativ.org>'
 __url__ = 'https://github.com/posativ/acrylamid/'
 
@@ -79,7 +81,7 @@ def Acryl():
     parser.add_argument("--conf", dest="conf", help="alternate conf.py",
         default="conf.py", metavar="/path/to/conf")
     parser.add_argument("--version", action="version",
-        version=colors.blue('Acrylamid ') + __version__)
+        version=colors.blue('Acrylamid ') + dist.version)
 
     subparsers = parser.add_subparsers(dest="parser")
 
