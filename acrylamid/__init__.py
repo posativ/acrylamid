@@ -208,7 +208,7 @@ def Acryl():
         try:
             tasks.collected[options.parser](conf, env, options)
         except AcrylamidException as e:
-            log.critical(e.args[0])
+            log.exception('uncaught exception')
             sys.exit(1)
     else:
         log.critical('No such command!')
