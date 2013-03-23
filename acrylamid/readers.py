@@ -22,7 +22,8 @@ from datetime import datetime, tzinfo, timedelta
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
-from acrylamid.utils import cached_property, Metadata, istext, rchop, force_unicode as u
+from acrylamid.utils import (cached_property, Metadata, istext, rchop, lchop,
+                             force_unicode as u)
 from acrylamid.core import cache
 from acrylamid.filters import FilterTree
 from acrylamid.helpers import safeslug, expand, hash
@@ -269,7 +270,7 @@ class FileReader(Reader):
 
         with io.open(path, 'r', encoding='utf-8', errors='replace') as fp:
 
-            peak = rchop(fp.read(512), BOM_UTF8)
+            peak = lchop(fp.read(512), BOM_UTF8)
             fp.seek(0)
 
             if peak.startswith('---\n'):
@@ -312,7 +313,7 @@ class FileReader(Reader):
     def source(self):
         """Returns the actual, unmodified content."""
         with io.open(self.filename, 'r', encoding='utf-8') as f:
-            return rchop(''.join(f.readlines()[self.offset:]).strip(), BOM_UTF8)
+            return lchop(''.join(f.readlines()[self.offset:]).strip(), BOM_UTF8)
 
     def __hash__(self):
         return self.hashvalue
