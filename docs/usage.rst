@@ -121,6 +121,10 @@ That is the default format of your articles. Similar to Jekyll::
     date: 06/09/2012
     ---
 
+You can also set the date with a specific filename pattern:
+`content/2012-06-09-foo.txt` will set the date and slug to `2012-06-09`
+respectively `foo`.
+
 native metadata style
 ^^^^^^^^^^^^^^^^^^^^^
 
