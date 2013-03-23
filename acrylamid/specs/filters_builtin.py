@@ -175,3 +175,18 @@ def strip():
 
     assert strip.transform('<pre>...</pre>', Entry(), 'pre') == ''
     assert strip.transform('<pre>&lt;</pre>', Entry(), 'pre') == ''
+
+
+@tt.test
+def liquid():
+
+    liquid = get_filters()['liquid'](conf, env, 'liquid')
+
+    # blockquote
+    examples = [
+        ('{% blockquote Author, Source http://example.org/ Title %}\nFoo Bar\n{% endblockquote %}',
+         '<blockquote><p>Foo Bar</p><footer><strong>Author, Source</strong> <cite><a href="http://example.org/">Title</a></cite></footer></blockquote>'),
+    ]
+
+    for text, result in examples:
+        assert liquid.transform(text, Entry()) == result
