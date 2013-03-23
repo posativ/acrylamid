@@ -132,23 +132,10 @@ def find(fname, directory):
         raise IOError
 
 
-def execfile(path, ns={}):
-    """A python3 compatible way to use conf.py's with encoding declaration
-    -- based roughly on http://stackoverflow.com/q/436198/5643233#5643233."""
-
-    encre = re.compile(r"^#.*coding[:=]\s*([-\w.]+)")
-
-    with io.open(path, 'r') as fp:
-        try:
-            enc = encre.search(fp.readline()).group(1)
-        except AttributeError:
-            enc = "utf-8"
-        with io.open(path, 'r', encoding=enc) as fp:
-            contents = '\n'.join(fp.readlines()[1:])
-        if not contents.endswith("\n"):
-            # http://bugs.python.org/issue10204
-            contents += "\n"
-        exec contents in ns
+def execfile(path, ns):
+    """Python 2 and 3 compatible way to execute a file into a namespace."""
+    with io.open(path, 'rb') as fp:
+        exec fp.read() in ns
 
 
 def batch(iterable, count):

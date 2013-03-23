@@ -96,12 +96,6 @@ def initialize(conf, env):
     if env['path']:
         conf['output_dir'] = conf['output_dir'] + env['path']
 
-    # check if encoding is available
-    try:
-        codecs.lookup(conf['encoding'])
-    except LookupError:
-        raise AcrylamidException('no such encoding available: %r' % conf['encoding'])
-
     lazy.enable()
     filters.initialize(conf["filters_dir"][:], conf, env)
     lazy.disable()  # this has weird side effects with jinja2, so disabled after filters

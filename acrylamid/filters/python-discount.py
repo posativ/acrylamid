@@ -26,6 +26,6 @@ class Discount(Filter):
 
     def transform(self, text, entry, *args):
 
-        mkd = Markdown(text.encode(entry.encoding),
+        mkd = Markdown(text.encode('utf-8'),
                        autolink=True, safelink=True, ignore_header=True)
-        return mkd.get_html_content().decode(entry.encoding, errors='replace')
+        return mkd.get_html_content().decode('utf-8')

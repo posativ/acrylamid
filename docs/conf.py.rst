@@ -65,7 +65,6 @@ Variable name (default value)                       Description
                                                     the entry YAML-header.
 `EMAIL` (``'info@example.com'``)                    Your email address -- used in Atom/RSS feeds and as
                                                     contact ability at the bottom in the default layout.
-`ENCODING` (``'utf-8'``)                            Default encoding of your text files, only global.
 `FILTERS` (|filter|)                                Global list of filters.
 `VIEWS` (see example conf.py)                       Dictionary of views set in conf.py.
 `WWW_ROOT` (``'http://localhost:8000/'``)           Your actual website link where you host this blog to

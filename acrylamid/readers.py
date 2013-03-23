@@ -183,8 +183,8 @@ class Reader(object):
     def __init__(self, conf, meta):
 
         self.props = Metadata((k, v) for k, v in conf.iteritems()
-            if k in ['author', 'lang', 'encoding', 'email',
-                     'date_format', 'entry_permalink', 'page_permalink'])
+            if k in ['author', 'lang', 'email', 'date_format',
+                     'entry_permalink', 'page_permalink'])
 
         self.props.update(meta)
         self.type = meta.get('type', 'entry')
@@ -265,7 +265,7 @@ class FileReader(Reader):
         self.tzinfo = conf.get('tzinfo', None)
 
         native = conf.get('metastyle', '').lower() == 'native'
-        with io.open(path, 'r', encoding=conf['encoding'], errors='replace') as fp:
+        with io.open(path, 'r', encoding='utf-8', errors='replace') as fp:
 
             if native and ispandoc(fp):
                 i, meta = pandocstyle(fp)
@@ -296,8 +296,7 @@ class FileReader(Reader):
     @property
     def source(self):
         """Returns the actual, unmodified content."""
-        with io.open(self.filename, 'r', encoding=self.props['encoding'],
-        errors='replace') as f:
+        with io.open(self.filename, 'r', encoding='utf-8') as f:
             return ''.join(f.readlines()[self.offset:]).strip()
 
     def __hash__(self):
@@ -683,13 +682,13 @@ def pandocstyle(fileobj):
 
 
 def yamlstyle(fileobj):
-    """Open and read content using the specified encoding and return position
-    where the actual content begins and all collected properties.
+    """Open and read content and return metadata and the position where the
+    actual content begins.
 
     If ``pyyaml`` is available we use this parser but we provide a dumb
     fallback parser that can handle simple assigments in YAML.
 
-    :param fileobj: fileobj with correct encoding
+    :param fileobj: fileobj, utf-8 encoded
     """
 
     head = []
