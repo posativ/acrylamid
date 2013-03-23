@@ -5,12 +5,9 @@
 #
 # acrylamid.tasks can add additional tasks to argument parser and execution
 
-import sys
-import glob
-import traceback
 import argparse
 
-from os.path import dirname, basename, join
+from os.path import dirname
 from acrylamid.helpers import discover
 
 # we get them from acrylamid/__init__.py

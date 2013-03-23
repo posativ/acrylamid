@@ -13,7 +13,7 @@ import shutil
 from os.path import join, dirname, isfile
 from datetime import datetime
 
-from acrylamid import PY3, log, readers, commands, utils
+from acrylamid import log, readers, commands
 from acrylamid.errors import AcrylamidException
 
 from acrylamid.tasks import task, argument

@@ -7,7 +7,6 @@ import sys
 import os
 import time
 import locale
-import codecs
 
 from urlparse import urlsplit
 from datetime import datetime

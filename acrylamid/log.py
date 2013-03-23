@@ -90,7 +90,6 @@ def init(name, level, colors=True):
     fatal = logger.fatal
     critical = logger.critical
     warn = logger.warn
-    warning = logger.warning
     info = logger.info
     skip = logger.skip
     debug = logger.debug

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from acrylamid.utils import Metadata, groupby, neighborhood
+from acrylamid.utils import Metadata, neighborhood
 
 import attest
 tt = attest.Tests()

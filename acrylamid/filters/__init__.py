@@ -8,7 +8,6 @@ import sys
 import traceback
 
 from os.path import join, dirname, basename
-from functools import partial
 
 from acrylamid import log, helpers
 from acrylamid.errors import AcrylamidException

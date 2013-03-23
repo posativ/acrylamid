@@ -4,12 +4,9 @@
 # License: BSD Style, 2 clauses -- see LICENSE.
 
 import io
-import re
 
 from time import strftime, gmtime
-from itertools import ifilter
-from os.path import join, getmtime, exists
-from collections import defaultdict
+from os.path import getmtime, exists
 
 from acrylamid.views import View
 from acrylamid.helpers import event, joinurl, rchop

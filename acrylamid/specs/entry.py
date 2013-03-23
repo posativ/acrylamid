@@ -9,7 +9,6 @@ from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
 from acrylamid.readers import Entry
-from acrylamid.helpers import safe
 from acrylamid.defaults import conf
 
 log.init('acrylamid', level=40)

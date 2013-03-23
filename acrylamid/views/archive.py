@@ -3,7 +3,6 @@
 # Copyright 2013 Martin Zimmermann <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses -- see LICENSE.
 
-from calendar import month_abbr, month_name, day_abbr, day_name
 from os.path import isfile
 
 from acrylamid.utils import neighborhood, groupby

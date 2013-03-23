@@ -5,6 +5,7 @@
 
 from os.path import isfile
 from datetime import datetime, timedelta
+from wsgiref.handlers import format_date_time
 
 from acrylamid.utils import HashableList, total_seconds
 from acrylamid.views import View, tag
@@ -105,9 +106,6 @@ class RSS(Feed):
     def init(self, conf, env, num_entries=25):
         super(RSS, self).init(conf, env)
 
-        from wsgiref.handlers import format_date_time
-        from time import mktime
-
         self.num_entries = num_entries
         env.engine.register(
             'rfc822', lambda dt: unicode(format_date_time(total_seconds(dt - epoch))))
@@ -127,9 +125,6 @@ class RssPerTag(FeedPerTag):
 
     def init(self, conf, env, num_entries=25):
         super(RssPerTag, self).init(conf, env)
-
-        from wsgiref.handlers import format_date_time
-        from time import mktime
 
         self.num_entries = num_entries
         env.engine.register(

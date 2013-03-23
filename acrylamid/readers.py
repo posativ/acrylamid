@@ -11,7 +11,6 @@ import re
 import sys
 import abc
 import codecs
-import locale
 import traceback
 
 BOM_UTF8 = codecs.BOM_UTF8.decode('utf8')

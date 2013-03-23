@@ -15,9 +15,8 @@ from tempfile import mkstemp
 from functools import partial
 
 from acrylamid import log
-from acrylamid.utils import hash
 from acrylamid.errors import AcrylamidException
-from acrylamid.helpers import event, memoize, system
+from acrylamid.helpers import event, system
 from acrylamid.lib.async import Threadpool
 
 pool = None

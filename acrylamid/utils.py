@@ -11,7 +11,6 @@ from __builtin__ import hash as pyhash
 import sys
 import os
 import io
-import re
 import locale
 import functools
 import itertools
