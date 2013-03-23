@@ -96,7 +96,6 @@ class Introduction(Filter):
             return ''.join(Introducer(
                 content, maxparagraphs, self.env.path+entry.permalink, options).result)
         except HTMLParseError as e:
-            log.warn('%s: %s in %s' % (e.__class__.__name__, e.msg,
-                                       entry.filename))
+            log.exception('could not extract intro from ' + entry.filename)
             return content
         return content

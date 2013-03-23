@@ -61,7 +61,7 @@ def load(conf):
             try:
                 entry = Entry(path, conf)
                 if entry in seen:
-                    raise AcrylamidException(
+                    raise RuntimeError(
                         "REPORT THIS IMMEDIATELY: python's hash function is not safe!")
                 seen.add(entry)
 
@@ -71,8 +71,9 @@ def load(conf):
                     entries.append(entry)
                 else:
                     pages.append(entry)
-            except (ValueError, AcrylamidException) as e:
-                raise AcrylamidException('%s: %s' % (path, e.args[0]))
+            except:
+                log.fatal('uncaught exception for ' + path)
+                raise
 
     # sort by date, reverse
     return sorted(entries, key=lambda k: k.date, reverse=True), pages, trans, drafts

@@ -192,5 +192,5 @@ class Hyphenate(Filter):
         try:
             return ''.join(Separator(content, hyphenate_word, length=length).result)
         except HTMLParseError as e:
-            log.warn('%s: %s in %s' % (e.__class__.__name__, e.msg, entry.filename))
+            log.exception('could not hyphenate ' + entry.filename)
             return content

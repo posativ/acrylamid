@@ -55,6 +55,6 @@ class Strip(Filter):
 
         try:
             return ''.join(Text(content, args).result)
-        except HTMLParseError as e:
-            log.warn('%s: %s in %s' % (e.__class__.__name__, e.msg, entry.filename))
+        except HTMLParseError:
+            log.exception('could not strip ' + entry.filename)
             return content

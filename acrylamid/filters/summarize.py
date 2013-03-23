@@ -124,6 +124,6 @@ class Summarize(Filter):
         try:
             return ''.join(Summarizer(
                 content, maxwords, self.env.path+entry.permalink, options).result)
-        except HTMLParseError as e:
-            log.warn('%s: %s in %s' % (e.__class__.__name__, e.msg, entry.filename))
+        except HTMLParseError:
+            log.exception('could not summarize ' + entry.filename)
             return content
