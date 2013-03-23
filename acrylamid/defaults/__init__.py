@@ -55,6 +55,11 @@ conf = {
 
 def normalize(conf):
 
+    # metastyle has been removed
+    if 'metastyle' in conf:
+        log.info('notice  METASTYLE is no longer needed to determine the metadata format ' + \
+                 'and can be removed.')
+
     # deprecated since 0.8
     if isinstance(conf['static'], list):
         conf['static'] = conf['static'][0]

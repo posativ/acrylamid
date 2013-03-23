@@ -25,7 +25,7 @@ yaml, rst, md = \
     lambda title, date: u"%s\n" % title + "="*len(title) + '\n\n' + ":date: %s\n\n" % date, \
     lambda title, date: u"Title: %s\nDate: %s\n\n" % (title, date)
 
-formats = {(True, '.md'): md, (True, '.mkdown'): md, (True, '.rst'): rst}
+formats = {'.md': md, '.mkdown': md, '.rst': rst, '.rest': rst}
 
 
 @task('new', [argument("title", nargs="*", default=None)], help="create a new entry")
@@ -41,7 +41,7 @@ def run(conf, env, options):
     fd, tmp = tempfile.mkstemp(suffix=ext, dir='.cache/')
 
     editor = os.getenv('VISUAL') if os.getenv('VISUAL') else os.getenv('EDITOR')
-    tt = formats.get((conf.get('metastyle') == 'native', ext), yaml)
+    tt = formats.get(ext, yaml)
 
     if options.title:
         title = u(' '.join(options.title))

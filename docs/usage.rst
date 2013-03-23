@@ -124,12 +124,9 @@ That is the default format of your articles. Similar to Jekyll::
 native metadata style
 ^^^^^^^^^^^^^^^^^^^^^
 
-With Acrylamid 0.4 you can also use the native metadata section provided by
-Markdown and reStructuredText. Both nativ formats are only active when you set
-``METASTYLE = "native"`` in your :doc:`conf.py` and your filenames end with
-``.rst`` or ``.rest`` for reStructuredText and ``.md`` or ``.mkdown`` for
-Markdown. Keep in mind, that the native metadata style only affects the parser.
-It does *not* set the filter to reST or Markdown.
+If you dislike the YAML front matter you can also use the native metadata
+section format from Markdown, reST or Pandoc. Keep in mind, that a given
+metadata section format will *not* set the appropriate filter.
 
 reStructuredText:
 
@@ -150,6 +147,11 @@ Markdown::
     tags: [one, two]
 
     Here starts my content ...
+
+Pandoc's `title block <http://johnmacfarlane.net/pandoc/README.html#title-block>`_ ::
+
+    % Title
+    % Author
 
 reStructuredText or textile
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^

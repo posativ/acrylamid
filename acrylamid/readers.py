@@ -10,8 +10,11 @@ import io
 import re
 import sys
 import abc
+import codecs
 import locale
 import traceback
+
+BOM_UTF8 = codecs.BOM_UTF8.decode('utf8')
 
 from os.path import join, getmtime, relpath
 from fnmatch import fnmatch
@@ -264,17 +267,19 @@ class FileReader(Reader):
         self.filename = path
         self.tzinfo = conf.get('tzinfo', None)
 
-        native = conf.get('metastyle', '').lower() == 'native'
         with io.open(path, 'r', encoding='utf-8', errors='replace') as fp:
 
-            if native and ispandoc(fp):
-                i, meta = pandocstyle(fp)
-            elif native and path.endswith(('.md', '.mkdown')):
-                i, meta = markdownstyle(fp)
-            elif native and path.endswith(('.rst', '.rest')):
-                i, meta = reststyle(fp)
-            else:
+            peak = rchop(fp.read(512), BOM_UTF8)
+            fp.seek(0)
+
+            if peak.startswith('---\n'):
                 i, meta = yamlstyle(fp)
+            elif re.match('^\w+\n=+', peak):
+                i, meta = reststyle(fp)
+            elif peak.startswith('% '):
+                i, meta = pandocstyle(fp)
+            else:
+                i, meta = markdownstyle(fp)
 
         meta['title'] = unicode(meta['title'])  # YAML can convert 42 to an int
 
@@ -297,7 +302,7 @@ class FileReader(Reader):
     def source(self):
         """Returns the actual, unmodified content."""
         with io.open(self.filename, 'r', encoding='utf-8') as f:
-            return ''.join(f.readlines()[self.offset:]).strip()
+            return rchop(''.join(f.readlines()[self.offset:]).strip(), BOM_UTF8)
 
     def __hash__(self):
         return self.hashvalue
@@ -603,12 +608,6 @@ def reststyle(fileobj):
             meta[name] = distinguish(value.split('\n\n') if '\n\n' in value else value)
 
     return i, meta
-
-
-def ispandoc(fileobj):
-    """Check for pandoc block (a percentage symbol within the first few bytes)"""
-    chunk = fileobj.read(4); fileobj.seek(0)
-    return chunk.strip().startswith('%')
 
 
 def pandocstyle(fileobj):
