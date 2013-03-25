@@ -99,6 +99,9 @@ class Template(HTML):
         env.engine.extend(conf['static'])
         super(Template, self).__init__(conf, env)
 
+    def modified(self, src, dest):
+        return super(Template, self).modified(src, dest) or self.env.modified
+
     def generate(self, src, dest):
         relpath = split(src[::-1])[0][::-1]  # (head, tail) but reversed behavior
         return self.env.engine.fromfile(relpath).render(env=self.env, conf=self.conf)
