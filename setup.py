@@ -24,7 +24,7 @@ if sys.platform == 'win32':
 
 setup(
     name='acrylamid',
-    version='0.7.1.dev0',
+    version='0.7.1',
     author='Martin Zimmermann',
     author_email='info@posativ.org',
     packages=find_packages(),
