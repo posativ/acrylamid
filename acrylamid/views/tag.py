@@ -60,12 +60,17 @@ class Tagcloud(object):
         if shuffle:
             random.shuffle(self.lst)
 
+        self.tags = tags
+
     def __iter__(self):
         for tag, step in self.lst:
             yield type('Tag', (), {'name': tag, 'step': step})
 
     def __hash__(self):
         return hash(*self.lst)
+
+    def __getitem__(self, tag):
+        return self.tags[tag.name]
 
 
 class Tag(View):
