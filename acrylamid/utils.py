@@ -19,10 +19,8 @@ import itertools
 
 def hash(*objs, **kw):
 
-    xor = lambda x,y: (x & 0xffffffff)^(y & 0xffffffff)
-    attr = kw.get('attr', lambda o: o)
-
-    return reduce(xor, map(lambda o: pyhash(attr(o)), objs), 0)
+    xor = lambda x, y: (x & 0xffffffff)^(y & 0xffffffff)
+    return reduce(xor, map(pyhash, objs), 0)
 
 
 def rchop(original_string, substring):

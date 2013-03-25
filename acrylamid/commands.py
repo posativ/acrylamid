@@ -22,7 +22,7 @@ from acrylamid.errors import AcrylamidException
 
 from acrylamid import readers, filters, views, assets, refs, hooks, helpers, dist
 from acrylamid.lib import lazy, history
-from acrylamid.core import cache, load
+from acrylamid.core import cache, load, Environment
 from acrylamid.utils import hash, istext, HashableList, import_object, total_seconds
 from acrylamid.helpers import event
 
@@ -273,6 +273,7 @@ def autocompile(ws, conf, env):
                 log.exception("uncaught exception during auto-compilation")
             else:
                 conf = load(env.options.conf)
+                env = Environment.new(env)
             event.reset()
             mtime = ntime
         ws.wait = False

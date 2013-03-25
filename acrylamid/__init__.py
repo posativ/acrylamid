@@ -144,9 +144,8 @@ def Acryl():
     # initialize colored logger
     log.init('acrylamid', level=options.verbosity, colors=options.colors)
 
-    env = core.Environment({'author': __author__, 'url': __url__})
-    env['options'] = options
-    env['globals'] = Struct()
+    env = core.Environment({'author': __author__, 'url': __url__,
+        'options': options, 'globals': Struct()})
 
     # -- init -- #
     try:

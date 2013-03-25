@@ -250,6 +250,11 @@ class Environment(Struct):
     """
     blacklist = set(['engine', 'translationsfor', 'options', 'archives'])
 
+    @classmethod
+    def new(self, env):
+        return Environment({'author': env.author, 'url': env.url,
+            'options': env.options, 'globals': Struct()})
+
     def keys(self):
         return sorted(list(set(super(Environment, self).keys()) - self.blacklist))
 
