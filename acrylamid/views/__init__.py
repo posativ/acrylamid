@@ -113,13 +113,13 @@ class View(object):
 
         class Raw(View):
 
-            def init(self, **kw):
+            def init(self, conf, env, **kw):
                 pass
 
-            def context(self, env, request):
+            def context(self, conf, env, request):
                 return env
 
-            def generate(self, request):
+            def generate(self, conf, env, request):
                 yield 'Hello World', '/output/hello.txt'
 
     Above implements a minimal view that outputs text to a given path to
@@ -167,7 +167,7 @@ class View(object):
 
        :param kw: custom key/value pair from :doc:`conf.py` is available in here.
 
-    .. method:: context(self, env, request)
+    .. method:: context(self, conf, env, request)
 
        Add shared environment varialbes for all views, e.g. template filters and
        objects. You must return the environment.
