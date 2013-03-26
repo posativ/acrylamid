@@ -18,7 +18,7 @@ import itertools
 try:
     import magic
 except ImportError as e:
-    if e.message.find('libmagic') > -1:
+    if e.args[0].find('libmagic') > -1:
         raise
     magic = None
 
