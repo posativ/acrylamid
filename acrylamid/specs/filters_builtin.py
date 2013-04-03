@@ -175,3 +175,49 @@ def strip():
 
     assert strip.transform('<pre>...</pre>', Entry(), 'pre') == ''
     assert strip.transform('<pre>&lt;</pre>', Entry(), 'pre') == ''
+
+
+@tt.test
+def liquid():
+
+    liquid = get_filters()['liquid'](conf, env, 'liquid')
+
+    # liquid block recognition
+    text = '\n'.join([
+        "{% tag %}", "", "Foo Bar.", "", "{% endtag %}"
+    ])
+
+    rv = liquid.block("tag").match(text)
+    assert rv.group(1) == ""
+    assert rv.group(2) == "\nFoo Bar.\n"
+
+    # multiple, not nested blocks
+    text = '\n'.join([
+        "{% block %}", "", "Foo Bar.", "", "{% endblock %}",
+        "",
+        "{% block %}", "", "Baz.", "", "{% endblock %}"
+    ])
+
+    rv = tuple(liquid.block("block").finditer(text))
+    assert len(rv) == 2
+
+    x, y = rv
+    assert x.group(2).strip() == "Foo Bar."
+    assert y.group(2).strip() == "Baz."
+
+    # self-closing block
+    text = '{% block a few args %}'
+    rv = liquid.block("block").match(text)
+
+    assert rv is not None
+    assert rv.group(1) == 'a few args'
+    assert rv.group(2) is None
+
+    # blockquote
+    examples = [
+        ('{% blockquote Author, Source http://example.org/ Title %}\nFoo Bar\n{% endblockquote %}',
+         '<blockquote><p>Foo Bar</p><footer><strong>Author, Source</strong> <cite><a href="http://example.org/">Title</a></cite></footer></blockquote>'),
+    ]
+
+    for text, result in examples:
+        assert liquid.transform(text, Entry()) == result
