@@ -187,7 +187,7 @@ def tweet(header, body=None):
 
 class Liquid(Filter):
 
-    match = ['liquid', 'octopress']
+    match = [re.compile('^(liquid|octopress)$', re.I)]
     priority = 80.0
 
     directives = {

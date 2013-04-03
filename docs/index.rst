@@ -89,10 +89,12 @@ other filters
 - TeX hyphenation
 - summarize ability
 - `acronym detection`_  that automatically replace acronyms and abbreviations
+- `liquid plugins`_ ported from `Octopress <http://octopress.org/>`_
 
 .. _typography: https://code.google.com/p/typogrify/
 .. _smartypants: http://daringfireball.net/projects/smartypants/
 .. _acronym detection: http://pyblosxom.github.com/1.5/plugins/acronyms.html
+.. _liquid plugins: http://octopress.org/docs/plugins/
 
 blogging features
 ~~~~~~~~~~~~~~~~~
