@@ -6,7 +6,7 @@
 import os
 from functools import partial
 
-from acrylamid import helpers, utils
+from acrylamid import helpers, utils, log
 from acrylamid.errors import AcrylamidException
 
 # module-wide callbacks variable contaning views, reset this on initialize!
@@ -87,6 +87,9 @@ def initialize(directories, conf, env):
     directories += [os.path.dirname(__file__)]
     helpers.discover(directories, partial(index_views, conf, env, urlmap),
         lambda path: path.rpartition('.')[0] != __file__.rpartition('.')[0])
+
+    for rule, item in urlmap:
+        log.warn("unable to locate '%s' view", item['name'])
 
 
 class Views(utils.HashableList):
