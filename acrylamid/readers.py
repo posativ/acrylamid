@@ -313,7 +313,7 @@ class FileReader(Reader):
     def source(self):
         """Returns the actual, unmodified content."""
         with io.open(self.filename, 'r', encoding='utf-8') as f:
-            return lchop(''.join(f.readlines()[self.offset:]).strip(), BOM_UTF8)
+            return lchop(''.join(f.readlines()[self.offset:]).strip('\n'), BOM_UTF8)
 
     def __hash__(self):
         return self.hashvalue
