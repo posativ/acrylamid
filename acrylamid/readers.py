@@ -275,7 +275,7 @@ class FileReader(Reader):
 
             if peak.startswith('---\n'):
                 i, meta = yamlstyle(fp)
-            elif re.match('^\w+\n=+', peak):
+            elif isrest(peak):
                 i, meta = reststyle(fp)
             elif peak.startswith('% '):
                 i, meta = pandocstyle(fp)
@@ -564,6 +564,16 @@ def markdownstyle(fileobj):
             meta[key] = values[0]
 
     return i, meta
+
+
+def isrest(peak):
+    """Determine whether the first 512 bytes are written in reST."""
+
+    try:
+        a, b = re.match('^(.+?)\n((?:-|=|#)+)', peak).groups()
+    except (ValueError, AttributeError):
+        return False
+    return len(b) >= len(a)
 
 
 def reststyle(fileobj):
