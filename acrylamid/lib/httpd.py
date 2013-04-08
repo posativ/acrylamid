@@ -40,8 +40,8 @@ class RequestHandler(SimpleHTTPRequestHandler):
     log_error = lambda x, *y: None
 
     def translate_path(self, path):
-        path = SimpleHTTPRequestHandler.translate_path(self, path)
-        return joinurl(os.getcwd(), self.www_root, path[len(os.getcwd()):])
+        path = SimpleHTTPRequestHandler.translate_path(self, path).decode('utf-8')
+        return joinurl(os.getcwd().decode('utf-8'), self.www_root, path[len(os.getcwd().decode('utf-8')):])
 
     def end_headers(self):
         self.wfile.write(b'Cache-Control: max-age=0, must-revalidate\r\n')
