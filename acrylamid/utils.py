@@ -124,7 +124,7 @@ def find(fname, directory):
     """Find `fname` in `directory`, if not found try the parent folder until
     we find `fname` (as full path) or raise an :class:`IOError`."""
 
-    directory = directory.rstrip('/')
+    directory = directory.decode('utf-8').rstrip('/')
 
     while directory:
         try:
