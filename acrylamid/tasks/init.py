@@ -14,13 +14,14 @@ import string
 
 from os.path import exists, isfile, isdir, join, dirname, basename
 
-from acrylamid import log, defaults
+from acrylamid import log, defaults, utils
 from acrylamid import AcrylamidException
 from acrylamid.tasks import task, argument
 from acrylamid.helpers import event
 
 arguments = [
-    argument("dest", metavar="DEST|FILE", nargs="?", default="."),
+    argument("dest", metavar="DEST", nargs="?", default=".",
+        help="destination directory", type=utils.force_unicode),
     argument("-f", "--force", action="store_true", dest="overwrite",
         help="don't ask, just overwrite", default=False),
     argument("--theme", dest="theme", default="html5",
@@ -143,4 +144,4 @@ def init(env, options):
         else:
             event.skip('init', dest)
 
-    log.info('Created your fresh new blog at %r. Enjoy!', options.dest)
+    log.info("Created your fresh new blog at '%s'. Enjoy!", options.dest)
