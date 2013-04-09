@@ -16,6 +16,7 @@ from threading import Thread
 from SocketServer import TCPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 
+from acrylamid.utils import force_unicode as u
 from acrylamid.helpers import joinurl
 
 
@@ -41,7 +42,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
 
     def translate_path(self, path):
         path = SimpleHTTPRequestHandler.translate_path(self, path)
-        return joinurl(os.getcwd(), self.www_root, path[len(os.getcwd()):])
+        return joinurl(u(os.getcwd()), self.www_root, path[len(u(os.getcwd())):])
 
     def end_headers(self):
         self.wfile.write(b'Cache-Control: max-age=0, must-revalidate\r\n')

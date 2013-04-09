@@ -18,7 +18,7 @@ from acrylamid.errors import AcrylamidException
 
 from acrylamid.utils import (
     classproperty, cached_property, Struct, hash, HashableList, find, execfile,
-    lchop
+    lchop, force_unicode as u
 )
 
 try:
@@ -231,7 +231,7 @@ def load(path):
     conf = Configuration(defaults.conf)
     ns = dict([(k.upper(), v) for k, v in defaults.conf.iteritems()])
 
-    os.chdir(dirname(find(basename(path), dirname(path) or os.getcwd())))
+    os.chdir(dirname(find(basename(path), u(dirname(path) or os.getcwd()))))
     execfile(path, ns)
     conf.update(dict([(k.lower(), ns[k]) for k in ns if k.upper() == k]))
 
