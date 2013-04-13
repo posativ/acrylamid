@@ -9,6 +9,8 @@ from acrylamid import log
 
 copy = lambda path: io.open(join(dirname(__file__), path), 'rb')
 
+__ = ['*.swp', ]
+
 conf = {
     'sitename': 'A descriptive blog title',
     'author': 'Anonymous',
@@ -40,13 +42,13 @@ conf = {
     'output_ignore': ['.git*', '.hg*', '.svn'],
 
     'content_dir': 'content/',
-    'content_ignore': ['.git*', '.hg*', '.svn'],
+    'content_ignore': ['.git*', '.hg*', '.svn'] + __,
 
     'theme': 'layouts/',
-    'theme_ignore': ['.git*', '.hg*', '.svn'],
+    'theme_ignore': ['.git*', '.hg*', '.svn'] + __,
 
     'static': None,
-    'static_ignore': ['.git*', '.hg*', '.svn'],
+    'static_ignore': ['.git*', '.hg*', '.svn'] + __,
     'static_filter': ['Template', 'XML'],
 
     'engine': 'acrylamid.templates.jinja2.Environment',
