@@ -119,7 +119,7 @@ class Tag(View):
         """Creates paged listing by tag."""
 
         ipp = self.items_per_page
-        tt = env.engine.fromfile(self.template)
+        tt = env.engine.fromfile(env, self.template)
 
         for tag in self.tags:
 

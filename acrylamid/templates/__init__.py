@@ -28,7 +28,7 @@ class AbstractEnvironment(object):
         return
 
     @abc.abstractmethod
-    def fromfile(self, path):
+    def fromfile(self, env, path):
         """Load (relative) :param path: template and return a
         :class:`AbstractTemplate`-like class`."""
         return

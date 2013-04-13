@@ -103,8 +103,8 @@ class Environment(AbstractEnvironment):
     def register(self, name, func):
         self.jinja2.filters[name] = func
 
-    def fromfile(self, path):
-        return Template(self.jinja2.get_template(path))
+    def fromfile(self, env, path):
+        return Template(env, path, self.jinja2.get_template(path))
 
     def extend(self, path):
         self.jinja2.loader.searchpath.append(path)
@@ -120,7 +120,9 @@ class Environment(AbstractEnvironment):
 
 class Template(AbstractTemplate):
 
-    def __init__(self, template):
+    def __init__(self, env, path, template):
+        self.env = env
+        self.path = path
         self.template = template
 
     def render(self, **kw):

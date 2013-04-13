@@ -33,7 +33,7 @@ class Index(View):
     def generate(self, conf, env, data):
 
         ipp = self.items_per_page
-        tt = env.engine.fromfile(self.template)
+        tt = env.engine.fromfile(env, self.template)
 
         entrylist = data['entrylist']
         paginator = paginate(entrylist, ipp, self.path, conf.default_orphans)
