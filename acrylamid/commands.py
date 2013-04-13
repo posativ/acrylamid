@@ -112,6 +112,9 @@ def initialize(conf, env):
     conf.setdefault('entry_permalink', entryfmt)
     conf.setdefault('page_permalink', pagefmt)
 
+    # register webassets to theme engine, make webassets available as env.webassets
+    assets.initialize(conf, env)
+
     return {'conf': conf, 'env': env}
 
 
