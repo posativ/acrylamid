@@ -1,50 +1,61 @@
 Assets
 ======
 
-Since Acrylamid ≥ 0.4 it is possible to include site specific files (also
-known as assets) in your blog.  Acrylamid can either copy or compile files
-from a number of directories.
+A web log merely consists of text only, hence you might want CSS -- or even
+more advanced -- SCSS or LESS to style your content, use some fancy JavaScript
+or just include an image. These are all assets.
 
-To include assets, just add a bunch of directories to your :doc:`conf.py`:
+By convention, you put your static files into the `static/` folder, but you
+may change this via ``STATIC = "/path/to/dir"`` in your :doc:`conf.py`.
+Without extensions, Acrylamid will just copy the content from your static
+directory to the output directory, the same applies to your assets located
+in your `THEME` folder.
 
-.. code-block:: python
+The Concept of Writers
+----------------------
 
-    STATIC = ['assets', 'static']
-
-In addition all files from your theme are assets, too (except for HTML and XML
-templates by default) and will be copied to the output directory.
+If you have several static pages, that do not belong to your blog, you can use
+them as plain HTML files in your asset folder and you have the ability to use
+your prefered templating language here.
 
 Available Writers
------------------
+^^^^^^^^^^^^^^^^^
 
-SASS : .sass -> .css
-    compiles SASS_ to CSS (requires ``sass`` to be in your ``PATH``)
-
-SCSS : .scss -> .css
-    compiles SCSS_ to CSS (requires ``sass`` to be in your ``PATH``)
-
-LESS : .less -> .css
-    compiles LESS_ to CSS (requires ``lessc`` to be in your ``PATH``)
-
-CoffeeScript : .coffee -> .js
-    compiles CoffeeScript_ to JavaScript (requires ``coffee`` to be in your ``PATH``)
-
-IcedCoffeeScript : .iced -> .js
-    compiles IcedCoffeeScript_ to JavaScript (requires ``iced`` to be in your ``PATH``)
-
-Template : .html -> .html
+Template : .j2, .mako or .html -> .html
     renders HTML (and engine specific extensions) with your current templating
     engine. You can inherit from your theme directory as well from all
     templates inside your static directory.
 
+    This writer is activated by default.
+
 HTML : .html -> .html
-    Copy HTML files to output if not in theme directory.
+    Copy plain HTML files to output if not in theme directory.
 
 XML : .xml -> .xml
-    Same as the HTML writer.
+    Same as the HTML writer but for XML.
 
-.. _SASS: http://sass-lang.com/docs/yardoc/file.INDENTED_SYNTAX.html
+Webassets Integration
+---------------------
+
+To handle SASS, SCSS and LESS (and much more) Acrylamid uses the Webassets_
+project. To use Webassets_ you first need to install the egg via::
+
+    $ easy_install webassets
+
+and you need a working SASS, LESS or whatever-you-want compiler. Next you
+define your assets in your template like this:
+
+.. code-block:: html+jinja
+
+    {% for url in compile('style.scss', filters="scss", output="style.%(version)s.css",
+                                        depends=["scss/*.css", "scss/*.scss"]) %}
+        <link media="all" href="{{ url }}" rel="stylesheet" />
+    {% endfor %}
+
+This will compile the master `theme/style.scss` file using SCSS_ to the
+specified output (the ``%(version).s`` is a placeholder for the version hash).
+Use the `depends` keyword to watch additional files for changes (the `import`
+clause within a stylesheet does not work yet).
+
+.. _webassets: http://webassets.readthedocs.org/en/latest/index.html
 .. _SCSS: http://sass-lang.com/
-.. _LESS: http://lesscss.org/
-.. _CoffeeScript: http://coffeescript.org/
-.. _IcedCoffeeScript: http://maxtaco.github.com/coffee-script/
