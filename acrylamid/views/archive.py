@@ -111,7 +111,20 @@ class Archive(View):
     :class:`Year`, :class:`Month` and :class:`Day` objects always evaluate to
     a zero-padded date unit such as 2012 (year) or 01 (January). In addition,
     Month and Day objects have ``full`` and ``abbr`` attributes to access the
-    fullname or abbreviation in your current location."""
+    fullname or abbreviation in your current location.
+
+    You can retrieve the posts from the :class:`Year`, :class:`Month` and
+    :class:`Day` via the ``.items`` attribute.
+
+    .. code-block:: html+jinja
+
+        {% for year in env.globals.entrylist | archivesfor %}
+            <h2>{{ year ~ ' (' ~ year | count ~ ')' }}</h2>
+            {% for entry in year.items %}
+                <a href="{{ entry.permalink }}">{{ entry.title }}</a>
+            {% endfor %}
+        {% endfor %}
+    """
 
     priority = 80.0
 
