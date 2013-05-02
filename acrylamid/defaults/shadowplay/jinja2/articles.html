@@ -18,7 +18,7 @@
     </tr>
     {% for entry in months %}
       <tr><th>{{ entry.date.day }}</th>
-          <td><a href="{{ entry.permalink }}" rel="bookmark canonical">{{ entry.title | e }}</a></td>
+          <td><a href="{{ env.path + entry.permalink }}" rel="bookmark canonical">{{ entry.title | e }}</a></td>
       </tr>
     {% endfor %}
   {% endfor %}
