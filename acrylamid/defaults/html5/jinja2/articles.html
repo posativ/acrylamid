@@ -19,7 +19,7 @@
             {% for entry in month.items %}
                 <tr>
                     <th>{{ entry.date.day }}</th>
-                    <td><a href="{{ entry.permalink }}">{{ entry.title | e }}</a></td>
+                    <td><a href="{{ env.path + entry.permalink }}">{{ entry.title | e }}</a></td>
                 </tr>
             {% endfor %}
         {% endfor %}
