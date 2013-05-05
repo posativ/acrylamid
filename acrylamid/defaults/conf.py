@@ -32,21 +32,21 @@ VIEWS = {
     # # Here are some more examples
 
     # # '/:slug/' is a slugified url of your static page's title
-    # '/:slug/': {'view': 'page'}
+    # '/:slug/': {'view': 'page'},
 
     # # '/atom/full/' will give you a _complete_ feed of all your entries
     # '/atom/full/': {'filters': 'h2', 'view': 'atom', 'num_entries': 1000},
 
     # # a feed containing all entries tagges with 'python'
     # '/rss/python/': {'filters': 'h2', 'view': 'rss',
-    #                  'if': lambda e: 'python' in e.tags}
+    #                  'if': lambda e: 'python' in e.tags},
 
     # # a full typography features entry including MathML and Footnotes
     # '/:year/:slug': {'filters': ['typography', 'Markdown+Footnotes+MathML'],
-    #                  'view': 'entry'}
+    #                  'view': 'entry'},
 
     # # translations!
-    # '/:year/:slug/:lang/': {'view': 'translation'}
+    # '/:year/:slug/:lang/': {'view': 'translation'},
 }
 
 THEME = '${theme}'
