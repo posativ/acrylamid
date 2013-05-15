@@ -60,8 +60,9 @@ Overview
 With Acrylamid you can write your weblog entries with your editor of choice in
 Markdown, reStructuredText or textile. With several content filters you can
 pimp your HTML (typography, math, hyphenation). Acrylamid provides a very
-sophisticated CLI and integrates perfectly with any DVCes. It generates
-completely static HTML you can host everywhere.
+sophisticated CLI and integrates perfectly with any :abbr:`DVCS (Distributed
+Version Control System)`. It generates completely static HTML you can host
+everywhere.
 
 supported markup languages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
