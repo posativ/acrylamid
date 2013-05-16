@@ -103,7 +103,7 @@ class Template(HTML):
 
     def generate(self, src, dest):
         relpath = split(src[::-1])[0][::-1]  # (head, tail) but reversed behavior
-        return self.env.engine.fromfile(relpath).render(env=self.env, conf=self.conf)
+        return self.env.engine.fromfile(self.env, relpath).render(env=self.env, conf=self.conf)
 
     def write(self, src, dest, force=False, dryrun=False):
         dest = dest.replace(splitext(src)[-1], self.target)
