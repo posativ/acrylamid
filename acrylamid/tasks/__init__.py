@@ -22,7 +22,7 @@ def initialize(_subparsers, _default, ext_dir='tasks/'):
     global subparsers, default
     subparsers, default = _subparsers, _default
 
-    discover([dirname(__file__), ], lambda x: x,
+    discover([dirname(__file__), ext_dir], lambda x: x,
         lambda path: path.rpartition('.')[0] != __file__.rpartition('.')[0])
 
 
