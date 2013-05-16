@@ -28,7 +28,7 @@ class AbstractEnvironment(object):
         return
 
     @abc.abstractmethod
-    def fromfile(self, path):
+    def fromfile(self, env, path):
         """Load (relative) :param path: template and return a
         :class:`AbstractTemplate`-like class`."""
         return
@@ -45,22 +45,47 @@ class AbstractEnvironment(object):
 
     @abc.abstractproperty
     def templates(self):
-        """Return the path of all currently processed templates."""
+        """A dictionary mapping of template name -> Template object."""
         return
+
+    @abc.abstractproperty
+    def modified(self):
+        """A dictionary mapping of template name -> modified or not"""
+        return
+
+    @abc.abstractproperty
+    def resolved(self):
+        """A dictionary mapping of template name -> (fully resolved)
+        referenced template names."""
+        return
+
+    @abc.abstractproperty
+    def assets(self):
+        """A dictionary mapping of template name/path -> bundle arguments and
+        keyword arguments.
+
+        You can fill this dictionary on-demand, that means this attribute is
+        always called after parsing the template.
+        """
 
 
 class AbstractTemplate(object):
 
     __metaclass__ = abc.ABCMeta
 
-    @abc.abstractmethod
-    def render(self, **dikt):
-        """Render template with :param dikt:"""
+    @abc.abstractproperty
+    def name(self):
+        """The name/path of the template (e.g. main.html or foo/bar.html, that
+        means without the theme folder)."""
         return
 
     @abc.abstractproperty
-    def modified(self):
-        """Return ``True`` when the template has changed but make sure this value
-        does not change over the whole compilation process. Return ``False`` if the
-        template has not changed, cache this too!"""
+    def environment(self):
+        """The used environment (derieved from :class:`AbstractEnvironment`)."""
+        return
+
+
+    @abc.abstractmethod
+    def render(self, **dikt):
+        """Render template with :param dikt:"""
         return

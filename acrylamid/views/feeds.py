@@ -58,7 +58,7 @@ class Feed(View):
     def generate(self, conf, env, data):
         entrylist = data['entrylist']
         entrylist = list(entrylist)[0:self.num_entries]
-        tt = env.engine.fromfile('%s.xml' % self.type)
+        tt = env.engine.fromfile(env, '%s.xml' % self.type)
 
         path = joinurl(conf['output_dir'], self.route)
         modified = any(entry.modified for entry in entrylist)

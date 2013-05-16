@@ -140,7 +140,7 @@ class Archive(View):
 
     def generate(self, conf, env, data):
 
-        tt = env.engine.fromfile(self.template)
+        tt = env.engine.fromfile(env, self.template)
         keyfunc = lambda k: ( )
 
         if '/:year' in self.path:

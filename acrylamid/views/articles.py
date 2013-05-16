@@ -43,7 +43,7 @@ class Articles(View):
 
         entrylist = data['entrylist']
 
-        tt = env.engine.fromfile(self.template)
+        tt = env.engine.fromfile(env, self.template)
         path = joinurl(conf['output_dir'], self.path, 'index.html')
 
         if exists(path) and not (conf.modified or env.modified or tt.modified):

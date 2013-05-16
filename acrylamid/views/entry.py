@@ -59,7 +59,7 @@ class Base(View):
             next, prev = self.next(entrylist, i), self.prev(entrylist, i)
 
             # per-entry template
-            tt = env.engine.fromfile(entry.props.get('layout', self.template))
+            tt = env.engine.fromfile(env, entry.props.get('layout', self.template))
 
             if all([isfile(path), unmodified, not tt.modified, not entry.modified,
             not modified(*references(entry))]):

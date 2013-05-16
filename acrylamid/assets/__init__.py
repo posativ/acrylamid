@@ -3,21 +3,20 @@
 # Copyright 2013 Martin Zimmermann <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses -- see LICENSE.
 
-import os
 import io
 import re
-import time
-import stat
 
-from tempfile import mkstemp
 from functools import partial
 from collections import defaultdict
 from os.path import join, isfile, getmtime, split, splitext
 
-from acrylamid import core, helpers, log
-from acrylamid.errors import AcrylamidException
 from acrylamid.helpers import mkfile, event
 from acrylamid.readers import relfilelist
+
+try:
+    from acrylamid.assets.web import Webassets, Bundle
+except ImportError:
+    from acrylamid.assets.fallback import Webassets, Bundle
 
 ns = "assets"
 
@@ -117,77 +116,12 @@ class Template(HTML):
     target = '.html'
 
 
-class System(Writer):
+def initialize(conf, env):
 
-    def write(self, src, dest, force=False, dryrun=False):
+    env.webassets = Webassets(conf, env)
 
-        dest = dest.replace(splitext(src)[-1], self.target)
-
-        if not force and isfile(dest) and getmtime(dest) > getmtime(src):
-            return event.skip(ns, dest)
-
-        if isinstance(self.cmd, basestring):
-            self.cmd = [self.cmd, ]
-
-        tt = time.time()
-        fd, path = mkstemp(dir=core.cache.cache_dir)
-
-        # make destination group/world-readable as other files from Acrylamid
-        os.chmod(path, os.stat(path).st_mode | stat.S_IRGRP | stat.S_IROTH)
-
-        try:
-            res = helpers.system(self.cmd + [src])
-        except (OSError, AcrylamidException) as e:
-            if isfile(dest):
-                os.unlink(dest)
-            log.exception('%s: %s' % (e.__class__.__name__, e.args[0]))
-        else:
-            with os.fdopen(fd, 'w') as fp:
-                fp.write(res)
-
-            with io.open(path, 'rb') as fp:
-                mkfile(fp, dest, time.time()-tt, ns, force, dryrun)
-        finally:
-            os.unlink(path)
-
-
-class SASS(System):
-
-    ext, target = '.sass', '.css'
-    cmd = ['sass', ]
-
-    # matches @import 'foo.sass' (and optionally without quotes)
-    uses = r'^@import ["\']?(?P<file>.+?\.sass)["\']?'
-
-
-class SCSS(System):
-
-    ext, target = '.scss', '.css'
-    cmd = ['sass', '--scss']
-
-    # matches @import 'foo.scss', we do not support import 'foo'; or url(foo);
-    uses = r'^@import ["\'](?P<file>.+?\.scss)["\'];'
-
-
-class LESS(System):
-
-    ext, target = '.less', '.css'
-    cmd = ['lessc', ]
-
-    # matches @import 'foo.less'; and @import-once ...
-    uses = r'^@import(-once)? ["\'](?P<file>.+?\.less)["\'];'
-
-
-class CoffeeScript(System):
-
-    ext, target = '.coffee', '.js'
-    cmd = ['coffee', '-cp']
-
-
-class IcedCoffeeScript(System):
-
-    ext, target = ['.iced', '.coffee'], '.js'
-    cmd = ['iced', '-cp']
+    env.engine.globals['compile'] = env.webassets.compile
+    env.engine.globals['Bundle'] = Bundle
 
 
 def worker(conf, env, args):
@@ -219,10 +153,12 @@ def compile(conf, env):
         else:
             __writers[cls.ext] = cls
 
-    for path, directory in relfilelist(conf['theme'], conf['theme_ignore'], env.engine.templates):
+    excludes = env.engine.templates.keys() + env.webassets.excludes(conf['theme'])
+    for path, directory in relfilelist(conf['theme'], conf['theme_ignore'], excludes):
         files[(splitext(path)[1], directory)].add(path)
 
-    for path, directory in relfilelist(conf['static'], conf['static_ignore']):
+    excludes = env.webassets.excludes(conf['static'] or '')
+    for path, directory in relfilelist(conf['static'], conf['static_ignore'], excludes):
         files[(splitext(path)[1], directory)].add(path)
 
     map(partial(worker, conf, env), files.iteritems())
