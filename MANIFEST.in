@@ -2,7 +2,6 @@ include README.rst
 
 recursive-exclude acrylamid *.pyc
 recursive-include acrylamid/filters/hyph *.txt
-recursive-include acrylamid/defaults *
 
 include acrylamid/lib/CHANGES
 include acrylamid/views/search/search.js

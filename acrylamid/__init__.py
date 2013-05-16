@@ -147,19 +147,10 @@ def Acryl():
     env = core.Environment({'author': __author__, 'url': __url__,
         'options': options, 'globals': Struct()})
 
-    # -- init -- #
-    try:
-        if options.parser in ('init', ):
-            tasks.collected[options.parser](env, options)
-            sys.exit(0)
-    except AcrylamidException as e:
-        log.fatal(e.args[0])
-        sys.exit(1)
-
     try:
         conf = core.load(options.conf)
     except IOError:
-        log.critical('no conf.py found. Try "acrylamid init".')
+        log.critical('no conf.py found. Are you inside your blog?')
         sys.exit(1)
     except Exception as e:
         log.critical("%s in `conf.py`" % e.__class__.__name__)
