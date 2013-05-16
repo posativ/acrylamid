@@ -131,5 +131,9 @@ entry
 :draft:
     if set to True, the entry will not appear in articles, index, feed and tag view
 
+:path:
+    filename's path without content_dir and extension, e.g. "content/2013/foo.md"
+    gets "2013/foo".
+
 :extension:
-    filename's extension
+    filename's extension without leading dot

@@ -297,13 +297,12 @@ class FileReader(Reader):
         self.offset = i
         Reader.__init__(self, conf, meta)
 
+        path, ext = os.path.splitext(path)
+        self.path = lchop(path, conf['content_dir'])
+        self.extension = ext[1:]
+
     def __repr__(self):
         return "<FileReader f'%s'>" % repr(self.filename)[2:-1]
-
-    @property
-    def extension(self):
-        """Filename's extension without leading dot"""
-        return os.path.splitext(self.filename)[1][1:]
 
     @property
     def lastmodified(self):
