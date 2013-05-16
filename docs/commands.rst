@@ -18,37 +18,8 @@ above.
 --conf /path/to/conf  alternate conf.py
 --version             show program's version number and exit
 
-
-init
-----
-
-Initializes the base structure of an Acrylamid blog, hence it should be the
-first command you should execute. If the destination directory is not empty it
-won't overwrite anything unless you supply -f, --force. The default template
-is either Jinja2 or Mako if only one egg is installed or Jinja2.
-
--f, --force    don't ask, just overwrite
---theme THEME  use theme (minimalistic HTML5 per default)
---mako         use the Mako template engine
---jinja2       use the Jinja2 template engine
-
-.. raw:: html
-
-    <pre>
-    $ acrylamid init tutorial
-      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/theme/style.css
-         ...
-      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/theme/atom.xml
-      <span style="font-weight: bold; color: #00aa00">   create</span>  tutorial/content/sample-entry.txt
-    Created your fresh new blog at 'tutorial'. Enjoy!
-    </pre>
-
-You can also restore individual files that you accidentially removed. Run the
-following line inside your blog if want to restore `theme/main.html` and you
-use shadowplay as theme, run::
-
-    $ acrylamid init theme/main.html --theme shadowplay
-
+Built-in Commands
+*****************
 
 new
 ---
@@ -213,10 +184,61 @@ broken HTML.
 -p, --pandoc        use pandoc first, then ``html2rest`` or ``html2text``
 -a  ARG [ARG ...]   add arg to header section, such as ``-a "imported: True"``.
 
+
+info
+----
+
+Shows information about your blog. It can print a short summary (default) or
+shows you your current tag usage and coverage.
+
+-2                a git-like digit to show the last N articles (default: 5)
+                  during summary or 100 most used tags.
+  --coverage N    discover posts with uncommon tags
+
+Summarize mode (gray items are drafts):
+
+.. raw:: html
+
+    <pre>
+    $ acrylamid info -2
+    acrylamid <span style="color: #0000aa">0.3.4</span>, cache size: <span style="color: #0000aa">1.24</span> mb
+
+       <span style="color: #00aa00">13 hours ago</span> Linkschleuder #24
+       <span style="color: #00aa00">14 hours ago</span> <span style="color: #888888">About Python Packages</span>
+
+    <span style="color: #0000aa">157</span> published, <span style="color: #0000aa">2</span> drafted articles
+    last compilation at <span style="color: #0000aa">01. June 2012, 10:41</span>
+    </pre>
+
+Tag usage and coverage:
+
+.. code-block:: sh
+
+    $ acrylamid info tags | head -n 2
+    34 Python          4 Jena      2 TextMate         2 Open Source
+    28 Links           4 V-Server  2 iOS              2 munin
+
+    $ acrylamid info tags --coverage 1 | head -n 2
+    Diaspora content/2012/diaspora.txt
+    FreeBSD content/2012/abseits-von-linux-freebsd.txt
+
+
+External Commands
+*****************
+
+The following commands are not part of the Acrylamid core but you may find them
+already in your blog because you bootstrapped from the default theme. You'll
+find the scripts in the *tasks/* directory in the root directory of your blog.
+If not, `get a copy`_ (just wget them to the task directory) from GitHub.
+
+.. _get a copy: https://github.com/posativ/default/blob/master/tasks/
+
 .. _deploy:
 
 deploy
 ------
+
+.. note:: GitHub source: https://github.com/posativ/default/blob/master/tasks/deploy.py
 
 With ``acrylamid deploy TASK`` you can run single commands, e.g. push just
 generated content to your server. Write new tasks into the DEPLOYMENT dict
@@ -277,46 +299,10 @@ flag/option after the task identifier is passed to:
     </pre>
 
 
-info
-----
-
-Shows information about your blog. It can print a short summary (default) or
-shows you your current tag usage and coverage.
-
--2                a git-like digit to show the last N articles (default: 5)
-                  during summary or 100 most used tags.
-  --coverage N    discover posts with uncommon tags
-
-Summarize mode (gray items are drafts):
-
-.. raw:: html
-
-    <pre>
-    $ acrylamid info -2
-    acrylamid <span style="color: #0000aa">0.3.4</span>, cache size: <span style="color: #0000aa">1.24</span> mb
-
-       <span style="color: #00aa00">13 hours ago</span> Linkschleuder #24
-       <span style="color: #00aa00">14 hours ago</span> <span style="color: #888888">About Python Packages</span>
-
-    <span style="color: #0000aa">157</span> published, <span style="color: #0000aa">2</span> drafted articles
-    last compilation at <span style="color: #0000aa">01. June 2012, 10:41</span>
-    </pre>
-
-Tag usage and coverage:
-
-.. code-block:: sh
-
-    $ acrylamid info tags | head -n 2
-    34 Python          4 Jena      2 TextMate         2 Open Source
-    28 Links           4 V-Server  2 iOS              2 munin
-
-    $ acrylamid info tags --coverage 1 | head -n 2
-    Diaspora content/2012/diaspora.txt
-    FreeBSD content/2012/abseits-von-linux-freebsd.txt
-
-
 ping
 ----
+
+.. note:: GitHub source: https://github.com/posativ/default/blob/master/tasks/pingback.py
 
 Send Pingbacks to other blogs (still experimental) with one command. Without
 any arguments the newest article is submitted to any referenced url that
@@ -352,3 +338,23 @@ have ``twitter`` from PyPi installed):
 Of course, you must first allow Acrylamid to post tweets for you. From all
 optional argumments above you can only use ``--all`` and ``-2`` to increase
 the amount of pinged articles.
+
+
+Custom Commands
+***************
+
+You can of course extend Acrylamid with custom commands. Just create -- if not
+already there -- a *tasks/* directory in your blog root and add this little
+hello world script:
+
+.. code-block::
+
+    # tasks/hello.py
+
+    @task("hello", help="say hello")
+    def hello(conf, env, options):
+
+        print 'Hello, World.'
+
+For documentation, refer to already existing tasks as there is currently no
+public documentation available.
