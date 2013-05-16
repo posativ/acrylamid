@@ -6,12 +6,10 @@
 import math
 import random
 
-from os.path import isfile
 from collections import defaultdict
 
-from acrylamid.views import View
-from acrylamid.helpers import union, joinurl, safeslug, event
-from acrylamid.helpers import paginate, expand, link, hash
+from acrylamid.views import View, Paginator
+from acrylamid.helpers import expand, safeslug, hash
 
 
 def fetch(entrylist):
@@ -73,7 +71,7 @@ class Tagcloud(object):
         return self.tags[tag.name]
 
 
-class Tag(View):
+class Tag(View, Paginator):
     """Same behaviour like Index except ``route`` that defaults to */tag/:name/* and
     ``pagination`` that defaults to */tag/:name/:num/* where :name is the current
     tag identifier.
@@ -81,11 +79,13 @@ class Tag(View):
     To create a tag cloud head over to :doc:`conf.py`.
     """
 
+    export = ['prev', 'curr', 'next', 'items_per_page', 'tag', 'entrylist']
+    template = 'main.html'
 
-    def init(self, conf, env, template='main.html', items_per_page=10, pagination='/tag/:name/:num/'):
-        self.template = template
-        self.items_per_page = items_per_page
-        self.pagination = pagination
+
+    def init(self, *args, **kwargs):
+        View.init(self, *args, **kwargs)
+        Paginator.init(self, *args, **kwargs)
         self.filters.append('relative')
 
     def populate_tags(self, request):
@@ -118,37 +118,8 @@ class Tag(View):
     def generate(self, conf, env, data):
         """Creates paged listing by tag."""
 
-        ipp = self.items_per_page
-        tt = env.engine.fromfile(env, self.template)
-
         for tag in self.tags:
 
-            route = expand(self.path, {'name': tag}).rstrip('/')
-            entrylist = [entry for entry in self.tags[tag]]
-            paginator = paginate(entrylist, ipp, route, conf['default_orphans'])
-
-            for (next, curr, prev), entries, modified in paginator:
-
-                # e.g.: curr = /page/3, next = /page/2, prev = /page/4
-
-                next = None if next is None \
-                else link(u'Next', expand(self.path, {'name': tag}).rstrip('/')) if next == 1 \
-                    else link(u'Next', expand(self.pagination, {'name': tag, 'num': next}))
-
-                curr = link(curr, expand(self.path, {'name': tag})) if curr == 1 \
-                    else link(expand(self.pagination, {'num': curr, 'name': tag}))
-
-                prev = None if prev is None \
-                    else link(u'Previous', expand(self.pagination, {'name': tag, 'num': prev}))
-
-                path = joinurl(conf['output_dir'], curr)
-
-                if isfile(path) and not (modified or tt.modified or env.modified or conf.modified):
-                    event.skip('tag', path)
-                    continue
-
-                html = tt.render(conf=conf, env=union(env, entrylist=entries,
-                                type='tag', prev=prev, curr=curr, next=next, tag=tag,
-                                items_per_page=ipp, num_entries=len(entrylist), route=route))
-
-                yield html, path
+            data['entrylist'] = [entry for entry in self.tags[tag]]
+            for res in Paginator.generate(self, conf, env, data, tag=tag, name=tag):
+                yield res

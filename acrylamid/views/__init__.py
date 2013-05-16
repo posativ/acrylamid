@@ -4,10 +4,13 @@
 # License: BSD Style, 2 clauses -- see LICENSE.
 
 import os
+from os.path import isfile
+
 from functools import partial
 
 from acrylamid import helpers, utils, log
 from acrylamid.errors import AcrylamidException
+from acrylamid.helpers import paginate, link, joinurl, event, expand, union
 
 # module-wide callbacks variable contaning views, reset this on initialize!
 __views_list = []
@@ -163,6 +166,11 @@ class View(object):
 
        The key to which you assign a configuration dict.
 
+    .. attribute:: export
+
+       A list of keys, that will be exported to the template rendering function.
+       Applies only if :func:`render` is used, though.
+
     .. method:: init(self, conf, env, **kwargs)
 
        Initializing the view with configuration parameters. You can also load
@@ -197,6 +205,7 @@ class View(object):
        :param request: request dictionary"""
 
     priority = 50.0
+    export = []
 
     def __init__(self, **kwargs):
 
@@ -223,10 +232,67 @@ class View(object):
         return helpers.hash(self.name, self.path)
 
     def init(self, conf, env, **kwargs):
-        pass
+
+        for key, value in kwargs.iteritems():
+            self.__dict__[key] = value
 
     def context(self, conf, env, request):
         return env
 
-    def generate(self, conf, env, request):
-        raise AcrylamidException('%s.generate not implemented' % self.__class__.__name__)
+    def render(self, conf, env, kwargs):
+
+        dikt = env.__class__()
+        dikt.update(env)
+
+        dikt['type'] = self.__class__.__name__.lower()
+        dikt['num_entries'] = len(env.globals.entrylist)
+
+        for key in set(self.export + ['route']):
+            try:
+                dikt[key] = kwargs[key]
+            except KeyError:
+                try:
+                    dikt[key] = getattr(self, key)
+                except AttributeError:
+                    raise AcrylamidException("missing key %r" % key)
+
+        return kwargs['tt'].render(conf=conf, env=dikt)
+
+
+class Paginator(object):
+
+    def init(self, *args, **kwargs):
+        if 'items_per_page' not in kwargs:
+            self.items_per_page = 10
+        if 'pagination' not in kwargs:
+            self.pagination = self.path + ':num/'
+
+    def generate(self, conf, env, data, **kwargs):
+
+        ipp = self.items_per_page if self.pagination is not None else 2**32
+        tt = env.engine.fromfile(env, self.template)
+
+        route = expand(self.path, kwargs)
+        entrylist = data['entrylist']
+        paginator = paginate(entrylist, ipp, route, conf.default_orphans)
+
+        for (next, curr, prev), entrylist, modified in paginator:
+
+            next = None if next is None \
+                else link(u'Next', expand(self.path, kwargs)) if next == 1 \
+                    else link(u'Next', expand(self.pagination, union({'num': next}, kwargs)))
+
+            curr = link(curr, expand(self.path, kwargs)) if curr == 1 \
+                else link(expand(self.pagination, union({'num': curr}, kwargs)))
+
+            prev = None if prev is None \
+               else link(u'Previous', expand(self.pagination, union({'num': prev}, kwargs)))
+
+            path = joinurl(conf['output_dir'], curr.href)
+
+            if isfile(path) and not (modified or tt.modified or env.modified or conf.modified):
+                event.skip(self.__class__.__name__.lower(), path)
+                continue
+
+            html = self.render(conf, env, union(locals(), kwargs))
+            yield html, path
