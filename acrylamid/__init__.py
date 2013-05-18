@@ -22,7 +22,7 @@ dist = pkg_resources.get_distribution("acrylamid")
 __author__ = 'Martin Zimmermann <info@posativ.org>'
 __url__ = 'https://github.com/posativ/acrylamid/'
 
-import sys
+import sys, os
 PY3 = sys.version_info[0] == 3
 
 if sys.version_info > (3, 2) and not os.getenv('PYTHONHASHSEED'):
