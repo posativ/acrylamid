@@ -52,7 +52,7 @@ setup(
     extras_require={
         'full': ['pygments', 'docutils', 'smartypants', 'asciimathml',
                  'textile', 'unidecode', 'PyYAML', 'twitter', 'discount'],
-        'mako': ['mako'],
+        'mako': ['mako>=0.7'],
     },
     tests_require=['Attest-latest', 'cram', 'docutils'],
     test_loader='attest:auto_reporter.test_loader',
