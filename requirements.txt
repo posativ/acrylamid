@@ -1,6 +1,7 @@
 # testing
 Attest-latest==0.6dev-20121124
 cram==0.5
+tox==1.4.2
 
 # releasing
 zest.releaser
