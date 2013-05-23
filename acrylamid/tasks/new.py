@@ -73,7 +73,7 @@ def run(conf, env, options):
 
     try:
         if editor:
-            retcode = subprocess.call([editor, filepath])
+            retcode = subprocess.call(editor.split() + [filepath])
         elif sys.platform == 'darwin':
             retcode = subprocess.call(['open', filepath])
         else:
