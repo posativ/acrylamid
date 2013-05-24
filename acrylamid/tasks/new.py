@@ -9,8 +9,9 @@ import os
 import tempfile
 import subprocess
 import shutil
+import shlex
 
-from os.path import join, dirname, isfile
+from os.path import join, dirname, isfile, splitext
 from datetime import datetime
 
 from acrylamid import log, readers, commands
@@ -52,7 +53,7 @@ def run(conf, env, options):
         f.write(tt(title, datetime.now().strftime(conf['date_format'])))
 
     entry = readers.Entry(tmp, conf)
-    p = join(conf['content_dir'], dirname(entry.permalink)[1:])
+    p = join(conf['content_dir'], splitext(entry.permalink.strip('/'))[0])
 
     try:
         os.makedirs(p.rsplit('/', 1)[0])
@@ -73,7 +74,7 @@ def run(conf, env, options):
 
     try:
         if editor:
-            retcode = subprocess.call(editor.split() + [filepath])
+            retcode = subprocess.call(shlex.split(editor) + [filepath])
         elif sys.platform == 'darwin':
             retcode = subprocess.call(['open', filepath])
         else:
