@@ -5,13 +5,16 @@
 
 import os
 import abc
+import io
+import glob
 
-from os.path import isfile
+from os.path import isfile, splitext, dirname, split, normpath
 from collections import defaultdict
 
 from acrylamid import refs
 from acrylamid.refs import modified, references
 from acrylamid.views import View
+from acrylamid import log
 from acrylamid.errors import AcrylamidException
 from acrylamid.helpers import expand, union, joinurl, event, link
 
@@ -72,6 +75,25 @@ class Base(View):
 
             yield html, path
 
+            if entry.hasproperty('copyres'):
+                copyres = entry.props.get('copyres')
+                if isinstance(copyres, list):
+                    copyreslist = [normpath(split(entry.filename)[0] + '/' + val) for val in copyres]
+                else:
+                    if copyres is None:
+                        # use default wildcard appended to entry filename
+                        wcard = splitext(entry.filename)[0] + conf.get('copyres_wildcard', '_[0-9]*.*')
+                    else:  
+                        # provided wildcard appended to input directory
+                        wcard = split(entry.filename)[0] + '/' + copyres
+                    copyreslist = glob.glob(wcard)
+
+                for resource in copyreslist:
+                    try:
+                        fp = io.open(resource, 'rb')
+                        yield fp , dirname(path) + '/' + split(resource)[1]
+                    except IOError as e:
+                        log.warn("Failed to copy '%s' whilst processing '%s' (%s)" % (resource, entry.filename, e.strerror))
 
 class Entry(Base):
     """Creates single full-length entry
