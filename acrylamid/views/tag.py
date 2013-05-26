@@ -94,7 +94,7 @@ class Tag(Index):
 
             def __init__(self, title, href):
                 self.title = title
-                self.href = href if href.endswith('/') else href + '/'
+                self.href = href
 
         def tagify(tags):
             href = lambda t: expand(self.path, {'name': safeslug(t)})
