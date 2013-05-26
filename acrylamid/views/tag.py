@@ -8,7 +8,7 @@ import random
 
 from collections import defaultdict
 
-from acrylamid.views import View, Paginator
+from acrylamid.views.index import Index, Paginator
 from acrylamid.helpers import expand, safeslug, hash
 
 
@@ -71,7 +71,7 @@ class Tagcloud(object):
         return self.tags[tag.name]
 
 
-class Tag(View, Paginator):
+class Tag(Index):
     """Same behaviour like Index except ``route`` that defaults to */tag/:name/* and
     ``pagination`` that defaults to */tag/:name/:num/* where :name is the current
     tag identifier.
@@ -82,15 +82,9 @@ class Tag(View, Paginator):
     export = ['prev', 'curr', 'next', 'items_per_page', 'tag', 'entrylist']
     template = 'main.html'
 
-
-    def init(self, *args, **kwargs):
-        View.init(self, *args, **kwargs)
-        Paginator.init(self, *args, **kwargs)
-        self.filters.append('relative')
-
     def populate_tags(self, request):
 
-        tags = fetch(request['entrylist'] + request['translations'])
+        tags = fetch(request['entrylist'])
         self.tags = dict([(safeslug(k), v) for k, v in tags.iteritems()])
         return tags
 
