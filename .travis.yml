@@ -4,7 +4,7 @@ python:
   - 2.7
   - 3.2
 install:
-  - pip install --use-mirrors cram unidecode mako jinja2 markdown docutils Attest-latest
+  - pip install --use-mirrors -r test-requirements.txt
   - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install --use-mirrors
     translitcodec argparse; fi
   - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then pip install --use-mirrors translitcodec; fi

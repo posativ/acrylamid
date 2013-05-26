@@ -6,7 +6,7 @@ import re
 from os.path import join, dirname
 from setuptools import setup, find_packages
 
-requires = ['Jinja2>=2.4', 'Markdown>=2.0.1']
+requires = ['Jinja2==2.6', 'Markdown>=2.0.1']
 kw = {}
 
 if sys.version_info[0] >= 3:
@@ -52,7 +52,7 @@ setup(
     extras_require={
         'full': ['pygments', 'docutils', 'smartypants', 'asciimathml',
                  'textile', 'unidecode', 'PyYAML', 'twitter', 'discount'],
-        'mako': ['mako>=0.7'],
+        'mako': ['mako==0.7.3'],
     },
     tests_require=['Attest-latest', 'cram', 'docutils'],
     test_loader='attest:auto_reporter.test_loader',
