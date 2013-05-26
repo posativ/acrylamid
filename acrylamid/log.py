@@ -3,6 +3,8 @@
 # Copyright 2012 Martin Zimmermann <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses -- see LICENSE.
 
+from __future__ import print_function
+
 import sys
 import logging
 import warnings
@@ -110,8 +112,8 @@ def level():
 
 
 def showwarning(msg, cat, path, lineno):
-    print path + ':%i' % lineno
-    print '%s: %s' % (cat().__class__.__name__, msg)
+    print(path + ':%i' % lineno)
+    print('%s: %s' % (cat().__class__.__name__, msg))
 
 
 __all__ = ['fatal', 'warn', 'info', 'skip', 'debug', 'error',

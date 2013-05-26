@@ -15,7 +15,7 @@ class Code(Directive):
 
         .. source:: python
 
-           print "Hello, World!"
+           print("Hello, World!")
 
         .. raw:: html
 

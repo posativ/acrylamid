@@ -3,6 +3,8 @@
 # Copyright 2012 Martin Zimmermann <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses -- see LICENSE.
 
+from __future__ import print_function
+
 import os
 import datetime
 import argparse
@@ -77,24 +79,24 @@ def do_summary(conf, env, options):
     entrylist = sorted(entrylist + translations + drafts,
         key=lambda k: k.date, reverse=True)
 
-    print
-    print 'Acrylamid', blue(env['version']) + ',',
-    print 'cache size:', blue('%0.2f' % (cache.size / 1024.0**2)) + ' mb'
-    print
+    print()
+    print('Acrylamid', blue(env['version']) + ',', end=' ')
+    print('cache size:', blue('%0.2f' % (cache.size / 1024.0**2)) + ' mb')
+    print()
 
     for entry in entrylist[:limit]:
-        print '  ', green(ago(entry.date.replace(tzinfo=None)).ljust(13)),
-        print white(entry.title) if entry.draft else normal(entry.title)
+        print('  ', green(ago(entry.date.replace(tzinfo=None)).ljust(13)), end=' ')
+        print(white(entry.title) if entry.draft else normal(entry.title))
 
-    print
-    print '%s published,' % blue(len([e for e in entrylist if not e.draft])),
-    print '%s drafted articles' % blue(len([e for e in entrylist if e.draft]))
+    print()
+    print('%s published,' % blue(len([e for e in entrylist if not e.draft])), end=' ')
+    print('%s drafted articles' % blue(len([e for e in entrylist if e.draft])))
 
     if not isfile(join(conf.get('cache_dir', '.cache/'), 'info')):
         return
 
     time = localtime(getmtime(join(conf.get('cache_dir', '.cache/'), 'info')))
-    print 'last compilation at %s' % blue(u(strftime(u'%d. %B %Y, %H:%M', time)))
+    print('last compilation at %s' % blue(u(strftime(u'%d. %B %Y, %H:%M', time))))
 
 
 # This function was written by Alex Martelli
@@ -124,7 +126,7 @@ def colprint(table, totwidth):
     for row in padded:
         s = ''.join(['%*s' % (-w, i[:w])
                      for w, i in zip(widths, row)])
-        print s.encode('utf-8')
+        print(s.encode('utf-8'))
 
 def do_tags(conf, env, options):
 
@@ -134,8 +136,8 @@ def do_tags(conf, env, options):
     if options.coverage:
         for tag, entries in sorted(fetch(entrylist).iteritems()):
             if len(entries) <= options.coverage:
-                print blue(tag).encode('utf-8'),
-                print ', '.join(e.filename.encode('utf-8') for e in entries)
+                print(blue(tag).encode('utf-8'), end=' ')
+                print(', '.join(e.filename.encode('utf-8') for e in entries))
         return
 
     tags = ['%i %s' % (len(value), key) for key, value in

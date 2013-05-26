@@ -3,6 +3,8 @@
 # Copyright 2012 Martin Zimmermann <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses -- see LICENSE.
 
+from __future__ import print_function
+
 import sys
 import os
 import argparse
@@ -29,7 +31,7 @@ def run(conf, env, options):
 
     if options.list:
         for task in conf.get('deployment', {}).keys():
-            print >>sys.stdout, task
+            print(task)
         sys.exit(0)
 
     task, args = options.task or 'default', options.args

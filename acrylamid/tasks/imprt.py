@@ -3,6 +3,8 @@
 # Copyright 2012 Martin Zimmermann <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses -- see LICENSE.
 
+from __future__ import print_function
+
 import os
 import io
 import re
@@ -365,11 +367,11 @@ def build(conf, env, defaults, items, options):
 
         create(defaults, item)
 
-    print "\nImport was successful. Edit your conf.py with these new settings:"
+    print("\nImport was successful. Edit your conf.py with these new settings:")
     for key, value in defaults.iteritems():
         if value is None:
             continue
-        print "    %s = '%s'" % (key.upper(), value)
+        print("    %s = '%s'" % (key.upper(), value))
 
 
 @task("import", arguments, "import content from URL or FILE")

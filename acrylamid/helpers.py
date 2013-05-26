@@ -180,7 +180,7 @@ def paginate(lst, ipp, salt="", orphans=0):
     :param orphans: avoid N orphans on last page
 
     >>> for x, values, _, paginate(entryrange(20), 6, orphans=2):
-    ...    print x, values
+    ...    print(x, values)
     (None, 0, 1), [entries 1..6]
     (0, 1, 2), [entries 7..12]
     (1, 2, None), [entries 12..20]"""

@@ -3,6 +3,8 @@
 # Copyright 2012 Martin Zimmermann <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses -- see LICENSE.
 
+from __future__ import print_function
+
 import sys
 import io
 import re
@@ -47,27 +49,27 @@ def w3c(paths, conf, warn=False, sleep=0.2):
         resp = head("http://validator.w3.org/check?uri=" + \
             helpers.joinurl(conf['www_root'], quote(url)))
 
-        print helpers.rchop(url, 'index.html'),
+        print(helpers.rchop(url, 'index.html'), end=' ')
 
         if resp.code != 200:
-            print red('not 200 Ok!')
+            print(red('not 200 Ok!'))
             continue
 
         headers = resp.info()
         if headers['x-w3c-validator-status'] == "Abort":
-            print red("Abort")
+            print(red("Abort"))
         elif headers['x-w3c-validator-status'] == 'Valid':
             if int(headers['x-w3c-validator-warnings']) == 0:
-                print green('Ok')
+                print(green('Ok'))
             else:
                 if warn:
-                    print yellow(headers['x-w3c-validator-warnings'] + ' warns')
+                    print(yellow(headers['x-w3c-validator-warnings'] + ' warns'))
                 else:
-                    print green('Ok')
+                    print(green('Ok'))
         else:
             res = headers['x-w3c-validator-errors'] + ' errors, ' + \
                   headers['x-w3c-validator-warnings'] + ' warns'
-            print red(res)
+            print(red(res))
 
         time.sleep(sleep)
 
@@ -91,14 +93,14 @@ def validate(paths, jobs):
                 try:
                     get(url, path, 'GET', True)
                 except URLError as e:
-                    print '  ' + yellow(e.reason), url
-                    print white('  -- ' + path)
+                    print('  ' + yellow(e.reason), url)
+                    print(white('  -- ' + path))
             else:
-                print '  ' + red(e.code), url
-                print white('  -- ' + path)
+                print('  ' + red(e.code), url)
+                print(white('  -- ' + path))
         except URLError as e:
-            print '  ' + yellow(e.reason), url
-            print white('  -- ' + path)
+            print('  ' + yellow(e.reason), url)
+            print(white('  -- ' + path))
 
     # -- validation
     for path in paths:
@@ -113,9 +115,9 @@ def validate(paths, jobs):
                     visited.add(a)
                     urls[path].append(a)
 
-    print
-    print "Trying", blue(len(visited)), "links..."
-    print
+    print()
+    print("Trying", blue(len(visited)), "links...")
+    print()
 
     pool = Threadpool(jobs)
     for path in urls:

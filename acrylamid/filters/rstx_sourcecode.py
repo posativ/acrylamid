@@ -22,7 +22,7 @@ class Pygments(Directive):
             :linenos:
 
             #!/usr/bin/env python
-            print "Hello World!
+            print("Hello World!)
 
     ``linenos`` enables line numbering. A pygment CSS is not provided by
     acrylamid but can easily get one by using the ``pygmentize`` script

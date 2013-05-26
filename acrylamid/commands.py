@@ -3,6 +3,8 @@
 # Copyright 2012 Martin Zimmermann <info@posativ.org>. All rights reserved.
 # License: BSD Style, 2 clauses -- see LICENSE.
 
+from __future__ import print_function
+
 import sys
 import os
 import time
@@ -40,8 +42,8 @@ def initialize(conf, env):
     # crawl through CHANGES.md and stop on breaking changes
     if history.breaks(env, cache.emptyrun):
         cache.shutdown()
-        print "Detected version upgrade that might break your configuration. Run"
-        print "Acrylamid a second time to get rid of this message and premature exit."
+        print("Detected version upgrade that might break your configuration. Run")
+        print("Acrylamid a second time to get rid of this message and premature exit.")
         raise SystemExit
 
     # register hooks

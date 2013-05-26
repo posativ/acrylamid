@@ -5,6 +5,7 @@
 #
 # give update information for Acrylamid
 
+from __future__ import print_function
 
 import io
 import re
@@ -77,16 +78,16 @@ def breaks(env, firstrun):
             if not hints:
                 continue
 
-            print
-            print (blue('Acrylamid') + ' %i.%s' % (major, minor+1) + u' – changes').encode('utf-8'),
+            print()
+            print((blue('Acrylamid') + ' %i.%s' % (major, minor+1) + u' – changes').encode('utf-8'), end="")
 
             if broken:
-                print (u'– ' + red('may break something.')).encode('utf-8')
+                print((u'– ' + red('may break something.')).encode('utf-8'))
             else:
-                print
+                print()
 
-            print
-            print colorize(hints).encode('utf-8')
-            print
+            print()
+            print(colorize(hints).encode('utf-8'))
+            print()
 
     return broken

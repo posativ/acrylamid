@@ -66,7 +66,7 @@ class task(object):
         @task("hello", help="say hello")
         def hello(conf, env, options):
 
-            print 'Hello World!'
+            print('Hello World!')
     """
 
     def __init__(self, *args, **kwargs):
