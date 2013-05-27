@@ -8,7 +8,7 @@ import abc
 import io
 import glob
 
-from os.path import isfile, splitext, dirname, split, normpath
+from os.path import isfile, dirname, basename, getmtime, join
 from collections import defaultdict
 
 from acrylamid import refs
@@ -16,7 +16,7 @@ from acrylamid.refs import modified, references
 from acrylamid.views import View
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
-from acrylamid.helpers import expand, union, joinurl, event, link
+from acrylamid.helpers import expand, union, joinurl, event, link, mkfile
 
 
 class Base(View):
@@ -66,34 +66,34 @@ class Base(View):
 
             if all([isfile(path), unmodified, not tt.modified, not entry.modified,
             not modified(*references(entry))]):
-                event.skip(self.name, path)
-                continue
+                entryskipped = True # log later incase a resource is updated, change will be reflected in sitemap
+            else:
+                entryskipped = False
+                html = tt.render(conf=conf, entry=entry, env=union(env,
+                                 entrylist=[entry], type=self.__class__.__name__.lower(),
+                                 prev=prev, next=next, route=expand(self.path, entry)))
+                yield html, path
 
-            html = tt.render(conf=conf, entry=entry, env=union(env,
-                             entrylist=[entry], type=self.__class__.__name__.lower(),
-                             prev=prev, next=next, route=expand(self.path, entry)))
-
-            yield html, path
-
-            if entry.hasproperty('copyres'):
-                copyres = entry.props.get('copyres')
-                if isinstance(copyres, list):
-                    copyreslist = [normpath(split(entry.filename)[0] + '/' + val) for val in copyres]
-                else:
-                    if copyres is None:
-                        # use default wildcard appended to entry filename
-                        wcard = splitext(entry.filename)[0] + conf.get('copyres_wildcard', '_[0-9]*.*')
-                    else:  
-                        # provided wildcard appended to input directory
-                        wcard = split(entry.filename)[0] + '/' + copyres
-                    copyreslist = glob.glob(wcard)
-
-                for resource in copyreslist:
+            # check if any resources need to be moved
+            if entry.hasproperty('respaths'):
+                for res_src in entry.props.get('respaths'):
+                    res_dest = join(dirname(path), basename(res_src))
+                    # Note, presence of res_src check in FileReader.getresources
+                    if isfile(res_dest) and getmtime(res_dest) > getmtime(res_src):
+                        event.skip(self.name, res_dest)
+                        continue
                     try:
-                        fp = io.open(resource, 'rb')
-                        yield fp , dirname(path) + '/' + split(resource)[1]
+                        fp = io.open(res_src, 'rb')
+                        if entryskipped == True:
+                            event.update(self.name, path)
+                            entryskipped = False
+                        # use mkfile rather than yield so different ns can be specified (and filtered by sitemap)
+                        mkfile(fp, res_dest, ns='resource', force=env.options.force, dryrun=env.options.dryrun)
                     except IOError as e:
-                        log.warn("Failed to copy '%s' whilst processing '%s' (%s)" % (resource, entry.filename, e.strerror))
+                        log.warn("Failed to copy resource '%s' whilst processing '%s' (%s)" % (res_src, entry.filename, e.strerror))
+            if entryskipped == True:
+                event.skip(self.name, path)
+
 
 class Entry(Base):
     """Creates single full-length entry
