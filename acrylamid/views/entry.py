@@ -5,15 +5,18 @@
 
 import os
 import abc
+import io
+import glob
 
-from os.path import isfile
+from os.path import isfile, dirname, basename, getmtime, join
 from collections import defaultdict
 
 from acrylamid import refs
 from acrylamid.refs import modified, references
 from acrylamid.views import View
+from acrylamid import log
 from acrylamid.errors import AcrylamidException
-from acrylamid.helpers import expand, union, joinurl, event, link
+from acrylamid.helpers import expand, union, joinurl, event, link, mkfile
 
 
 class Base(View):
@@ -63,14 +66,33 @@ class Base(View):
 
             if all([isfile(path), unmodified, not tt.modified, not entry.modified,
             not modified(*references(entry))]):
+                entryskipped = True # log later incase a resource is updated, change will be reflected in sitemap
+            else:
+                entryskipped = False
+                html = tt.render(conf=conf, entry=entry, env=union(env,
+                                 entrylist=[entry], type=self.__class__.__name__.lower(),
+                                 prev=prev, next=next, route=expand(self.path, entry)))
+                yield html, path
+
+            # check if any resources need to be moved
+            if entry.hasproperty('respaths'):
+                for res_src in entry.props.get('respaths'):
+                    res_dest = join(dirname(path), basename(res_src))
+                    # Note, presence of res_src check in FileReader.getresources
+                    if isfile(res_dest) and getmtime(res_dest) > getmtime(res_src):
+                        event.skip(self.name, res_dest)
+                        continue
+                    try:
+                        fp = io.open(res_src, 'rb')
+                        if entryskipped == True:
+                            event.update(self.name, path)
+                            entryskipped = False
+                        # use mkfile rather than yield so different ns can be specified (and filtered by sitemap)
+                        mkfile(fp, res_dest, ns='resource', force=env.options.force, dryrun=env.options.dryrun)
+                    except IOError as e:
+                        log.warn("Failed to copy resource '%s' whilst processing '%s' (%s)" % (res_src, entry.filename, e.strerror))
+            if entryskipped == True:
                 event.skip(self.name, path)
-                continue
-
-            html = tt.render(conf=conf, entry=entry, env=union(env,
-                             entrylist=[entry], type=self.__class__.__name__.lower(),
-                             prev=prev, next=next, route=expand(self.path, entry)))
-
-            yield html, path
 
 
 class Entry(Base):

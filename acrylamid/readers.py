@@ -12,10 +12,11 @@ import sys
 import abc
 import codecs
 import traceback
+import glob
 
 BOM_UTF8 = codecs.BOM_UTF8.decode('utf8')
 
-from os.path import join, getmtime, relpath, splitext
+from os.path import join, getmtime, relpath, splitext, dirname, basename, isfile, normpath
 from fnmatch import fnmatch
 from datetime import datetime, tzinfo, timedelta
 
@@ -294,6 +295,10 @@ class FileReader(Reader):
             if m.group(1) is not None:
                 meta['cats'] = m.group(1).split('/')
 
+        if 'copyres' in meta:
+            meta['respaths'] = self.getresources(meta.get('copyres'), conf)
+            meta['resfilenames'] = [basename(val) for val in meta['respaths']] 
+
         self.offset = i
         Reader.__init__(self, conf, meta)
 
@@ -321,6 +326,22 @@ class FileReader(Reader):
     def date(self):
         "Fallback to last modification timestamp if date is unset."
         return Date.fromtimestamp(getmtime(self.filename)).replace(tzinfo=self.tzinfo)
+
+    def getresources(self, wildcards, conf):
+        """Generate a list of resources files based on the wildcard(s) passed in."""
+        reslist = []
+        if isinstance(wildcards, list):
+            for term in wildcards:
+                # exclude missing and non file types 
+                reslist.extend([ normpath(f) for f in glob.glob(join(dirname(self.filename), term)) if isfile(f) ])
+        else:
+            if wildcards is None:
+                # use default wildcard appended to entry filename
+                reslist = [ normpath(f) for f in glob.glob(splitext(self.filename)[0] + conf.get('copyres_wildcard', '_[0-9]*.*')) if isfile(f) ]
+            else:
+                # provided wildcard appended to input directory
+                reslist = [ normpath(f) for f in glob.glob(join(dirname(self.filename), wildcards)) if isfile(f) ]
+        return reslist
 
 
 class MetadataMixin(object):
@@ -404,6 +425,14 @@ class MetadataMixin(object):
         if isinstance(fx, basestring):
             return [fx]
         return fx
+
+    @property
+    def respaths(self):
+        return self.props.get('respaths', [])
+
+    @property
+    def resfilenames(self):
+        return self.props.get('resfilenames', [])
 
     @property
     def draft(self):

@@ -6,7 +6,7 @@
 import io
 
 from time import strftime, gmtime
-from os.path import getmtime, exists
+from os.path import getmtime, exists, splitext
 
 from acrylamid.views import View
 from acrylamid.helpers import event, joinurl, rchop
@@ -53,7 +53,10 @@ class Sitemap(View):
     def init(self, conf, env):
 
         def track(ns, path):
-            self.files.add((ns, path))
+            if ns != 'resource':
+                self.files.add((ns, path))                
+            elif self.resext and splitext(path) in self.resext:
+                self.files.add((ns, path))
 
         def changed(ns, path):
             if not self.modified:
@@ -61,6 +64,14 @@ class Sitemap(View):
 
         self.files = set([])
         self.modified = False
+        
+        # use extension to check if resource should be tracked (eg PDF but should excluding images and video)
+        self.resext = conf.get('sitemap_resource_ext', [])
+        # Considered adding images and video, but need to be associated with loc. Better to have access to entry obj
+        # see http://support.google.com/webmasters/bin/answer.py?hl=en&answer=183668
+        #
+        #self.imgext = conf.get('sitemap_image_ext', [])
+        #self.vidext = conf.get('sitemap_video_ext', [])
 
         # track output files
         event.register(track, to=['create', 'update', 'skip', 'identical'])
