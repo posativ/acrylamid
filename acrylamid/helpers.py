@@ -110,8 +110,11 @@ def mkfile(fileobj, path, ctime=0.0, ns=None, force=False, dryrun=False):
                     fp.write(fileobj.read())
         event.update(ns, path, ctime)
     else:
-        if not dryrun and not isdir(dirname(path)):
-            os.makedirs(dirname(path))
+        if not dryrun:
+            try:
+                os.makedirs(dirname(path))
+            except OSError:
+                pass
         if not dryrun:
             if hasattr(fileobj, 'name'):
                 shutil.copy(fileobj.name, path)
