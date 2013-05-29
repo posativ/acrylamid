@@ -15,8 +15,6 @@ import getpass
 
 from base64 import b64encode
 from datetime import datetime
-from urllib2 import urlopen, Request, HTTPError
-from urlparse import urlsplit
 
 from xml.etree import ElementTree
 from xml.parsers.expat import ExpatError
@@ -27,10 +25,24 @@ from os.path import join, dirname, isfile
 from acrylamid import log, commands
 from acrylamid.tasks import task, argument
 from acrylamid.errors import AcrylamidException
+from acrylamid.compat import PY2K, iteritems, map, filter
 
 from acrylamid.readers import Entry
 from acrylamid.helpers import event, safe, system
 from acrylamid.lib.html import unescape
+
+if PY2K:
+    from urllib2 import urlopen, Request, HTTPError
+    from urlparse import urlsplit
+else:
+    from urllib.request import urlopen, Request
+    from urllib.error import HTTPError
+    from urllib.parse import urlsplit
+
+try:
+    input = raw_input
+except NameError:
+    pass
 
 arguments = [
     argument("src", metavar="FILE|URL"),
@@ -109,15 +121,15 @@ def rss(xml):
     def generate(item):
 
         entry = {}
-        for k, v in {'title': 'title', 'date': 'pubDate', 'link': 'link',
-                     'content': 'description'}.iteritems():
+        for k, v in iteritems({'title': 'title', 'date': 'pubDate',
+                               'link': 'link', 'content': 'description'}):
             try:
                 entry[k] = item.find(v).text if k != 'content' \
                                              else unescape(item.find(v).text)
             except (AttributeError, TypeError):
                 pass
 
-        if filter(lambda k: not k in entry, ['title', 'date', 'link', 'content']):
+        if any(filter(lambda k: k not in entry, ['title', 'date', 'link', 'content'])):
             raise AcrylamidException('invalid RSS 2.0 feed: provide at least title, ' \
                                      + 'link, content and pubDate!')
 
@@ -137,14 +149,14 @@ def rss(xml):
     defaults = {'author': None}
     channel = tree.getchildren()[0]
 
-    for k, v in {'title': 'sitename', 'link': 'www_root',
-                 'language': 'lang', 'author': 'author'}.iteritems():
+    for k, v in iteritems({'title': 'sitename', 'link': 'www_root',
+                           'language': 'lang', 'author': 'author'}):
         try:
             defaults[v] = channel.find(k).text
         except AttributeError:
             pass
 
-    return defaults, map(generate, channel.findall('item'))
+    return defaults, list(map(generate, channel.findall('item')))
 
     try:
         tree = ElementTree.fromstring(xml.encode('utf-8'))
@@ -156,14 +168,14 @@ def rss(xml):
     defaults = {'author': None}
     channel = tree.getchildren()[0]
 
-    for k, v in {'title': 'sitename', 'link': 'www_root',
-                 'language': 'lang', 'author': 'author'}.iteritems():
+    for k, v in iteritems({'title': 'sitename', 'link': 'www_root',
+                           'language': 'lang', 'author': 'author'}):
         try:
             defaults[v] = channel.find(k).text
         except AttributeError:
             pass
 
-    return defaults, map(generate, channel.findall('item'))
+    return defaults, list(map(generate, channel.findall('item')))
 
 
 def atom(xml):
@@ -214,7 +226,7 @@ def atom(xml):
     if www_root:
          defaults['www_root'] = www_root[0].attrib.get('href')
 
-    return defaults, map(generate, tree.findall(ns + 'entry'))
+    return defaults, list(map(generate, tree.findall(ns + 'entry')))
 
 
 def wordpress(xml):
@@ -264,7 +276,7 @@ def wordpress(xml):
 
     for version in range(1, 10):
         wpns = '{http://wordpress.org/export/1.%i/}' % version
-        return defaults, map(generate, tree.findall('channel/item'))
+        return defaults, list(map(generate, tree.findall('channel/item')))
 
 
 def fetch(url, auth=None):
@@ -287,7 +299,7 @@ def fetch(url, auth=None):
         raise AcrylamidException(e.msg)
 
     if r.getcode() == 401:
-        user = raw_input('Username: ')
+        user = input('Username: ')
         passwd = getpass.getpass()
         fetch(url, user + ':' + passwd)
     elif r.getcode() == 200:
@@ -356,7 +368,7 @@ def build(conf, env, defaults, items, options):
         shutil.move(tmp, filepath)
         event.create('import', filepath)
 
-    for item in filter(lambda x: x, items):
+    for item in items:
 
         if options.keep:
             m = urlsplit(item['link'])
@@ -368,7 +380,7 @@ def build(conf, env, defaults, items, options):
         create(defaults, item)
 
     print("\nImport was successful. Edit your conf.py with these new settings:")
-    for key, value in defaults.iteritems():
+    for key, value in iteritems(defaults):
         if value is None:
             continue
         print("    %s = '%s'" % (key.upper(), value))

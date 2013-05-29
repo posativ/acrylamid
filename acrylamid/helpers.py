@@ -18,11 +18,13 @@ from unicodedata import normalize
 from collections import defaultdict
 from os.path import join, dirname, isdir, isfile, commonprefix, normpath
 
-from acrylamid import log, PY3, __file__ as PATH
+from acrylamid import log, compat, __file__ as PATH
 from acrylamid.errors import AcrylamidException
 
 from acrylamid.core import cache
 from acrylamid.utils import batch, hash, rchop
+
+from acrylamid.compat import text_type as str, iteritems, PY2K
 
 try:
     import translitcodec
@@ -66,7 +68,8 @@ def union(first, *args, **kwargs):
     key=values as parameters to overwrite or add key/value-pairs. No side-effects,"""
 
     new = first.__class__()
-    map(new.update, itertools.chain([first], args, [kwargs]))
+    for item in itertools.chain([first], args, [kwargs]):
+        new.update(item)
 
     return new
 
@@ -131,9 +134,9 @@ def expand(url, obj, re=re.compile(r':(\w+)')):
     '/2011/awesome-title/'
     """
     if isinstance(obj, dict):
-        return re.sub(lambda m: unicode(obj.get(m.group(1), m.group(1))), url)
+        return re.sub(lambda m: str(obj.get(m.group(1), m.group(1))), url)
     else:
-        return re.sub(lambda m: unicode(getattr(obj, m.group(1), m.group(1))), url)
+        return re.sub(lambda m: str(getattr(obj, m.group(1), m.group(1))), url)
 
 
 def joinurl(*args):
@@ -144,7 +147,7 @@ def joinurl(*args):
     >>> joinurl('/hello/', '/world/')
     '/hello/world/index.html'
     """
-    rv = [unicode(mem) for mem in args]
+    rv = [str(mem) for mem in args]
     if rv[-1].endswith('/'):
         rv.append('index.html')
     return normpath('/'.join(rv))
@@ -229,21 +232,30 @@ def safe(string):
     return string
 
 
-def link(title, href=None):
+@compat.implements_to_string
+class Link(object):
     """Return a link struct, that contains title and optionally href. If only
     title is given, we use title as href too.  It provides a __unicode__ to
     be compatible with older templates (≤ 0.3.4).
 
     :param title: link title and href if no href is given
-    :param href: href"""
+    :param href: href
+    """
 
-    return type('Link', (object, ), {
-        'title': title,
-        'href': title if href is None else href,
-        '__str__' if PY3 else '__unicode__': lambda cls: cls.href,
-        '__add__': lambda self, other: unicode(self) + other,
-        '__radd__': lambda self, other: other + unicode(self)
-    })()
+    def __init__(self, title, href=None):
+        self.title = title
+        self.href = href
+
+    def __str__(self):
+        return self.href
+
+    def __add__(self, other):
+        return str(self) + other
+
+    def __radd__(self, other):
+        return other + str(other)
+
+link = Link
 
 
 def system(cmd, stdin=None, **kwargs):
@@ -271,37 +283,39 @@ def system(cmd, stdin=None, **kwargs):
     if err or retcode != 0:
         if not err.strip():
             err = 'process exited with %i.' % retcode
-        raise AcrylamidException(err.strip() if PY3 else err.strip().decode('utf-8'))
+        raise AcrylamidException(err.strip() if not PY2K else err.strip().decode('utf-8'))
     return result.strip().decode('utf-8')
 
 
-def metavent(cls, parents, attrs):
+class metaevent(type):
     """Add classmethod to each callable, track given methods and intercept
     methods with callbacks added to cls.callbacks"""
 
-    def intercept(func):
-        """decorator which calls callback registered to this method."""
-        name, doc = func.func_name, func.__doc__
+    def __new__(cls, name, bases, attrs):
 
-        def dec(cls, ns, path, *args, **kwargs):
-            for callback in  cls.callbacks[name]:
-                callback(ns, path)
-            if name in cls.events:
-                attrs['counter'][name] += 1
-            return func(cls, path, *args, **kwargs)
-        dec.__doc__ = func.__doc__  # sphinx
-        return dec
+        def intercept(func):
+            """decorator which calls callback registered to this method."""
+            name = func.func_name if compat.PY2K else func.__name__
 
-    for name, func in attrs.items():
-        if not name.startswith('_') and callable(func):
-            if name in attrs['events']:
-                func = intercept(func)
-            attrs[name] = classmethod(func)
+            def dec(cls, ns, path, *args, **kwargs):
+                for callback in  cls.callbacks[name]:
+                    callback(ns, path)
+                if name in cls.events:
+                    attrs['counter'][name] += 1
+                return func(cls, path, *args, **kwargs)
+            dec.__doc__ = func.__doc__  # sphinx
+            return dec
 
-    return type(cls, parents, attrs)
+        for name, func in iteritems(attrs):
+            if not name.startswith('_') and callable(func):
+                if name in attrs['events']:
+                    func = intercept(func)
+                attrs[name] = classmethod(func)
+
+        return type.__new__(cls, name, bases, attrs)
 
 
-class event:
+class event(compat.metaclass(metaevent, object)):
     """This helper class provides an easy mechanism to give user feedback of
     created, changed or deleted files.  As side-effect every it allows you to
     register your own functions to these events.
@@ -339,8 +353,6 @@ class event:
 
        :param event: count calls of this particular event
        :type event: string"""
-
-    __metaclass__ = metavent
 
     # intercept these event
     events = ('create', 'update', 'remove', 'skip', 'identical')

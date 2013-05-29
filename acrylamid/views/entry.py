@@ -10,15 +10,15 @@ from os.path import isfile
 from collections import defaultdict
 
 from acrylamid import refs
+from acrylamid.errors import AcrylamidException
+from acrylamid.compat import metaclass
+
 from acrylamid.refs import modified, references
 from acrylamid.views import View
-from acrylamid.errors import AcrylamidException
 from acrylamid.helpers import expand, union, joinurl, event, link
 
 
-class Base(View):
-
-    __metaclass__ = abc.ABCMeta
+class Base(metaclass(abc.ABCMeta, View)):
 
     priority = 75.0
 

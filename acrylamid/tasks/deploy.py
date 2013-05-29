@@ -13,6 +13,7 @@ import subprocess
 from acrylamid import log
 from acrylamid.tasks import argument, task
 from acrylamid.errors import AcrylamidException
+from acrylamid.compat import iterkeys, iteritems, string_types, PY2K
 
 arguments = [
     argument("task", nargs="?"),
@@ -30,7 +31,7 @@ def run(conf, env, options):
     deploy task ARG1 ARG2`` is appended to cmd."""
 
     if options.list:
-        for task in conf.get('deployment', {}).keys():
+        for task in iterkeys(conf.get('deployment', {})):
             print(task)
         sys.exit(0)
 
@@ -46,15 +47,16 @@ def run(conf, env, options):
 
     enc = sys.getfilesystemencoding()
     env = os.environ
-    env.update(dict([(k.upper(), v.encode(enc, 'replace')) for k, v in conf.items() if isinstance(v, basestring)]))
+    env.update(dict([(k.upper(), v.encode(enc, 'replace') if PY2K else v)
+        for k, v in iteritems(conf) if isinstance(v, string_types)]))
 
     log.info('execute  %s', cmd)
     p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     while True:
         output = p.stdout.read(1)
-        if output == '' and p.poll() != None:
+        if output == b'' and p.poll() != None:
             break
-        if output != '':
-            sys.stdout.write(output)
+        if output != b'':
+            sys.stdout.write(output.decode(enc))
             sys.stdout.flush()

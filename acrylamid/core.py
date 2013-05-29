@@ -9,22 +9,22 @@ import os
 import io
 import zlib
 import types
+import pickle
 import tempfile
 
 from os.path import join, exists, getmtime, getsize, dirname, basename
 
 from acrylamid import log, defaults
 from acrylamid.errors import AcrylamidException
+from acrylamid.compat import PY2K, iteritems, iterkeys
 
 from acrylamid.utils import (
     classproperty, cached_property, Struct, hash, HashableList, find, execfile,
     lchop, force_unicode as u
 )
 
-try:
+if PY2K:
     import cPickle as pickle
-except ImportError:
-    import pickle  # NOQA
 
 __all__ = ['Memory', 'cache', 'Environment', 'Configuration']
 
@@ -63,7 +63,7 @@ class cache(object):
 
     _fs_transaction_suffix = '.__ac_cache'
     cache_dir = '.cache/'
-    mode = 0600
+    mode = 0o600
 
     memoize = Memory()
 
@@ -90,7 +90,7 @@ class cache(object):
 
         if not exists(self.cache_dir):
             try:
-                os.mkdir(self.cache_dir, 0700)
+                os.mkdir(self.cache_dir, 0o700)
             except OSError:
                 raise AcrylamidException("could not create directory '%s'" % self.cache_dir)
 
@@ -229,10 +229,15 @@ def load(path):
     with `conf.py`'s uppercase values and normalizes ambiguous values.
     """
     conf = Configuration(defaults.conf)
-    ns = dict([(k.upper(), v) for k, v in defaults.conf.iteritems()])
+    ns = dict([(k.upper(), v) for k, v in iteritems(defaults.conf)])
 
     os.chdir(dirname(find(basename(path), u(dirname(path) or os.getcwd()))))
-    execfile(path, ns)
+
+    if PY2K:
+        execfile(path, ns)
+    else:
+        exec(compile(open(path).read(), path, 'exec'), ns)
+
     conf.update(dict([(k.lower(), ns[k]) for k in ns if k.upper() == k]))
 
     # append trailing slash to *_dir and place certain values into an array
@@ -275,7 +280,7 @@ class Configuration(Environment):
 
     def fetch(self, ns):
         return Configuration((lchop(k, ns), v)
-            for k, v in self.iteritems() if k.startswith(ns))
+            for k, v in iteritems(self) if k.startswith(ns))
 
     def values(self):
         for key in self.keys():
@@ -286,7 +291,7 @@ class Configuration(Environment):
                 yield HashableList(self[key])
             elif isinstance(self[key], dict):
                 yield Configuration(self[key])
-            elif isinstance(self[key], types.NoneType):
+            elif isinstance(self[key], type(None)):
                 yield -1
             else:
                 yield self[key]

@@ -13,11 +13,17 @@ import os
 import time
 
 from threading import Thread
-from SocketServer import TCPServer
-from SimpleHTTPServer import SimpleHTTPRequestHandler
 
 from acrylamid.utils import force_unicode as u
+from acrylamid.compat import PY2K
 from acrylamid.helpers import joinurl
+
+if PY2K:
+    from SocketServer import TCPServer
+    from SimpleHTTPServer import SimpleHTTPRequestHandler
+else:
+    from socketserver import TCPServer
+    from http.server import SimpleHTTPRequestHandler
 
 
 class ReuseAddressServer(TCPServer):

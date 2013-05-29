@@ -7,7 +7,7 @@
 #
 # -- http://pyblosxom.bluesock.org/
 #
-# This is a port of PyBlosxom's acronyms plugin as acrylamid
+# This is a port of PyBlosxom's acronyms plugin as Acrylamid
 # filter. All credits go to Pyblosxom's and blosxom's authors.
 
 import os
@@ -15,6 +15,7 @@ import io
 import re
 
 from acrylamid import log
+from acrylamid.compat import iteritems, filter
 from acrylamid.filters import Filter
 
 from acrylamid.lib.html import HTMLParser, HTMLParseError
@@ -81,7 +82,7 @@ class Acronyms(Filter):
 
         acros = self.acronyms
         if len(args) > 0:
-            acros = dict(filter(lambda k: any(k[0] == v for v in args), acros.items()))
+            acros = dict(filter(lambda k: any(k[0] == v for v in args), iteritems(acros)))
 
         try:
             abbr = re.compile(r'\b(%s)\b' % '|'.join((pat.pattern for pat in acros)))

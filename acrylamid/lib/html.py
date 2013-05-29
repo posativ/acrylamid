@@ -21,8 +21,14 @@ import sys
 import re
 
 from cgi import escape
-from HTMLParser import HTMLParser as DefaultParser, HTMLParseError
-from htmlentitydefs import name2codepoint
+from acrylamid.compat import PY2K
+
+if PY2K:
+    from HTMLParser import HTMLParser as DefaultParser, HTMLParseError
+    from htmlentitydefs import name2codepoint
+else:
+    from html.parser import HTMLParser as DefaultParser, HTMLParseError
+    from html.entities import name2codepoint
 
 
 def unescape(s):

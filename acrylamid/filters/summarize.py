@@ -61,7 +61,7 @@ class Summarizer(HTMLParser):
 
                 # this adds the link if it's not inside a given tag, prefered way
                 if self.mode == 1:
-                    if not filter(lambda t: t in ['code', 'pre', 'b', 'a', 'em'], self.stack):
+                    if not any(filter(lambda t: t in ['code', 'pre', 'b', 'a', 'em'], self.stack)):
                         self.result.append(self.options['link'] % self.href)
                         self.mode = -1
 
@@ -84,7 +84,7 @@ class Summarizer(HTMLParser):
             super(Summarizer, self).handle_charref(char)
 
     def handle_comment(self, comment, keywords=['excerpt', 'summary', 'break', 'more']):
-        if self.words < self.maxwords and filter(lambda word: word in comment.lower(), keywords):
+        if self.words < self.maxwords and [word for word in keywords if word in comment.lower()]:
             self.words = self.maxwords
 
 

@@ -5,11 +5,15 @@
 
 import sys
 
+from acrylamid import compat
+from acrylamid.compat import text_type as str, string_types
+
 if sys.platform == 'win32':
     import colorama
     colorama.init()
 
 
+@compat.implements_to_string
 class ANSIString(object):
 
     style = 0
@@ -23,8 +27,8 @@ class ANSIString(object):
             if color is None:
                 color = obj.color
             obj = obj.obj
-        elif not isinstance(obj, basestring):
-            obj = unicode(obj)
+        elif not isinstance(obj, string_types):
+            obj = str(obj)
 
         self.obj = obj
         if style:
@@ -32,26 +36,21 @@ class ANSIString(object):
         if color:
             self.color = color
 
-    def __unicode__(self):
+    def __str__(self):
         return '\033[%i;%im' % (self.style, self.color) + self.obj + '\033[0m'
 
-    def __str__(self):
-        if sys.version_info < (3, 0):
-            return unicode(self).encode('utf-8')
-        return self.__unicode__()
-
     def __add__(self, other):
-        return unicode.__add__(unicode(self), other)
+        return str.__add__(str(self), other)
 
     def __radd__(self, other):
-        return other + unicode(self)
+        return other + str(self)
 
     def encode(self, encoding):
-        return unicode(self).encode(encoding)
+        return str(self).encode(encoding)
 
 
 normal, bold, underline = [lambda obj, x=x: ANSIString(obj, style=x)
-    for x in 0, 1, 4]
+    for x in (0, 1, 4)]
 
 black, red, green, yellow, blue, \
 magenta, cyan, white = [lambda obj, y=y: ANSIString(obj, color=y)

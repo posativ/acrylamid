@@ -6,25 +6,27 @@
 import io
 import re
 import json
+import pickle
 
 from os.path import join
 from functools import partial
 
-from urllib import urlencode
-from urlparse import urlparse, parse_qs
-
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle  # NOQA
-
 from acrylamid import core, utils, lib
+from acrylamid.compat import PY2K, iteritems, text_type as str
 
 from acrylamid.core import cache
 from acrylamid.utils import Struct
 from acrylamid.filters import Filter
 
 from acrylamid.lib import requests
+
+if PY2K:
+    from urllib import urlencode
+    from urlparse import urlparse, parse_qs
+    import cPickle as pickle
+else:
+    from urllib.parse import urlencode
+    from urllib.parse import urlparse, parse_qs
 
 __img_re = r'(?P<class>\S.*\s+)?(?P<src>(?:https?:\/\/|\/|\S+\/)\S+)(?:\s+(?P<width>\d+))?(?:\s+(?P<height>\d+))?(?P<title>\s+.+)?'
 __img_re_title = r'(?:"|\')(?P<title>[^"\']+)?(?:"|\')\s+(?:"|\')(?P<alt>[^"\']+)?(?:"|\')'
@@ -109,7 +111,7 @@ def img(header, body=None):
         attrs['class'] = attrs['class'].replace('"', '')
 
     if attrs:
-        return '<img ' + ' '.join('%s="%s"' % (k, v) for k, v in attrs.items() if v) + ' />'
+        return '<img ' + ' '.join('%s="%s"' % (k, v) for k, v in iteritems(attrs) if v) + ' />'
     return ("Error processing input, expected syntax: "
             "{% img [class name(s)] [http[s]:/]/path/to/image [width [height]] "
             "[title text | \"title text\" [\"alt text\"]] %}")
@@ -147,11 +149,11 @@ def tweet(header, body=None):
     hence we are caching the response per configuration to `.cache/`."""
 
     oembed = 'https://api.twitter.com/1/statuses/oembed.json'
-    args = map(unicode.strip, re.split(r'\s+', header))
+    args = list(map(str.strip, re.split(r'\s+', header)))
 
     params = Struct(url=args.pop(0))
     for arg in args:
-        k, v = map(unicode.strip, arg.split('='))
+        k, v = list(map(str.strip, arg.split('=')))
         if k and v:
             v = v.strip('\'')
         params[k] = v
@@ -206,7 +208,7 @@ class Liquid(Filter):
 
     def transform(self, text, entry, *args):
 
-        for tag, func in self.directives.iteritems():
+        for tag, func in iteritems(self.directives):
             text = re.sub(self.block(tag), lambda m: func(*m.groups()), text)
 
         return text

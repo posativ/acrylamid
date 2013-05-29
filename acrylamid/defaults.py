@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 import io
 from os.path import join, dirname
 
-from acrylamid import log
+from acrylamid import log, compat
 
 copy = lambda path: io.open(join(dirname(__file__), path), 'rb')
 
@@ -84,7 +84,7 @@ def normalize(conf):
             conf[key] += '/'
 
     for key in 'views_dir', 'filters_dir':
-        if isinstance(conf[key], basestring):
+        if isinstance(conf[key], compat.string_types):
             conf[key] = [conf[key], ]
 
     return conf

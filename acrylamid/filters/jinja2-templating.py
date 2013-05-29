@@ -5,12 +5,15 @@
 
 import io
 import re
+
 from os.path import join, isfile
 
 from acrylamid import log
+from acrylamid.errors import AcrylamidException
+from acrylamid.compat import PY2K, text_type as str
+
 from acrylamid.filters import Filter
 from acrylamid.helpers import system as defaultsystem
-from acrylamid.errors import AcrylamidException
 
 from jinja2 import Environment, TemplateError
 
@@ -36,8 +39,16 @@ class Jinja2(Filter):
         self.conf = conf
         self.env = env
 
-        # jinja2 is stupid and can't import any module
-        import time, datetime, urllib
+        # jinja2 is limited and can't import any module
+        import time, datetime
+        modules = [time, datetime]
+
+        if PY2K:
+            import urllib
+            modules += [urllib]
+        else:
+            import urllib.request, urllib.parse, urllib.error
+            modules += [urllib.request, urllib.parse, urllib.error]
 
         if hasattr(env.engine, 'jinja2'):
             self.jinja2_env = env.engine.jinja2.overlay(cache_size=0)
@@ -45,17 +56,16 @@ class Jinja2(Filter):
             self.jinja2_env = Environment(cache_size=0)
 
         self.jinja2_env.filters['system'] = system
-        self.jinja2_env.filters['split'] = unicode.split
-        self.jinja2_env.filters.update({
-            'time': time, 'datetime': datetime, 'urllib': urllib,
-            })
+        self.jinja2_env.filters['split'] = str.split
 
-        for module in (time, datetime, urllib):
-            for name in dir(module):
+        for mod in modules:
+            self.jinja2_env.filters[mod.__name__] = mod
+
+            for name in dir(mod):
                 if name.startswith('_'):
                     continue
 
-                self.jinja2_env.filters[module.__name__ + '.' + name] = getattr(module, name)
+                self.jinja2_env.filters[mod.__name__ + '.' + name] = getattr(mod, name)
 
     @property
     def macros(self):

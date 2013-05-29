@@ -9,6 +9,7 @@ from wsgiref.handlers import format_date_time
 
 from acrylamid.utils import HashableList, total_seconds
 from acrylamid.views import View, tag
+from acrylamid.compat import text_type as str
 from acrylamid.helpers import joinurl, event, expand, union
 from acrylamid.readers import Timezone
 
@@ -108,7 +109,7 @@ class RSS(Feed):
 
         self.num_entries = num_entries
         env.engine.register(
-            'rfc822', lambda dt: unicode(format_date_time(total_seconds(dt - epoch))))
+            'rfc822', lambda dt: str(format_date_time(total_seconds(dt - epoch))))
         self.type = 'rss'
 
 
@@ -128,5 +129,5 @@ class RssPerTag(FeedPerTag):
 
         self.num_entries = num_entries
         env.engine.register(
-            'rfc822', lambda dt: unicode(format_date_time(total_seconds(dt - epoch))))
+            'rfc822', lambda dt: str(format_date_time(total_seconds(dt - epoch))))
         self.type = 'rss'

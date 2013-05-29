@@ -7,11 +7,8 @@ from os.path import join, dirname
 from setuptools import setup, find_packages
 
 requires = ['Jinja2>=2.4', 'Markdown>=2.0.1']
-kw = {}
 
 if sys.version_info[0] >= 3:
-    kw["use_2to3"] = True
-    kw['use_2to3_exclude_fixers'] = ['lib2to3.fixes.execfile', ]
     requires.append('unidecode')
 else:
     requires.append('translitcodec>=0.2')
@@ -46,7 +43,7 @@ setup(
         "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.2",
+        "Programming Language :: Python :: 3.3",
     ],
     install_requires=requires,
     extras_require={
@@ -60,6 +57,5 @@ setup(
     entry_points={
         'console_scripts':
             ['acrylamid = acrylamid:Acryl']
-    },
-    **kw
+    }
 )

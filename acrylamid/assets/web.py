@@ -9,6 +9,8 @@ from os.path import join, isdir, dirname, getmtime, relpath
 from itertools import chain
 
 from acrylamid import core
+from acrylamid.compat import map
+
 from acrylamid.utils import cached_property
 from acrylamid.helpers import event
 
@@ -58,10 +60,11 @@ class Acrylupdater(TimestampUpdater):
         except OSError:
             return self.new.add(bundle) or True
 
-        src = map(lambda s: s[1], bundle.resolve_contents(env))
+        [s[1] for s in bundle.resolve_contents(env)]
         deps = bundle.resolve_depends(env)
 
-        map(self.used.add, src + deps)
+        for item in src + deps:
+            self.used.add(item)
 
         if any(getmtime(deps) > dest for deps in src + deps):
             return True

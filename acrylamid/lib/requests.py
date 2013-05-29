@@ -20,7 +20,11 @@ A simple wrapper around urllib2.
 
     Same like :func:`head` but for GET."""
 
-from urllib2 import Request, urlopen, HTTPError, URLError
+try:
+    from urllib2 import Request, urlopen, HTTPError, URLError
+except ImportError:
+    from urllib.request import Request, urlopen
+    from urllib.error import HTTPError, URLError
 
 
 def proto(method, url, **hdrs):

@@ -49,7 +49,7 @@ class Typography(Filter):
 
     def transform(self, content, entry, *args):
 
-        if filter(lambda k: k in args, ['all', 'typo', 'typogrify']):
+        if any(filter(lambda k: k in args, ['all', 'typo', 'typogrify'])):
             return typogrify(content)
 
         for x in ['amp', 'widont', 'smartypants', 'caps', 'initial_quotes', 'number_suffix']:

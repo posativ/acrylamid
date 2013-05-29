@@ -12,14 +12,20 @@ import argparse
 from math import ceil
 from time import localtime, strftime
 from os.path import join, getmtime, isfile
-from itertools import izip_longest as izip
 
 from acrylamid import readers, commands
+from acrylamid.compat import iteritems, PY2K
+
 from acrylamid.core import cache
 from acrylamid.utils import batch, force_unicode as u
 from acrylamid.tasks import task, argument
 from acrylamid.colors import white, blue, green, normal
 from acrylamid.views.tag import fetch
+
+if PY2K:
+    from itertools import izip_longest as izip
+else:
+    from itertools import zip_longest as izip
 
 
 class Gitlike(argparse.Action):
@@ -54,21 +60,21 @@ def ago(date, now=datetime.datetime.now()):
         if secs < 120:
             return  "a minute ago"
         if secs < 3600:
-            return str(secs/60) + " minutes ago"
+            return str(secs//60) + " minutes ago"
         if secs < 7200:
             return "an hour ago"
         if secs < 86400:
-            return str(secs/3600) + " hours ago"
+            return str(secs//3600) + " hours ago"
     if days == 1:
         return "Yesterday"
     if days < 7:
         return str(days) + " days ago"
     if days < 31:
-        return str(days/7) + " weeks ago"
+        return str(days//7) + " weeks ago"
     if days < 365:
-        return str(days/30) + " months ago"
+        return str(days//30) + " months ago"
 
-    return str(days/365) + " years ago"
+    return str(days//365) + " years ago"
 
 
 def do_summary(conf, env, options):
@@ -134,14 +140,14 @@ def do_tags(conf, env, options):
     entrylist = readers.load(conf)[0]
 
     if options.coverage:
-        for tag, entries in sorted(fetch(entrylist).iteritems()):
+        for tag, entries in sorted(iteritems(fetch(entrylist))):
             if len(entries) <= options.coverage:
                 print(blue(tag).encode('utf-8'), end=' ')
                 print(', '.join(e.filename.encode('utf-8') for e in entries))
         return
 
     tags = ['%i %s' % (len(value), key) for key, value in
-        sorted(fetch(entrylist).iteritems(), key=lambda k: len(k[1]), reverse=True)]
+        sorted(iteritems(fetch(entrylist)), key=lambda k: len(k[1]), reverse=True)]
 
     colprint(
         list(izip(*list(batch(tags[:limit], ceil(len(tags)/4.0))), fillvalue='')),
