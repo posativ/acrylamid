@@ -53,7 +53,7 @@ setup(
     },
     tests_require=['Attest-latest', 'cram', 'docutils'],
     test_loader='attest:auto_reporter.test_loader',
-    test_suite='acrylamid.specs.testsuite',
+    test_suite='specs.testsuite',
     entry_points={
         'console_scripts':
             ['acrylamid = acrylamid:Acryl']
