@@ -14,7 +14,7 @@ else:
     requires.append('translitcodec>=0.2')
 
 if sys.version_info < (2, 7):
-    requires.append('argparse')
+    requires.append('argparse', 'ordereddict')
 
 if sys.platform == 'win32':
     requires.append('colorama')

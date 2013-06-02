@@ -24,7 +24,8 @@ from acrylamid.errors import AcrylamidException
 from acrylamid import readers, filters, views, assets, refs, hooks, helpers, dist
 from acrylamid.lib import lazy, history
 from acrylamid.core import cache, load, Environment
-from acrylamid.utils import hash, istext, HashableList, import_object, total_seconds
+from acrylamid.utils import (hash, istext, HashableList, import_object, total_seconds,
+                             OrderedDict as dict)
 from acrylamid.helpers import event
 
 if compat.PY2K:

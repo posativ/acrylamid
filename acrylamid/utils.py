@@ -16,6 +16,11 @@ import functools
 import itertools
 
 try:
+    from collections import OrderedDict
+except ImportError:
+    from ordereddict import OrderedDict
+
+try:
     import magic
 except ImportError as e:
     if e.args[0].find('libmagic') > -1:
@@ -259,7 +264,7 @@ def istext(path, blocksize=512, chars=(
     return float(len(nontext)) / len(block) <= 0.30
 
 
-class Struct(dict):
+class Struct(OrderedDict):
     """A dictionary that provides attribute-style access."""
 
     def __getattr__(self, name):
