@@ -45,7 +45,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
         return joinurl(u(os.getcwd()), self.www_root, path[len(u(os.getcwd())):])
 
     def end_headers(self):
-        self.wfile.write(b'Cache-Control: max-age=0, must-revalidate\r\n')
+        self.send_header("Cache-Control", "max-age=0, must-revalidate")
         SimpleHTTPRequestHandler.end_headers(self)
 
 
