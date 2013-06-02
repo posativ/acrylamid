@@ -1,6 +1,18 @@
 Welcome to Acrylamid
 ====================
 
+*Notice:*
+
+* don't try the master branch unless you are very sure about the not
+  yet documented changes. If you fix a bug for the stable release,
+  branch off legacy/0.7 please.
+* PyPi releases (0.7.x) do not work with Python 3.3+ due dependency
+  pinning. The upcoming 0.8 release will drop support for 3.2, but
+  fully supports 3.3 and higher.
+* yes, the name will change (still searching for a good name) and a
+  transition from "static blog generator" to "static site generator"
+  is already on my todo list.
+
 Acrylamid is a mixture of `nanoc <http://nanoc.stoneship.org/>`_, `Pyblosxom
 <http://pyblosxom.bluesock.org/>`_ and `Pelican <http://blog.getpelican.com/>`_
 licensed under BSD Style, 2 clauses. It is actively developed at
