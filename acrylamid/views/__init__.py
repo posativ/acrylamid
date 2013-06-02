@@ -270,7 +270,12 @@ class Paginator(object):
 
     def generate(self, conf, env, data, **kwargs):
 
-        ipp = self.items_per_page if self.pagination is not None else 2**32
+        if self.pagination is None:
+            ipp = 2**32
+            self.pagination = self.path
+        else:
+            ipp = self.items_per_page
+
         tt = env.engine.fromfile(env, self.template)
 
         route = expand(self.path, kwargs)

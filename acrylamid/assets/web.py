@@ -60,7 +60,7 @@ class Acrylupdater(TimestampUpdater):
         except OSError:
             return self.new.add(bundle) or True
 
-        [s[1] for s in bundle.resolve_contents(env)]
+        src = [s[1] for s in bundle.resolve_contents(env)]
         deps = bundle.resolve_depends(env)
 
         for item in src + deps:
