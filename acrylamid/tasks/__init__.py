@@ -8,6 +8,7 @@
 import argparse
 
 from os.path import dirname
+from acrylamid.compat import string_types
 from acrylamid.helpers import discover
 
 # we get them from acrylamid/__init__.py
@@ -39,7 +40,7 @@ def register(aliases, arguments=[], help=argparse.SUPPRESS, func=lambda *z: None
 
     global subparsers, default, collected
 
-    if isinstance(aliases, basestring):
+    if isinstance(aliases, string_types):
         aliases = [aliases, ]
 
     if aliases[0] in collected:

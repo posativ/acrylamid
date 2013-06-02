@@ -4,11 +4,12 @@
 # License: BSD Style, 2 clauses -- see LICENSE.
 
 from functools import partial
-from itertools import imap, chain
+from itertools import chain
 from collections import defaultdict
 
 from acrylamid.core import cache
 from acrylamid.utils import hash
+from acrylamid.compat import map
 
 __orig_refs = None
 __seen_refs = None
@@ -63,7 +64,7 @@ def track(func):
         append(entry, item)
         return item
 
-    return lambda entry, **kw: imap(partial(dec, entry), func(entry, **kw))
+    return lambda entry, **kw: map(partial(dec, entry), func(entry, **kw))
 
 
 def append(entry, *references):

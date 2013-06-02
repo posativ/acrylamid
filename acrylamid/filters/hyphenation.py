@@ -2,14 +2,16 @@
 #
 # License: BSD Style, 2 clauses -- see LICENSE.
 
+from acrylamid import log, utils
 from acrylamid.filters import Filter
-from acrylamid.filters import log
-from acrylamid.utils import cached_property
+from acrylamid.compat import filter, text_type as str
+
 from acrylamid.lib.html import HTMLParser, HTMLParseError
 
-import re
 import os
 import io
+import re
+
 from os.path import join, dirname, basename
 
 
@@ -36,7 +38,7 @@ class Hyphenator:
     __version__ = '1.0.20070709'
 
     def __init__(self, chars, patterns, exceptions=''):
-        self.chars = unicode('[.' + chars + ']')
+        self.chars = str('[.' + chars + ']')
         self.tree = {}
         for pattern in patterns.split():
             self._insert_pattern(pattern)
@@ -111,7 +113,7 @@ class Separator(HTMLParser):
     def handle_data(self, data):
         """Hyphenate words longer than 10 characters."""
 
-        if filter(lambda i: i in self.stack, ['pre', 'code', 'math', 'script']):
+        if any(filter(lambda i: i in self.stack, ['pre', 'code', 'math', 'script'])):
             pass
         else:
             split = [word for word in re.split(r"[.:,\s!?+=\(\)/-]+", data)
@@ -160,7 +162,7 @@ class Hyphenate(Filter):
     version = 2
     priority = 20.0
 
-    @cached_property
+    @utils.cached_property
     def default(self):
         try:
             # build default hyphenate_word using conf's lang (if available)

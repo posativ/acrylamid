@@ -27,7 +27,11 @@ These imports will not be delayed::
 This is dark magic, currently only used for lazy import in filters as there have been
 mysterious exceptions in the jinja2 templating engine when enabled for views as well."""
 
-import __builtin__
+try:
+    import __builtin__ as builtins
+except ImportError:
+    import builtins
+
 _origimport = __import__
 
 
@@ -127,12 +131,12 @@ def _demandimport(name, globals=None, locals=None, fromlist=None, level=None):
 
 def enable():
     "Enable global demand-loading of modules."
-    __builtin__.__import__ = _demandimport
+    builtins.__import__ = _demandimport
 
 
 def disable():
     "Disable global demand-loading of modules."
-    __builtin__.__import__ = _origimport
+    builtins.__import__ = _origimport
 
 
 __all__ = ["enable", "disable"]

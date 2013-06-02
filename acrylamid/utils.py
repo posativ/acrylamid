@@ -6,7 +6,6 @@
 # Utilities that do not depend on any further Acrylamid object
 
 from __future__ import unicode_literals
-from __builtin__ import hash as pyhash
 
 import sys
 import os
@@ -22,11 +21,18 @@ except ImportError as e:
         raise
     magic = None
 
+from acrylamid.compat import PY2K, string_types, map, filter, iteritems
+
+if sys.version_info[0] == 2:
+    from __builtin__ import hash as pyhash
+else:
+    from builtins import hash as pyhash
+
 
 def hash(*objs, **kw):
 
     xor = lambda x, y: (x & 0xffffffff)^(y & 0xffffffff)
-    return reduce(xor, map(pyhash, objs), 0)
+    return functools.reduce(xor, map(pyhash, objs), 0)
 
 
 def rchop(original_string, substring):
@@ -52,15 +58,18 @@ def lchop(string, prefix):
     return string
 
 
-def force_unicode(string):  # This function can be removed with Python 3
+if sys.version_info[0] == 2:
+    def force_unicode(string):  # This function can be removed with Python 3
 
-    if isinstance(string, unicode):
-        return string
+        if isinstance(string, unicode):
+            return string
 
-    try:
-        return string.decode('utf-8')
-    except UnicodeDecodeError:
-        return string.decode(locale.getpreferredencoding())
+        try:
+            return string.decode('utf-8')
+        except UnicodeDecodeError:
+            return string.decode(locale.getpreferredencoding())
+else:
+    force_unicode = lambda x: x
 
 
 def total_seconds(td):  # timedelta.total_seconds, required for 2.6
@@ -128,7 +137,7 @@ def find(fname, directory):
 
     while directory:
         try:
-            return os.path.join(directory, next(itertools.ifilter(
+            return os.path.join(directory, next(filter(
                 lambda p: p == fname, os.listdir(directory))))
         except (OSError, StopIteration):
             directory = directory.rsplit('/', 1)[0]
@@ -139,7 +148,7 @@ def find(fname, directory):
 def execfile(path, ns):
     """Python 2 and 3 compatible way to execute a file into a namespace."""
     with io.open(path, 'rb') as fp:
-        exec fp.read() in ns
+        exec(fp.read(), ns)
 
 
 def batch(iterable, count):
@@ -189,7 +198,7 @@ class Metadata(dict):
         return self[attr]
 
     def update(self, dikt):
-        for key, value in dikt.iteritems():
+        for key, value in iteritems(dikt):
             self[key] = value
 
     def redirect(self, old, new):
@@ -248,7 +257,7 @@ class Struct(dict):
         try:
             return self[name]
         except KeyError:
-            raise AttributeError(name)
+            raise AttributeError
 
     __setattr__ = dict.__setitem__
 

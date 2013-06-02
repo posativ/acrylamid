@@ -19,8 +19,9 @@ from os.path import join, getmtime, relpath, splitext
 from fnmatch import fnmatch
 from datetime import datetime, tzinfo, timedelta
 
-from acrylamid import log
+from acrylamid import log, compat
 from acrylamid.errors import AcrylamidException
+from acrylamid.compat import iteritems, string_types, text_type as str
 
 from acrylamid.utils import (cached_property, Metadata, istext, rchop, lchop,
                              force_unicode as u)
@@ -152,7 +153,7 @@ class Timezone(tzinfo):
         return timedelta()
 
 
-class Reader(object):
+class Reader(compat.metaclass(abc.ABCMeta, object)):
     """This class represents a single entry. Every property from this class is
     available during templating including custom key-value pairs from the
     header. The formal structure is first a YAML with some key/value pairs and
@@ -182,11 +183,9 @@ class Reader(object):
 
        Language used in this article. This is important for the hyphenation pattern."""
 
-    __metaclass__ = abc.ABCMeta
-
     def __init__(self, conf, meta):
 
-        self.props = Metadata((k, v) for k, v in conf.iteritems()
+        self.props = Metadata((k, v) for k, v in iteritems(conf)
             if k in ['author', 'lang', 'email', 'date_format',
                      'entry_permalink', 'page_permalink'])
 
@@ -194,7 +193,7 @@ class Reader(object):
         self.type = meta.get('type', 'entry')
 
         # redirect singular -> plural
-        for key, to in {'tag': 'tags', 'filter': 'filters', 'template': 'layout'}.items():
+        for key, to in [('tag', 'tags'), ('filter', 'filters'), ('template', 'layout')]:
             if key in self.props:
                 self.props.redirect(key, to)
 
@@ -220,7 +219,7 @@ class Reader(object):
     def getfilters(self):
         return self._filters
     def setfilters(self, filters):
-        if isinstance(filters, basestring):
+        if isinstance(filters, string_types):
             filters = [filters]
         self._filters = FilterTree(filters)
     filters = property(getfilters, setfilters)
@@ -282,7 +281,7 @@ class FileReader(Reader):
             else:
                 i, meta = markdownstyle(fp)
 
-        meta['title'] = unicode(meta['title'])  # YAML can convert 42 to an int
+        meta['title'] = str(meta['title'])  # YAML can convert 42 to an int
 
         jekyll = r'(?:(.+?)/)?(\d{4}-\d{2}-\d{2})-(.+)'
         m = re.match('^' + conf['content_dir'] + jekyll + '$', splitext(path)[0])
@@ -401,7 +400,7 @@ class MetadataMixin(object):
         is converted to an array containing this string."""
 
         fx = self.props.get('tags', [])
-        if isinstance(fx, basestring):
+        if isinstance(fx, string_types):
             return [fx]
         return fx
 
@@ -506,11 +505,11 @@ def unsafe(string):
 def distinguish(value):
     """Convert :param value: to None, Int, Bool, a List or String.
     """
-    if not isinstance(value, (unicode, str)):
+    if not isinstance(value, string_types):
         return value
 
-    if not isinstance(value, unicode):
-        value = unicode(value)
+    if not isinstance(value, str):
+        value = str(value)
 
     if value == '':
         return None
@@ -558,7 +557,7 @@ def markdownstyle(fileobj):
     if not meta:
         raise AcrylamidException("no meta information in %r found" % fileobj.name)
 
-    for key, values in meta.iteritems():
+    for key, values in iteritems(meta):
         if len(values) == 1:
             meta[key] = values[0]
 
@@ -693,7 +692,7 @@ def pandocstyle(fileobj):
     else:
         log.warn('%s does not have an Author in the Pandoc title block.' % fileobj.name)
 
-    for key, values in meta.iteritems():
+    for key, values in iteritems(meta):
         if len(values) == 1:
             meta[key] = values[0]
 

@@ -12,15 +12,19 @@ import time
 import random
 import collections
 
-from urllib import quote
 from xml.sax.saxutils import unescape
 
-from acrylamid import readers, helpers
+from acrylamid import readers, helpers, compat
 from acrylamid.tasks import task, argument
 from acrylamid.colors import green, yellow, red, blue, white
 
 from acrylamid.lib.async import Threadpool
 from acrylamid.lib.requests import get, head, HTTPError, URLError
+
+if compat.PY2K:
+    from urllib import quote
+else:
+    from urllib.parse import quote
 
 arguments = [
     argument("action", nargs="?", choices=["W3C", "links"], default="W3C",

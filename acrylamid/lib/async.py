@@ -21,10 +21,14 @@ Example usage::
 
 You can't retrieve the return values, just wait until they finish."""
 
-from Queue import Queue
 from threading import Thread
-
 from acrylamid import log
+from acrylamid.compat import PY2K, text_type as str
+
+if PY2K:
+    from Queue import Queue
+else:
+    from queue import Queue
 
 
 class Worker(Thread):
@@ -42,7 +46,7 @@ class Worker(Thread):
             try:
                 func(*args, **kargs)
             except Exception as e:
-                log.exception('%s: %s' % (e.__class__.__name__, unicode(e)))
+                log.exception('%s: %s' % (e.__class__.__name__, str(e)))
             self.tasks.task_done()
 
 

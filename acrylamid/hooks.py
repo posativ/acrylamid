@@ -16,6 +16,8 @@ from functools import partial
 
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
+from acrylamid.compat import string_types, iteritems
+
 from acrylamid.helpers import event, system
 from acrylamid.lib.async import Threadpool
 
@@ -63,7 +65,7 @@ def simple(pool, pattern, normalize, action, ns, path):
     :param action: task to run
     """
     if re.match(pattern, normalize(path), re.I):
-        if isinstance(action, basestring):
+        if isinstance(action, string_types):
             action = partial(run, action)
         pool.add_task(action, ns, path)
 
@@ -79,7 +81,7 @@ def advanced(pool, pattern, force, normalize, action, translate, ns, path):
         return
 
     if force or modified(path, translate(path)):
-        if isinstance(action, basestring):
+        if isinstance(action, string_types):
             action = partial(run, action)
         pool.add_task(action, ns, path, translate(path))
     else:
@@ -96,8 +98,8 @@ def initialize(conf, env):
     force = env.options.force
     normalize = lambda path: path.replace(conf['output_dir'], '')
 
-    for pattern, action in hooks.iteritems():
-        if isinstance(action, (types.FunctionType, basestring)):
+    for pattern, action in iteritems(hooks):
+        if isinstance(action, (types.FunctionType, string_types)):
             event.register(
                 callback=partial(simple, pool, pattern, normalize, action),
                 to=['create', 'update'] if not force else event.events)

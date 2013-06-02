@@ -1,8 +1,10 @@
+from __future__ import absolute_import
 
-from attest import Tests
+from attest import AssertImportHook, Tests
+AssertImportHook.enable()
 
-from acrylamid.specs import (lib, readers, filters, filters_builtin, helpers,
-                             imprt, views, utils, entry, content, core, search)
+from . import (lib, readers, filters, filters_builtin, helpers,
+               imprt, views, utils, entry, content, core, search)
 
 
 testsuite = Tests()

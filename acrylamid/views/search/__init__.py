@@ -12,6 +12,7 @@ from os.path import join, dirname
 from collections import defaultdict
 
 from acrylamid.views import View
+from acrylamid.compat import iteritems
 from acrylamid.helpers import joinurl
 
 
@@ -82,7 +83,7 @@ def index(entrylist):
             for i in range(len(word) - 3):
                 words[word[i:].lower()].add(num)
 
-    for key, value in words.iteritems():
+    for key, value in iteritems(words):
         insert(tree, key, list(value))
 
     del words

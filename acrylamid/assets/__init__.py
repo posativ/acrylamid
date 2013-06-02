@@ -10,6 +10,7 @@ from functools import partial
 from collections import defaultdict
 from os.path import join, isfile, getmtime, split, splitext
 
+from acrylamid.compat import iteritems
 from acrylamid.helpers import mkfile, event
 from acrylamid.readers import relfilelist
 
@@ -153,7 +154,7 @@ def compile(conf, env):
         else:
             __writers[cls.ext] = cls
 
-    excludes = env.engine.templates.keys() + env.webassets.excludes(conf['theme'])
+    excludes = list(env.engine.templates.keys()) + env.webassets.excludes(conf['theme'])
     for path, directory in relfilelist(conf['theme'], conf['theme_ignore'], excludes):
         files[(splitext(path)[1], directory)].add(path)
 
@@ -161,4 +162,4 @@ def compile(conf, env):
     for path, directory in relfilelist(conf['static'], conf['static_ignore'], excludes):
         files[(splitext(path)[1], directory)].add(path)
 
-    map(partial(worker, conf, env), files.iteritems())
+    list(map(partial(worker, conf, env), iteritems(files)))

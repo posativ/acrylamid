@@ -9,8 +9,9 @@ import traceback
 
 from os.path import join, dirname, basename
 
-from acrylamid import log, helpers
+from acrylamid import log, helpers, compat
 from acrylamid.errors import AcrylamidException
+from acrylamid.compat import string_types, filter
 from acrylamid.lib.lazy import _demandmod as LazyModule
 
 # module-level variable to store all used filters during compilation
@@ -75,7 +76,7 @@ class RegexList(list):
 
     def __contains__(self, other):
         for value in self:
-            if isinstance(value, basestring):
+            if isinstance(value, string_types):
                 if value == other:
                     return True
             else:
@@ -125,7 +126,7 @@ class meta(type):
             setattr(cls, 'match', RegexList(dct['match']))
 
 
-class Filter(object):
+class Filter(compat.metaclass(meta, object)):
     """All text transformation is done via filters. A filter takes some text and
     returns it modified or untouched. Per default custom filters are stored in
     ``filters/`` directory inside your blog. On startup, Acrylamid will parse this
@@ -208,8 +209,6 @@ class Filter(object):
        :param args: a list of additional arguments
     """
 
-    __metaclass__ = meta
-
     initialized = False
     conflicts = []
     priority = 50.0
@@ -276,19 +275,19 @@ class FilterList(list):
 
         # check if y.conflicts matches a filter in list
         for x in y.conflicts:
-            if filter(lambda k: x in k.match, self):
+            if [k for k in self if x in k.match]:
                 return True
 
         # check if any filter in list conflicts with y
         for x in self:
-            if filter(lambda k: k in y.match, x.conflicts):
+            if [k for k in x.conflicts if k in y.match]:
                 return True
         return False
 
     def __getitem__(self, item):
 
         try:
-            f = list(filter(lambda x: item in x.match, self))[0]
+            f = next(filter(lambda x: item in x.match, self))
         except IndexError:
             raise ValueError('%s is not in list' % item)
 

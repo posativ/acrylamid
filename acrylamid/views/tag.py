@@ -8,8 +8,9 @@ import random
 
 from collections import defaultdict
 
-from acrylamid.views.index import Index, Paginator
+from acrylamid.compat import iteritems
 from acrylamid.helpers import expand, safeslug, hash
+from acrylamid.views.index import Index, Paginator
 
 
 def fetch(entrylist):
@@ -24,7 +25,7 @@ def fetch(entrylist):
             tmap[tag] += 1
 
     # map tags to the most counted tag name
-    for name in tags.keys()[:]:
+    for name in list(tags.keys()):
         key = max([(tmap[key], key) for key in tmap
                    if key.lower() == name])[1]
         rv = tags.pop(key.lower())
@@ -46,7 +47,7 @@ class Tagcloud(object):
 
     def __init__(self, tags, steps=4, max_items=100, start=0, shuffle=False):
 
-        lst = sorted([(k, len(v)) for k, v in tags.iteritems()],
+        lst = sorted([(k, len(v)) for k, v in iteritems(tags)],
             key=lambda x: x[0])[:max_items]
         # stolen from pelican/generators.py:286
         max_count = max(lst, key=lambda k: k[1])[1] if lst else None
@@ -85,7 +86,7 @@ class Tag(Index):
     def populate_tags(self, request):
 
         tags = fetch(request['entrylist'])
-        self.tags = dict([(safeslug(k), v) for k, v in tags.iteritems()])
+        self.tags = dict([(safeslug(k), v) for k, v in iteritems(tags)])
         return tags
 
     def context(self, conf, env, request):

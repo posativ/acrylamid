@@ -7,8 +7,9 @@ import os
 import imp
 import markdown
 
-from acrylamid.filters import Filter, discover
 from acrylamid.errors import AcrylamidException
+from acrylamid.compat import string_types
+from acrylamid.filters import Filter, discover
 
 
 class Markdown(Filter):
@@ -39,7 +40,7 @@ class Markdown(Filter):
             try:
                 mod = imp.load_module(modname, fp, path, descr)
                 mdx = mod.makeExtension()
-                if isinstance(mod.match, basestring):
+                if isinstance(mod.match, string_types):
                     mod.match = [mod.match]
                 for name in mod.match:
                     self.extensions[name] = mdx

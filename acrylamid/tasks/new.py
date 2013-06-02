@@ -21,6 +21,11 @@ from acrylamid.tasks import task, argument
 from acrylamid.utils import force_unicode as u
 from acrylamid.helpers import safe, event
 
+try:
+    input = raw_input
+except NameError:
+    pass
+
 yaml, rst, md = \
     lambda title, date: u"---\ntitle: %s\ndate: %s\n---\n\n" % (safe(title), date), \
     lambda title, date: u"%s\n" % title + "="*len(title) + '\n\n' + ":date: %s\n\n" % date, \
@@ -47,7 +52,7 @@ def run(conf, env, options):
     if options.title:
         title = u(' '.join(options.title))
     else:
-        title = u(raw_input("Entry's title: "))
+        title = u(input("Entry's title: "))
 
     with io.open(fd, 'w', encoding='utf-8') as f:
         f.write(tt(title, datetime.now().strftime(conf['date_format'])))

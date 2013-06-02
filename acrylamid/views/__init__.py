@@ -10,6 +10,7 @@ from functools import partial
 
 from acrylamid import helpers, utils, log
 from acrylamid.errors import AcrylamidException
+from acrylamid.compat import iteritems, string_types
 from acrylamid.helpers import paginate, link, joinurl, event, expand, union
 
 # module-wide callbacks variable contaning views, reset this on initialize!
@@ -77,7 +78,7 @@ def initialize(directories, conf, env):
     global __views_list
     __views_list, urlmap = [], []
 
-    for rule, view in conf.views.iteritems():
+    for rule, view in iteritems(conf.views):
         if 'views' not in view:
             view['views'] = [view.pop('view'), ]
 
@@ -100,7 +101,7 @@ class Views(utils.HashableList):
     but supports ``__getitem__`` for retrieval."""
 
     def __getitem__(self, key):
-        if isinstance(key, (basestring, View)):
+        if isinstance(key, (string_types, View)):
             try:
                 return self[self.index(key)]
             except ValueError:
@@ -215,7 +216,7 @@ class View(object):
         self.filters = kwargs.get('filters', [])
 
         # single string --> [string, ]
-        if isinstance(self.filters, basestring):
+        if isinstance(self.filters, string_types):
             self.filters = [self.filters, ]
 
         for k in ('condition', 'name', 'path', 'filters'):
@@ -233,7 +234,7 @@ class View(object):
 
     def init(self, conf, env, **kwargs):
 
-        for key, value in kwargs.iteritems():
+        for key, value in iteritems(kwargs):
             self.__dict__[key] = value
 
     def context(self, conf, env, request):

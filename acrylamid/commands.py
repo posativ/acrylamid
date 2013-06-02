@@ -10,7 +10,6 @@ import os
 import time
 import locale
 
-from urlparse import urlsplit
 from datetime import datetime
 from itertools import chain
 from collections import defaultdict
@@ -18,7 +17,8 @@ from os.path import getmtime
 
 from distutils.version import LooseVersion
 
-from acrylamid import log
+from acrylamid import log, compat
+from acrylamid.compat import iteritems, iterkeys
 from acrylamid.errors import AcrylamidException
 
 from acrylamid import readers, filters, views, assets, refs, hooks, helpers, dist
@@ -26,6 +26,11 @@ from acrylamid.lib import lazy, history
 from acrylamid.core import cache, load, Environment
 from acrylamid.utils import hash, istext, HashableList, import_object, total_seconds
 from acrylamid.helpers import event
+
+if compat.PY2K:
+    from urlparse import urlsplit
+else:
+    from urllib.parse import urlsplit
 
 
 def initialize(conf, env):
@@ -176,7 +181,7 @@ def compile(conf, env):
         ns[fx].add(val)
 
     # include actual used filters to trigger modified state
-    env.filters = HashableList(ns.keys())
+    env.filters = HashableList(iterkeys(ns))
 
     for entry in chain(entrylist, pages, drafts):
         for v in _views:
@@ -188,7 +193,7 @@ def compile(conf, env):
             found = entry.filters + v.filters + data['conf']['filters']
 
             for fn in found:
-                fx, _ = next((k for k in ns.iteritems() if fn in k[1]))
+                fx, _ = next((k for k in iteritems(ns) if fn in k[1]))
                 if fx not in flst:
                     flst.append(fx)
 

@@ -5,23 +5,32 @@
 #    - Other: Martin Zimmermann <info@posativ.org>
 # License: BSD Style, 2 clauses -- see LICENSE.
 
+from __future__ import print_function
+
 import sys
 import re
 import os
 import json
-import xmlrpclib
 
 from textwrap import wrap
-from urlparse import urlparse
 
 from acrylamid.tasks import task, argument
 from acrylamid.errors import AcrylamidException
+from acrylamid.compat import PY2K
 from acrylamid.colors import blue, green, bold
 
 from acrylamid import readers, commands, helpers, log
 from acrylamid.tasks.info import option
 from acrylamid.lib.requests import head, URLError, HTTPError
 from acrylamid.lib.async import Threadpool
+
+if PY2K:
+    from urlparse import urlparse
+    import xmlrpclib as xmlrpc
+    setattr(xmlrpc, 'client', xmlrpc)
+else:
+    from urllib.parse import urlparse
+    import xmlrpc.client
 
 try:
     import twitter
@@ -47,7 +56,7 @@ def pingback(src, dest, dryrun=False):
     saying to dest that "the page at src is linking to you"."""
 
     def search_link(content):
-        match = re.search(r'<link rel="pingback" href="([^"]+)" ?/?>', content)
+        match = re.search(b'<link rel="pingback" href="([^"]+)" ?/?>', content)
         return match and match.group(1)
 
     try:
@@ -59,14 +68,14 @@ def pingback(src, dest, dryrun=False):
         server_url = r.info().get('X-Pingback', '') or search_link(r.read(512 * 1024))
         if server_url:
 
-            print "Pingback", blue(urlparse(server_url).netloc),
-            print "from", green(''.join(urlparse(src)[1:3])) + "."
+            print("Pingback", blue(urlparse(server_url).netloc), end='')
+            print("from", green(''.join(urlparse(src)[1:3])) + ".")
 
             if not dryrun:
-                server = xmlrpclib.ServerProxy(server_url)
+                server = xmlrpc.client.ServerProxy(server_url)
                 server.pingback.ping(src, dest)
 
-    except xmlrpclib.ProtocolError as e:
+    except xmlrpc.client.ProtocolError as e:
         raise AcrylamidException(e.args[0])
 
 
@@ -88,8 +97,8 @@ def tweet(entry, conf, dryrun=False):
         helpers.joinurl(conf['www_root'], entry.permalink),
         ' '.join([u'#' + helpers.safeslug(tag) for tag in entry.tags]))
 
-    print '     ', bold(blue("tweet ")),
-    print '\n'.join(wrap(tweet.encode('utf8'), subsequent_indent=' '*13))
+    print('     ', bold(blue("tweet ")), end='')
+    print('\n'.join(wrap(tweet.encode('utf8'), subsequent_indent=' '*13)))
 
     if not dryrun:
         try:
