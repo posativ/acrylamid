@@ -2,11 +2,11 @@ language: python
 python:
   - 2.6
   - 2.7
-  - 3.2
+  - 3.3
 install:
-  - pip install --use-mirrors cram unidecode mako jinja2 markdown docutils Attest-latest
+  - pip install --use-mirrors cram unidecode mako Jinja2 markdown docutils Attest-latest
   - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install --use-mirrors
-    translitcodec argparse; fi
+    translitcodec argparse ordereddict; fi
   - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then pip install --use-mirrors translitcodec; fi
   - python setup.py -q install
 script:
