@@ -22,12 +22,8 @@ dist = pkg_resources.get_distribution("acrylamid")
 __author__ = 'Martin Zimmermann <info@posativ.org>'
 __url__ = 'https://github.com/posativ/acrylamid/'
 
-import sys, os
-PY3 = sys.version_info[0] == 3
-
-sys.argv = ['acrylamid'] + sys.argv[2:]
-# assert os.getenv('PYTHONHASHSEED') == '0'
-
+import sys
+import os
 import time
 import argparse
 import traceback

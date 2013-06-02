@@ -10,6 +10,7 @@ from __future__ import unicode_literals
 import sys
 import os
 import io
+import zlib
 import locale
 import functools
 import itertools
@@ -23,16 +24,24 @@ except ImportError as e:
 
 from acrylamid.compat import PY2K, string_types, map, filter, iteritems
 
-if sys.version_info[0] == 2:
-    from __builtin__ import hash as pyhash
-else:
-    from builtins import hash as pyhash
-
 
 def hash(*objs, **kw):
 
-    xor = lambda x, y: (x & 0xffffffff)^(y & 0xffffffff)
-    return functools.reduce(xor, map(pyhash, objs), 0)
+    # start with 0?
+    rv = kw.get('start', 0)
+
+    for obj in objs:
+        if isinstance(obj, string_types):
+            rv = zlib.crc32(obj.encode('utf-8'), rv)
+        else:
+            if isinstance(obj, tuple):
+                hv = hash(*obj, start=rv)
+            else:
+                hv = obj.__hash__()
+
+            rv = zlib.crc32(repr(hv).encode('utf-8'), rv)
+
+    return rv & 0xffffffff
 
 
 def rchop(original_string, substring):

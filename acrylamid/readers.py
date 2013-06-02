@@ -54,19 +54,11 @@ def load(conf):
     # list of Entry-objects reverse sorted by date.
     entries, pages, trans, drafts = [], [], [], []
 
-    # check for hash collisions
-    seen = set([])
-
     # collect and skip over malformed entries
     for path in filelist(conf['content_dir'], conf['content_ignore']):
         if path.endswith(('.txt', '.rst', '.md')) or istext(path):
             try:
                 entry = Entry(path, conf)
-                if entry in seen:
-                    raise RuntimeError(
-                        "REPORT THIS IMMEDIATELY: python's hash function is not safe!")
-                seen.add(entry)
-
                 if entry.draft:
                     drafts.append(entry)
                 elif entry.type == 'entry':

@@ -1,4 +1,0 @@
-#!/bin/sh
-
-export PYTHONHASHSEED=0
-/usr/bin/env python -m "acrylamid.cli" -- "$@"
