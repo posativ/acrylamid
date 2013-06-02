@@ -25,10 +25,8 @@ __url__ = 'https://github.com/posativ/acrylamid/'
 import sys, os
 PY3 = sys.version_info[0] == 3
 
-if sys.version_info > (3, 2) and not os.getenv('PYTHONHASHSEED'):
-    os.putenv('PYTHONHASHSEED', '1')
-    os.execvp(sys.argv[0], sys.argv)  # XXX very slow, move to she-bang if
-                                      #     if fully python3 compatible.
+sys.argv = ['acrylamid'] + sys.argv[2:]
+# assert os.getenv('PYTHONHASHSEED') == '0'
 
 import time
 import argparse

@@ -45,6 +45,7 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.3",
     ],
+    scripts=['bin/acrylamid'],
     install_requires=requires,
     extras_require={
         'full': ['pygments', 'docutils', 'smartypants', 'asciimathml',
@@ -54,8 +55,4 @@ setup(
     tests_require=['Attest-latest', 'cram', 'docutils'],
     test_loader='attest:auto_reporter.test_loader',
     test_suite='specs.testsuite',
-    entry_points={
-        'console_scripts':
-            ['acrylamid = acrylamid:Acryl']
-    }
 )
