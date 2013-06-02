@@ -26,11 +26,9 @@ class Helpers(attest.TestBase):
         for value, expected in examples:
             assert helpers.safeslug(value) == expected
 
-        from unicodedata import normalize
-        setattr(helpers, 'normalize', normalize)
-        _, helpers.translitcodec = helpers.translitcodec, None
+    @attest.test_if(helpers.translitcodec is None)
+    def safeslug_without_translitcodec(self):
         assert helpers.safeslug(u'Hänsel und Gretel') == 'hansel-und-gretel'
-        helpers.translitcodec = _
 
     @attest.test_if(helpers.unidecode is not None)
     def safeslugwithrussian(self):
