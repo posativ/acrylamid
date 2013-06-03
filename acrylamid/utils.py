@@ -86,10 +86,6 @@ else:
     force_unicode = lambda x: x
 
 
-def total_seconds(td):  # timedelta.total_seconds, required for 2.6
-    return (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
-
-
 class cached_property(object):
     """A property that is only computed once per instance and then replaces
     itself with an ordinary attribute. Deleting the attribute resets the

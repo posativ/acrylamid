@@ -10,9 +10,9 @@ typography, MathML and hyphenation.
 Linux/Debian and OS X
 *********************
 
-You'll need the python interpreter with version ≥ 2.6 and a python package
-manager. If you are on Linux (Debian-based), just ``apt-get install python
-python-setuputils``. If you are using OS X the proper Python version is
+You'll need the python interpreter with version ≥ 2.7 (or 3.3) and a python
+package manager. If you are on Linux (Debian-based), just ``apt-get install
+python python-setuputils``. If you are using OS X the proper Python version is
 already installed (10.6 or later).
 
 ::
@@ -77,5 +77,10 @@ Works, but remains uncovered by the developer and test suite.
 Python 3
 ********
 
-As of Acrylamid 0.4.4 Python 3 is covered by the testsuite. So, in theory it
-might work. Please report any issues related to Python 3.
+Acrylamid fully supports Python 2.7 and 3.3 (or higher). At the time of this
+writing (June '13) Jinja2 has not yet finished its Python 3.3+ port. You are
+probably better off with Python 2.7 (almost all third-party application
+support 2.7, but only a few 3.3+).
+
+Please report any issues related to Python 3, as I do not often test Acrylamid
+with 3.3 (or higher) in the real world.

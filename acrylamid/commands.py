@@ -24,8 +24,7 @@ from acrylamid.errors import AcrylamidException
 from acrylamid import readers, filters, views, assets, refs, hooks, helpers, dist
 from acrylamid.lib import lazy, history
 from acrylamid.core import cache, load, Environment
-from acrylamid.utils import (hash, istext, HashableList, import_object, total_seconds,
-                             OrderedDict as dict)
+from acrylamid.utils import hash, istext, HashableList, import_object, OrderedDict as dict
 from acrylamid.helpers import event
 
 if compat.PY2K:
@@ -88,9 +87,8 @@ def initialize(conf, env):
         log.warn('no `www_root` specified, using localhost:8000')
         conf['www_root'] = 'http://localhost:8000/'
 
-    # figure out timezone and set offset, more verbose for 2.6 compatibility
-    td = (datetime.now() - datetime.utcnow())
-    offset = round(total_seconds(td) / 3600.0)
+    # figure out timezone and set offset
+    offset = round(((datetime.now() - datetime.utcnow()).total_seconds()) / 3600.0)
     conf['tzinfo'] = readers.Timezone(offset)
 
     # determine http(s), host and path

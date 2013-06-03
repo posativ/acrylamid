@@ -13,9 +13,6 @@ if sys.version_info[0] >= 3:
 else:
     requires.append('translitcodec>=0.2')
 
-if sys.version_info < (2, 7):
-    requires.append('argparse', 'ordereddict')
-
 if sys.platform == 'win32':
     requires.append('colorama')
 
@@ -40,7 +37,6 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Programming Language :: Python",
         "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.3",
