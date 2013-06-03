@@ -6,6 +6,7 @@ import attest
 from os.path import join, isfile
 
 from acrylamid import core, log, utils, helpers
+from acrylamid.compat import iteritems
 from acrylamid.commands import compile
 from acrylamid.defaults import conf
 
@@ -25,7 +26,7 @@ def entry(**kw):
     for k, v in L:
         if k not in kw:
             res.append('%s: %s' % (k, v))
-    for k, v in kw.iteritems():
+    for k, v in iteritems(kw):
         res.append('%s: %s' % (k, v))
 
     res.append('---')

@@ -21,7 +21,7 @@ import sys
 import re
 
 from cgi import escape
-from acrylamid.compat import PY2K
+from acrylamid.compat import PY2K, unichr
 
 if PY2K:
     from HTMLParser import HTMLParser as DefaultParser, HTMLParseError

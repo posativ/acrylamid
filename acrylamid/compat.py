@@ -10,6 +10,7 @@ PY2K = sys.version_info[0] == 2
 
 if not PY2K:
 
+    unichr = chr
     text_type = str
     string_types = (str, )
     implements_to_string = lambda x: x
@@ -22,6 +23,7 @@ if not PY2K:
 
 else:
 
+    unichr = unichr
     text_type = unicode
     string_types = (str, unicode)
 

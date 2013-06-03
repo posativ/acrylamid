@@ -7,6 +7,7 @@ from acrylamid import log
 from acrylamid.filters import Filter
 from acrylamid.helpers import system as defaultsystem
 from acrylamid.errors import AcrylamidException
+from acrylamid.compat import text_type as str
 
 try:
     from mako.template import Template
@@ -39,7 +40,7 @@ class Mako(Filter):
 
         self.conf = conf
         self.env = env
-        self.filters = {'system': system, 'split': unicode.split}
+        self.filters = {'system': system, 'split': str.split}
 
     def transform(self, content, entry):
 

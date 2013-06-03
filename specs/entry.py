@@ -7,6 +7,7 @@ from datetime import datetime
 
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
+from acrylamid.compat import iteritems
 
 from acrylamid.readers import Entry
 from acrylamid.defaults import conf
@@ -18,7 +19,7 @@ def create(path, **kwargs):
 
     with open(path, 'w') as fp:
         fp.write('---\n')
-        for k, v in kwargs.iteritems():
+        for k, v in iteritems(kwargs):
             fp.write('%s: %s\n' % (k, v))
         fp.write('---\n')
 
