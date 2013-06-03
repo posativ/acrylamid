@@ -6,12 +6,7 @@ import re
 from os.path import join, dirname
 from setuptools import setup, find_packages
 
-requires = ['Jinja2>=2.4', 'Markdown>=2.0.1']
-
-if sys.version_info[0] >= 3:
-    requires.append('unidecode')
-else:
-    requires.append('translitcodec>=0.2')
+requires = ['Jinja2>=2.4', 'Markdown>=2.0.1', 'unidecode>=0.04.13']
 
 if sys.platform == 'win32':
     requires.append('colorama')
@@ -44,7 +39,7 @@ setup(
     install_requires=requires,
     extras_require={
         'full': ['pygments', 'docutils', 'smartypants', 'asciimathml',
-                 'textile', 'unidecode', 'PyYAML', 'twitter', 'discount'],
+                 'textile', 'PyYAML', 'twitter', 'discount'],
         'mako': ['mako>=0.7'],
     },
     tests_require=['Attest-latest', 'cram', 'docutils'],

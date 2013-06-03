@@ -27,11 +27,6 @@ from acrylamid.utils import batch, hash, rchop
 from acrylamid.compat import text_type as str, iteritems, PY2K
 
 try:
-    import translitcodec
-except ImportError:
-    translitcodec = None  # NOQA
-
-try:
     from unidecode import unidecode
 except ImportError:
     unidecode = None  # NOQA
@@ -161,8 +156,6 @@ def safeslug(slug):
     http://flask.pocoo.org/snippets/5/"""
 
     result = []
-    if translitcodec:
-        slug = u"" + slug.encode('translit/long')
     if unidecode:
         slug = u"" + unidecode(slug)
     for word in _slug_re.split(slug.lower()):

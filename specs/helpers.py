@@ -8,7 +8,7 @@ from acrylamid import AcrylamidException
 
 class Helpers(attest.TestBase):
 
-    @attest.test_if(helpers.translitcodec is not None)
+    @attest.test
     def safeslug(self):
 
         examples = (('This is a Test', 'this-is-a-test'),
@@ -21,27 +21,11 @@ class Helpers(attest.TestBase):
             assert helpers.safeslug(value) == expected
 
         examples = ((u'Hänsel und Gretel', 'haensel-und-gretel'),
-                    (u'fácil € ☺', 'facil-eur'))
+                    (u'fácil € ☺', 'facil-eu'),
+                    (u'русский', 'russkii'))
 
         for value, expected in examples:
             assert helpers.safeslug(value) == expected
-
-    @attest.test_if(helpers.translitcodec is None)
-    def safeslug_without_translitcodec(self):
-        assert helpers.safeslug(u'Hänsel und Gretel') == 'hansel-und-gretel'
-
-    @attest.test_if(helpers.unidecode is not None)
-    def safeslugwithrussian(self):
-
-        examples = [(u'Nothing happens', 'nothing-happens'),
-                    (u'русский', 'russkii')]
-
-        for value, expected in examples:
-            assert helpers.safeslug(value) == expected
-
-        _, helpers.unidecode = helpers.unidecode, None
-        assert helpers.safeslug(u'русский') == ''
-        helpers.unidecode = _
 
     @attest.test
     def joinurl(self):

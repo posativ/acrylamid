@@ -25,7 +25,7 @@ modules via ``easy_install -U acrylamid[full]``.
 
 .. note::
 
-    Avoid removing ``translitcodec`` egg after you started writing your blog. It
+    Avoid removing ``unidecode`` egg after you started writing your blog. It
     might break all your permanent links.
 
 Additional Supported Modules
@@ -46,8 +46,6 @@ Additional Supported Modules
 +-----------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
 | AsciiMathML to MathML                                                                   | `asciimathml <https://github.com/favalex/python-asciimathml>`_             |
 +-----------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
-| cyrillic/chinese ascii slugs                                                            | `unidecode <http://pypi.python.org/pypi/Unidecode/>`_                      |
-+-----------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
 | non-ASCII text detection                                                                | `python-magic <https://pypi.python.org/pypi/python-magic/>`_               |
 +-----------------------------------------------------------------------------------------+----------------------------------------------------------------------------+
 | Mako Templating                                                                         | `mako <http://www.makotemplates.org/>`_                                    |
@@ -60,12 +58,7 @@ Additional Supported Modules
 Asian/Russian Users
 -------------------
 
-If you write in your native language, I recommend to install ``unidecode`` for
-a better ASCII transcription of your characters. If not, provide either a
-proper ASCII slug in your articles or use a fixed permalink with your native
-characters.
-
-Acrylamid also tries to detect text files, but that might fail if your post
+Acrylamid tries to detect text files, but that might fail if your post
 has less than 30% ASCII characters within the first 512 bytes. Therefore you
 can optionally install ``python-magic`` to circumvent this issue.
 

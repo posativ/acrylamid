@@ -59,7 +59,6 @@ class SingleEntry(attest.TestBase):
             self.conf['views'] = {'/:year/:slug/': {'view': 'entry'}}
             yield
 
-    @attest.test_if(helpers.translitcodec is not None)
     def exists_at_permalink(self):
         with open('content/bla.txt', 'w') as fp:
             fp.write(entry())

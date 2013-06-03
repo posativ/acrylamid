@@ -6,8 +6,7 @@ Supported Modules
 
 - `jinja2 <http://jinja.pocoo.org/>`_ and `mako <http://www.makotemplates.org/>`_
   for pythonic templates.
-- `translitcodec <http://pypi.python.org/pypi/translitcodec/>`_ and `unidecode
-  <http://pypi.python.org/pypi/Unidecode/>`_ for a better NFKD algorithm
+- `unidecode <http://pypi.python.org/pypi/Unidecode/>`_ for a better NFKD algorithm
 - `smartypants <http://http://daringfireball.net/projects/smartypants/>`_ &
   `typogrify <https://code.google.com/p/typogrify/>`_ – modern typography
 
