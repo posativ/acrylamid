@@ -289,7 +289,7 @@ class Paginator(object):
                     else link(u'Next', expand(self.pagination, union({'num': next}, kwargs)))
 
             curr = link(curr, expand(self.path, kwargs)) if curr == 1 \
-                else link(expand(self.pagination, union({'num': curr}, kwargs)))
+                else link(curr, expand(self.pagination, union({'num': curr}, kwargs)))
 
             prev = None if prev is None \
                else link(u'Previous', expand(self.pagination, union({'num': prev}, kwargs)))
