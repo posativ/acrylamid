@@ -38,6 +38,7 @@ class Jinja2(Filter):
 
         # jinja2 is stupid and can't import any module
         import time, datetime, urllib
+        from os.path import basename, dirname, exists, splitext, getatime, getmtime, getctime, getsize
 
         if hasattr(env.engine, 'jinja2'):
             self.jinja2_env = env.engine.jinja2.overlay(cache_size=0)
@@ -48,6 +49,8 @@ class Jinja2(Filter):
         self.jinja2_env.filters['split'] = unicode.split
         self.jinja2_env.filters.update({
             'time': time, 'datetime': datetime, 'urllib': urllib,
+            'basename': basename, 'dirname': dirname, 'exists': exists, 'splitext': splitext,
+            'getatime': getatime, 'getmtime': getmtime, 'getctime': getctime, 'getsize': getsize,
             })
 
         for module in (time, datetime, urllib):

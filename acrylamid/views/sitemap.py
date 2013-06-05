@@ -6,7 +6,9 @@
 import io
 
 from time import strftime, gmtime
-from os.path import getmtime, exists, splitext
+from os.path import getmtime, exists, splitext, basename
+from urlparse import urljoin
+from xml.sax.saxutils import escape
 
 from acrylamid.views import View
 from acrylamid.helpers import event, joinurl, rchop
@@ -19,17 +21,23 @@ class Map(io.StringIO):
 
         io.StringIO.__init__(self)
         self.write(u"<?xml version='1.0' encoding='UTF-8'?>\n")
-        self.write(u'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n')
+        self.write(u'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n')
+        self.write(u'        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n')
 
-    def add(self, url, lastmod, changefreq='never', priority=0.5):
+    def add(self, url, lastmod, changefreq='never', priority=0.5, images=None):
 
         self.write(u'  <url>\n')
-        self.write(u'    <loc>%s</loc>\n' % url)
+        self.write(u'    <loc>%s</loc>\n' % escape(url))
         self.write(u'    <lastmod>%s</lastmod>\n' % strftime('%Y-%m-%d', gmtime(lastmod)))
         if changefreq:
             self.write(u'    <changefreq>%s</changefreq>\n' % changefreq)
         if priority != 0.5:
             self.write(u'    <priority>%.1f</priority>\n' % priority)
+        for img in images or []:
+            self.write(u'    <image:image>\n')
+            self.write(u'        <image:loc>%s</image:loc>\n' %  escape(urljoin(url, basename(img))))
+            self.write(u'    </image:image>\n')
+
         self.write(u'  </url>\n')
 
     def finish(self):
@@ -55,7 +63,7 @@ class Sitemap(View):
         def track(ns, path):
             if ns != 'resource':
                 self.files.add((ns, path))                
-            elif self.resext and splitext(path) in self.resext:
+            elif self.resext and splitext(path)[1] in self.resext:
                 self.files.add((ns, path))
 
         def changed(ns, path):
@@ -65,17 +73,26 @@ class Sitemap(View):
         self.files = set([])
         self.modified = False
         
-        # use extension to check if resource should be tracked (eg PDF but should excluding images and video)
+        # use extension to check if resource should be tracked (keep image, video and other resources separate)
         self.resext = conf.get('sitemap_resource_ext', [])
-        # Considered adding images and video, but need to be associated with loc. Better to have access to entry obj
+        self.imgext = conf.get('sitemap_image_ext', [])
+        # video resources require more attributes (image, description)
         # see http://support.google.com/webmasters/bin/answer.py?hl=en&answer=183668
-        #
-        #self.imgext = conf.get('sitemap_image_ext', [])
         #self.vidext = conf.get('sitemap_video_ext', [])
 
         # track output files
         event.register(track, to=['create', 'update', 'skip', 'identical'])
-        event.register(changed, to=['create', 'update', 'identical'])
+        event.register(changed, to=['create', 'update'])
+
+    def context(self, conf, env, data):
+        """If resources are included in sitemap, create a map for each entry and its 
+        resources, so they can be include in <url>"""
+
+        if self.imgext:
+            self.mapping = dict([(entry.permalink, entry.resources)
+                for entry in data['entrylist']])
+
+        return env
 
     def generate(self, conf, env, data):
         """In this step, we filter drafted entries (they should not be included into the
@@ -84,7 +101,7 @@ class Sitemap(View):
         path = joinurl(conf['output_dir'], self.path)
         sm = Map()
 
-        if exists(path) and not self.modified:
+        if exists(path) and not self.modified and not conf.modified:
             event.skip('sitemap', path)
             raise StopIteration
 
@@ -93,9 +110,13 @@ class Sitemap(View):
             if ns == 'draft':
                 continue
 
-            url = conf['www_root'] + '/' + fname.replace(conf['output_dir'], '')
+            permalink = '/' + fname.replace(conf['output_dir'], '')
+            url = conf['www_root'] + permalink
             priority, changefreq = self.scores.get(ns, (0.5, 'weekly'))
-            sm.add(rchop(url, 'index.html'), getmtime(fname), changefreq, priority)
-
+            if self.imgext:
+                images = [x for x in self.mapping.get(permalink, []) if splitext(x)[1].lower() in self.imgext]
+                sm.add(rchop(url, 'index.html'), getmtime(fname), changefreq, priority, images)
+            else:
+                sm.add(rchop(url, 'index.html'), getmtime(fname), changefreq, priority)
         sm.finish()
         yield sm, path
