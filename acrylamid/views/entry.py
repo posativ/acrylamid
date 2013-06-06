@@ -53,7 +53,7 @@ class Base(View):
                 finally:
                     f = lambda e: e is not entry and e.permalink == entry.permalink
                     raise AcrylamidException("title collision %r in %r with %r." %
-                        (entry.permalink, entry.filename, filter(f, entrylist)[0].filename))
+                        (entry.permalink, entry.filename, list(filter(f, entrylist))[0].filename))
 
             pathes.add(path)
             next, prev = self.next(entrylist, i), self.prev(entrylist, i)
