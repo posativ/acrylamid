@@ -10,6 +10,7 @@ import io
 import zlib
 import types
 import pickle
+import shutil
 import tempfile
 
 from os.path import join, exists, getmtime, getsize, dirname, basename
@@ -68,16 +69,6 @@ class cache(object):
     memoize = Memory()
 
     @classmethod
-    def _list_dir(self):
-        """return a list of valid cache filenames
-
-        jinja2 suffixes cached templates with .cache
-        for mako, we prefix cached templates with cache_
-        """
-        return [fn for fn in os.listdir(self.cache_dir) if not
-            (fn.endswith('.cache') or fn.startswith('cache_') or fn == '__pycache__')]
-
-    @classmethod
     def init(self, cache_dir=None):
         """Initialize cache object by creating the cache_dir if non-existent,
         read all available cache objects and restore memoized key/values.
@@ -130,12 +121,7 @@ class cache(object):
             self.cache_dir = directory
 
         self.memoize = Memory()
-        if not exists(self.cache_dir):
-            return
-
-        self.remove('info')
-        for path in self._list_dir():
-            self.remove(path)
+        shutil.rmtree(self.cache_dir, ignore_errors=True)
 
     @classmethod
     def get(self, path, key, default=None):

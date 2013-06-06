@@ -9,9 +9,9 @@ import abc
 from os.path import isfile
 from collections import defaultdict
 
-from acrylamid import refs
+from acrylamid import refs, log
 from acrylamid.errors import AcrylamidException
-from acrylamid.compat import metaclass
+from acrylamid.compat import metaclass, filter
 
 from acrylamid.refs import modified, references
 from acrylamid.views import View
@@ -51,9 +51,11 @@ class Base(metaclass(abc.ABCMeta, View)):
                 try:
                     os.remove(path)
                 finally:
-                    f = lambda e: e is not entry and e.permalink == entry.permalink
-                    raise AcrylamidException("title collision %r in %r with %r." %
-                        (entry.permalink, entry.filename, filter(f, entrylist)[0].filename))
+                    other = [e.filename for e in entrylist
+                        if e is not entry and e.permalink == entry.permalink][0]
+                    log.error("title collision %s caused by %s and %s",
+                              entry.permalink, entry.filename, other)
+                    raise SystemExit
 
             pathes.add(path)
             next, prev = self.next(entrylist, i), self.prev(entrylist, i)
