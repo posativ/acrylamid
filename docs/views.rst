@@ -67,6 +67,8 @@ Built-in Views
 
 .. autoclass:: acrylamid.views.tag.Tag()
 
+.. autoclass:: acrylamid.views.category.Category()
+
 .. autoclass:: acrylamid.views.entry.Translation()
 
 .. autoclass:: acrylamid.views.sitemap.Sitemap()
