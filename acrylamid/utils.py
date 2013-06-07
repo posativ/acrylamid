@@ -233,9 +233,13 @@ class Struct(OrderedDict):
         try:
             return self[name]
         except KeyError:
-            raise AttributeError
+            raise AttributeError(name)
 
-    __setattr__ = dict.__setitem__
+    def __setattr__(self, key, value):
+        if key.startswith('_'):
+            super(Struct, self).__setattr__(key, value)
+        else:
+            self[key] = value
 
     def __delattr__(self, name):
         try:
