@@ -107,8 +107,21 @@ draft : Boolean
     it when you know the path.
 
 layout : String
-  A user-defined template to use for the full-text (entry, page and translation) view,
-  fallback to the view's default template.
+    A user-defined template to use for the full-text (entry, page and translation) view,
+    fallback to the view's default template.
+
+copy : None, String or List of Strings
+    Marker to indicate that additional resource files should be copied to the entry's directory.
+    The list of resources can be defined in three ways using wildcards:
+
+    1) None - Default wildcard: entry's filename without extension + '_[0-9]*.*'
+    2) String - A single wildcard eg \*.jpg
+    3) List - A list of wildcards eg [../\*.png, info.pdf]   (**do not use quotes**)
+
+    The config setting ``COPY_WILDCARD`` can be used to replace the default wildcard in (1) above.
+    Note that all files will be copied to the same directory as the entry, regardless of the source path,
+    so that they can be easily reference from within the entry.
+    The ``resources`` property of the entry object can also be used within templates.
 
 
 YAML front matter

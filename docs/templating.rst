@@ -95,7 +95,7 @@ entry
     zero padded month number of the entry, e.g. "05" for May and "11"
     for November (String)
 
-:zmonth:
+:imonth:
     entry's month (Integer)
 
 :day:
@@ -137,3 +137,6 @@ entry
 
 :extension:
     filename's extension without leading dot
+
+:resources:
+    a list of resource file paths copied with the entry via the ``copy`` metadata attribute

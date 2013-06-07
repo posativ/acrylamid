@@ -27,8 +27,8 @@ new
 With ``acrylamid new`` you specify a title in [args] or you'll get prompted to
 enter a title and Acrylamid automatically create the post using the current
 datetime and places the file into ``CONTENT_DIR`` (defaults to content/) using
-``PERMALINK_FORMAT`` as path expansion. Afterwards it'll launch your
-favourite $EDITOR.
+``PERMALINK_FORMAT`` as path expansion. The filename extension used is the first
+value specified in ``CONTENT_EXTENSION``. Afterwards it'll launch your favourite $EDITOR.
 
 .. raw:: html
 
@@ -347,7 +347,7 @@ You can of course extend Acrylamid with custom commands. Just create -- if not
 already there -- a *tasks/* directory in your blog root and add this little
 hello world script:
 
-.. code-block::
+.. code-block:: python
 
     # tasks/hello.py
 

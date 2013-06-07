@@ -171,7 +171,7 @@ class Filter(object):
        'textile']``. It is sufficient that one filter provides conflicting
        filters.
 
-    .. property:: uses
+    .. attribute:: uses
 
        Override this property to include configuration and/or environment
        parameters. They are used to determine whether a cache object is still

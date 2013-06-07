@@ -23,7 +23,7 @@ from datetime import datetime, tzinfo, timedelta
 from acrylamid import log
 from acrylamid.errors import AcrylamidException
 
-from acrylamid.utils import (cached_property, Metadata, istext, rchop, lchop,
+from acrylamid.utils import (cached_property, Metadata, rchop, lchop,
                              HashableList, force_unicode as u)
 from acrylamid.core import cache
 from acrylamid.filters import FilterTree
@@ -39,9 +39,7 @@ else:
 
 def load(conf):
     """Load and parse textfiles from content directory and optionally filter by an
-    ignore pattern. Filenames ending with a known binary extension such as audio,
-    video or images are ignored. If not blacklisted open the file end check if it
-    :func:`utils.istext`.
+    ignore pattern. Filenames ending with a known whitelist of extensions are processed.
 
     This function is *not* exception-tolerant. If Acrylamid could not handle a file
     it will raise an exception.
@@ -49,7 +47,7 @@ def load(conf):
     It returns a tuple containing the list of entries sorted by date reverse (newest
     comes first) and other pages (unsorted).
 
-    :param conf: configuration with CONTENT_DIR and CONTENT_IGNORE set"""
+    :param conf: configuration with CONTENT_DIR, CONTENT_EXTENSION and CONTENT_IGNORE set"""
 
     # list of Entry-objects reverse sorted by date.
     entries, pages, trans, drafts = [], [], [], []
@@ -57,17 +55,16 @@ def load(conf):
     # check for hash collisions
     seen = set([])
 
-    whitelist = conf.get('content_whitelist')
-    if isinstance(whitelist, basestring):
-        filecheck = lambda p: p.endswith(whitelist,)
-    elif isinstance(whitelist, list):
-        filecheck = lambda p: p.endswith(tuple(whitelist))
+    # config content_extension originally defined as string, not a list
+    exts = conf.get('content_extension',['.txt', '.rst', '.md'])
+    if isinstance(exts, basestring):
+        whitelist = (exts,)
     else:
-        filecheck = lambda p: p.endswith(('.txt', '.rst', '.md')) or istext(p)
+        whitelist = tuple(exts)
 
     # collect and skip over malformed entries
     for path in filelist(conf['content_dir'], conf['content_ignore']):
-        if filecheck(path):
+        if path.endswith(whitelist):
             try:
                 entry = Entry(path, conf)
                 if entry in seen:
@@ -82,7 +79,7 @@ def load(conf):
                 else:
                     pages.append(entry)
             except AcrylamidException as e:
-                log.warn('failed to parse file %s (%s)' % (path, e))
+                log.exception('failed to parse file %s (%s)' % (path, e))
             except:
                 log.fatal('uncaught exception for ' + path)
                 raise
@@ -411,6 +408,9 @@ class MetadataMixin(object):
 
     @cached_property
     def resources(self):
+        """List of resource file paths that were copied with the entry from 
+        the copy: wildcard"""
+        
         res = []
         if self.hasproperty('copy'):
             res = HashableList(self.getresources(self.props.get('copy')))
@@ -418,22 +418,27 @@ class MetadataMixin(object):
 
     @property
     def year(self):
+        """entry's year as an integer"""
         return self.date.year
 
     @property
     def imonth(self):
+        """entry's month as an integer"""
         return self.date.month
 
     @property
     def month(self):
+        """entry's month as zero padded string"""
         return '%02d' % self.imonth
 
     @property
     def iday(self):
+        """entry's day as an integer"""
         return self.date.day
 
     @property
     def day(self):
+        """entry's day as zero padded string"""
         return '%02d' % self.iday
 
     @property
