@@ -6,6 +6,7 @@
 from itertools import chain
 
 from acrylamid.views.index import Index, Paginator
+from acrylamid.compat import itervalues, iteritems
 from acrylamid.helpers import expand, safeslug
 
 
@@ -15,7 +16,7 @@ def fetch(tree):
     for item in tree[1]:
         yield item
 
-    for subtree in tree[0].values():
+    for subtree in itervalues(tree[0]):
         for item in fetch(subtree):
             yield item
 
@@ -24,7 +25,7 @@ def recurse(category, tree):
 
     yield category, sorted(list(fetch(tree)), key=lambda k: k.date, reverse=True)
 
-    for subtree in tree[0].items():
+    for subtree in iteritems(tree[0]):
         for item in recurse(category + '/' + safeslug(subtree[0]), subtree[1]):
             yield item
 
@@ -39,7 +40,7 @@ class Top(object):
         self.parent = []
 
     def __iter__(self):
-        for category, subtree in sorted(self.tree[0].iteritems(), key=lambda k: k[0]):
+        for category, subtree in sorted(iteritems(self.tree[0]), key=lambda k: k[0]):
             yield Subcategory(self.parent + [category], category, subtree, self.route)
 
     def __bool__(self):
@@ -200,7 +201,7 @@ class Category(Index):
 
     def generate(self, conf,env, data):
 
-        iterator = chain(*map(lambda args: recurse(*args), self.tree[0].items()))
+        iterator = chain(*map(lambda args: recurse(*args), iteritems(self.tree[0])))
 
         for category, entrylist in iterator:
             data['entrylist'] = entrylist
