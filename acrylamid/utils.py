@@ -243,6 +243,9 @@ class Struct(OrderedDict):
         except KeyError:
             raise AttributeError(name)
 
+    def __eq__(self, other):
+        return hash(self) == hash(other)
+
     def __hash__(self):
         return hash(*itertools.chain(self.keys(), self.values()))
 
