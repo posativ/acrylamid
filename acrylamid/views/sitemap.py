@@ -7,11 +7,16 @@ import io
 
 from time import strftime, gmtime
 from os.path import getmtime, exists, splitext, basename
-from urlparse import urljoin
 from xml.sax.saxutils import escape
 
 from acrylamid.views import View
+from acrylamid.compat import PY2K
 from acrylamid.helpers import event, joinurl, rchop
+
+if PY2K:
+    from urlparse import urljoin
+else:
+    from urllib.parse import urljoin
 
 
 class Map(io.StringIO):
@@ -53,12 +58,12 @@ class Sitemap(View):
         '/sitemap.xml': {
             'view': 'Sitemap'
         }
-    
+
     The sitemap by default excludes any resources copied over with the entry.
     If you wish to include image resources associated with the entry, the config property
     ``SITEMAP_IMAGE_EXT`` can be use to define file extensions to include.
     ``SITEMAP_RESOURCE_EXT`` can be used for other file types such as text files and PDFs.
-    Video resources are not supported, and should not be included in the above properties. 
+    Video resources are not supported, and should not be included in the above properties.
     """
 
     priority = 0.0
@@ -68,7 +73,7 @@ class Sitemap(View):
 
         def track(ns, path):
             if ns != 'resource':
-                self.files.add((ns, path))                
+                self.files.add((ns, path))
             elif self.resext and splitext(path)[1] in self.resext:
                 self.files.add((ns, path))
 
@@ -78,7 +83,7 @@ class Sitemap(View):
 
         self.files = set([])
         self.modified = False
-        
+
         # use extension to check if resource should be tracked (keep image, video and other resources separate)
         self.resext = conf.get('sitemap_resource_ext', [])
         self.imgext = conf.get('sitemap_image_ext', [])
@@ -91,7 +96,7 @@ class Sitemap(View):
         event.register(changed, to=['create', 'update'])
 
     def context(self, conf, env, data):
-        """If resources are included in sitemap, create a map for each entry and its 
+        """If resources are included in sitemap, create a map for each entry and its
         resources, so they can be include in <url>"""
 
         if self.imgext:

@@ -16,6 +16,7 @@ from datetime import datetime
 
 from acrylamid import log, readers, commands
 from acrylamid.errors import AcrylamidException
+from acrylamid.compat import string_types
 
 from acrylamid.tasks import task, argument
 from acrylamid.utils import force_unicode as u
@@ -45,7 +46,7 @@ def run(conf, env, options):
 
     # config content_extension originally defined as string, not a list
     extlist = conf.get('content_extension',['.txt'])
-    if isinstance(extlist, basestring):
+    if isinstance(extlist, string_types):
         ext = extlist
     else:
         ext = extlist[0]

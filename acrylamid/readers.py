@@ -55,7 +55,7 @@ def load(conf):
 
     # config content_extension originally defined as string, not a list
     exts = conf.get('content_extension',['.txt', '.rst', '.md'])
-    if isinstance(exts, basestring):
+    if isinstance(exts, string_types):
         whitelist = (exts,)
     else:
         whitelist = tuple(exts)

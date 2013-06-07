@@ -18,7 +18,7 @@ from os.path import getmtime
 from distutils.version import LooseVersion
 
 from acrylamid import log, compat
-from acrylamid.compat import iteritems, iterkeys
+from acrylamid.compat import iteritems, iterkeys, string_types, text_type as str
 from acrylamid.errors import AcrylamidException
 
 from acrylamid import readers, filters, views, assets, refs, hooks, helpers, dist
@@ -254,7 +254,7 @@ def autocompile(ws, conf, env):
 
     # config content_extension originally defined as string, not a list
     exts = conf.get('content_extension',['.txt', '.rst', '.md'])
-    if isinstance(exts, basestring):
+    if isinstance(exts, string_types):
         whitelist = (exts,)
     else:
         whitelist = tuple(exts)
