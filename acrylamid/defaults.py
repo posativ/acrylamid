@@ -43,6 +43,7 @@ conf = {
 
     'content_dir': 'content/',
     'content_ignore': ['.git*', '.hg*', '.svn'] + __,
+    'content_extension': ['.txt', '.rst', '.md'],
 
     'theme': 'layouts/',
     'theme_ignore': ['.git*', '.hg*', '.svn'] + __,

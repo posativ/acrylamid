@@ -43,7 +43,13 @@ def run(conf, env, options):
     # we need the actual default values
     commands.initialize(conf, env)
 
-    ext = conf.get('content_extension', '.txt')
+    # config content_extension originally defined as string, not a list
+    extlist = conf.get('content_extension',['.txt'])
+    if isinstance(extlist, basestring):
+        ext = extlist
+    else:
+        ext = extlist[0]
+
     fd, tmp = tempfile.mkstemp(suffix=ext, dir='.cache/')
 
     editor = os.getenv('VISUAL') if os.getenv('VISUAL') else os.getenv('EDITOR')

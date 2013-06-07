@@ -56,36 +56,37 @@ Here is a list of settings for acrylamid, regarding the different features.
 Basic settings
 --------------
 
-================================================    =====================================================
-Variable name (default value)                       Description
-================================================    =====================================================
-`SITENAME` (``'A descriptive blog title'``)         The name of your blog. It's displayed in the
-                                                    <title>-block.
-`AUTHOR` (``'Anonymous'``)                          First author of this blog, can be overwritten in
-                                                    the entry YAML-header.
-`EMAIL` (``'info@example.com'``)                    Your email address -- used in Atom/RSS feeds and as
-                                                    contact ability at the bottom in the default layout.
-`FILTERS` (|filter|)                                Global list of filters.
-`VIEWS` (see example conf.py)                       Dictionary of views set in conf.py.
-`WWW_ROOT` (``'http://localhost:8000/'``)           Your actual website link where you host this blog to
-                                                    build absolute urls (required for Disqus and feeds).
-                                                    You can also set a sub URI like ``example.org/blog``.
-`OUTPUT_DIR` (``output/``)                          Directory where the output goes to.
-`CONTENT_DIR` (``content/``)                        Directory where you posts are located. No assets will
-                                                    be copied from this directory!
-`CONTENT_EXTENSION` (``.txt``)                      Filename extension used for creating new entries.
-`CONTENT_IGNORE` (|ignored|)                        A list of filename/directory-patterns [#]_ which
-                                                    Acrylamid should ignore.
-`THEME` (``layouts/``)                              Directory where you place your jinja2 templates.
-`THEME_IGNORE` (|ignored|)                          Same as ``CONTENT_IGNORE`` but for ``THEME``.
-`STATIC` (*not set*)                                A directory or list of directories which contain
-                                                    objects Acrylamid should copy to destination dir.
-`STATIC_IGNORE` (|ignored|)                         Same as ``CONTENT_IGNORE`` but for ``STATIC``.
-`STATIC_FILTER` (``['HTML', 'XML']``)               See :doc:`assets` for details.
-`FILTERS_DIR` (*not set*)                           If you want add your own filters, create a directory,
-                                                    put your filters into and add this directory to conf.
-`VIEWS_DIR` (*not set*)                             Like above but for custom views.
-================================================    =====================================================
+=================================================    =====================================================
+Variable name (default value)                        Description
+=================================================    =====================================================
+`SITENAME` (``'A descriptive blog title'``)          The name of your blog. It's displayed in the
+                                                     <title>-block.
+`AUTHOR` (``'Anonymous'``)                           First author of this blog, can be overwritten in
+                                                     the entry YAML-header.
+`EMAIL` (``'info@example.com'``)                     Your email address -- used in Atom/RSS feeds and as
+                                                     contact ability at the bottom in the default layout.
+`FILTERS` (|filter|)                                 Global list of filters.
+`VIEWS` (see example conf.py)                        Dictionary of views set in conf.py.
+`WWW_ROOT` (``'http://localhost:8000/'``)            Your actual website link where you host this blog to
+                                                     build absolute urls (required for Disqus and feeds).
+                                                     You can also set a sub URI like ``example.org/blog``.
+`OUTPUT_DIR` (``output/``)                           Directory where the output goes to.
+`CONTENT_DIR` (``content/``)                         Directory where you posts are located. No assets will
+                                                     be copied from this directory!
+`CONTENT_EXTENSION` (``['.txt', '.rst', '.md']``)    Whitelist of extensions used to find content files.
+                                                     First extention is used by the new command.
+`CONTENT_IGNORE` (|ignored|)                         A list of filename/directory-patterns [#]_ which
+                                                     Acrylamid should ignore.
+`THEME` (``layouts/``)                               Directory where you place your jinja2 templates.
+`THEME_IGNORE` (|ignored|)                           Same as ``CONTENT_IGNORE`` but for ``THEME``.
+`STATIC` (*not set*)                                 A directory or list of directories which contain
+                                                     objects Acrylamid should copy to destination dir.
+`STATIC_IGNORE` (|ignored|)                          Same as ``CONTENT_IGNORE`` but for ``STATIC``.
+`STATIC_FILTER` (``['HTML', 'XML']``)                See :doc:`assets` for details.
+`FILTERS_DIR` (*not set*)                            If you want add your own filters, create a directory,
+                                                     put your filters into and add this directory to conf.
+`VIEWS_DIR` (*not set*)                              Like above but for custom views.
+=================================================    =====================================================
 
 .. |ignored| replace::
 
@@ -208,6 +209,20 @@ Variable name (default value)                       Description
 .. |sumignore| replace::
 
       ``['img', 'video', 'audio']``
+
+Sitemap
+-------
+
+If you want to include references to the resources copied over with each entry, the
+properties below can be used to define which files are included within each URL tag.
+Video resources should not be included in the properties below.
+
+================================================    =====================================================
+Variable name (default value)                       Description
+================================================    =====================================================
+`SITEMAP_IMAGE_EXT` (*not set*)                     List of image file extensions to include
+`SITEMAP_RESOURCE_EXT` (*not set*)                  List of other text based resources (eg rtf or PDFs).
+================================================    =====================================================
 
 Tag cloud
 ---------

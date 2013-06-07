@@ -40,8 +40,8 @@ class Jinja2(Filter):
         self.env = env
 
         # jinja2 is limited and can't import any module
-        import time, datetime
-        modules = [time, datetime]
+        import time, datetime, os.path
+        modules = [time, datetime, os.path]
 
         if PY2K:
             import urllib

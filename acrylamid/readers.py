@@ -12,10 +12,11 @@ import sys
 import abc
 import codecs
 import traceback
+import glob
 
 BOM_UTF8 = codecs.BOM_UTF8.decode('utf8')
 
-from os.path import join, getmtime, relpath, splitext
+from os.path import join, getmtime, relpath, splitext, dirname, isfile, normpath
 from fnmatch import fnmatch
 from datetime import datetime, tzinfo, timedelta
 
@@ -23,8 +24,8 @@ from acrylamid import log, compat
 from acrylamid.errors import AcrylamidException
 from acrylamid.compat import iteritems, string_types, text_type as str
 
-from acrylamid.utils import (cached_property, Metadata, istext, rchop, lchop,
-                             force_unicode as u)
+from acrylamid.utils import (cached_property, Metadata, rchop, lchop,
+                             HashableList, force_unicode as u)
 from acrylamid.core import cache
 from acrylamid.filters import FilterTree
 from acrylamid.helpers import safeslug, expand, hash
@@ -39,9 +40,7 @@ else:
 
 def load(conf):
     """Load and parse textfiles from content directory and optionally filter by an
-    ignore pattern. Filenames ending with a known binary extension such as audio,
-    video or images are ignored. If not blacklisted open the file end check if it
-    :func:`utils.istext`.
+    ignore pattern. Filenames ending with a known whitelist of extensions are processed.
 
     This function is *not* exception-tolerant. If Acrylamid could not handle a file
     it will raise an exception.
@@ -49,14 +48,21 @@ def load(conf):
     It returns a tuple containing the list of entries sorted by date reverse (newest
     comes first) and other pages (unsorted).
 
-    :param conf: configuration with CONTENT_DIR and CONTENT_IGNORE set"""
+    :param conf: configuration with CONTENT_DIR, CONTENT_EXTENSION and CONTENT_IGNORE set"""
 
     # list of Entry-objects reverse sorted by date.
     entries, pages, trans, drafts = [], [], [], []
 
+    # config content_extension originally defined as string, not a list
+    exts = conf.get('content_extension',['.txt', '.rst', '.md'])
+    if isinstance(exts, basestring):
+        whitelist = (exts,)
+    else:
+        whitelist = tuple(exts)
+
     # collect and skip over malformed entries
     for path in filelist(conf['content_dir'], conf['content_ignore']):
-        if path.endswith(('.txt', '.rst', '.md')) or istext(path):
+        if path.endswith(whitelist):
             try:
                 entry = Entry(path, conf)
                 if entry.draft:
@@ -65,6 +71,8 @@ def load(conf):
                     entries.append(entry)
                 else:
                     pages.append(entry)
+            except AcrylamidException as e:
+                log.exception('failed to parse file %s (%s)' % (path, e))
             except:
                 log.fatal('uncaught exception for ' + path)
                 raise
@@ -258,6 +266,7 @@ class FileReader(Reader):
 
         self.filename = path
         self.tzinfo = conf.get('tzinfo', None)
+        self.defaultcopywildcard = conf.get('copy_wildcard', '_[0-9]*.*')
 
         with io.open(path, 'r', encoding='utf-8', errors='replace') as fp:
 
@@ -309,9 +318,31 @@ class FileReader(Reader):
         return self.hashvalue
 
     @property
+    def cachefilename(self):
+        return hex(self.hashvalue)[2:]
+
+    @property
     def date(self):
         "Fallback to last modification timestamp if date is unset."
         return Date.fromtimestamp(getmtime(self.filename)).replace(tzinfo=self.tzinfo)
+
+    def getresources(self, wildcards):
+        """Generate a list of resources files based on the wildcard(s) passed in."""
+        reslist = []
+        if isinstance(wildcards, list):
+            for term in wildcards:
+                # exclude missing and non file types
+                reslist.extend([normpath(f) for f in glob.glob(
+                    join(dirname(self.filename), term)) if isfile(f)])
+        elif wildcards is None:
+            # use default wildcard appended to entry filename
+            reslist = [normpath(f) for f in glob.glob(
+                splitext(self.filename)[0] + self.defaultcopywildcard) if isfile(f)]
+        else:
+            # provided wildcard appended to input directory
+            reslist = [normpath(f) for f in glob.glob(
+                join(dirname(self.filename), wildcards)) if isfile(f)]
+        return reslist
 
 
 class MetadataMixin(object):
@@ -366,24 +397,39 @@ class MetadataMixin(object):
         else:
             raise AcrylamidException("%r is not a valid date" % string)
 
+    @cached_property
+    def resources(self):
+        """List of resource file paths that were copied with the entry from
+        the copy: wildcard"""
+
+        res = []
+        if self.hasproperty('copy'):
+            res = HashableList(self.getresources(self.props.get('copy')))
+        return res
+
     @property
     def year(self):
+        """entry's year as an integer"""
         return self.date.year
 
     @property
     def imonth(self):
+        """entry's month as an integer"""
         return self.date.month
 
     @property
     def month(self):
+        """entry's month as zero padded string"""
         return '%02d' % self.imonth
 
     @property
     def iday(self):
+        """entry's day as an integer"""
         return self.date.day
 
     @property
     def day(self):
+        """entry's day as zero padded string"""
         return '%02d' % self.iday
 
     @property
@@ -428,11 +474,17 @@ class ContentMixin(object):
         pv = None
 
         # this is our cache filename
-        path = hex(hash(self))[2:]
+        path = self.cachefilename
 
         # remove *all* intermediates when entry has been modified
-        if self.lastmodified > cache.getmtime(path):
+        if cache.getmtime(path) > 0.0 and self.modified:
             cache.remove(path)
+
+        if self.hasproperty('copy'):
+            res = self.resources
+            if res:
+                # use ascii record separator between paths, ignore empty list
+                cache.set(path, 'resources', '\x1e'.join(res))
 
         # growing dependencies of the filter chain
         deps = []
@@ -462,7 +514,17 @@ class ContentMixin(object):
 
     @cached_property
     def modified(self):
-        return self.lastmodified > cache.getmtime(hex(hash(self))[2:])
+        changed = self.lastmodified > cache.getmtime(self.cachefilename)
+        # skip resource check if changed is true
+        if not changed and self.hasproperty('copy'):
+            # using ascii record separator between paths, ignore empty list
+            pv = cache.get(self.cachefilename, 'resources')
+            if pv:
+                return self.resources != pv.split('\x1e')
+            else:
+                # flag as modified if resource list is not empty and cache is
+                return (not self.resources) == False
+        return changed
 
 
 class Entry(ContentMixin, MetadataMixin, FileReader):

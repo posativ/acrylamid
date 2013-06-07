@@ -24,7 +24,7 @@ from acrylamid.errors import AcrylamidException
 from acrylamid import readers, filters, views, assets, refs, hooks, helpers, dist
 from acrylamid.lib import lazy, history
 from acrylamid.core import cache, load, Environment
-from acrylamid.utils import hash, istext, HashableList, import_object, OrderedDict as dict
+from acrylamid.utils import hash, HashableList, import_object, OrderedDict as dict
 from acrylamid.helpers import event
 
 if compat.PY2K:
@@ -252,12 +252,19 @@ def autocompile(ws, conf, env):
     mtime = -1
     cmtime = getmtime('conf.py')
 
+    # config content_extension originally defined as string, not a list
+    exts = conf.get('content_extension',['.txt', '.rst', '.md'])
+    if isinstance(exts, basestring):
+        whitelist = (exts,)
+    else:
+        whitelist = tuple(exts)
+
     while True:
 
         ws.wait = True
         ntime = max(
             max(getmtime(e) for e in readers.filelist(
-                conf['content_dir'], conf['content_ignore']) if istext(e)),
+                conf['content_dir'], conf['content_ignore']) if e.endswith(whitelist)),
             max(getmtime(p) for p in chain(
                 readers.filelist(conf['theme'], conf['theme_ignore']),
                 readers.filelist(conf['static'], conf['static_ignore']))))

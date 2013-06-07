@@ -226,40 +226,6 @@ def import_object(name):
     return getattr(obj, parts[-1])
 
 
-# A function that takes an integer in the 8-bit range and returns a
-# single-character byte object in py3 / a single-character string in py2.
-int2byte = (lambda x: bytes((x,))) if sys.version_info > (3, 0) else chr
-
-def istext(path, blocksize=512, chars=(
-    b''.join(int2byte(i) for i in range(32, 127)) + b'\n\r\t\f\b')):
-    """Uses heuristics to guess whether the given file is text or binary,
-    by reading a single block of bytes from the file. If more than 30% of
-    the chars in the block are non-text, or there are NUL ('\x00') bytes in
-    the block, assume this is a binary file.
-
-    If ``python-magic`` is available, we use this rather than detecting ASCII
-    characters (in e.g. cyrillic or chinese).
-
-    -- via http://eli.thegreenplace.net/2011/10/19/perls-guess-if-file-is-text-or-binary-implemented-in-python/"""
-
-    if magic:
-        return magic.from_file(path, mime=True).startswith('text/')
-
-    with open(path, 'rb') as fp:
-        block = fp.read(blocksize)
-    if b'\x00' in block:
-        # Files with null bytes are binary
-        return False
-    elif not block:
-        # An empty file is considered a valid text file
-        return True
-
-    # Use translate's 'deletechars' argument to efficiently remove all
-    # occurrences of chars from the block
-    nontext = block.translate(None, chars)
-    return float(len(nontext)) / len(block) <= 0.30
-
-
 class Struct(OrderedDict):
     """A dictionary that provides attribute-style access."""
 
