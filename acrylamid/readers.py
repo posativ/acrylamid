@@ -283,6 +283,7 @@ class FileReader(Reader):
                 i, meta = markdownstyle(fp)
 
         meta['title'] = str(meta['title'])  # YAML can convert 42 to an int
+        meta['category'] = lchop(dirname(path), conf['content_dir']).split('/')
 
         jekyll = r'(?:(.+?)/)?(\d{4}-\d{2}-\d{2})-(.+)'
         m = re.match('^' + conf['content_dir'] + jekyll + '$', splitext(path)[0])
@@ -292,7 +293,7 @@ class FileReader(Reader):
             meta.setdefault('slug', m.group(3))
 
             if m.group(1) is not None:
-                meta['cats'] = m.group(1).split('/')
+                meta['category'] = m.group(1).split('/')
 
         self.offset = i
         Reader.__init__(self, conf, meta)
