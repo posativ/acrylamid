@@ -5,6 +5,7 @@
 
 import io
 import re
+import types
 
 from os.path import join, isfile
 
@@ -58,14 +59,18 @@ class Jinja2(Filter):
         self.jinja2_env.filters['system'] = system
         self.jinja2_env.filters['split'] = str.split
 
-        for mod in modules:
-            self.jinja2_env.filters[mod.__name__] = mod
+        # swap out platform specific os.path name (posixpath , ntpath, riscospath)
+        ospathmodname, os.path.__name__ = os.path.__name__, 'os.path'
 
+        for mod in modules:
             for name in dir(mod):
-                if name.startswith('_'):
+                if name.startswith('_') or isinstance(getattr(mod, name), types.ModuleType):
                     continue
 
                 self.jinja2_env.filters[mod.__name__ + '.' + name] = getattr(mod, name)
+
+        # restore original os.path module name
+        os.path.__name__ = ospathmodname
 
     @property
     def macros(self):
