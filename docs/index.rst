@@ -179,6 +179,8 @@ Real World Examples?
   [`source <https://github.com/iromli/groovematic>`_]
 - `Christoph Polcin <http://www.christoph-polcin.com/>`_ – Christoph Polcin
   [`source <http://git.christoph-polcin.com/blog/>`_, `theme <http://git.christoph-polcin.com/acrylamid-theme-bipolar/>`_]
+- `Knitatoms <http://knitatoms.net>`_ – Tom Atkins
+  [`source <https://github.com/knitatoms/knitatoms.net>`__]
 
 Commands
 --------
