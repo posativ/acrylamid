@@ -12,7 +12,7 @@ Changelog for Acrylamid
 
 ### What's new?
 
-- filter configuration is now part of its internal hash and will mark the
+- filter configuration is now part of the internal hash and will mark the
   cache object as invalid to force recompilation. Appendum to #118.
 - #124 – summarize and intro filter ignore img, audio & video tags by default.
   You can disable this feature by setting `*_IGNORE` to an empty list (`[]`).
@@ -48,8 +48,8 @@ Released on February, 12th, 2013 – Almost stable.
 - #105 – new archive view to render yearly, monthly and/or daily archives and
   has replaced the article view in the themes. The article view remains in
   the Acrylamid core but is likely to become deprecated in the future.
-- #104 – simple and advanced, multhithreaded hooks during compilation, see
-  http://posativ.org/acrylamid/hooks.rst for more information.
+- #104 – simple and advanced, multi-threaded hooks during compilation, see
+  http://posativ.org/acrylamid/hooks.html for more information.
 - Jinja2 content filter imports macros from theme/macros.html
   automatically into your entry namespace.
 - #102 – enrich HTML metadata
@@ -72,7 +72,7 @@ Released on February, 12th, 2013 – Almost stable.
 - #117 – fix a redirection issue where `/foo` has been resolved to
   `/output/foo/` instead of `/foo/` solely.
 - #116 – serving from non-root path has been fixed
-- #111 – prevent duplicate summarize link insertion for modus 0
+- #111 – prevent duplicate summarize link insertion for mode 0
 - sitemap may have included drafts unintentional if routed through `'/drafts/'`
 - automatically adding the index.html to any route without checking if the
   path has already an extension. Now, Acrylamid only appends an `index.html`

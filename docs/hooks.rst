@@ -11,11 +11,11 @@ By default, all hooks are executed in parallel (not affected by the GIL if you
 run external processes/commands), you can disable this behavior by setting
 ``HOOKS_MT`` to ``False``.
 
-There are two different types of hooks. The simple hook "listens" on the
-create and update events and simply calls your function with the namespace [#1] of
-the event and the path, in this order. Whereas the advanced hook hooks into
-all available event types but requires a path translation function to
-automatically determine whether the callback should be executed or not.
+There are two different types of hooks. The simple hook "listens" on the create
+and update events and simply calls your function with the namespace [#1]_ of the
+event and the path, in this order. Whereas the advanced hook hooks into all
+available event types but requires a path translation function to automatically
+determine whether the callback should be executed or not.
 
 Instead of writing callbacks in Python, you can also supply a shell command
 with one (simple) or two (advanced) arguments. The namespace is not available
