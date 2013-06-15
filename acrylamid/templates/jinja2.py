@@ -102,17 +102,18 @@ class ExtendedFileSystemLoader(FileSystemLoader):
         return tt
 
 
-class Environment(AbstractEnvironment, J2Environemnt):
+class Environment(AbstractEnvironment):
 
-    templates = {}
+    j2, templates = None, None
     extension = ['.html', '.j2']
 
     def __init__(self):
-        pass
+        self.templates = {}
+        self.extension = ['.html', '.j2']
 
     def init(self, layoutdir, cachedir):
 
-        J2Environemnt.__init__(self,
+        self.j2 = J2Environemnt(
             loader=ExtendedFileSystemLoader(layoutdir),
             bytecode_cache=FileSystemBytecodeCache(cachedir))
 
@@ -120,36 +121,40 @@ class Environment(AbstractEnvironment, J2Environemnt):
         import time, datetime, urllib
 
         for module in (time, datetime, urllib):
-            self.globals[module.__name__] = module
+            self.j2.globals[module.__name__] = module
 
             for name in dir(module):
                 if name.startswith('_'):
                     continue
                 obj = getattr(module, name)
                 if hasattr(obj, '__class__') and callable(obj):
-                    self.filters[module.__name__ + '.' + name] = obj
+                    self.j2.filters[module.__name__ + '.' + name] = obj
 
     def register(self, name, func):
-        self.filters[name] = func
+        self.j2.filters[name] = func
 
     def fromfile(self, env, path):
         return self.templates.setdefault(path,
-            Template(env, path, self.get_template(path)))
+            Template(env, path, self.j2.get_template(path)))
 
     def extend(self, path):
-        self.loader.searchpath.append(path)
+        self.j2.loader.searchpath.append(path)
 
     @property
     def modified(self):
-        return self.loader.modified
+        return self.j2.loader.modified
 
     @property
     def resolved(self):
-        return self.loader.resolved
+        return self.j2.loader.resolved
 
     @property
     def assets(self):
-        return self.loader.assets
+        return self.j2.loader.assets
+
+    @property
+    def globals(self):
+        return self.j2.globals
 
 
 class Template(AbstractTemplate, Mixin):
@@ -161,7 +166,7 @@ class Template(AbstractTemplate, Mixin):
         self.env = env
         self.name = path
         self.template = template
-        self.environment = template.environment
+        self.environment = env.engine
 
     def render(self, **kw):
         buf = StringIO()
