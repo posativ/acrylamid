@@ -119,6 +119,9 @@ Variable name (default value)                              Description
                                                            your templating engine (currently, acrylamid supports
                                                            `jinja2 <http://jinja.pocoo.org/>`_ and
                                                            `Mako <http://www.makotemplates.org/>`_).
+`JINJA2_IMPORT` (*not set*)                                User definable list of imports that can be accessed
+                                                           in Jinja2 Templating via filters. Modules time,
+                                                           datetime and os.path are already imported.
 =======================================================    =====================================================
 
 URL Settings
