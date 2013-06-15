@@ -12,6 +12,7 @@ from collections import defaultdict
 from jinja2 import Environment as J2Environemnt, FileSystemBytecodeCache
 from jinja2 import FileSystemLoader, meta, nodes
 
+from acrylamid.locale import translations
 from acrylamid.templates import AbstractEnvironment, AbstractTemplate
 
 try:
@@ -115,7 +116,12 @@ class Environment(AbstractEnvironment):
 
         self.j2 = J2Environemnt(
             loader=ExtendedFileSystemLoader(layoutdir),
-            bytecode_cache=FileSystemBytecodeCache(cachedir))
+            bytecode_cache=FileSystemBytecodeCache(cachedir),
+            extensions=['jinja2.ext.i18n'])
+
+        # install locale.translation (after locale initialization), we use
+        # newstyle syntax: http://jinja.pocoo.org/docs/extensions/#newstyle-gettext
+        self.j2.install_gettext_translations(translations, newstyle=True)
 
         # jinja2 is stupid and can't import any module during runtime
         import time, datetime, urllib

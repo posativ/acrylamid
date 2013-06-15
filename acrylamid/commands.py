@@ -8,7 +8,6 @@ from __future__ import print_function
 import sys
 import os
 import time
-import locale
 
 from datetime import datetime
 from itertools import chain
@@ -21,7 +20,7 @@ from acrylamid import log, compat
 from acrylamid.compat import iteritems, iterkeys, string_types, text_type as str
 from acrylamid.errors import AcrylamidException
 
-from acrylamid import readers, filters, views, assets, refs, hooks, helpers, dist
+from acrylamid import readers, filters, views, assets, refs, hooks, helpers, dist, locale
 from acrylamid.lib import lazy, history
 from acrylamid.core import cache, load, Environment
 from acrylamid.utils import hash, HashableList, import_object, OrderedDict as dict
@@ -56,33 +55,14 @@ def initialize(conf, env):
     if env.options.parser.startswith(('co', 'gen', 'auto', 'aco')):
         hooks.initialize(conf, env)
 
+    conf['lang'] = locale.setlocale(str(conf.get('lang', '')))
+
     # set up templating environment
     env.engine = import_object(conf['engine'])()
 
     env.engine.init(conf['theme'], cache.cache_dir)
     env.engine.register('safeslug', helpers.safeslug)
     env.engine.register('tagify', lambda x: x)
-
-    # try language set in LANG, if set correctly use it
-    try:
-        locale.setlocale(locale.LC_ALL, str(conf.get('lang', '')))
-    except (locale.Error, TypeError):
-        # try if LANG is an alias
-        try:
-            locale.setlocale(locale.LC_ALL, locale.locale_alias[str(conf.get('lang', '')).lower()])
-        except (locale.Error, KeyError):
-            # LANG is not an alias, so we use system's default
-            try:
-                locale.setlocale(locale.LC_ALL, '')
-            except locale.Error:
-                pass  # hope this makes Travis happy
-            log.info('notice  your OS does not support %s, fallback to %s', conf.get('lang', ''),
-                     locale.getlocale()[0])
-    if locale.getlocale()[0] is not None:
-        conf['lang'] = locale.getlocale()[0][:2]
-    else:
-        # getlocale() is (None, None) aka 'C'
-        conf['lang'] = 'en'
 
     if 'www_root' not in conf:
         log.warn('no `www_root` specified, using localhost:8000')
