@@ -47,11 +47,12 @@ class Jinja2(Filter):
         # check config for imports
         confimports = conf.get('jinja2_import')
         if confimports and isinstance(confimports, list):
-            try:
-                modules += map(__import__, confimports)
-            except ImportError as e:
-                log.exception('Failed loading user defined Jinja2 imports: '
-                              '%s (JINJA2_IMPORT = %s)' % (e, confimports))
+            for modname in confimports:
+                try:
+                    modules.append(__import__(modname))
+                except ImportError as e:
+                    log.exception('Failed loading user defined Jinja2 import: '
+                                  '%s (JINJA2_IMPORT = %s)' % (e, confimports))
 
         if PY2K:
             import urllib
