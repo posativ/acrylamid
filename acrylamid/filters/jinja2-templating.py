@@ -44,6 +44,16 @@ class Jinja2(Filter):
         import time, datetime, os.path
         modules = [time, datetime, os.path]
 
+        # check config for imports
+        confimports = conf.get('jinja2_import')
+        if confimports and isinstance(confimports, list):
+            for modname in confimports:
+                try:
+                    modules.append(__import__(modname))
+                except ImportError as e:
+                    log.exception('Failed loading user defined Jinja2 import: '
+                                  '%s (JINJA2_IMPORT = %s)' % (e, confimports))
+
         if PY2K:
             import urllib
             modules += [urllib]
