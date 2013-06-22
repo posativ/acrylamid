@@ -4,8 +4,7 @@ Welcome to Acrylamid
 *Notice:*
 
 * don't try the master branch unless you are very sure about the not
-  yet documented changes. If you fix a bug for the stable release,
-  branch off legacy/0.7 please.
+  yet documented changes.
 * PyPi releases (0.7.x) do not work with Python 3.3+ due dependency
   pinning. The upcoming 0.8 release will drop support for 3.2, but
   fully supports 3.3 and higher.
@@ -213,3 +212,20 @@ an email to ``acrylamid@librelist.com`` and you have subscribed .
 .. _Freenode: http://freenode.net/
 .. _Github Issues: https://github.com/posativ/acrylamid/issues?state=open
 .. _Archive: http://librelist.com/browser/acrylamid/
+
+How to contribute
+-----------------
+
+Communication.  Beside that, I am open for most enhancements, just
+two requirements:
+
+* resepect PEP-8 (max line length may vary, but use 80 as your soft limit
+  and 100 as your hard limit; 105 for ugly ``if`` linebreaks though).
+* I prefer clear code (early return instead of nested else etc.) and concise
+  variable (and configuration) variables. Also: ``@[cached_]property`` is way
+  better than `get_thing(self)`.
+
+Be aware, that the current master has been quite diverged from the PyPi
+release (legacy/0.7 branch). If you are going to fix a bug, branch off
+the legacy branch. On the other hand, if you want to contribute features,
+branch off the master branch, but expect things to be changed/broken/removed.
