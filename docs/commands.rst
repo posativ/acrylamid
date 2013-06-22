@@ -11,12 +11,12 @@ Note that Acrylamid always will change to the directory containing the
 file in the current directory named ``conf.py`` and then in any folder
 above.
 
--h, --help            show this help message and exit
--v, --verbose         more verbose
--q, --quiet           less verbose
--C, --no-color        disable color
---conf /path/to/conf  alternate conf.py
---version             show program's version number and exit
+-h, --help      show this help message and exit
+-v, --verbose   more verbose
+-q, --quiet     less verbose
+-C, --no-color  disable color
+--conf=FILE     alternate conf.py
+--version       show program's version number and exit
 
 Built-in Commands
 *****************
@@ -193,7 +193,7 @@ shows you your current tag usage and coverage.
 
 -2                a git-like digit to show the last N articles (default: 5)
                   during summary or 100 most used tags.
-  --coverage N    discover posts with uncommon tags
+--coverage N      discover posts with uncommon tags
 
 Summarize mode (gray items are drafts):
 
