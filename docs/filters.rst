@@ -137,6 +137,9 @@ Acrylamid features some additional extension:
   ``a^2^``.
 - `deletion and insertion`_ syntax via *delins*. The syntax is ``~~old~~`` and
   ``++new``.
+- `GitHub:Gist <https://gist.github.com/>`__ embedding via ``[gist: id]`` and
+  optional with a filename ``[gist: id filename]``. You can use ``[gistraw:
+  id [filename]]`` to embed the raw text without JavaScript.
 
 .. _available extensions: http://www.freewisdom.org/projects/python-markdown/Available_Extensions
 .. _codehilite: http://freewisdom.org/projects/python-markdown/CodeHilite
@@ -151,7 +154,8 @@ Requires      ``markdown`` or (``python-markdown``) -- already
               as a dependency implicitly installed
 Aliases       md, mkdown, markdown
 Conflicts     HTML, reStructuredText, Pandoc
-Arguments     asciimathml, sub, sup, delins, <built-in extensions>
+Arguments     asciimathml, sub, sup, delins, gist, gistraw
+              <built-in extensions>
 ============  ====================================================
 
 
@@ -198,7 +202,8 @@ directives, acrylamid offers three additional one:
           <link type="text/css" rel="stylesheet" href="http://alexgorbatchev.com/pub/sh/current/styles/shCoreDefault.css"/>
           <script type="text/javascript">SyntaxHighlighter.defaults.toolbar=false; SyntaxHighlighter.all();</script>
 
-- `GitHub:Gist <https://gist.github.com/>`_ embedding via ``gist`` optionally with a filename.
+- `GitHub:Gist <https://gist.github.com/>`__ embedding via ``gist`` optional
+  with a filename.
 
   .. code-block:: restructuredtext
 
