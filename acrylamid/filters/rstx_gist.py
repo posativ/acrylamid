@@ -6,8 +6,8 @@
 from docutils.parsers.rst import Directive, directives
 from docutils import nodes
 
-from acrylamid.lib.requests import get
-
+from acrylamid.lib.requests import get, HTTPError, URLError
+from acrylamid import log
 
 class Gist(Directive):
     """ Embed GitHub Gist.
@@ -25,11 +25,19 @@ class Gist(Directive):
 
     def get_raw_gist_with_filename(self, gistID, filename):
         url = "https://raw.github.com/gist/%s/%s" % (gistID, filename)
-        return get(url).read()
+        try:
+            return get(url).read()
+        except (URLError, HTTPError) as e:
+            log.exception('Failed to access URL %s : %s' % (url, e))
+        return ''
 
     def get_raw_gist(self, gistID):
-        url = "https://raw.github.com/gist/%s/" % (gistID)
-        return get(url).read()
+        url = "https://raw.github.com/gist/%s" % (gistID)
+        try:
+            return get(url).read()
+        except (URLError, HTTPError) as e:
+            log.exception('Failed to access URL %s : %s' % (url, e))
+        return ''
 
     def run(self):
 

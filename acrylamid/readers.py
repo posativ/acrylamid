@@ -557,7 +557,7 @@ def unsafe(string):
         return string
 
 
-def distinguish(value):
+def distinguish(value, key=''):
     """Convert :param value: to None, Int, Bool, a List or String.
     """
     if not isinstance(value, string_types):
@@ -572,8 +572,12 @@ def distinguish(value):
         return int(value)
     elif value.lower() in ['true', 'false']:
         return True if value.capitalize() == 'True' else False
-    elif value[0] == '[' and value[-1] == ']':
+    elif value[0] == '[' and value[-1] == ']' and not (key.startswith('filter') and value.find('(') > 0):
         return list([x.strip() for x in value[1:-1].split(',') if x.strip()])
+    # if key is filter with bracket, treat spaced commas as filters, non-padded as extension params, eg
+    # filters: [Markdown+codehilite(css_class=highlight,force_linenos=True), Jinja2]
+    elif value[0] == '[' and value[-1] == ']' and key.startswith('filter'):
+        return list([x.strip() for x in value[1:-1].split(', ') if x.strip()])
     else:
         return unsafe(value)
 
@@ -599,7 +603,7 @@ def markdownstyle(fileobj):
         m1 = meta_re.match(line)
         if m1:
             key = m1.group('key').lower().strip()
-            value = distinguish(m1.group('value').strip())
+            value = distinguish(m1.group('value').strip(), key)
             meta.setdefault(key, []).append(value)
         else:
             m2 = meta_more_re.match(line)
