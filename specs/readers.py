@@ -89,6 +89,10 @@ def quotes():
 
     assert distinguish("\"'bout \" and '\"") == "'bout \" and '"
 
+    # quote commas, so they are not recognized as a new part
+    assert distinguish('["X+ext(foo, bar=123)", other]') == ["X+ext(foo, bar=123)", "other"]
+    assert distinguish('["a,b,c,d", a, b, c]') == ['a,b,c,d', 'a', 'b', 'c']
+
 
 @tt.test
 def backslash():

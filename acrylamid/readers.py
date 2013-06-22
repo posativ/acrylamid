@@ -10,6 +10,7 @@ import io
 import re
 import sys
 import abc
+import shlex
 import codecs
 import traceback
 import glob
@@ -18,6 +19,7 @@ BOM_UTF8 = codecs.BOM_UTF8.decode('utf8')
 
 from os.path import join, getmtime, relpath, splitext, dirname, isfile, normpath
 from fnmatch import fnmatch
+from itertools import takewhile, repeat
 from datetime import datetime, tzinfo, timedelta
 
 from acrylamid import log, compat
@@ -557,13 +559,13 @@ def unsafe(string):
         return string
 
 
-def distinguish(value, key=''):
+def distinguish(value):
     """Convert :param value: to None, Int, Bool, a List or String.
     """
     if not isinstance(value, string_types):
         return value
 
-    if not isinstance(value, str):
+    if not isinstance(value, string_types):
         value = str(value)
 
     if value == '':
@@ -572,12 +574,12 @@ def distinguish(value, key=''):
         return int(value)
     elif value.lower() in ['true', 'false']:
         return True if value.capitalize() == 'True' else False
-    elif value[0] == '[' and value[-1] == ']' and not (key.startswith('filter') and value.find('(') > 0):
-        return list([x.strip() for x in value[1:-1].split(',') if x.strip()])
-    # if key is filter with bracket, treat spaced commas as filters, non-padded as extension params, eg
-    # filters: [Markdown+codehilite(css_class=highlight,force_linenos=True), Jinja2]
-    elif value[0] == '[' and value[-1] == ']' and key.startswith('filter'):
-        return list([x.strip() for x in value[1:-1].split(', ') if x.strip()])
+    elif value[0] == '[' and value[-1] == ']':
+        tokenizer = shlex.shlex(value[1:-1], posix=True)
+        value = list(takewhile(
+            lambda token: token != tokenizer.eof,
+            (tokenizer.get_token() for _ in repeat(None))))
+        return [unsafe(val) for val in value if val != ',']
     else:
         return unsafe(value)
 
@@ -603,7 +605,7 @@ def markdownstyle(fileobj):
         m1 = meta_re.match(line)
         if m1:
             key = m1.group('key').lower().strip()
-            value = distinguish(m1.group('value').strip(), key)
+            value = distinguish(m1.group('value').strip())
             meta.setdefault(key, []).append(value)
         else:
             m2 = meta_more_re.match(line)
