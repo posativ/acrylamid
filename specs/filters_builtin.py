@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from acrylamid import log, utils, core
-from acrylamid.filters import initialize, get_filters
+from acrylamid.filters import initialize, get_filters, hyphenation
 
 import attest
 
@@ -46,13 +46,10 @@ class Hyphenation(attest.TestBase):
         assert hyph.transform('Flugzeug', Entry('foo'), '8') == 'Flugzeug'
 
     @attest.test
-    def build_pattern(self):
+    def build_pattern_failure(self):
 
-        # short term
-        build('en')
-
-        hyphenate = build('en_US')
-        assert hyphenate('Airplane') == ['Air', 'plane']
+        with attest.raises(hyphenation.HyphenPatternNotFound):
+            build('asdf')
 
 
 @tt.test

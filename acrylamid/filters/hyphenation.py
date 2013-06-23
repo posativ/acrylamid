@@ -126,33 +126,22 @@ class Separator(HTMLParser):
 
 
 def build(lang):
-    """build the Hyphenator from given language.  If you want add more, see
-    http://tug.org/svn/texhyphen/trunk/hyph-utf8/tex/generic/hyph-utf8/patterns/txt/ ."""
+    """build the Hyphenator from given language.  If you want more, add the pattern
+    and character files (and issue a pull request):
+    http://tug.org/svn/texhyphen/trunk/hyph-utf8/tex/generic/hyph-utf8/patterns/txt/"""
 
-    def gethyph(lang, directory='hyph/', prefix='hyph-'):
-
-        for la in [prefix + lang, prefix + lang[:2]]:
-            for p in os.listdir(directory):
-                f = os.path.basename(p)
-                if f.startswith(la):
-                    return join(directory, p)
-        else:
-            raise HyphenPatternNotFound("no hyph-definition found for '%s'" % lang)
-
-    dir = os.path.join(dirname(__file__), 'hyph/')
-    fpath = gethyph(lang, dir).rsplit('.', 2)[0]
+    path = join(dirname(__file__), 'hyph/')
     try:
-        with io.open(fpath + '.chr.txt', encoding='utf-8') as f:
+        with io.open(join(path, lang + '.chr'), encoding='utf-8') as f:
             chars = ''.join([line[0] for line in f.readlines()])
-        with io.open(fpath + '.pat.txt', encoding='utf-8') as f:
+        with io.open(join(path, lang + '.pat'), encoding='utf-8') as f:
             patterns = f.read()
     except IOError:
-        raise HyphenPatternNotFound('hyph/%s.chr.txt or hyph/%s.pat.txt missing' % (lang, lang))
+        raise HyphenPatternNotFound("no hyphenation patterns found for '%s'" % lang)
 
     hyphenator = Hyphenator(chars, patterns, exceptions='')
     del patterns
     del chars
-    log.debug("built Hyphenator from <%s>" % basename(fpath))
     return hyphenator.hyphenate_word
 
 
@@ -166,7 +155,7 @@ class Hyphenate(Filter):
     def default(self):
         try:
             # build default hyphenate_word using conf's lang (if available)
-            return build(self.conf['lang'].replace('_', '-'))
+            return build(self.conf['lang'][:2])
         except HyphenPatternNotFound as e:
             log.warn(e.args[0])
             return lambda x: [x]
@@ -177,7 +166,7 @@ class Hyphenate(Filter):
     def transform(self, content, entry, *args):
         if entry.lang != self.conf['lang']:
             try:
-                hyphenate_word = build(entry.lang.replace('_', '-'))
+                hyphenate_word = build(entry.lang[:2])
             except HyphenPatternNotFound as e:
                 log.warn(e.args[0])
                 hyphenate_word = lambda x: [x]
