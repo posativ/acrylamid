@@ -5,7 +5,7 @@
 #
 # Utilities that do not depend on any further Acrylamid object
 
-from __future__ import unicode_literals
+from __future__ import unicode_literals, absolute_import
 
 import sys
 import os
@@ -81,7 +81,7 @@ if sys.version_info[0] == 2:
         try:
             return string.decode('utf-8')
         except UnicodeDecodeError:
-            return string.decode(locale.getpreferredencoding())
+            return string.decode(locale.getlocale()[1])
 else:
     force_unicode = lambda x: x
 

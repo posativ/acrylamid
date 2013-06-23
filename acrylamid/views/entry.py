@@ -10,7 +10,7 @@ import io
 from os.path import isfile, dirname, basename, getmtime, join
 from collections import defaultdict
 
-from acrylamid import refs, log
+from acrylamid import refs, log, locale
 from acrylamid.errors import AcrylamidException
 from acrylamid.compat import metaclass, filter
 from acrylamid.helpers import expand, union, joinurl, event, link, mkfile
@@ -35,6 +35,11 @@ class Base(metaclass(abc.ABCMeta, View)):
 
     def prev(self, entrylist, i):
         return None
+
+    def render(self, tt, conf, env, entry, **kwargs):
+        return tt.render(conf=conf, env=union(env,
+            type=self.__class__.__name__.lower(),
+            entrylist=[entry], **kwargs))
 
     def generate(self, conf, env, data):
 
@@ -68,9 +73,8 @@ class Base(metaclass(abc.ABCMeta, View)):
             not modified(*references(entry))]):
                 event.skip(self.name, path)
             else:
-                html = tt.render(conf=conf, entry=entry, env=union(env,
-                                 entrylist=[entry], type=self.__class__.__name__.lower(),
-                                 prev=prev, next=next, route=expand(self.path, entry)))
+                html = self.render(tt, conf, env, entry,
+                    prev=prev, next=next, route=expand(self.path, entry))
                 yield html, path
 
             # check if any resources need to be moved
@@ -237,6 +241,10 @@ class Translation(Base):
         env.translationsfor = translationsfor
 
         return env
+
+    def render(self, tt, conf, env, entry, **kwargs):
+        with locale.context(entry.lang):
+            return super(Translation, self).render(tt, conf, env, entry, **kwargs)
 
 
 class Draft(Base):
