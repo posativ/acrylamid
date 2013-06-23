@@ -69,6 +69,7 @@ class Feed(View):
             raise StopIteration
 
         updated = entrylist[0].date if entrylist else datetime.utcnow()
+                                                              .replace(tzinfo=conf.tzinfo)
         html = tt.render(conf=conf, env=union(env, route=self.route,
                          updated=updated, entrylist=entrylist))
         yield html, path
