@@ -222,10 +222,13 @@ two requirements:
 * resepect PEP-8 (max line length may vary, but use 80 as your soft limit
   and 100 as your hard limit; 105 for ugly ``if`` linebreaks though).
 * I prefer clear code (early return instead of nested else etc.) and concise
-  variable (and configuration) variables. Also: ``@[cached_]property`` is way
+  variable (and configuration) names. Also: ``@[cached_]property`` is way
   better than `get_thing(self)`.
 
 Be aware, that the current master has been quite diverged from the PyPi
 release (legacy/0.7 branch). If you are going to fix a bug, branch off
 the legacy branch. On the other hand, if you want to contribute features,
 branch off the master branch, but expect things to be changed/broken/removed.
+
+The master branch features a 2.6/2.7/3.3 unified code base, please have a look
+at the ``acrylamid.compat`` module (e.g. `map`, `filter` etc).
