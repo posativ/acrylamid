@@ -56,7 +56,7 @@ def mkdown():
 
     assert 'John Doe' in meta['authors']
     assert meta['date'] == 'October 2, 2007'
-    assert meta['blank-value'] == None
+    assert meta['blank-value'] == ""
 
 
 @tt.test
@@ -92,6 +92,22 @@ def quotes():
     # quote commas, so they are not recognized as a new part
     assert distinguish('["X+ext(foo, bar=123)", other]') == ["X+ext(foo, bar=123)", "other"]
     assert distinguish('["a,b,c,d", a, b, c]') == ['a,b,c,d', 'a', 'b', 'c']
+
+
+@tt.test
+def types():
+
+    for val in ['None', 'none', '~', 'null']:
+        assert distinguish(val) == None
+
+    for val in ['3.14', '42.0', '-0.01']:
+        assert distinguish(val) == float(val)
+
+    for val in ['1', '2', '-1', '9000']:
+        assert distinguish(val) == int(val)
+
+    assert distinguish('test') == 'test'
+    assert distinguish('') == ''
 
 
 @tt.test

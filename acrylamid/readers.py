@@ -560,7 +560,7 @@ def unsafe(string):
 
 
 def distinguish(value):
-    """Convert :param value: to None, Int, Bool, a List or String.
+    """Convert :param value: to None, Int, Float, Bool, a List or String.
     """
     if not isinstance(value, string_types):
         return value
@@ -568,13 +568,17 @@ def distinguish(value):
     if not isinstance(value, string_types):
         value = str(value)
 
-    if value == '':
+    if value in ['None', 'none', '~', 'null']:
         return None
-    elif value.isdigit():
+    elif re.match(r'^-?\d+$', value):
         return int(value)
-    elif value.lower() in ['true', 'false']:
-        return True if value.capitalize() == 'True' else False
-    elif value[0] == '[' and value[-1] == ']':
+    elif re.match(r'^-?\d+.\d+$', value):
+        return float(value)
+    elif value in ['True', 'true', 'on']:
+        return True
+    elif value in ['False', 'false', 'off']:
+        return False
+    elif len(value) >= 2 and value[0] == '[' and value[-1] == ']':
         tokenizer = shlex.shlex(value[1:-1], posix=True)
         value = list(takewhile(
             lambda token: token != tokenizer.eof,
