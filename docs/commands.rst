@@ -177,7 +177,7 @@ broken HTML.
 -f, --force         override existing entries, use with care!
 -m FMT              reconversion of HTML to FMT, supports every language that
                     pandoc supports (if you have pandoc installed). Use "HTML"
-                    if you don't whish any reconversion.
+                    if you don't wish any reconversion.
 -k, --keep-links    keep original permanent-links and also create content
                     structure in that way. This does *not* work, if you links
                     are like this: ``/?p=23``.
@@ -258,11 +258,11 @@ as TASK.
     }
 
 The first task will print out a file listing from your output directory. The
-command is pure shell, you could also use ``$HOME`` as variable. The most
+command is pure shell, you could also use ``$HOME`` as variable. Most
 configuration parameters are added to the execution environment. The second
-task marks the substitution string as non-substituable and you'll get the
-variable itself. The last task is a simple command to deploy your blog
-directly to your server. If you don't supply TASK, Acrylamid runs *default*.
+task echoes the substitution parameter. The last task is might be a command to
+deploy your blog directly to the server. If you don't supply TASK, Acrylamid
+runs *default*.
 
 .. raw:: html
 

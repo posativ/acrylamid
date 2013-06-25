@@ -8,7 +8,7 @@ Initialization
 --------------
 
 To create a new blog, just run ``acrylamid init``. You can choose between Mako
-and Jinja2 as templating languages. See also :doc:`commands` for more details.
+and Jinja2 as template languages. See also :doc:`commands` for more details.
 
 .. raw:: html
 
@@ -47,7 +47,7 @@ content/ : Content Directory
     destination.
 
 theme/ : Theme Directory
-    The location of your HTML tempales and other static files for that theme,
+    The location of your HTML templates and other static files for that theme,
     that will be copied during compilation.
 
 
@@ -67,9 +67,9 @@ title : String
 
 date : String
     A date in the format your specified in your :doc:`conf.py` and several
-    fallbacks you'll find here: `pelican/utils.py:21 <https://github.com/getpelican/pelican/blob/master/pelican/utils.py#L56>`_.
+    fall backs you'll find here: `pelican/utils.py:21 <https://github.com/getpelican/pelican/blob/master/pelican/utils.py#L56>`_.
 
-    Acrylamid supports date time objects beginning from 01.01.1900, but keep in
+    Acrylamid supports datetime objects beginning from 01.01.1900, but keep in
     mind that datetimes before 1990 are not supported by python's datetime API
     and the exact beginning may vary. I live in UTC+1 and can't use the
     1.1.1990 because it is actually 1899-12-31 at 23:00.
@@ -95,7 +95,7 @@ type: String
     ``entry`` (default) or ``page``.
 
 encoding : String
-    The encoding of that file. Defaults to your system's prefered encoding.
+    The encoding of that file. Defaults to your system's preferred encoding.
 
 lang : String
     Language used in this post. Used for translation (if active) or to
@@ -251,7 +251,7 @@ want to contribute your theme read :doc:`theming` first.
 
     Did you about the ``--mako`` flag that initializes all templates with a
     Mako analogon? Just create your blog like this: ``acrylamid init --mako``.
-    Unfortunately you can't mix different tempating engines.
+    Unfortunately you can't mix different template engines.
 
 To edit a layout, just open and change something. Acrylamid automatically
 detects changes (even in parent templates) and re-renders the blog.
