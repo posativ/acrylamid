@@ -229,11 +229,11 @@ def compile(conf, env):
     # copy modified/missing assets to output
     assets.compile(conf, env)
 
-    # run post hooks (blocks)
-    hooks.run(conf, env, 'post')
-
     # wait for unfinished hooks
     hooks.shutdown()
+
+    # run post hooks (blocks)
+    hooks.run(conf, env, 'post')
 
     # save conf/environment hash and new/changed/unchanged references
     helpers.memoize('Configuration', hash(conf))
