@@ -43,7 +43,7 @@ class Index(View):
             # curr = current page, next = newer pages, prev = older pages
 
             next = None if next is None \
-                else link(u'Next', self.path.rstrip('/')) if next == 1 \
+                else link(u'Next', self.path) if next == 1 \
                     else link(u'Next', expand(self.pagination, {'num': next}))
 
             curr = link(curr, self.path) if curr == 1 \

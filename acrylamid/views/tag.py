@@ -118,7 +118,7 @@ class Tag(View):
 
         for tag in self.tags:
 
-            route = expand(self.path, {'name': tag}).rstrip('/')
+            route = expand(self.path, {'name': tag})
             entrylist = [entry for entry in self.tags[tag]]
             paginator = paginate(entrylist, ipp, route, conf['default_orphans'])
 
@@ -127,7 +127,7 @@ class Tag(View):
                 # e.g.: curr = /page/3, next = /page/2, prev = /page/4
 
                 next = None if next is None \
-                else link(u'Next', expand(self.path, {'name': tag}).rstrip('/')) if next == 1 \
+                else link(u'Next', expand(self.path, {'name': tag})) if next == 1 \
                     else link(u'Next', expand(self.pagination, {'name': tag, 'num': next}))
 
                 curr = link(curr, expand(self.path, {'name': tag})) if curr == 1 \
