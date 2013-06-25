@@ -18,17 +18,18 @@ from acrylamid import log
 from acrylamid.errors import AcrylamidException
 from acrylamid.compat import string_types, iteritems
 
-from acrylamid.helpers import event, system
+from acrylamid.helpers import event, system, discover
 from acrylamid.lib.async import Threadpool
 
 pool = None
+tasks = {}
 
 
 def modified(src, dest):
     return not isfile(dest) or getmtime(src) > getmtime(dest)
 
 
-def run(cmd, ns, src, dest=None):
+def execute(cmd, ns, src, dest=None):
     """Execute `cmd` such as `yui-compressor %1 -o %2` in-place.
     If `dest` is none, you don't have to supply %2."""
 
@@ -66,7 +67,7 @@ def simple(pool, pattern, normalize, action, ns, path):
     """
     if re.match(pattern, normalize(path), re.I):
         if isinstance(action, string_types):
-            action = partial(run, action)
+            action = partial(execute, action)
         pool.add_task(action, ns, path)
 
 
@@ -82,10 +83,31 @@ def advanced(pool, pattern, force, normalize, action, translate, ns, path):
 
     if force or modified(path, translate(path)):
         if isinstance(action, string_types):
-            action = partial(run, action)
+            action = partial(execute, action)
         pool.add_task(action, ns, path, translate(path))
     else:
         log.skip('skip  %s', translate(path))
+
+
+def pre(func):
+    global tasks
+    tasks.setdefault('pre', []).append(func)
+
+
+def post(func):
+    global tasks
+    tasks.setdefault('post', []).append(func)
+
+
+def run(conf, env, type):
+
+    global tasks
+
+    pool = Threadpool(multiprocessing.cpu_count())
+    while tasks.get(type):
+        pool.add_task(partial(tasks[type].pop(), conf, env))
+
+    pool.wait_completion()
 
 
 def initialize(conf, env):
@@ -107,6 +129,8 @@ def initialize(conf, env):
             event.register(
                 callback=partial(advanced, pool, pattern, force, normalize, *action),
                 to=event.events)
+
+    discover([conf.get('HOOKS_DIR', 'hooks/')], lambda x: x)
 
 
 def shutdown():

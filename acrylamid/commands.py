@@ -52,10 +52,6 @@ def initialize(conf, env):
         print("Acrylamid a second time to get rid of this message and premature exit.")
         raise SystemExit
 
-    # register hooks
-    if env.options.parser.startswith(('co', 'gen', 'auto', 'aco')):
-        hooks.initialize(conf, env)
-
     # set up templating environment
     env.engine = import_object(conf['engine'])()
 
@@ -128,6 +124,9 @@ def initialize(conf, env):
 
 def compile(conf, env):
     """The compilation process."""
+
+    hooks.initialize(conf, env)
+    hooks.run(conf, env, 'pre')
 
     if env.options.force:
         cache.clear(conf.get('cache_dir'))
@@ -229,6 +228,9 @@ def compile(conf, env):
 
     # copy modified/missing assets to output
     assets.compile(conf, env)
+
+    # run post hooks (blocks)
+    hooks.run(conf, env, 'post')
 
     # wait for unfinished hooks
     hooks.shutdown()
