@@ -12,6 +12,7 @@ import re
 import imp
 import shutil
 import itertools
+import contextlib
 import subprocess
 
 from unicodedata import normalize
@@ -252,6 +253,18 @@ class Link(object):
         return other + str(other)
 
 link = Link
+
+
+@contextlib.contextmanager
+def chdir(directory):
+
+    cwd = os.getcwd()
+
+    try:
+        os.chdir(directory)
+        yield
+    finally:
+        os.chdir(cwd)
 
 
 def system(cmd, stdin=None, **kwargs):
