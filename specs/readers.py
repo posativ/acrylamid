@@ -93,6 +93,10 @@ def quotes():
     assert distinguish('["X+ext(foo, bar=123)", other]') == ["X+ext(foo, bar=123)", "other"]
     assert distinguish('["a,b,c,d", a, b, c]') == ['a,b,c,d', 'a', 'b', 'c']
 
+    # non-ascii
+    assert distinguish('["Föhn", "Bär"]') == ["Föhn", "Bär"]
+    assert distinguish('[Bla, Calléjon]') == ["Bla", "Calléjon"]
+
 
 @tt.test
 def types():
