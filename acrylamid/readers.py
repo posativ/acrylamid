@@ -581,7 +581,8 @@ def distinguish(value):
         tokenizer = shlex.shlex((value[1:-1]).encode('utf-8'), posix=True)
         tokenizer.whitespace = ','.encode('utf-8')
         tokenizer.whitespace_split = True
-        return [unsafe(val.decode('utf-8').strip()) for val in list(tokenizer)]
+        tokens = [unsafe(val.decode('utf-8').strip()) for val in list(tokenizer)]
+        return [val for val in tokens if val]
     else:
         return unsafe(value)
 
