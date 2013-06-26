@@ -81,3 +81,19 @@ man_pages = [
     ('index', 'acrylamid', u'Acrylamid Documentation',
      [u'Martin Zimmermann'], 1)
 ]
+
+# -- http://stackoverflow.com/questions/7825263/including-docstring-in-sphinx-documentation --
+from sphinx.ext import autodoc
+
+class SimpleDocumenter(autodoc.ClassDocumenter):
+    objtype = "simple"
+
+    #do not indent the content
+    content_indent = ""
+
+    #do not add a header to the docstring
+    def add_directive_header(self, sig):
+        pass
+
+def setup(app):
+    app.add_autodocumenter(SimpleDocumenter)

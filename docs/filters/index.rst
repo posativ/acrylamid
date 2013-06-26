@@ -162,91 +162,7 @@ Arguments     asciimathml, sub, sup, delins, gist, gistraw
 reStructuredText
 ----------------
 
-reStructuredText lets you write (like the name says) in reStructuredText syntax
-instead of HTML and is more powerful and reliable than Markdown but also slower
-and slightly more difficult to use. See their quickref_ for syntax details.
-
-Using a decent version of ``docutils`` (≥ 0.8) let you also write
-`inline math`_ with a subset of LaTeX math syntax, so there is no need of an
-additional extension like in Markdown. In addition to all standard built-in
-directives, acrylamid offers three additional one:
-
-.. _quickref: http://docutils.sourceforge.net/docs/user/rst/quickref.html
-.. _inline math: http://docutils.sourceforge.net/docs/ref/rst/directives.html#math
-
-- `Pygments <http://pygments.org/>`_ syntax highlighting via ``code-block``,
-  ``sourcecode`` or   ``pygments``. Here's   an example (``linenos`` enables
-  line numbering):
-
-  .. code-block:: restructuredtext
-
-        .. code-block:: python
-          :linenos:
-
-          #!/usr/bin/env python
-          print "Hello World!
-
-- JavaScript-enabled syntax highlighting via ``code`` and additional scripts:
-
-  .. code-block:: restructuredtext
-
-      .. source:: python
-
-         #!/usr/bin/env python
-         print "Hello, World!"
-
-      .. raw:: html
-
-          <script type="text/javascript" src="http://alexgorbatchev.com/pub/sh/current/scripts/shCore.js"></script>
-          <script type="text/javascript" src="http://alexgorbatchev.com/pub/sh/current/scripts/shBrushPython.js"></script>
-          <link type="text/css" rel="stylesheet" href="http://alexgorbatchev.com/pub/sh/current/styles/shCoreDefault.css"/>
-          <script type="text/javascript">SyntaxHighlighter.defaults.toolbar=false; SyntaxHighlighter.all();</script>
-
-- `GitHub:Gist <https://gist.github.com/>`__ embedding via ``gist`` optional
-  with a filename.
-
-  .. code-block:: restructuredtext
-
-      .. gist:: 4145152
-         :file: transmission.rb
-
-- YouTube directive for easy embedding (`:options:` are optional).
-
-  .. code-block:: restructuredtext
-
-      .. youtube:: ZPJlyRv_IGI
-         :start: 34
-         :align: center
-         :height: 1280
-         :width: 720
-         :privacy:
-         :ssl:
-
-- Vimeo directive for easy embedding (`:options:` are optional).
-
-  .. code-block:: restructuredtext
-
-      .. vimeo:: 6455561
-         :align: center
-         :height: 1280
-         :width: 720
-         :border: 1px
-         :color: ffffff
-         :nobyline:
-         :noportrait:
-         :nobyline:
-         :notitle:
-         :autoplay:
-         :loop:
-
-
-============  ==================================================
-Requires      ``docutils`` (or ``python-docutils``), optional
-              ``pygments`` for syntax highlighting
-Aliases       rst, rest, reST, restructuredtext
-Conflicts     HTML, Markdown, Pandoc
-============  ==================================================
-
+See :doc:`rst`.
 
 textile
 -------
@@ -636,8 +552,8 @@ Arguments     ignored tags (such as ``pre``)
 Priorities
 **********
 
-  * 90.0 : pre
-      Jinja2, Mako
+  * 90.0-80.0 : pre
+      Jinja2, Mako, Liquid
   * 70.0 : markup
       HTML, Markdown, pandoc, reST, textile
   * 50.0 : default

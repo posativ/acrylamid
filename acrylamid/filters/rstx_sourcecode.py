@@ -14,9 +14,9 @@ from pygments.lexers import get_lexer_by_name, TextLexer
 
 
 class Pygments(Directive):
-    """ Source code syntax hightlighting using Pygments.
+    """Source code syntax highlighting using Pygments.
 
-    Usage example::
+    .. code-block:: rst
 
         .. sourcecode:: python
             :linenos:
@@ -24,13 +24,13 @@ class Pygments(Directive):
             #!/usr/bin/env python
             print("Hello World!)
 
-    ``linenos`` enables line numbering. A pygment CSS is not provided by
-    acrylamid but can easily get one by using the ``pygmentize`` script
-    shipped with Pygments.
+    ``linenos`` enables line numbering (and is optional). A style sheet is not
+    shipped with acrylamid, but you can easily get one with the ``pygmentize``
+    script:
 
     ::
 
-        $> pygmentize -S trac -f html > pygments.css
+        $ pygmentize -S trac -f html > pygments.css
 
     To get a list of all available styles use the interactive python interpreter.
 
@@ -38,7 +38,10 @@ class Pygments(Directive):
 
         >>> from pygments import styles
         >>> print list(styles.get_all_styles())
+
+    .. _Pygments: http://pygments.org/
     """
+
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True

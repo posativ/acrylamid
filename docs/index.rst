@@ -21,7 +21,7 @@ https://github.com/posativ/acrylamid/.
    conf.py
    commands
    idea
-   filters
+   filters/index
    views
    assets
    hooks
