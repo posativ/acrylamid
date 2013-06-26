@@ -89,7 +89,7 @@ class TestEntry(attest.TestBase):
     @attest.test
     def deprecated_keys(self):
 
-        create(self.path, title='foo', tag=None, filter=None)
+        create(self.path, title='foo', tag=[], filter=[])
         entry = Entry(self.path, conf)
 
         assert 'tags' in entry
