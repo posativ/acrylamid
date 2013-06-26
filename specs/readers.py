@@ -93,8 +93,9 @@ def quotes():
     assert distinguish('["X+ext(foo, bar=123)", other]') == ["X+ext(foo, bar=123)", "other"]
     assert distinguish('["a,b,c,d", a, b, c]') == ['a,b,c,d', 'a', 'b', 'c']
 
-    # # shlex tokenizer should not split on "+"
+    # shlex tokenizer should not split on "+" and " "
     assert distinguish("[X+Y]") == ["X+Y"]
+    assert distinguish("[foo bar, baz]") == ["foo bar", "baz"]
 
     # non-ascii
     assert distinguish('["Föhn", "Bär"]') == ["Föhn", "Bär"]

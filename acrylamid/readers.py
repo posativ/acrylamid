@@ -579,9 +579,9 @@ def distinguish(value):
         return False
     elif len(value) >= 2 and value[0] == '[' and value[-1] == ']':
         tokenizer = shlex.shlex((value[1:-1]).encode('utf-8'), posix=True)
-        tokenizer.whitespace += ','.encode('utf-8')
+        tokenizer.whitespace = ','.encode('utf-8')
         tokenizer.whitespace_split = True
-        return [unsafe(val.decode('utf-8')) for val in list(tokenizer)]
+        return [unsafe(val.decode('utf-8').strip()) for val in list(tokenizer)]
     else:
         return unsafe(value)
 
