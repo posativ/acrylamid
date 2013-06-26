@@ -19,7 +19,6 @@ BOM_UTF8 = codecs.BOM_UTF8.decode('utf8')
 
 from os.path import join, getmtime, relpath, splitext, dirname, isfile, normpath
 from fnmatch import fnmatch
-from itertools import takewhile, repeat
 from datetime import datetime, tzinfo, timedelta
 
 from acrylamid import log, compat
@@ -579,11 +578,10 @@ def distinguish(value):
     elif value in ['False', 'false', 'off']:
         return False
     elif len(value) >= 2 and value[0] == '[' and value[-1] == ']':
-        tokenizer = shlex.shlex((value[1:-1]).encode('latin-1'), posix=True)
-        value = list(takewhile(
-            lambda token: token != tokenizer.eof,
-            (tokenizer.get_token() for _ in repeat(None))))
-        return [unsafe(val.decode('latin-1')) for val in value if val != ',']
+        tokenizer = shlex.shlex((value[1:-1]).encode('utf-8'), posix=True)
+        tokenizer.whitespace += ','.encode('utf-8')
+        tokenizer.whitespace_split = True
+        return [unsafe(val.decode('utf-8')) for val in list(tokenizer)]
     else:
         return unsafe(value)
 
