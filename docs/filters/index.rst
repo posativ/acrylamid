@@ -7,6 +7,48 @@ of course. In Acrylamid a filter can convert Markdown into HTML, render MathML
 from AsciiMathML, apply typographical enhancements or just increase headings
 by an offset.
 
+Built-in Filters
+****************
+
+Acrylamid ships with good maintained filters but you are not restricted only to
+them. Simply create a directory like *filters/* and add ``FILTERS_DIR +=
+['filters/']`` to your *conf.py* and use your own filters. See
+:ref:`custom-filters`.
+
+A quick note to the following tables:
+
+- *Requires* indicates what you have to install to use this filter.
+- *Alias* is a list of alternate identifiers to this filter.
+- *Conflicts* shows what filters don't work together (does not conflict if
+  empty).
+- *Arguments* what arguments you can apply to this filter.
+
+Markup Languages
+----------------
+
+* :doc:`markup/md`
+* :doc:`markup/rst`
+* :doc:`markup/other`
+
+Preprocessors
+-------------
+
+* :ref:`filters-pre-jinja2`
+* :ref:`filters-pre-mako`
+* :ref:`filters-pre-liquid`
+
+Postprocessors
+--------------
+
+* :ref:`filters-post-headoffset`
+* :ref:`filters-post-summarize`
+* :ref:`filters-post-intro`
+* :ref:`filters-post-hyphenate`
+* :ref:`filters-post-typography`
+* :ref:`filters-post-acronyms`
+* :ref:`filters-post-relative`
+* :ref:`filters-post-absolute`
+* :ref:`filters-post-strip`
 
 Usage
 *****
@@ -97,50 +139,6 @@ syntax is the filter name (without any arguments) prefixed with "no":
 ::
 
     filters: nosummary
-
-
-Built-in Filters
-****************
-
-Acrylamid ships with good maintained filters but you are not restricted only to
-them. Simply create a directory like *filters/* and add ``FILTERS_DIR +=
-['filters/']`` to your *conf.py* and use your own filters. See
-:ref:`custom-filters`.
-
-A quick note to the following tables:
-
-- *Requires* indicates what you have to install to use this filter.
-- *Alias* is a list of alternate identifiers to this filter.
-- *Conflicts* shows what filters don't work together (does not conflict if
-  empty).
-- *Arguments* what arguments you can apply to this filter.
-
-Markup Languages
-----------------
-
-* :doc:`markup/md`
-* :doc:`markup/rst`
-* :doc:`markup/other`
-
-Preprocessors
--------------
-
-* :ref:`filters-pre-jinja2`
-* :ref:`filters-pre-mako`
-* :ref:`filters-pre-liquid`
-
-Postprocessors
---------------
-
-* :ref:`filters-post-headoffset`
-* :ref:`filters-post-summarize`
-* :ref:`filters-post-intro`
-* :ref:`filters-post-hyphenate`
-* :ref:`filters-post-typography`
-* :ref:`filters-post-acronyms`
-* :ref:`filters-post-relative`
-* :ref:`filters-post-absolute`
-* :ref:`filters-post-strip`
 
 Priorities
 **********
