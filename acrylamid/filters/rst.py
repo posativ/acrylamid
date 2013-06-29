@@ -8,11 +8,13 @@ import os
 import imp
 import traceback
 
+from distutils.version import LooseVersion
+
 from acrylamid import log
 from acrylamid.filters import Filter, discover
 
 try:
-    from docutils.core import publish_parts
+    from docutils.core import publish_parts, __version__ as version
     from docutils.parsers.rst import roles, directives
 except ImportError:
     publish_parts = roles = directives = None  # NOQA
@@ -31,8 +33,11 @@ class Restructuredtext(Filter):
         self.extensions = {}
         self.ignore = env.options.ignore
 
+        if not tuple(LooseVersion(version).version) > (0, 9):
+            raise ImportError(u'docutils ≥ 0.9 required.')
+
         if not publish_parts or not directives:
-            raise ImportError('reStructuredText: No module named docutils')
+            raise ImportError(u'reStructuredText: No module named docutils')
 
         # -- discover reStructuredText extensions --
         directories = conf['filters_dir'] + [os.path.dirname(__file__)]
@@ -51,7 +56,8 @@ class Restructuredtext(Filter):
 
         settings = {
             'initial_header_level': 1,
-            'doctitle_xform': 0
+            'doctitle_xform': 0,
+            'syntax_highlight': 'short'
         }
 
         parts = publish_parts(content, writer_name='html', settings_overrides=settings)

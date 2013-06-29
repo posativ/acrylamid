@@ -14,7 +14,7 @@ later). Currently, Acrylamid ships the following:
   - static site search, self-explanatory.
 
 All views have some properties in common such as path, filters and conditionals,
-you've to set in your :doc:`conf.py`.  The idea of views is similar to routes in
+you've to set in your :doc:`/conf.py`.  The idea of views is similar to routes in
 Django or Flask. You can set your URL setup to whatever you like, Acrylamid is
 not fixed to a single directory structure. For convenience, Acrylamid appends an
 ``index.html`` to a URL if it does end with a slash (as shown in the defaults).
@@ -47,36 +47,21 @@ Here's an example of how to use views:
         "/path/": {"view": "translation", "if": lambda e: e.lang == 'klingon'}
     }
 
-To see, what variables are available during templating, consult :doc:`templating`.
+To see, what variables are available during templating, consult :doc:`/templating`.
 
 
 Built-in Views
 **************
 
-.. autoclass:: acrylamid.views.archive.Archive()
-
-.. autoclass:: acrylamid.views.articles.Articles()
-
-.. autoclass:: acrylamid.views.entry.Entry()
-
-.. autoclass:: acrylamid.views.feeds.Feed()
-
-.. autoclass:: acrylamid.views.index.Index()
-
-.. autoclass:: acrylamid.views.entry.Page()
-
-.. autoclass:: acrylamid.views.tag.Tag()
-
-.. autoclass:: acrylamid.views.category.Category()
-
-.. autoclass:: acrylamid.views.entry.Translation()
-
-.. autoclass:: acrylamid.views.sitemap.Sitemap()
-
+* :ref:`views-entry`, :ref:`views-page`, :ref:`views-translation`
+* :ref:`views-archive`, :ref:`views-tag`, :ref:`views-category`
+* :doc:`/views/feeds`,
+* :ref:`views-sitemap`
+* :doc:`/views/search`
 
 Custom Views
 ************
 
 You can easily extend Acrylamid by writing custom views directly in your blog
-directory. Just add ``VIEWS_DIR += ['views/']`` to your :doc:`conf.py` and write
+directory. Just add ``VIEWS_DIR += ['views/']`` to your :doc:`/conf.py` and write
 your own view.

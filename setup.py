@@ -42,7 +42,7 @@ setup(
     ],
     install_requires=requires,
     extras_require={
-        'full': ['pygments', 'docutils', 'smartypants', 'asciimathml',
+        'full': ['pygments', 'docutils>=0.9', 'smartypants', 'asciimathml',
                  'textile', 'PyYAML', 'twitter', 'discount'],
         'mako': ['mako>=0.7'],
     },

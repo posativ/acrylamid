@@ -10,13 +10,14 @@ from acrylamid.lib.requests import get, HTTPError, URLError
 from acrylamid import log
 
 class Gist(Directive):
-    """ Embed GitHub Gist.
+    """`GitHub:Gist <https://gist.github.com/>`__ embedding (file is optional).
 
-        Usage:
+  .. code-block:: rst
 
-          .. gist:: GIST_ID
-            :file: foo.bar
+      .. gist:: 4145152
+         :file: transmission.rb
     """
+
     required_arguments = 1
     optional_arguments = 1
     option_spec = {'file': directives.unchanged}

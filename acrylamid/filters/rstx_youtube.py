@@ -12,10 +12,9 @@ def align(argument):
 
 
 class YouTube(Directive):
-    """reStructuredText directive that creates an embed object to display
-    a video from Youtube (:options: are optional).
+    """YouTube directive for easy embedding (`:options:` are optional).
 
-    Usage example::
+    .. code-block:: rst
 
         .. youtube:: ZPJlyRv_IGI
            :start: 34

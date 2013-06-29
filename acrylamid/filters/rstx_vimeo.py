@@ -25,10 +25,9 @@ def color(argument):
 
 
 class Vimeo(Directive):
-    """reStructuredText directive that creates an embed object to display
-    a video from Vimeo (:options: are optional).
+    """Vimeo directive for easy embedding (`:options:` are optional).
 
-    Usage example::
+    .. code-block:: rst
 
         .. vimeo:: 6455561
            :align: center
@@ -36,6 +35,7 @@ class Vimeo(Directive):
            :width: 720
            :border: 1px
            :color: ffffff
+           :nobyline:
            :noportrait:
            :nobyline:
            :notitle:
