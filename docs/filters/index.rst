@@ -162,7 +162,7 @@ Arguments     asciimathml, sub, sup, delins, gist, gistraw
 reStructuredText
 ----------------
 
-See :doc:`rst`.
+See :doc:`markup/rst`.
 
 textile
 -------
