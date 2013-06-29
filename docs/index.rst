@@ -22,7 +22,7 @@ https://github.com/posativ/acrylamid/.
    commands
    idea
    filters/index
-   views
+   views/index
    assets
    hooks
    static-search
