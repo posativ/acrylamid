@@ -20,7 +20,6 @@ https://github.com/posativ/acrylamid/.
    advanced
    conf.py
    commands
-   idea
    filters/index
    views/index
    assets
