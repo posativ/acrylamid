@@ -14,7 +14,7 @@ HTML5
 ^^^^^
 
 A minimalistic theme using HTML5 available for Mako and Jinja2.
-`Preview <http://posativ.org/acrylamid/_static/html5.png>`_. Install with::
+`Preview <http://posativ.org/acrylamid/_static/html5.png>`__. Install with::
 
     $ acrylamid init --theme html5  # --mako optional
 
@@ -24,7 +24,7 @@ shadowplay
 New theme from `HTML5Webtemplates.co.uk
 <http://www.html5webtemplates.co.uk/templates/shadowplay_2/index.html>`_ with
 slightly modified colors. `Preview
-<http://posativ.org/acrylamid/_static/shadowplay.png>`_. Unfortunately
+<http://posativ.org/acrylamid/_static/shadowplay.png>`__. Unfortunately
 Jinja2-only.
 
 ::
