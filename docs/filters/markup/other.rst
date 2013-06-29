@@ -17,8 +17,9 @@ textile
 
 A *textile* filter if like the textile_ markup language. Note, that the `python
 implementation`_ of Textile has been not actively maintained for more than a
-year. Textile is the only text processor so far that adds some typographical
-enhancements automatically (but not every applied via :ref:`typography`).
+year. Textile is the only text processor so far that automatically adds
+typographical enhancements to the generated HTML (but not all applied from
+:ref:`filters-post-typography`).
 
 .. _textile: https://en.wikipedia.org/wiki/Textile_%28markup_language%29
 .. _python implementation: https://github.com/sebix/python-textile
