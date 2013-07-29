@@ -34,7 +34,7 @@ version = '%i.%i' % tuple(LooseVersion(release).version[:2])  # 0.6 or 0.7
 # for a list of supported languages.
 #language = None
 
-exclude_patterns = ['_build']
+exclude_patterns = ['_build', 'comparison.rst']
 
 html_theme = 'werkzeug'
 html_theme_path = ['_themes']
