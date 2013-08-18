@@ -11,6 +11,7 @@ import random
 import collections
 
 from urllib import quote
+from urlparse import urlsplit, urlunsplit
 from xml.sax.saxutils import unescape
 
 from acrylamid import readers, helpers
@@ -43,12 +44,11 @@ def w3c(paths, conf, warn=False, sleep=0.2):
 
     for path in paths:
         url = path[len(conf['output_dir'])-1:]
+        protocol, netloc, path, x, y = urlsplit(conf['www_root'])
+        uri = urlunsplit ((protocol,netloc,quote(url),x,y))
+        print helpers.rchop(uri, 'index.html'),
 
-        resp = head("http://validator.w3.org/check?uri=" + \
-            helpers.joinurl(conf['www_root'], quote(url)))
-
-        print helpers.rchop(url, 'index.html'),
-
+        resp = head("http://validator.w3.org/check?uri=" + uri)
         if resp.code != 200:
             print red('not 200 Ok!')
             continue
