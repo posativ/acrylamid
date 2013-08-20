@@ -85,7 +85,7 @@ class Sitemap(View):
             if ns == 'draft':
                 continue
 
-            url = conf['www_root'] + '/' + fname.replace(conf['output_dir'], '')
+            url = conf['www_root'] + fname.replace(conf['output_dir'], '')
             priority, changefreq = self.scores.get(ns, (0.5, 'weekly'))
             sm.add(rchop(url, 'index.html'), getmtime(fname), changefreq, priority)
 
