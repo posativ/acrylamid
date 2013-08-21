@@ -13,7 +13,7 @@ from urlparse import urlsplit
 from datetime import datetime
 from itertools import chain
 from collections import defaultdict
-from os.path import getmtime
+from os.path import getmtime, normpath
 
 from distutils.version import LooseVersion
 
@@ -97,7 +97,7 @@ def initialize(conf, env):
     env['path'] = env['path'].rstrip('/')
 
     if env['path']:
-        conf['output_dir'] = conf['output_dir'] + env['path']
+        conf['output_dir'] = normpath(conf['output_dir'] + env['path'])
 
     # check if encoding is available
     try:
