@@ -53,9 +53,7 @@ def initialize(conf, env):
         raise SystemExit
 
     # set up templating environment
-    env.engine = import_object(conf['engine'])()
-
-    env.engine.init(conf['theme'], cache.cache_dir)
+    env.engine = import_object(conf['engine'])(conf['theme'], cache.cache_dir)
     env.engine.register('safeslug', helpers.safeslug)
     env.engine.register('tagify', lambda x: x)
 

@@ -9,14 +9,14 @@ import abc
 
 
 class AbstractEnvironment(object):
-    """Generic interface for python templating engines like Jinja2 or Mako.
-    They need to support filters and loading templates from files. To keep
-    Acrylamid fast, they should cache them."""
+    """Generic interface for python templating engines like Jinja2 or Mako."""
 
     __metaclass__ = abc.ABCMeta
 
+    extension = ['.html']
+
     @abc.abstractmethod
-    def init(self, layoutdir, cachedir):
+    def __init__(self, layoutdir, cachedir):
         """Initialize templating engine and set default layoutdir as well
         as cache dir. You should use a custom cache filename prefix like
         *__engine_hexcode.cache*."""
@@ -35,55 +35,26 @@ class AbstractEnvironment(object):
 
     @abc.abstractmethod
     def extend(self, path):
-        """Extend search path for templates by `path`."""
+        """Extend search PATH for templates by `path`."""
         return
 
     @abc.abstractproperty
-    def extension(self):
-        """Return the default templating extension(s)."""
+    def loader(self):
         return
-
-    @abc.abstractproperty
-    def templates(self):
-        """A dictionary mapping of template name -> Template object."""
-        return
-
-    @abc.abstractproperty
-    def modified(self):
-        """A dictionary mapping of template name -> modified or not"""
-        return
-
-    @abc.abstractproperty
-    def resolved(self):
-        """A dictionary mapping of template name -> (fully resolved)
-        referenced template names."""
-        return
-
-    @abc.abstractproperty
-    def assets(self):
-        """A dictionary mapping of template name/path -> bundle arguments and
-        keyword arguments.
-
-        You can fill this dictionary on-demand, that means this attribute is
-        always called after parsing the template.
-        """
 
 
 class AbstractTemplate(object):
 
     __metaclass__ = abc.ABCMeta
 
-    @abc.abstractproperty
-    def name(self):
-        """The name/path of the template (e.g. main.html or foo/bar.html, that
-        means without the theme folder)."""
-        return
+    def __init__(self, environment, path, template):
+        self.environment = environment
 
-    @abc.abstractproperty
-    def environment(self):
-        """The used environment (derieved from :class:`AbstractEnvironment`)."""
-        return
+        self.path = path
+        self.template = template
 
+        self.engine = environment.engine
+        self.loader = environment.engine.loader
 
     @abc.abstractmethod
     def render(self, **dikt):

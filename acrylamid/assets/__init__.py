@@ -121,8 +121,7 @@ def initialize(conf, env):
 
     env.webassets = Webassets(conf, env)
 
-    env.engine.globals['compile'] = env.webassets.compile
-    env.engine.globals['Bundle'] = Bundle
+    env.engine.register('compile', env.webassets.compile)
 
 
 def worker(conf, env, args):
@@ -154,7 +153,7 @@ def compile(conf, env):
         else:
             __writers[cls.ext] = cls
 
-    excludes = list(env.engine.templates.keys()) + env.webassets.excludes(conf['theme'])
+    excludes = list(env.engine.loader.modified.keys()) + env.webassets.excludes(conf['theme'])
     for path, directory in relfilelist(conf['theme'], conf['theme_ignore'], excludes):
         files[(splitext(path)[1], directory)].add(path)
 

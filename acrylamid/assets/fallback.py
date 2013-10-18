@@ -27,8 +27,8 @@ class Mixin(object):
     def modified(self):
         """Iterate template dependencies for modification."""
 
-        for item in chain([self.name], self.environment.resolved[self.name]):
-            if self.environment.modified[item]:
+        for item in chain([self.path], self.loader.resolved[self.path]):
+            if self.loader.modified[item]:
                 return True
 
         return False

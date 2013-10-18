@@ -127,18 +127,18 @@ class Mixin:
 
     @cached_property
     def modified(self):
-        """Iterate template dependencies for modification and check webassets
-        if a bundle needs to be rebuilded."""
+        """Iterate template dependencies for modification and check web assets
+        if a bundle needs to be rebuilt."""
 
-        for item in chain([self.name], self.environment.resolved[self.name]):
-            if self.environment.modified[item]:
+        for item in chain([self.path], self.loader.resolved[self.path]):
+            if self.loader.modified[item]:
                 return True
 
-        for args, kwargs in self.environment.assets[self.name]:
+        for args, kwargs in self.loader.assets[self.path]:
             kwargs.setdefault('debug', False)
             bundle = Bundle(*args, **kwargs)
-            rv = self.env.webassets.environment.updater.needs_rebuild(
-                bundle, self.env.webassets.environment)
+            rv = self.environment.webassets.environment.updater.needs_rebuild(
+                bundle, self.environment.webassets.environment)
             if rv:
                 return True
 
