@@ -239,7 +239,7 @@ Customizing the Layout
 ----------------------
 
 You'll find all your theme files inside the (wait for it) theme directory.
-Most variables are explained in :doc:`templating` and :doc:`views`. Of you
+Most variables are explained in :doc:`templating` and :doc:`views`. If you
 want to contribute your theme read :doc:`theming` first.
 
 ::
@@ -249,7 +249,7 @@ want to contribute your theme read :doc:`theming` first.
 
 .. note::
 
-    Did you about the ``--mako`` flag that initializes all templates with a
+    Did you know that the ``--mako`` flag that initializes all templates with a
     Mako analogon? Just create your blog like this: ``acrylamid init --mako``.
     Unfortunately you can't mix different template engines.
 
