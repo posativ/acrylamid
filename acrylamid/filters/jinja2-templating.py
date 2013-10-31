@@ -61,8 +61,8 @@ class Jinja2(Filter):
             import urllib.request, urllib.parse, urllib.error
             modules += [urllib.request, urllib.parse, urllib.error]
 
-        if isinstance(env.engine, Environment):
-            self.jinja2_env = env.engine.overlay(cache_size=0)
+        if isinstance(env.engine._jinja2, Environment):
+            self.jinja2_env = env.engine._jinja2.overlay(cache_size=0)
         else:
             self.jinja2_env = Environment(cache_size=0)
 
@@ -88,7 +88,7 @@ class Jinja2(Filter):
         post environment.  Very hackish, but it should work."""
 
         path = join(self.conf['theme'], 'macros.html')
-        if not (isfile(path) and isinstance(self.env.engine, Environment)):
+        if not (isfile(path) and isinstance(self.env.engine._jinja2, Environment)):
             return ''
 
         with io.open(path, encoding='utf-8') as fp:
