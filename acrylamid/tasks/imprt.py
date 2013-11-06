@@ -252,8 +252,8 @@ def wordpress(xml):
             'tags': [tag.text for tag in item.findall('category')]
         }
 
-        if item.find('%spost_type' % wpns).text == 'page':
-            entry['type'] = 'page'
+        # attachment, nav_menu_item, page, post
+        entry['type'] = item.find('%spost_type' % wpns).text
 
         if item.find('%sstatus' % wpns).text != 'publish':
             entry['draft'] = True
@@ -276,7 +276,10 @@ def wordpress(xml):
 
     for version in range(1, 10):
         wpns = '{http://wordpress.org/export/1.%i/}' % version
-        return defaults, list(map(generate, tree.findall('channel/item')))
+        if tree.find('channel/%swxr_version' % wpns) is None:
+            continue
+        entries = list(map(generate, tree.findall('channel/item')))
+        return defaults, [entry for entry in entries if entry['type'] in ('page', 'post')]
 
 
 def fetch(url, auth=None):
