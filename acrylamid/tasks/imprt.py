@@ -377,7 +377,8 @@ def build(conf, env, defaults, items, options):
 
         if options.keep:
             m = urlsplit(item['link'])
-            item['permalink'] = m.path if m.path != '/' else None
+            if m.path != '/':
+                item['permalink'] = m.path
 
         item['content'], item['filter'] = convert(item.get('content', ''),
             options.fmt, options.pandoc)
