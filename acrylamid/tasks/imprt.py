@@ -86,7 +86,7 @@ def convert(data, fmt='markdown', pandoc=False):
     else:
         cmds = []
 
-    p = ['pandoc', '--normalize', '-f', 'html', '-t', fmt, '--strict', '--no-wrap']
+    p = ['pandoc', '--normalize', '-f', 'html', '-t', fmt, '--strict', '--no-wrap', '--parse-raw']
     cmds.insert(0, p) if pandoc or fmt == 'rst' else cmds.append(p)
 
     if fmt == 'html':
