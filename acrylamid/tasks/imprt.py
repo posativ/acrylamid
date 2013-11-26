@@ -339,7 +339,7 @@ def build(conf, env, defaults, items, options):
             if item.get('author') != defaults.get('author'):
                 f.write(u'author: %s\n' % (item.get('author') or defaults.get('author')))
             f.write(u'date: %s\n' % item['date'].strftime(conf['date_format']))
-            f.write(u'filter: %s\n' % item['filter'])
+            #f.write(u'filter: %s\n' % item['filter'])
             if 'tags' in item:
                 f.write(u'tags: [%s]\n' % ', '.join(item['tags']))
             if 'permalink' in item:
