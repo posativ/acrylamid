@@ -51,7 +51,7 @@ class Tagcloud(object):
             key=lambda x: x[0])[:max_items]
         # stolen from pelican/generators.py:286
         max_count = max(lst, key=lambda k: k[1])[1] if lst else None
-        self.lst = [(tag,
+        self.lst = [(tag, count, 
                         int(math.floor(steps - (steps - 1) * math.log(count)
                             / (math.log(max_count) or 1)))+start-1)
                     for tag, count in lst]
@@ -62,8 +62,8 @@ class Tagcloud(object):
         self.tags = tags
 
     def __iter__(self):
-        for tag, step in self.lst:
-            yield type('Tag', (), {'name': tag, 'step': step})
+        for tag, count, step in self.lst:
+            yield type('Tag', (), {'name': tag, 'step': step, 'count': count})
 
     def __hash__(self):
         return hash(*self.lst)
