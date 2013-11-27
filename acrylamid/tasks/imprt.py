@@ -86,7 +86,7 @@ def convert(data, fmt='markdown', pandoc=False):
     else:
         cmds = []
 
-    p = ['pandoc', '--normalize', '-f', 'html', '-t', fmt, '--strict', '--no-wrap']
+    p = ['pandoc', '--normalize', '-f', 'html', '-t', fmt, '--strict', '--no-wrap', '--parse-raw']
     cmds.insert(0, p) if pandoc or fmt == 'rst' else cmds.append(p)
 
     if fmt == 'html':
@@ -339,7 +339,9 @@ def build(conf, env, defaults, items, options):
             if item.get('author') != defaults.get('author'):
                 f.write(u'author: %s\n' % (item.get('author') or defaults.get('author')))
             f.write(u'date: %s\n' % item['date'].strftime(conf['date_format']))
-            f.write(u'filter: %s\n' % item['filter'])
+            #f.write(u'filter: %s\n' % item['filter'])
+            if 'draft' in item:
+                f.write(u'draft: %s\n' % item['draft'])
             if 'tags' in item:
                 f.write(u'tags: [%s]\n' % ', '.join(item['tags']))
             if 'permalink' in item:
@@ -375,7 +377,8 @@ def build(conf, env, defaults, items, options):
 
         if options.keep:
             m = urlsplit(item['link'])
-            item['permalink'] = m.path if m.path != '/' else None
+            if m.path != '/':
+                item['permalink'] = m.path
 
         item['content'], item['filter'] = convert(item.get('content', ''),
             options.fmt, options.pandoc)
