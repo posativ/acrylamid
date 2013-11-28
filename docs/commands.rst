@@ -147,6 +147,9 @@ stupid <br />-foo to allow conversion back to Markdown/reStructuredText. It is
 not recommended to import WordPress blogs without any reconversion due to the
 broken HTML.
 
+If you import your existing posts without reconversion, make sure you add the
+HTML filter: `acrylamid import -a filter: HTML ...`.
+
 .. _html2text: http://www.aaronsw.com/2002/html2text/
 .. _html2rest: http://pypi.python.org/pypi/html2rest
 .. _pandoc: http://johnmacfarlane.net/pandoc/
