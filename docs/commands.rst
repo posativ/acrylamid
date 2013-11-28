@@ -225,17 +225,6 @@ Tag usage and coverage:
     Diaspora content/2012/diaspora.txt
     FreeBSD content/2012/abseits-von-linux-freebsd.txt
 
-
-External Commands
-*****************
-
-The following commands are not part of the Acrylamid core but you may find them
-already in your blog because you bootstrapped from the default theme. You'll
-find the scripts in the *tasks/* directory in the root directory of your blog.
-If not, `get a copy`_ (just wget them to the task directory) from GitHub.
-
-.. _get a copy: https://github.com/posativ/default/blob/master/tasks/
-
 .. _deploy:
 
 deploy
