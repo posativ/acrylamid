@@ -255,6 +255,9 @@ def wordpress(xml):
         # attachment, nav_menu_item, page, post
         entry['type'] = item.find('%spost_type' % wpns).text
 
+        if entry['type'] == 'post':
+            entry['type'] = 'entry'
+
         if item.find('%sstatus' % wpns).text != 'publish':
             entry['draft'] = True
 
@@ -279,7 +282,7 @@ def wordpress(xml):
         if tree.find('channel/%swxr_version' % wpns) is None:
             continue
         entries = list(map(generate, tree.findall('channel/item')))
-        return defaults, [entry for entry in entries if entry['type'] in ('page', 'post')]
+        return defaults, [entry for entry in entries if entry['type'] in ('page', 'entry')]
 
 
 def fetch(url, auth=None):
@@ -346,6 +349,8 @@ def build(conf, env, defaults, items, options):
                 f.write(u'tags: [%s]\n' % ', '.join(item['tags']))
             if 'permalink' in item:
                 f.write(u'permalink: %s\n' % item['permalink'])
+            if item.get('type', 'entry') != 'entry':
+                f.write(u'type: %s\n' % item['type'])
             for arg in options.args:
                 f.write(arg.strip() + u'\n')
             f.write(u'---\n\n')
