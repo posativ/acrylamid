@@ -435,6 +435,26 @@ class MetadataMixin(object):
         return '%02d' % self.iday
 
     @property
+    def ihour(self):
+        """entry's hour as an integer"""
+        return self.date.hour
+
+    @property
+    def hour(self):
+        """entry's hour as zero padded string"""
+        return '%02d' % self.ihour
+
+    @property
+    def iminute(self):
+        """entry's minute as an integer"""
+        return self.date.minute
+
+    @property
+    def minute(self):
+        """entry's minute as zero padded string"""
+        return '%02d' % self.iminute
+
+    @property
     def tags(self):
         """Tags applied to this entry, if any.  If you set a single string it
         is converted to an array containing this string."""
