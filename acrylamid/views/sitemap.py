@@ -107,12 +107,13 @@ class Sitemap(View):
                 continue
 
             permalink = '/' + fname.replace(conf['output_dir'], '')
+            permalink = rchop(permalink, 'index.html')
             url = conf['www_root'] + permalink
             priority, changefreq = self.scores.get(ns, (0.5, 'weekly'))
             if self.imgext:
                 images = [x for x in self.mapping.get(permalink, []) if splitext(x)[1].lower() in self.imgext]
-                sm.add(rchop(url, 'index.html'), getmtime(fname), changefreq, priority, images)
+                sm.add(url, getmtime(fname), changefreq, priority, images)
             else:
-                sm.add(rchop(url, 'index.html'), getmtime(fname), changefreq, priority)
+                sm.add(url, getmtime(fname), changefreq, priority)
         sm.finish()
         yield sm, path
