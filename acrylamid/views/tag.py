@@ -86,7 +86,7 @@ class Tag(Index):
     def populate_tags(self, request):
 
         tags = fetch(request['entrylist'])
-        self.tags = dict([(safeslug(k), v) for k, v in iteritems(tags)])
+        self.tags = tags
         return tags
 
     def context(self, conf, env, request):
@@ -117,5 +117,5 @@ class Tag(Index):
         for tag in self.tags:
 
             data['entrylist'] = [entry for entry in self.tags[tag]]
-            for res in Paginator.generate(self, conf, env, data, tag=tag, name=tag):
+            for res in Paginator.generate(self, conf, env, data, tag=tag, name=safeslug(tag)):
                 yield res
