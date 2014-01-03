@@ -99,7 +99,8 @@ class Tag(Index):
 
         def tagify(tags):
             href = lambda t: expand(self.path, {'name': safeslug(t)})
-            return [Link(t, href(t)) for t in tags]
+            return [Link(t, href(t)) for t in tags] if isinstance(tags, (list, tuple)) \
+                else Link(tags, href(tags))
 
         tags = self.populate_tags(request)
         env.engine.register('tagify', tagify)
