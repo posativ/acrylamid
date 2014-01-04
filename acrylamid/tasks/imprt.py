@@ -245,6 +245,7 @@ def wordpress(xml):
             'link': item.find('link').text,
 
             'content': (item.find('%sencoded' % cons).text or '').replace('\n', '<br />\n'),
+            'description': item.find('%sencoded' % excerptns).text or '',
             'date': datetime.strptime(item.find('%spost_date' % wpns).text,
                 "%Y-%m-%d %H:%M:%S"),
 
@@ -279,6 +280,7 @@ def wordpress(xml):
 
     for version in range(1, 10):
         wpns = '{http://wordpress.org/export/1.%i/}' % version
+        excerptns = '{http://wordpress.org/export/1.%i/excerpt/}' % version
         if tree.find('channel/%swxr_version' % wpns) is None:
             continue
         entries = list(map(generate, tree.findall('channel/item')))
@@ -347,6 +349,8 @@ def build(conf, env, defaults, items, options):
                 f.write(u'draft: %s\n' % item['draft'])
             if 'tags' in item:
                 f.write(u'tags: [%s]\n' % ', '.join(item['tags']))
+            if item.get('description'):
+                f.write(u'description: %s\n' % item['description'])
             if 'permalink' in item:
                 f.write(u'permalink: %s\n' % item['permalink'])
             if item.get('type', 'entry') != 'entry':

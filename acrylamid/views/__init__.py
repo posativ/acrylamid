@@ -268,6 +268,8 @@ class Paginator(object):
         if 'pagination' not in kwargs:
             self.pagination = self.path + ':num/'
 
+        self.export.append('curr_page')
+
     def generate(self, conf, env, data, **kwargs):
 
         if self.pagination is None:
@@ -282,6 +284,8 @@ class Paginator(object):
         paginator = paginate(entrylist, ipp, route, conf.default_orphans)
 
         for (next, curr, prev), entrylist, modified in paginator:
+
+            curr_page = curr
 
             next = None if next is None \
                 else link(u'Next', expand(self.path, kwargs)) if next == 1 \
