@@ -43,7 +43,7 @@ def format(attrs):
         if value is None:
             res.append(key)
         else:
-            res.append('%s="%s"' % (key, escape(value)))
+            res.append('%s="%s"' % (key, escape(value, quote=True)))
     return ' '.join(res)
 
 
