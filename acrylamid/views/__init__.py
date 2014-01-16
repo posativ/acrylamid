@@ -89,6 +89,7 @@ def initialize(directories, conf, env):
             urlmap.append((rule, item))
 
     directories += [os.path.dirname(__file__)]
+    directories += ['views/']
     helpers.discover(directories, partial(index_views, conf, env, urlmap),
         lambda path: path.rpartition('.')[0] != __file__.rpartition('.')[0])
 
