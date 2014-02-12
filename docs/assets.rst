@@ -35,7 +35,7 @@ SCSS : .scss -> .css
     compiles SCSS_ to CSS (requires ``sass`` to be in your ``PATH``)
 
 LESS : .less -> .css
-    compiles LESS_ to CSS (requires ``lessc`` to be in your ``PATH``)
+    compiles LESS_ to CSS (requires ``lessc`` to be in your ``PATH``). You may use LESSx instead to minify resulting CSS.
 
 CoffeeScript : .coffee -> .js
     compiles CoffeeScript_ to JavaScript (requires ``coffee`` to be in your ``PATH``)
