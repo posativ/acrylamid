@@ -174,6 +174,11 @@ class LESS(System):
     uses = r'^@import(-once)? ["\'](?P<file>.+?\.less)["\'];'
 
 
+class LESSx(LESS):
+    
+    cmd = ['lessc', '-x']
+
+
 class CoffeeScript(System):
 
     ext, target = '.coffee', '.js'
