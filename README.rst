@@ -12,8 +12,8 @@ Welcome to Acrylamid
   transition from "static blog generator" to "static site generator"
   is already on my todo list.
 
-Acrylamid is a mixture of `nanoc <http://nanoc.stoneship.org/>`_, `Pyblosxom
-<http://pyblosxom.github.io//>`_ and `Pelican <http://blog.getpelican.com/>`_
+Acrylamid is a mixture of `nanoc <http://nanoc.stoneship.org>`_, `Pyblosxom
+<http://pyblosxom.github.io>`_ and `Pelican <http://blog.getpelican.com>`_
 licensed under BSD Style, 2 clauses. It is actively developed at
 https://github.com/posativ/acrylamid/.
 
