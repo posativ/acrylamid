@@ -8,7 +8,7 @@ import re
 
 from time import strftime, gmtime
 from itertools import ifilter
-from os.path import join, getmtime, exists
+from os.path import join, getmtime, exists, normpath
 from collections import defaultdict
 
 from acrylamid.views import View
@@ -85,7 +85,7 @@ class Sitemap(View):
             if ns == 'draft':
                 continue
 
-            url = conf['www_root'] + fname.replace(conf['output_dir'], '')
+            url = normpath(conf['www_root'] + '/' + fname.replace(conf['output_dir'], ''))
             priority, changefreq = self.scores.get(ns, (0.5, 'weekly'))
             sm.add(rchop(url, 'index.html'), getmtime(fname), changefreq, priority)
 
