@@ -110,9 +110,10 @@ blogging features
 what is missing
 ~~~~~~~~~~~~~~~
 
-- No comments. You have to use Disqus_ or `this approach`_.
+- No comments. You have to use Disqus_, Isso_ or `this approach`_.
 
 .. _Disqus: http://disqus.com/
+.. _Isso: https://github.com/posativ/isso
 .. _this approach: http://hezmatt.org/~mpalmer/blog/2011/07/19/static-comments-in-jekyll.html
 .. _Sphinx: http://sphinx.pocoo.org/latest/
 
