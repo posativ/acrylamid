@@ -470,6 +470,10 @@ class MetadataMixin(object):
         return True if self.props.get('draft', False) else False
 
     @property
+    def sdescription(self):
+        return self.props.get('description', '')
+
+    @property
     def description(self):
         """first 50 characters from the source"""
         try:
