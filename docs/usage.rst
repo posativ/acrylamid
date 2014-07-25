@@ -102,7 +102,7 @@ lang : String
     determine the hyphenation pattern.
 
 draft : Boolean
-    Set this to ``False`` to make this entry not visible in your feeds and
+    Set this to ``True`` to make this entry not visible in your feeds and
     listings. It will only show up as full text entry, so you can only access
     it when you know the path.
 
