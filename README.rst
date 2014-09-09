@@ -72,7 +72,7 @@ other filters
 
 .. _typography: https://code.google.com/p/typogrify/
 .. _smartypants: http://daringfireball.net/projects/smartypants/
-.. _acronym detection: http://pyblosxom.github.com/1.5/plugins/acronyms.html
+.. _acronym detection: http://pyblosxom.github.io/Documentation/1.5/plugins/acronyms.html
 
 blogging features
 ~~~~~~~~~~~~~~~~~
