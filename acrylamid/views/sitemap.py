@@ -27,7 +27,7 @@ class Map(io.StringIO):
     def add(self, url, lastmod, changefreq='never', priority=0.5):
 
         self.write(u'  <url>\n')
-        self.write(u'    <loc>%s</loc>\n' % url)
+        self.write(u'    <loc>%s</loc>\n' % escape(url))
         self.write(u'    <lastmod>%s</lastmod>\n' % strftime('%Y-%m-%d', gmtime(lastmod)))
         if changefreq:
             self.write(u'    <changefreq>%s</changefreq>\n' % changefreq)
