@@ -6,6 +6,7 @@
 import io
 import re
 
+from cgi import escape
 from time import strftime, gmtime
 from itertools import ifilter
 from os.path import join, getmtime, exists, normpath
