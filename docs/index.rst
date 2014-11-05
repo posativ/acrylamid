@@ -119,10 +119,14 @@ blogging features
 what is missing
 ~~~~~~~~~~~~~~~
 
-- No comments. You have to use Disqus_ or `this approach`_.
+- No comments. You have to either use a service such as Disqus_,
+  a software like Isso_, or a custom work like `this approach`_ or
+  `that other one`_.
 
 .. _Disqus: http://disqus.com/
+.. _Isso: http://posativ.org/isso/
 .. _this approach: http://hezmatt.org/~mpalmer/blog/2011/07/19/static-comments-in-jekyll.html
+.. _that other one: https://github.com/getpelican/pelican-plugins/tree/master/pelican_comment_system
 
 Quickstart
 ----------
