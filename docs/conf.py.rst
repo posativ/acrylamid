@@ -125,8 +125,8 @@ URL Settings
 ------------
 
 When it comes to URLs, Acrylamid follows two simple rules: always add a
-*index.html* to an URL with a trailing slash. Second: substitution variables
-begin with a double dash and and the attribute name:
+*index.html* to an URL with a trailing slash. Secondly, substitution variables
+begin with a colon and and the attribute name:
 
 - ``/2012/hello-world/`` gets a ``index.html`` as filename for nice URLs
 - ``/atom/index.html`` gets not touched anywhere and uses ``index.html``
