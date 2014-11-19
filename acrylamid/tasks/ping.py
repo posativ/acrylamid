@@ -74,7 +74,8 @@ def pingback(src, dest, dryrun=False):
             if not dryrun:
                 server = xmlrpc.client.ServerProxy(server_url)
                 server.pingback.ping(src, dest)
-
+    except xmlrpclib.Fault as e:
+        log.warn("XML-RPC fault: %d (%s)", e.faultCode, e.faultString)
     except xmlrpc.client.ProtocolError as e:
         raise AcrylamidException(e.args[0])
 
