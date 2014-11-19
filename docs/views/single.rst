@@ -30,11 +30,11 @@ template.
 Page
 ----
 
-Creates a static page. To enable Entry view, add this to your :doc:`conf.py`:
+Creates a static page. To enable Page view, add this to your :doc:`conf.py`:
 
 .. code-block:: python
 
-    '/:year/:slug/': {
+    '/:slug/': {
         'view': 'page',
         'template': 'main.html'  # default, includes entry.html
     }
