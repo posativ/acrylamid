@@ -153,7 +153,7 @@ reStructuredText:
     #####
 
     :type: page
-    :tags: one, two
+    :tags: [one, two]
 
     Here begins the body ...
 
