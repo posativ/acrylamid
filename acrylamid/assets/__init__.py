@@ -7,6 +7,7 @@ import io
 import re
 
 from functools import partial
+from itertools import chain
 from collections import defaultdict
 from os.path import join, isfile, getmtime, split, splitext
 
@@ -80,7 +81,7 @@ class HTML(Writer):
 
     def write(self, src, dest, **kw):
 
-        if src.startswith(self.conf['theme'].rstrip('/') + '/'):
+        if any(map(src.startswith, self.conf['theme'])):
             return
 
         return super(HTML, self).write(src, dest, **kw)
@@ -153,8 +154,9 @@ def compile(conf, env):
         else:
             __writers[cls.ext] = cls
 
-    excludes = list(env.engine.loader.modified.keys()) + env.webassets.excludes(conf['theme'])
-    for path, directory in relfilelist(conf['theme'], conf['theme_ignore'], excludes):
+    excludes = list(env.engine.loader.modified.keys()) + env.webassets.excludes(conf['theme'][0])
+    dirs = map(lambda path: relfilelist(path, conf['theme_ignore'], excludes), conf['theme'])
+    for path, directory in chain.from_iterable(dirs):
         files[(splitext(path)[1], directory)].add(path)
 
     excludes = env.webassets.excludes(conf['static'] or '')

@@ -87,7 +87,7 @@ class Jinja2(Filter):
         """Import macros from ``THEME/macro.html`` into context of the
         post environment.  Very hackish, but it should work."""
 
-        path = join(self.conf['theme'], 'macros.html')
+        path = join(self.conf['theme'][0], 'macros.html')
         if not (isfile(path) and isinstance(self.env.engine._jinja2, Environment)):
             return ''
 

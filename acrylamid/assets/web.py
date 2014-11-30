@@ -102,9 +102,9 @@ class Webassets(object):
         self.env = env
 
         self.environment = Environment(
-            directory=conf.theme, url=env.path,
+            directory=conf.theme[0], url=env.path,
             updater='acrylic', versions='acrylic',
-            cache=core.cache.cache_dir, load_path=[conf.theme])
+            cache=core.cache.cache_dir, load_path=[conf.theme[0]])
 
         # fix output directory creation
         self.environment.resolver = Acrylresolver(conf, self.environment)

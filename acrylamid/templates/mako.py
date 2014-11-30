@@ -145,9 +145,9 @@ class Environment(AbstractEnvironment):
 
     extension = ['.html', '.mako']
 
-    def __init__(self, layoutdir, cachedir):
+    def __init__(self, layoutdirs, cachedir):
         self._mako = ExtendedLookup(
-            directories=[layoutdir],
+            directories=layoutdirs,
             module_directory=cachedir,
             # similar to mako.template.Template.__init__ but with
             # leading cache_ for the acrylamid cache

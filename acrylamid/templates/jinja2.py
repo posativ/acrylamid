@@ -41,7 +41,7 @@ def find_assets(ast):
 
 class ExtendedFileSystemLoader(FileSystemLoader):
 
-    def __init__(self, layoutdir):
+    def __init__(self, layoutdirs):
         # remember already resolved templates -> modified state
         # TODO don't assume macros.html never changes
         self.modified = {'macros.html': False}
@@ -52,7 +52,7 @@ class ExtendedFileSystemLoader(FileSystemLoader):
         # assets in the form of theme/base.html -> (*args, **kwargs)
         self.assets = defaultdict(list)
 
-        super(ExtendedFileSystemLoader, self).__init__(layoutdir)
+        super(ExtendedFileSystemLoader, self).__init__(layoutdirs)
 
     def load(self, environment, name, globals=None):
 

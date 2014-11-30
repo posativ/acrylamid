@@ -79,8 +79,14 @@ def normalize(conf):
             log.warn("%s asset filter has been renamed to `Template` and is "
                      "included by default.", fx)
 
+    if not isinstance(conf['theme'], list):
+        conf['theme'] = [conf['theme']]
 
-    for key in 'content_dir', 'theme', 'static', 'output_dir':
+    for i, path in enumerate(conf['theme']):
+        if not path.endswith('/'):
+            conf['theme'][i] = path + "/"
+
+    for key in 'content_dir', 'static', 'output_dir':
         if conf[key] is not None and not conf[key].endswith('/'):
             conf[key] += '/'
 
