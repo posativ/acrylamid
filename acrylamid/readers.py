@@ -602,11 +602,21 @@ def distinguish(value):
     elif value in ['False', 'false', 'off']:
         return False
     elif len(value) >= 2 and value[0] == '[' and value[-1] == ']':
-        tokenizer = shlex.shlex((value[1:-1]).encode('utf-8'), posix=True)
-        tokenizer.whitespace = ','.encode('utf-8')
+        if compat.PY2K:
+            value = value.encode('utf-8')
+
+        tokenizer = shlex.shlex((value[1:-1]), posix=True)
+        tokenizer.whitespace = ','.encode('utf-8') if compat.PY2K else ','
         tokenizer.whitespace_split = True
-        tokens = [unsafe(val.decode('utf-8').strip()) for val in list(tokenizer)]
-        return [val for val in tokens if val]
+
+        tokens = []
+        for val in list(tokenizer):
+            if compat.PY2K:
+                val = val.decode('utf-8')
+            val = unsafe(val.strip())
+            tokens.append(unsafe(val.strip()))
+
+        return tokens
     else:
         return unsafe(value)
 
