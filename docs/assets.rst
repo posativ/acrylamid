@@ -40,7 +40,7 @@ Webassets Integration
 To handle SASS, SCSS and LESS (and much more) Acrylamid uses the Webassets_
 project. To use Webassets_ you first need to install the egg via::
 
-    $ easy_install webassets
+    $ easy_install "webassets<0.10"
 
 and you need a working SASS, LESS or whatever-you-want compiler. Next you
 define your assets in your template like this:
