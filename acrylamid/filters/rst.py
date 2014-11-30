@@ -33,11 +33,11 @@ class Restructuredtext(Filter):
         self.extensions = {}
         self.ignore = env.options.ignore
 
-        if not tuple(LooseVersion(version).version) > (0, 9):
-            raise ImportError(u'docutils ≥ 0.9 required.')
-
         if not publish_parts or not directives:
             raise ImportError(u'reStructuredText: No module named docutils')
+
+        if not tuple(LooseVersion(version).version) > (0, 9):
+            raise ImportError(u'docutils ≥ 0.9 required.')
 
         # -- discover reStructuredText extensions --
         directories = conf['filters_dir'] + [os.path.dirname(__file__)]
