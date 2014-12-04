@@ -72,7 +72,7 @@ class Summarizer(HTMLParser):
                 self.insert_link()
 
     def insert_link(self):
-        if '%s' in self.result:
+        if '%s' in self.options['link']:
             self.result.append(self.options['link'] % self.href)
         else:
             self.result.append(self.options['link'])
