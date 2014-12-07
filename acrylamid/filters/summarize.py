@@ -42,7 +42,7 @@ class Summarizer(HTMLParser):
         if self.words >= self.maxwords and not self.stack:
             # weird markup, mostly from WordPress. Just append link and break
             if self.mode > -1:
-                self.result.append(self.options['link'] % self.href)
+                self.insert_link()
                 self.mode = -1
 
     def handle_endtag(self, tag):
@@ -53,7 +53,7 @@ class Summarizer(HTMLParser):
         elif self.stack:
             # this injects the link to the end of the current tag
             if self.mode == 0:
-                self.result.append(self.options['link'] % self.href)
+                self.insert_link()
                 self.mode = -1
 
             # now we append all stored tags
@@ -62,14 +62,20 @@ class Summarizer(HTMLParser):
                 # this adds the link if it's not inside a given tag, prefered way
                 if self.mode == 1:
                     if not any(filter(lambda t: t in ['code', 'pre', 'b', 'a', 'em'], self.stack)):
-                        self.result.append(self.options['link'] % self.href)
+                        self.insert_link()
                         self.mode = -1
 
                 self.result.append('</%s>' % self.stack.pop())
 
             # this adds the link when the stack is empty
             if self.mode == 2:
-                self.result.append(self.options['link'] % self.href)
+                self.insert_link()
+
+    def insert_link(self):
+        if '%s' in self.options['link']:
+            self.result.append(self.options['link'] % self.href)
+        else:
+            self.result.append(self.options['link'])
 
     def handle_startendtag(self, tag, attrs):
         if self.words < self.maxwords and tag not in self.options['ignore']:

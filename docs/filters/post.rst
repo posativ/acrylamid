@@ -49,12 +49,13 @@ SUMMARIZE_MODE : an integer value
       and ``b`` to avoid accidental miss-interpretion of the continuation link.
     * 2 -- close currently open tags and insert link afterwards.
 
-SUMMARIZE_LINK : a continuation string with a ``%s`` inside
+SUMMARIZE_LINK : a continuation string. If a ``%s`` is present the link
+                 location will be inserted.
 
     String template for the continue reading link. Default uses an ellipsis
     (three typographical dots, …), a link with the css class ``continue`` and
-    the text ``continue`` and a single dot afterwards. This string must contain
-    ``%s`` where the link location will be inserted.
+    the text ``continue`` and a single dot afterwards. This string can
+    optionally contain a ``%s`` where the link location will be inserted.
 
 SUMMARIZE_IGNORE : a list of tags
 
