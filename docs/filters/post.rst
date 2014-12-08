@@ -93,6 +93,34 @@ INTRO_IGNORE : a list of tags
 
     see ``SUMMARIZE_IGNORE``
 
+.. _filters-post-replace:
+
+replace
+-------
+
+Replaces user-defined strings with assigned values. This can be used to
+include arbitrary information or to replace common symbols like ``:-)``
+into proper HTML code matching with the theme.
+
+In order to know what to replace, an additional :doc:`conf.py` parameter is
+required for configuration of the filter.
+
+REPLACE_RULES : a dict (may be empty)
+
+    The keys of the dictionary are describing the strings to replace with
+    their corresponding value. A missing or empty dict raises a warning
+    within the logs and disables the filter even when it is included in
+    the filter chain.
+
+An example of how a typical rule-set for this filter may look like:
+
+::
+
+    REPLACE_RULES = {
+      ':-)' : '<i class="fa fa-smile-o"></i>',
+      '$last_compilation_date$' : datetime.now().strftime("%Y-%m-%d"),
+    }
+
 .. _filters-post-hyphenate:
 
 hyphenate
@@ -138,7 +166,7 @@ All filters are applied in the order as they are written down.
 
 .. code-block:: python
 
-    TYPOGRAPHY_MODE = "2"  # in your conf.oy
+    TYPOGRAPHY_MODE = "2"  # in your conf.py
 
 `Smarty Pants`_ has modes that let you customize the modification. See `their
 options`_ for reference. Acrylamid adds a custom mode ``"a"`` that behaves like
@@ -163,8 +191,8 @@ acronyms
 This filter is a direct port of `Pyblosxom's acrynoms plugin
 <http://pyblosxom.bluesock.org/1.5/plugins/acronyms.html>`_, that marks acronyms
 and abbreviations in your text based on either a built-in acronyms list or a
-user-specified. To use a custom list just add the FILE to your conf.py like
-this:
+user-specified. To use a custom list just add the FILE to your :doc:`conf.py`
+like this:
 
 ::
 
