@@ -288,7 +288,7 @@ class FilterList(list):
 
         try:
             f = next(filter(lambda x: item in x.match, self))
-        except IndexError:
+        except StopIteration:
             raise ValueError('%s is not in list' % item)
 
         return f
