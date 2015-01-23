@@ -1,0 +1,137 @@
+{% extends "base/main.html" %}
+
+{% block content %}
+{%- include 'base/microdata-Articles.html' -%}
+<div class="row" data-equalizer>
+    <div class="small-12 medium-12 columns ">
+        <div class="small-12 medium-8 columns " data-equalizer-watch>
+            <section class="article" class="article-wrapper">
+                <article class="content">
+                    <header class="article-header">
+                        <h1 class="article-title">{{ entry.title }}</h1>
+                        <div class="article-meta">
+                            <ul>
+                                <li>By: <a href="{{ env.path }}/journal">{{ conf.author }}</a></li>
+                                <span class="pub-date">Published: </span>
+                                <li>{{ entry.date.strftime("%d %b, %Y") }} </li>
+
+                                {%- for category in env.categories recursive -%}
+                                    {%- if  entry.category[0].lower()  ==  category.title.lower()  %}
+                                        Category: <a href="{{ category.href }}">{{ category.title }}</a>
+                                    {%- endif -%}
+                                {%- endfor -%}
+
+                                <li>Tags:
+                                    {%- for link in entry.tags | tagify %}
+                                    <a href="{{ env.path + link.href }}" rel="tag">{{ link.title }}</a>
+                                    {%- if loop.revindex > 2 -%}
+                                    ,
+                                    {%- elif loop.revindex == 2 %}
+                                    &
+                                    {%- endif -%}
+                                    {%- endfor -%}
+                                </li>
+                            </ul>
+
+                        </div>
+                        <div class="header-share-the-love">
+                            {%- include 'base/rrssb.html' -%}
+                        </div>
+                        <div class="article-border">
+                            <div class="initial"></div>
+                            <div class="remainder"></div>
+                        </div>
+                        <img class="article-image" src="/static/images/{{ entry.slug }}.png" width="698" height="254"
+                             title="{{ entry.title }} splash image by {{ entry.author }}"
+                             alt="{{ entry.title }} by {{ entry.author }}"/>
+                    </header>
+                    <section class="article-body">
+                            {{ entry.content }}
+                    </section>
+                    <div class="article-footer-share-the-love">
+                            <h3>If you found this article helpful, then help spread the word.</h3>
+                            {%- include 'base/rrssb.html' -%}
+                    </div>
+                    <section>
+                        {%- if env.type == 'entry' %}
+                        {% if conf.disqus_shortname and not entry.draft %}
+                        <div class="article-comments">
+                            <button class="show-comments">Show comments</button>
+                            <div id="disqus_thread"></div>
+                            <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+                            <script>
+                                var disqus_public_key = "{{ conf.disqus_key }}";
+                                var disqus_shortname = "{{ conf.disqus_shortname }}";
+                                var disqus_url = "{{ conf.www_root + entry.permalink }}";
+                                var disqus_identifier = "{{ entry.permalink }}";
+                                var thread_identifier = "ident:" + disqus_identifier;
+                                $.ajax({
+                                    type: 'GET',
+                                    url: 'https://disqus.com/api/3.0/threads/set.jsonp',
+                                    data: { api_key: disqus_public_key, forum: disqus_shortname, thread: thread_identifier },
+                                    cache: false,
+                                    dataType: 'jsonp',
+                                    success: function (result) {
+                                        if (result.response.length === 1) {
+                                            btnText = 'Show comments (' + result.response[0].posts + ')';
+                                            $('.show-comments').html(btnText);
+                                        }
+                                    }
+                                });
+                                $('.show-comments').on('click', function () {
+                                    $.ajaxSetup({cache: true});
+                                    $.getScript('//' + disqus_shortname + '.disqus.com/embed.js');
+                                    $.ajaxSetup({cache: false});
+                                    $(this).remove();
+                                });
+                                if (/\#comment/.test(location.hash)) {
+                                    $('.show-comments').trigger('click');
+                                }
+                            </script>
+                            <noscript>
+                                <p>Please enable JavaScript to view the <a
+                                        href="{{ env.protocol }}://disqus.com/?ref_noscript">comments powered by
+                                    Disqus.</a>
+                                </p>
+                            </noscript>
+                        {% endif -%}
+                        {% endif %}
+                    </div>
+                    </section>
+                </article>
+            </section>
+        </div>
+        <div class="clear-disqus"> </div>
+
+        <div class="small-12 medium-4 columns" data-equalizer-watch>
+
+            <div class="stay-up-to-date">
+                <div id="mc_embed_signup">
+                <form action="//blubeegan.us8.list-manage.com/subscribe/post?u=1b668019f25f70ca88986b47f&amp;id=e84506848c" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+                    <div id="mc_embed_signup_scroll">
+                    <h2>Stay Up to Date With More Articles Like {{ entry.title }}</h2>
+                <div class="mc-field-group">
+                    <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" Placeholder="Email">
+                </div>
+                <div class="mc-field-group">
+                    <input type="text" value="" name="FNAME" class="required" id="mce-FNAME" Placeholder="First Name">
+                </div>
+                    <div id="mce-responses" class="clear">
+                        <div class="response" id="mce-error-response"></div>
+                        <div class="response" id="mce-success-response"></div>
+                    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+                    <div class="tabindex"><input type="text" name="b_1b668019f25f70ca88986b47f_e84506848c" tabindex="-1" value=""></div>
+                    <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button"></div>
+                    </div>
+                </form>
+                </div>
+                <script defer type='text/javascript' src='//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js'></script><script type='text/javascript'>(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script>
+            </div>
+
+            <div class="recent-posts">
+                <h2>recent posts</h2>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

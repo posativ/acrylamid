@@ -1,0 +1,13 @@
+<div class="name-field">
+    <input type="text" required pattern="[a-zA-Z]+" id="emailName" name="name" value=""
+           placeholder="First Name" data-required="True">
+    <small class="error">It'd be nice to know your name.</small>
+</div>
+<div class="email-field">
+    <input type="email" required id="emailEmail" name="email" value="" placeholder="Email"
+           data-required="true" data-type="email" class="#">
+    <small class="error">A valid email address allows me to reply to you</small>
+</div>
+<textarea type="text" id="emailMessage" name="message" cols="30" rows="4"
+          placeholder="I would like to..." data-required="true" class="#"></textarea>
+<button type="submit" class="btn">Say Hello</button>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/WebPage" lang="{{ entry.lang if entry else conf.lang }}">
+<head>
+    {% block head -%}
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    {%- if entry is defined %}
+    {%- if entry.metadesc %}
+    <meta name="description" content="{{ entry.metadesc | e }}"/>
+    {%- else %}
+    <meta name="description" content="forgot to add meta description edit {{ entry.slug }}.md"/>
+    {%- endif %}
+    {%- endif -%}
+    {%- if env.type == 'index' -%}
+    <meta name="description" content="{{ conf.metadesc }}"/>
+    {%- endif %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta content="/static/images/blubee-me-favicon-128.png" itemprop="image">
+    <link href="/favicon.ico" rel="shortcut icon"/>
+    <link href="https://plus.google.com/+OwenHogarthII" rel="publisher"/>
+    {% if 'sitemap' in env.views -%}
+    <link href="{{ env.views.sitemap.path }}" type="application/xml" rel="sitemap" title="Sitemap"/>
+    {%- endif%}
+    {% if 'videoSitemap' in env.views -%}
+    <link href="{{ env.views.videoSitemap.path }}" type="application/xml" rel="sitemap" title="Sitemap"/>
+    {%- endif %}
+    <link href="{{ env.path + '/' }}" rel="home start"/>
+    <link href="{{ env.path + '/atom/' }}" type="application/atom+xml" rel="alternate" title="Atom Feed"/>
+    <link href="{{ env.path + '/rss/' }}" type="application/rss+xml" rel="alternate" title="RSS Feed"/>
+    <meta name="msvalidate.01" content="64254A36D23400CEEA341B8A5150E9EC">
+    {% include 'base/header-scripts.html' %}
+    {%- endblock %}
+</head>
+<body>
+    {% include 'base/microdata-Person.html' %}
+<header>
+    {%- include 'base/top-nav.html' -%}
+</header>
+{%- block content -%}{%- endblock -%}
+<footer>
+    {%- include 'base/footer.html' -%}
+</footer>
+{%- include 'base/body-scripts.html' -%}
+</body>
+</html>

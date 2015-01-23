@@ -1,0 +1,46 @@
+<section class="article-wrapper">
+    {%- include 'base/microdata-Articles.html' -%}
+    <article class="content">
+        <header style="padding:0 0 20px 0;" class="article-header">
+            <h1 class="title"><a href="{{ env.path }}/{{ entry.slug }}">{{ entry.title }}</a></h1>
+
+            <div class="article-meta">
+                <ul>
+                    <li>Author: <a href="{{ env.path }}/journal">{{ conf.author }}</a></li>
+                    <li>Tags:
+                        {%- for link in entry.tags | tagify %}
+                        <a href="{{ env.path + link.href }}" rel="tag">{{ link.title }}</a>
+                        {%- if loop.revindex > 2 -%}
+                        ,
+                        {%- elif loop.revindex == 2 %}
+                        and
+                        {%- endif -%}
+                        {%- endfor -%}
+                    </li>
+                    <span class="pub-date">Published: </span>
+                    <li>{{ entry.date.strftime("%d %b, %Y") }}</li>
+                </ul>
+            </div>
+            <div class="article-border">
+                <div class="initial"></div>
+                <div class="remainder"></div>
+            </div>
+
+            <img style="padding-top:30px;" src="/static/images/{{ entry.slug }}.svg" title="{{ entry.title }} main image by {{ entry.author }}" alt="{{ entry.title }} by {{ entry.author }}"/>
+
+        </header>
+        <section class="article-body">
+            {{ entry.content }}
+        </section>
+        <section class="article-footer">
+            <p class="artice-category"><span class="article-category-span">
+                                {%- for category in env.categories recursive -%}
+                                    {%- if  entry.category[0].lower()  ==  category.title.lower()  -%}
+                                        Category: <a href="{{ category.href }}">{{ category.title }}</a>
+                                    {%- endif -%}
+                                {%- endfor -%}
+                        </span></p>
+        </section>
+    </article>
+</section>
+

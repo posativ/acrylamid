@@ -1,0 +1,17 @@
+@media screen {
+  @media (min-width: 20em) {
+    .foo {
+      bar: baz;
+    }
+    @media only screen and (max-width: 40em) {
+      .bim {
+        bam: boom;
+      }
+    }
+    @media print {
+      .biz {
+        blag: blog;
+      }
+    }
+  }
+}

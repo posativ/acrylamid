@@ -1,0 +1,11 @@
+{% extends "base/base.html" %}
+
+{% block title %}
+    {%- if entry.title.lower() == 'Blubee Home'.lower() -%}
+        {{ entry.HomepageTitle }}
+    {%- elif entry is defined -%}
+      {{ entry.title }}
+    {%- else -%}
+      {{ conf.sitename }}
+    {%- endif -%}
+{% endblock %}

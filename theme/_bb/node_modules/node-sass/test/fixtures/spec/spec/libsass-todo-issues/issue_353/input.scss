@@ -1,0 +1,38 @@
+.baz {
+  color: red;
+
+  & { color: pink; }
+  &--alert { color: orange; }
+  .bar {
+    color: green;
+  }
+  %ph {
+    color: black;
+  }
+  @keyframes kf2 {
+    from: 0;
+    to: 100;
+  }
+  @media print {
+    .bar { color: yellow; }
+  }
+
+  @at-root {
+    & { color: pink; }
+    &--alert { color: orange; }
+    .bar {
+      color: blue;
+    }
+    %ph {
+      color: white;
+    }
+    @keyframes kf {
+      from: 100; to: 0;
+    }
+    @media print {
+      .bar { color: yellow; }
+    }
+  }
+}
+
+.foo { @extend %ph; }

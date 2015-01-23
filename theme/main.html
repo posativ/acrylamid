@@ -1,0 +1,105 @@
+{% extends "base/base.html" %}
+
+{% block title %}
+    {%- if entry is defined -%}
+      {{ entry.title }}
+    {%- else -%}
+      {{ conf.sitename }}
+    {%- endif -%}
+{% endblock %}
+
+{% block head %}
+    {{- super() }}
+    {%- if entry is defined %}
+        {%- if entry.desc %}
+            <meta name="description" content="{{ entry.desc | e }}" >
+        {%- else -%}
+            <meta name="description" content="forgot to add meta description" >
+        {%- endif -%}
+    {%- endif -%}
+
+    {%- if  env.type  == 'index' -%}
+        <meta name="description" content="{{ conf.metadesc }}" >
+    {%- endif -%}
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="row" data-equalizer>
+    <div class="small-12 medium-12 columns " data-equalizer-watch>
+
+        <div class="journals">
+                <div class="journals-header">
+                    <img width="960" height="350" src="/static/images/blubee-me-journal-splash.svg" alt="" />
+                </div>
+
+
+                <div class="small-12 small-centered medium-9 columns">
+                        {% for entry in env.entrylist %}
+
+                        <section class="article-wrapper">
+                            {%- include 'base/microdata-Articles.html' -%}
+                            <article class="content">
+                                <header class="article-header">
+                                    <h1 class="title"><a href="{{ env.path }}/{{ entry.slug }}/">{{ entry.title }}</a></h1>
+                                    <img width="960" height="350" src="/static/images/{{ entry.slug }}.png" title="{{ entry.title }} splash image by {{ entry.author }}" alt="{{ entry.title }} by {{ entry.author }}"/>
+
+                                    <div class="article-meta">
+                                        <ul>
+                                            <li>By: <a href="{{ env.path }}/journal">{{ conf.author }}</a></li>
+                                            <span class="pub-date">Published: </span>
+                                            <li>{{ entry.date.strftime("%d %b, %Y") }}</li>
+
+                                            {%- for category in env.categories recursive -%}
+                                                {%- if  entry.category[0].lower()  ==  category.title.lower()  %}
+                                                    Category: <a href="{{ category.href }}">{{ category.title }}</a>
+                                                {%- endif -%}
+                                            {%- endfor -%}
+
+                                            <li>Tags:
+                                                {%- for link in entry.tags | tagify %}
+                                                <a href="{{ env.path + link.href }}" rel="tag">{{ link.title }}</a>
+                                                {%- if loop.revindex > 2 -%}
+                                                ,
+                                                {%- elif loop.revindex == 2 %}
+                                                &
+                                                {%- endif -%}
+                                                {%- endfor -%}
+                                            </li>
+                                        </ul>
+                                        <div class="article-border">
+                                        <div class="initial"></div>
+                                        <div class="remainder"></div>
+                                        </div>
+                                    </div>
+                                </header>
+
+                                <div class="article-excerpt">
+                                    {{ entry.content }}
+                                </div>
+
+                                <div class="share-the-love">
+                                    {%- include 'base/rrssb.html' -%}
+                                </div>
+                            </article>
+                        </section>
+                    {% endfor %}
+                </div>
+        </div>
+
+    </div>
+</div>
+    <!-- pagination -->
+    {% if env.prev is not none %}
+        <a href="{{ env.path ~ env.prev ~ '/' }}" class="page floatright">
+        {{ env.prev.title }} &raquo;
+        </a>
+    {% endif %}
+    {% if env.next is not none %}
+        <a href="{{ env.path ~ env.next ~ '/' }}" class="page floatleft">
+        &laquo; {{ env.next.title }}
+        </a>
+    {%- endif  %}
+{% endblock %}
