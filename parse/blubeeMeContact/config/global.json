@@ -1,0 +1,14 @@
+{
+    "applications": {
+        "_default": {
+            "link": "blubeeMeContact"
+        }, 
+        "blubeeMeContact": {
+            "applicationId": "--ParseApplicationId---",
+            "masterKey": "--ParseMasterKey---"
+        }
+    }, 
+    "global": {
+        "parseVersion": "1.3.1"
+    }
+}

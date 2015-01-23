@@ -1,0 +1,26 @@
+    <div class="contain-to-grid sticky">
+        <nav class="top-bar" data-topbar role="navigation">
+            <ul class="title-area">
+                <li class="name">
+                    <a href="{{ env.path + '/' }}">
+                        <img width="95" height="95" src="{{ env.path + '/static/images/blubee-me-menu-icon.svg' }}" alt="blubee.me menu icon" title="blubee homepage"/></a>
+                </li>
+                <li class="toggle-topbar menu-icon"><a href="#"><span>MENU</span></a></li>
+            </ul>
+
+            <section id='nav-links' class="top-bar-section">
+                <ul id="mainMenu" class="right">
+                    {%-for item in env.globals.pages|sort(attribute='order')-%}
+                        {%-if 'blubee home' in item.title.lower()-%}
+                            <li><a href="{{env.path}}/">{{ item.urltitle }}</a></li>
+                        {%-elif 'about' in item.title.lower()-%}
+                            <li><a href="{{env.path}}/{{ item.slug }}/">{{ item.urltitle }}</a></li>
+                            <li><a href="{{env.path}}/journal/">JOURNAL</a></li>
+                        {%-else-%}
+                            <li><a href="{{env.path}}/{{ item.slug }}/">{{ item.urltitle }}</a></li>
+                        {%-endif-%}
+                    {%-endfor-%}
+                </ul>
+            </section>
+        </nav>
+    </div>

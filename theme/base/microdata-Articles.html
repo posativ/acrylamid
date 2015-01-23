@@ -1,0 +1,19 @@
+<div itemscope itemtype="http://schema.org/Article">
+<meta itemprop="name" content="{{ entry.title }}">
+<meta itemprop="author" content="BLUBEE">
+<meta itemprop="articleBody" content="{{ entry.content|striptags }}">
+<meta itemprop="about" content="{{ entry.title }}">
+<meta itemprop="copyrightHolder" content="BLUBEE">
+<meta itemprop="creator" content="BLUBEE">
+<meta itemprop="dateCreated" content="{{ entry.date }}">
+<meta itemprop="keywords" content="
+{%- for link in entry.tags | tagify -%}
+    {{ link.title }}
+    {%- if loop.revindex > 2 -%}
+    ,
+    {%- elif loop.revindex == 2 -%}
+    ,
+    {%- endif -%}
+{%- endfor -%}
+    ">
+</div>

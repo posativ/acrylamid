@@ -1,0 +1,16 @@
+{% extends "base/main.html" %}
+
+{% block content %}
+
+<div class="single-page-header">
+    <h2>{{ entry.title.upper() }}</h2>
+    <hr class="single-page-header-hr">
+</div>
+
+<div class="row" data-equalizer>
+    <div class="small-12 small-centered medium-8 columns">
+        <p class="page-content">{{ entry.content}}</p>
+    </div>
+</div>
+
+{% endblock %}

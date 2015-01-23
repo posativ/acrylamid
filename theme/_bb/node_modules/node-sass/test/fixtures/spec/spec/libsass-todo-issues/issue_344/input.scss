@@ -1,0 +1,7 @@
+$variable: 1;
+
+$interpolation: #{$variable}px;
+
+div {
+  top: -$interpolation;
+}

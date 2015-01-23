@@ -1,0 +1,14 @@
+<form data-abide="ajax" id="contact-blubee">
+    <div class="name-field">
+        <input type="text" required pattern="[a-zA-Z]+" id="emailName" name="name" value=""
+               placeholder="First Name" data-required="true">
+        <small class="error">It'd be nice to know your name.</small>
+    </div>
+    <div class="email-field">
+        <input type="email" required id="emailEmail" name="email" value="" placeholder="Email"
+               data-required="true" data-type="email">
+        <small class="error">A valid email address allows me to reply to you</small>
+    </div>
+    <textarea placeholder="I would like to..." id="emailMessage" name="message" cols="30" rows="4"></textarea>
+    <button type="submit">Say Hello</button>
+</form>

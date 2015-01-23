@@ -1,0 +1,5 @@
+@for $i from 1 through 3 {
+  foo.bar#{$i} {
+    background-size: #{$i * 10}% 100%;
+  }
+}
