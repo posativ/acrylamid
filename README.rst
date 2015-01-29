@@ -171,6 +171,8 @@ Real World Examples?
   [`source <http://git.christoph-polcin.com/blog/>`__, `theme <http://git.christoph-polcin.com/acrylamid-theme-bipolar/>`__]
 - `Knitatoms <http://knitatoms.net>`_ – Tom Atkins
   [`source <https://github.com/knitatoms/knitatoms.net>`__]
+- `blubee.me <http://blubee.me>`_ – Owen Hogarth
+  [`source <https://github.com/teamblubee/http-blubee.me>`__]
 
 Commands
 --------
