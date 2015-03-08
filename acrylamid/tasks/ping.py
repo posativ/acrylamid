@@ -95,7 +95,7 @@ def tweet(entry, conf, dryrun=False):
     t = twitter.Twitter(auth=twitter.OAuth(oauth_token, oauth_token_secret, key, secret))
 
     tweet = u"New Blog Entry: {0} {1} {2}".format(entry.title,
-        helpers.joinurl(conf['www_root'], entry.permalink),
+        conf['www_root'] + '/' + entry.permalink,
         ' '.join([u'#' + helpers.safeslug(tag) for tag in entry.tags]))
 
     print('     ', bold(blue("tweet ")), end='')
