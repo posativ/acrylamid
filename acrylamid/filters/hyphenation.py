@@ -38,7 +38,7 @@ class Hyphenator:
     __version__ = '1.0.20070709'
 
     def __init__(self, chars, patterns, exceptions=''):
-        self.chars = str('[.' + chars + ']')
+        self.chars = unicode('[.' + re.escape(chars) + ']')
         self.tree = {}
         for pattern in patterns.split():
             self._insert_pattern(pattern)
