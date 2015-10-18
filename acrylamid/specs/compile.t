@@ -148,7 +148,7 @@ Now we change the base template and should see some updates:
 
   $ acrylamid compile -Cv
   update  [?.??s] output/articles/index.html (glob)
-  update  [?.??s] output/2013/spam/index.html (glob)
+  update  [?.??s] output/????/spam/index.html (glob)
   update  [0.??s] output/2012/die-verwandlung/index.html (glob)
   update  [0.??s] output/index.html (glob)
   update  [0.??s] output/tag/die-verwandlung/index.html (glob)
@@ -168,7 +168,7 @@ If we change a filter in conf.py we should see an update:
   > fi
   $ acrylamid compile -Cv
   identical  output/articles/index.html
-  identical  output/2013/spam/index.html
+  identical  output/????/spam/index.html (glob)
   update  [?.??s] output/2012/die-verwandlung/index.html (glob)
   update  [0.??s] output/index.html (glob)
   update  [0.??s] output/tag/die-verwandlung/index.html (glob)
