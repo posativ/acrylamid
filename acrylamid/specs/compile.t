@@ -130,7 +130,7 @@ And now vice versa: we touch completely different templates:
 
   $ acrylamid compile -Cv
   skip  output/articles/index.html
-  skip  output/???/spam/index.html (glob)
+  skip  output/????/spam/index.html (glob)
   skip  output/2012/die-verwandlung/index.html
   skip  output/index.html
   skip  output/tag/die-verwandlung/index.html
