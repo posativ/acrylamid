@@ -72,7 +72,7 @@ Lets try if we have really incremental rendering:
   $ acrylamid new -q Spam
   $ acrylamid compile -Cv
   update  [?.??s] output/articles/index.html (glob)
-  create  [?.??s] output/2013/spam/index.html (glob)
+  create  [?.??s] output/????/spam/index.html (glob)
   update  [0.??s] output/2012/die-verwandlung/index.html (glob)
   update  [?.??s] output/index.html (glob)
   identical  output/tag/die-verwandlung/index.html
@@ -96,7 +96,7 @@ Edit some modification timestamps.
 
   $ acrylamid compile -Cv
   identical  output/articles/index.html
-  identical  output/2013/spam/index.html
+  identical  output/????/spam/index.html (glob)
   identical  output/2012/die-verwandlung/index.html
   identical  output/index.html
   identical  output/tag/die-verwandlung/index.html
@@ -113,7 +113,7 @@ Now we touch a parent template and all inherited templates should change as, too
 
   $ acrylamid compile -Cv
   identical  output/articles/index.html
-  identical  output/2013/spam/index.html
+  identical  output/????/spam/index.html (glob)
   identical  output/2012/die-verwandlung/index.html
   identical  output/index.html
   identical  output/tag/die-verwandlung/index.html
@@ -130,7 +130,7 @@ And now vice versa: we touch completely different templates:
 
   $ acrylamid compile -Cv
   skip  output/articles/index.html
-  skip  output/2013/spam/index.html
+  skip  output/???/spam/index.html (glob)
   skip  output/2012/die-verwandlung/index.html
   skip  output/index.html
   skip  output/tag/die-verwandlung/index.html
