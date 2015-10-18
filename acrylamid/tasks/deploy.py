@@ -56,3 +56,6 @@ def run(conf, env, options):
         if output != '':
             sys.stdout.write(output)
             sys.stdout.flush()
+
+    if p.returncode:
+        raise AcrylamidException('tasks %r exited with return code %r' % (task, p.returncode))
