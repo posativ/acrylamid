@@ -121,7 +121,7 @@ Markdown
 
 Lets you write using Markdown which simplifies HTML generation and is a lot
 easier. The Markdown filter uses `the official implementation by John Gruber
-<http://freewisdom.org/projects/python-markdown/>`_ and all it's `available
+<https://pypi.python.org/pypi/Markdown>`_ and all it's `available
 extensions`_. *Note* that pygments_ is required for codehilite_.
 
 Here's an online service converting Markdown to HTML and providing a handy
@@ -138,8 +138,8 @@ Acrylamid features some additional extension:
 - `deletion and insertion`_ syntax via *delins*. The syntax is ``~~old~~`` and
   ``++new``.
 
-.. _available extensions: http://www.freewisdom.org/projects/python-markdown/Available_Extensions
-.. _codehilite: http://freewisdom.org/projects/python-markdown/CodeHilite
+.. _available extensions: https://pythonhosted.org/Markdown/extensions/index.html
+.. _codehilite: https://pythonhosted.org/Markdown/extensions/code_hilite.html
 .. _pygments: http://pygments.org/
 .. _AsciiMathML: https://github.com/favalex/python-asciimathml
 .. _super: https://github.com/sgraber/markdown.superscript
