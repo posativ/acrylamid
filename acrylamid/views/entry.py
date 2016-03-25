@@ -41,12 +41,18 @@ class Base(metaclass(abc.ABCMeta, View)):
         pathes, entrylist = set(), data[self.type]
         unmodified = not env.modified and not conf.modified
 
+        # fixes https://github.com/posativ/acrylamid/issues/251
         for i, entry in enumerate(entrylist):
 
             if entry.hasproperty('permalink'):
                 path = joinurl(conf['output_dir'], entry.permalink)
             else:
                 path = joinurl(conf['output_dir'], expand(self.path, entry))
+                entry.permalink = path.replace(conf.output_dir, '/')
+
+        for i, entry in enumerate(entrylist):
+
+            path = joinurl(conf['output_dir'], entry.permalink)
 
             if isfile(path) and path in pathes:
                 try:

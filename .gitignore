@@ -7,3 +7,4 @@ MANIFEST
 /build/
 /acrylamid.egg-info/
 /src/
+dist/
