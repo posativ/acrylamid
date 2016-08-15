@@ -1,6 +1,8 @@
 Welcome to Acrylamid
 ====================
 
+This project is no longer maintained, use at your own risk. Or fork it.
+
 *Notice:*
 
 * don't try the master branch unless you are very sure about the not
