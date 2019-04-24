@@ -3,6 +3,7 @@ python:
   - 2.6
   - 2.7
   - 3.3
+  - 3.4
 install:
   - pip install cram unidecode mako Jinja2 markdown docutils Attest-latest
   - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]];
