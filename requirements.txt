@@ -19,4 +19,4 @@ docutils==0.10
 # docs
 Sphinx==1.1.3
 sphinxcontrib-blockdiag==1.2.0
-blockdiag==1.2.4
+blockdiag==1.5.4
