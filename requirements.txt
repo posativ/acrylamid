@@ -9,7 +9,7 @@ zest.releaser
 # requirements
 Jinja2==2.6
 Markdown==2.2.1
-translitcodec==0.3
+translitcodec==0.4
 
 # optional
 Mako==0.7.3
