@@ -8,5 +8,5 @@ script:
   - python setup.py test && cram specs/
 branches:
   only:
-    - master
+    - patch-1
 
