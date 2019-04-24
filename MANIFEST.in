@@ -1,4 +1,4 @@
-include README.rst
+include README.md
 
 recursive-exclude acrylamid *.pyc
 recursive-include acrylamid/filters/hyph *.txt
@@ -6,6 +6,6 @@ recursive-include acrylamid/filters/hyph *.txt
 include acrylamid/lib/CHANGES
 include acrylamid/views/search/search.js
 
-include acrylamid/specs/samples/blog.posativ.org.xml
-include acrylamid/specs/samples/vlent.nl.xml
-include acrylamid/specs/samples/thethreedevelopers.wordpress.2012-04-11.xml
+include specs/samples/blog.posativ.org.xml
+include specs/samples/vlent.nl.xml
+include specs/samples/thethreedevelopers.wordpress.2012-04-11.xml
