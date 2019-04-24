@@ -1,6 +1,7 @@
 language: python
+dist: xenial
 python:
-  - 3.5
+  - 3.7
 install:
   - pip install cram unidecode mako Jinja2 markdown docutils Attest-latest
   - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]];
