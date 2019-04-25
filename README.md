@@ -1,6 +1,8 @@
 Welcome to Acrylamid
 ====================
 
+[![Build Status](https://travis-ci.org/farleykr/acrylamid.svg?branch=master)](https://travis-ci.org/farleykr/acrylamid)
+
 This project is no longer maintained, use at your own risk. Or fork it.
 
 *Notice:*
@@ -17,9 +19,6 @@ This project is no longer maintained, use at your own risk. Or fork it.
 Acrylamid is a mixture of [nanoc](http://nanoc.stoneship.org), [Pyblosxom](http://pyblosxom.github.io), and [Pelican](http://blog.getpelican.com)
 licensed under BSD Style, 2 clauses. It is actively developed at
 https://github.com/posativ/acrylamid/.
-
-[![Build Status](https://travis-ci.org/farleykr/acrylamid.svg?branch=patch-1)](https://travis-ci.org/farleykr/acrylamid)
-
 
 Why?
 ----
