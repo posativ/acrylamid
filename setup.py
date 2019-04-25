@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import sys
-import re
 
 import pathlib
 from setuptools import setup, find_packages
