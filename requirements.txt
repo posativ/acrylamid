@@ -28,6 +28,7 @@ readme-renderer==24.0
 requests==2.21.0
 requests-toolbelt==0.9.1
 six==1.12.0
+smartypants==2.0.1
 snowballstemmer==1.2.1
 Sphinx==2.0.1
 sphinxcontrib-applehelp==1.0.1
