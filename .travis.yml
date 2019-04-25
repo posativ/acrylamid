@@ -5,7 +5,7 @@ python:
 before_install:
   - python -m pip install --upgrade pip wheel
 script:
-  - python setup.py test && cram specs/
+  - python setup.py test # && cram specs/
 branches:
   only:
     - patch-1
