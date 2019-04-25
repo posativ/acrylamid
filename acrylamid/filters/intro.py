@@ -5,7 +5,7 @@
 
 from acrylamid import log, helpers
 from acrylamid.filters import Filter
-from acrylamid.lib.html import HTMLParser, HTMLParseError
+from acrylamid.lib.html import HTMLParser
 
 
 class Introducer(HTMLParser):
@@ -95,7 +95,7 @@ class Introduction(Filter):
         try:
             return ''.join(Introducer(
                 content, maxparagraphs, self.env.path+entry.permalink, options).result)
-        except HTMLParseError as e:
+        except:
             log.exception('could not extract intro from ' + entry.filename)
             return content
         return content

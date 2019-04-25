@@ -6,7 +6,7 @@ from acrylamid import log, utils
 from acrylamid.filters import Filter
 from acrylamid.compat import filter, text_type as str
 
-from acrylamid.lib.html import HTMLParser, HTMLParseError
+from acrylamid.lib.html import HTMLParser
 
 import os
 import io
@@ -193,6 +193,6 @@ class Hyphenate(Filter):
 
         try:
             return ''.join(Separator(content, hyphenate_word, length=length).result)
-        except HTMLParseError as e:
+        except:
             log.exception('could not hyphenate ' + entry.filename)
             return content

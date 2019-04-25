@@ -3,7 +3,7 @@
 import sys
 import re
 
-from os.path import join, dirname
+import pathlib
 from setuptools import setup, find_packages
 
 requires = ['Jinja2>=2.4', 'Markdown>=2.0.1', 'unidecode>=0.04.13']
@@ -13,6 +13,12 @@ if sys.version_info < (2, 7):
 
 if sys.platform == 'win32':
     requires.append('colorama')
+
+# The directory containing this file
+HERE = pathlib.Path(__file__).parent
+
+# The text of the README file
+README = (HERE / 'README.md').read_text(encoding="utf-8")
 
 setup(
     name='acrylamid',
@@ -25,7 +31,8 @@ setup(
     url='http://posativ.org/acrylamid/',
     license='BSD revised',
     description='static blog compiler with incremental updates',
-    long_description=open(join(dirname(__file__), 'README.rst')).read(),
+    long_description=README,
+    long_description_content_type="text/markdown",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Topic :: Internet",
