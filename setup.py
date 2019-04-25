@@ -58,6 +58,6 @@ setup(
     test_suite='specs.testsuite',
     entry_points={
         'console_scripts':
-            ['acrylamid = acrylamid:Acryl']
+            ['acrylamid = acrylamid:acryl']
     }
 )

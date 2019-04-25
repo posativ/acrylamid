@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+# flake8: noqa
 
 from attest import test, TestBase
 
 from acrylamid.lib.html import HTMLParser
+
 f = lambda x: ''.join(HTMLParser(x).result)
 
 
