@@ -6,7 +6,7 @@
 from acrylamid import log
 
 from acrylamid.filters import Filter
-from acrylamid.lib.html import HTMLParser, HTMLParseError
+from acrylamid.lib.html import HTMLParser
 
 
 class Text(HTMLParser):
@@ -55,6 +55,6 @@ class Strip(Filter):
 
         try:
             return ''.join(Text(content, args).result)
-        except HTMLParseError:
+        except:
             log.exception('could not strip ' + entry.filename)
             return content

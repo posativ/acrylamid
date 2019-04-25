@@ -6,7 +6,7 @@
 from acrylamid import log
 from acrylamid.filters import Filter
 from acrylamid.helpers import joinurl
-from acrylamid.lib.html import HTMLParser, HTMLParseError
+from acrylamid.lib.html import HTMLParser
 
 
 class Href(HTMLParser):
@@ -51,7 +51,7 @@ class Relative(Filter):
 
         try:
             return ''.join(Href(text, relatively).result)
-        except HTMLParseError as e:
+        except:
             log.warn('%s: %s in %s' % (e.__class__.__name__, e.msg, entry.filename))
             return text
 
@@ -80,6 +80,6 @@ class Absolute(Filter):
 
         try:
             return ''.join(Href(text, absolutify).result)
-        except HTMLParseError as e:
+        except:
             log.warn('%s: %s in %s' % (e.__class__.__name__, e.msg, entry.filename))
             return text

@@ -6,7 +6,7 @@
 from acrylamid import log, helpers
 from acrylamid.filters import Filter
 
-from acrylamid.lib.html import HTMLParser, HTMLParseError
+from acrylamid.lib.html import HTMLParser
 
 
 class Summarizer(HTMLParser):
@@ -130,6 +130,6 @@ class Summarize(Filter):
         try:
             return ''.join(Summarizer(
                 content, maxwords, self.env.path+entry.permalink, options).result)
-        except HTMLParseError:
+        except:
             log.exception('could not summarize ' + entry.filename)
             return content
