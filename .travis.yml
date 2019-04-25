@@ -11,5 +11,6 @@ script:
   - flake8 . --exit-zero
 branches:
   only:
+    - master
     - patch-1
 
