@@ -8,3 +8,4 @@ MANIFEST
 /acrylamid.egg-info/
 /src/
 venv/
+.vscode/
