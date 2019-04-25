@@ -7,7 +7,7 @@ install:
 before_install:
   - python -m pip install --upgrade pip wheel
 script:
-  # - python setup.py test # && cram specs/
+  # - python setup.py test && cram specs/
   - flake8 . --exit-zero
 branches:
   only:
