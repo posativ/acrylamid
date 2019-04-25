@@ -18,10 +18,7 @@ Acrylamid is a mixture of [nanoc](http://nanoc.stoneship.org), [Pyblosxom](http:
 licensed under BSD Style, 2 clauses. It is actively developed at
 https://github.com/posativ/acrylamid/.
 
-|Build Status|_
-
-.. _Build Status: http://travis-ci.org/posativ/acrylamid
-.. |Build Status| image:: https://secure.travis-ci.org/posativ/acrylamid.png?branch=master
+[![Build Status](https://travis-ci.org/farleykr/acrylamid.svg?branch=patch-1)](https://travis-ci.org/farleykr/acrylamid)
 
 
 Why?
