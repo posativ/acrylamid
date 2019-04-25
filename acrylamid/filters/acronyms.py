@@ -18,7 +18,7 @@ from acrylamid import log
 from acrylamid.compat import iteritems, filter
 from acrylamid.filters import Filter
 
-from acrylamid.lib.html import HTMLParser, HTMLParseError
+from acrylamid.lib.html import HTMLParser
 
 
 class Acrynomify(HTMLParser):
@@ -103,7 +103,7 @@ class Acronyms(Filter):
 
         try:
             return ''.join(Acrynomify(text, abbr, repl).result)
-        except HTMLParseError:
+        except:
             log.exception('could not acronymize ' + entry.filename)
             return text
 
