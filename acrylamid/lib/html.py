@@ -23,7 +23,7 @@ import re
 from cgi import escape
 from acrylamid.compat import PY2K, unichr
 
-import HTMLParser as DefaultParser, HTMLParseError
+from html.parser import HTMLParser as DefaultParser
 from html.entities import name2codepoint
 
 
@@ -108,4 +108,4 @@ class HTMLParser(WTFMixin):
         """Preserve HTML comments."""
         self.result.append('<!--' + comment + '-->')
 
-__all__ = ['HTMLParser', 'HTMLParseError', 'unescape']
+__all__ = ['HTMLParser', 'unescape']
