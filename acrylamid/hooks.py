@@ -19,7 +19,7 @@ from acrylamid.errors import AcrylamidException
 from acrylamid.compat import string_types, iteritems
 
 from acrylamid.helpers import event, system, discover
-from acrylamid.lib.async import Threadpool
+from acrylamid.lib._async import Threadpool
 
 pool = None
 tasks = {}

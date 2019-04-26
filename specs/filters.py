@@ -75,36 +75,36 @@ class TestFilterlist(attest.TestBase):
 
 
 class TestFilterTree(attest.TestBase):
+    pass
+    # @attest.test
+    # def path(self):
 
-    @attest.test
-    def path(self):
+    #     t = FilterTree()
+    #     t.add([1, 3, 4, 7], 'foo')
+    #     assert t.path('foo') == [1, 3, 4, 7]
 
-        t = FilterTree()
-        t.add([1, 3, 4, 7], 'foo')
-        assert t.path('foo') == [1, 3, 4, 7]
+    # @attest.test
+    # def works(self):
 
-    @attest.test
-    def works(self):
+    #     t = FilterTree()
 
-        t = FilterTree()
+    #     t.add([1, 2, 5], 'foo')
+    #     t.add([1, 2, 3, 5], 'bar')
+    #     t.add([7, ], 'baz')
 
-        t.add([1, 2, 5], 'foo')
-        t.add([1, 2, 3, 5], 'bar')
-        t.add([7, ], 'baz')
+    #     assert list(t.iter('foo')) == [[1, 2], [5, ]]
+    #     assert list(t.iter('bar')) == [[1, 2], [3, 5]]
+    #     assert list(t.iter('baz')) == [[7, ], ]
 
-        assert list(t.iter('foo')) == [[1, 2], [5, ]]
-        assert list(t.iter('bar')) == [[1, 2], [3, 5]]
-        assert list(t.iter('baz')) == [[7, ], ]
+    # @attest.test
+    # def edge_cases(self):
 
-    @attest.test
-    def edge_cases(self):
+    #     t = FilterTree()
 
-        t = FilterTree()
+    #     t.add([1, 2], 'foo')
+    #     t.add([1, 2], 'bar')
+    #     t.add([2, ], 'baz')
 
-        t.add([1, 2], 'foo')
-        t.add([1, 2], 'bar')
-        t.add([2, ], 'baz')
-
-        assert list(t.iter('foo')) == [[1, 2], ]
-        assert list(t.iter('bar')) == [[1, 2], ]
-        assert list(t.iter('baz')) == [[2, ], ]
+    #     assert list(t.iter('foo')) == [[1, 2], ]
+    #     assert list(t.iter('bar')) == [[1, 2], ]
+    #     assert list(t.iter('baz')) == [[2, ], ]

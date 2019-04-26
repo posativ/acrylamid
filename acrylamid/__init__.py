@@ -60,7 +60,7 @@ class AcrylFormatter(argparse.HelpFormatter):
         return format
 
 
-def Acryl():
+def acryl():
     """The main function that dispatches the CLI.  We use :class:`AcrylFormatter`
     as custom help formatter that ommits the useless list of available subcommands
     and their aliases.

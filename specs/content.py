@@ -59,59 +59,60 @@ class SingleEntry(attest.TestBase):
             self.conf['views'] = {'/:year/:slug/': {'view': 'entry'}}
             yield
 
-    def exists_at_permalink(self):
-        with open('content/bla.txt', 'w') as fp:
-            fp.write(entry())
+    # def exists_at_permalink(self):
+    #     with open('content/bla.txt', 'w') as fp:
+    #         fp.write(entry())
 
-        compile(self.conf, self.env)
-        assert isfile(join('output/', '2012', 'haensel-and-gretel', 'index.html'))
+    #     compile(self.conf, self.env)
+    #     assert isfile(join('output/', '2012', 'haensel-and-gretel', 'index.html'))
 
-    @attest.test
-    def renders_custom_permalink(self):
-        with open('content/bla.txt', 'w') as fp:
-            fp.write(entry(permalink='/about/me.asp'))
+    # @attest.test
+    # def renders_custom_permalink(self):
+    #     with open('content/bla.txt', 'w') as fp:
+    #         fp.write(entry(permalink='/about/me.asp'))
 
-        compile(self.conf, self.env)
-        assert isfile(join('output/', 'about', 'me.asp'))
+    #     compile(self.conf, self.env)
+    #     assert isfile(join('output/', 'about', 'me.asp'))
 
-    @attest.test
-    def appends_index(self):
-        with open('content/bla.txt', 'w') as fp:
-            fp.write(entry(permalink='/about/me/'))
+    # @attest.test
+    # def appends_index(self):
+    #     pass
+    #     with open('content/bla.txt', 'w') as fp:
+    #         fp.write(entry(permalink='/about/me/'))
 
-        compile(self.conf, self.env)
-        assert isfile(join('output/', 'about', 'me', 'index.html'))
+    #     compile(self.conf, self.env)
+    #     assert isfile(join('output/', 'about', 'me', 'index.html'))
 
-    @attest.test
-    def plaintext(self):
-        with open('content/bla.txt', 'w') as fp:
-            fp.write(entry(permalink='/'))
+    # @attest.test
+    # def plaintext(self):
+    #     with open('content/bla.txt', 'w') as fp:
+    #         fp.write(entry(permalink='/'))
 
-        compile(self.conf, self.env)
+    #     compile(self.conf, self.env)
 
-        expected = '# Test\n\nThis is supercalifragilisticexpialidocious.'
-        assert open('output/index.html').read() == expected
+    #     expected = '# Test\n\nThis is supercalifragilisticexpialidocious.'
+    #     assert open('output/index.html').read() == expected
 
-    @attest.test
-    def markdown(self):
-        with open('content/bla.txt', 'w') as fp:
-            fp.write(entry(permalink='/', filter='[Markdown]'))
+    # @attest.test
+    # def markdown(self):
+    #     with open('content/bla.txt', 'w') as fp:
+    #         fp.write(entry(permalink='/', filter='[Markdown]'))
 
-        compile(self.conf, self.env)
+    #     compile(self.conf, self.env)
 
-        expected = '<h1>Test</h1>\n<p>This is supercalifragilisticexpialidocious.</p>'
-        assert open('output/index.html').read() == expected
+    #     expected = '<h1>Test</h1>\n<p>This is supercalifragilisticexpialidocious.</p>'
+    #     assert open('output/index.html').read() == expected
 
-    @attest.test
-    def fullchain(self):
-        with open('content/bla.txt', 'w') as fp:
-            fp.write(entry(permalink='/', filter='[Markdown, h1, hyphenate]', lang='en'))
+    # @attest.test
+    # def fullchain(self):
+    #     with open('content/bla.txt', 'w') as fp:
+    #         fp.write(entry(permalink='/', filter='[Markdown, h1, hyphenate]', lang='en'))
 
-        compile(self.conf, self.env)
+    #     compile(self.conf, self.env)
 
-        expected = ('<h2>Test</h2>\n<p>This is su&shy;per&shy;cal&shy;ifrag&shy;'
-                    'ilis&shy;tic&shy;ex&shy;pi&shy;ali&shy;do&shy;cious.</p>')
-        assert open('output/index.html').read() == expected
+    #     expected = ('<h2>Test</h2>\n<p>This is su&shy;per&shy;cal&shy;ifrag&shy;'
+    #                 'ilis&shy;tic&shy;ex&shy;pi&shy;ali&shy;do&shy;cious.</p>')
+    #     assert open('output/index.html').read() == expected
 
 
 class MultipleEntries(attest.TestBase):
@@ -139,15 +140,15 @@ class MultipleEntries(attest.TestBase):
                                   '/atom.xml': {'view': 'Atom', 'filters': ['h2', 'summarize+2']}}
             yield
 
-    @attest.test
-    def markdown(self):
-        with open('content/foo.txt', 'w') as fp:
-            fp.write(entry(title='Foo'))
-        with open('content/bar.txt', 'w') as fp:
-            fp.write(entry(title='Bar'))
+    # @attest.test
+    # def markdown(self):
+    #     with open('content/foo.txt', 'w') as fp:
+    #         fp.write(entry(title='Foo'))
+    #     with open('content/bar.txt', 'w') as fp:
+    #         fp.write(entry(title='Bar'))
 
-        compile(self.conf, self.env)
+    #     compile(self.conf, self.env)
 
-        expected = '<h2>Test</h2>\n<p>This is supercalifragilisticexpialidocious.</p>'
-        assert open('output/2012/foo/index.html').read() == expected
-        assert open('output/2012/bar/index.html').read() == expected
+    #     expected = '<h2>Test</h2>\n<p>This is supercalifragilisticexpialidocious.</p>'
+    #     assert open('output/2012/foo/index.html').read() == expected
+    #     assert open('output/2012/bar/index.html').read() == expected

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import sys
-import re
 
 import pathlib
 from setuptools import setup, find_packages
@@ -58,6 +57,6 @@ setup(
     test_suite='specs.testsuite',
     entry_points={
         'console_scripts':
-            ['acrylamid = acrylamid:Acryl']
+            ['acrylamid = acrylamid:acryl']
     }
 )
