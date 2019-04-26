@@ -1,7 +1,7 @@
 Welcome to Acrylamid
 ====================
 
-[![Build Status](https://travis-ci.org/farleykr/acrylamid.svg?branch=master)](https://travis-ci.org/farleykr/acrylamid)
+[![Build Status](https://travis-ci.org/posativ/acrylamid.svg?branch=master)](https://travis-ci.org/posativ/acrylamid)
 
 This project is no longer maintained, use at your own risk. Or fork it.
 
