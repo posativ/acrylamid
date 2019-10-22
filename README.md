@@ -2,8 +2,9 @@ Welcome to Acrylamid
 ====================
 
 [![Build Status](https://travis-ci.org/posativ/acrylamid.svg?branch=master)](https://travis-ci.org/posativ/acrylamid)
+[![Code Shelter](https://www.codeshelter.co/static/badges/badge-flat.svg)](https://www.codeshelter.co/)
 
-This project is no longer maintained, use at your own risk. Or fork it.
+This project is in the [Code Shelter](https://www.codeshelter.co/). If you're interested in helping maintain it, please [join](https://www.codeshelter.co/).
 
 *Notice:*
 
