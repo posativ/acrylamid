@@ -1,6 +1,6 @@
 Attest-latest==0.6.1.dev20130603
 Babel==2.6.0
-bleach==3.1.0
+bleach==3.1.4
 blockdiag==1.5.4
 certifi==2019.3.9
 chardet==3.0.4
