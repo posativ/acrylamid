@@ -11,7 +11,7 @@ filelock==3.0.10
 funcparserlib==0.3.6
 idna==2.8
 imagesize==1.1.0
-Jinja2==2.10.1
+Jinja2==2.11.3
 Mako==1.0.9
 Markdown==3.1
 MarkupSafe==1.1.1
